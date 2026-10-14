@@ -1,0 +1,3 @@
+include alembic.ini .env.example
+recursive-include migrations *.py *.mako
+recursive-include proto *.proto

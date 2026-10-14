@@ -1,0 +1,94 @@
+syntax = "proto3";
+package pulse.ml.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+// Числа полей не менять и не переиспользовать при развитии контракта.
+service MLService {
+  rpc Health(google.protobuf.Empty) returns (HealthResponse);
+  rpc GetSnapshot(SnapshotRequest) returns (SnapshotResponse);
+  rpc Score(google.protobuf.Empty) returns (SnapshotResponse);
+  rpc Explain(ExplainRequest) returns (ExplainResponse);
+  rpc History(HistoryRequest) returns (HistoryResponse);
+  rpc Metrics(google.protobuf.Empty) returns (MetricsResponse);
+  rpc Upload(stream UploadChunk) returns (UploadResponse);
+  rpc ModelHealth(ModelHealthRequest) returns (ModelHealthResponse);
+}
+message HealthResponse { string status = 1; }
+message SnapshotRequest { optional double min_risk = 1; }
+message WellRisk {
+  int64 well_id = 1;
+  optional int64 unitek_id = 2;
+  optional string oilfield = 3;
+  double risk = 4;
+  bool alert = 5;
+  optional string tier = 6;
+  int64 windows_fired = 7;
+  int64 windows_total = 8;
+  bool data_ok = 9;
+  repeated string rule_findings = 10;
+  optional string window_end = 11; // ISO 8601, как в публичном HTTP API.
+  optional int32 true_failure_type = 12;
+  optional string true_failure_type_name = 13;
+  optional string true_failure_at = 14;
+}
+message SnapshotResponse {
+  repeated WellRisk wells = 1;
+  double alert_threshold = 2;
+  double high_threshold = 3;
+  optional string drift_verdict = 4;
+  optional double drift_psi_max = 5;
+  optional string drift_top = 6;
+}
+message ExplainRequest { int64 well_id = 1; optional int32 top_n = 2; }
+message Contribution { string feature = 1; double value = 2; double shap = 3; string label = 4; }
+message ExplainResponse { int64 well_id = 1; repeated Contribution contributions = 2; }
+message HistoryRequest { int64 well_id = 1; optional int32 limit = 2; }
+message RiskPoint { string window_end = 1; double risk = 2; bool fired = 3; }
+message HistoryResponse {
+  int64 well_id = 1;
+  double threshold = 2;
+  double high_threshold = 3;
+  int64 windows_total = 4;
+  int64 windows_fired = 5;
+  repeated RiskPoint points = 6;
+}
+// Метаданные артефактов расширяются моделью независимо от транспорта.
+message MetricsResponse { repeated google.protobuf.Struct models = 1; }
+// Имя передаётся в первом чанке; размер чанка <= 1 MiB, файл <= 50 MiB.
+message UploadChunk { string filename = 1; bytes content = 2; }
+message TimelinePoint { string window_end = 1; double risk = 2; }
+message UploadResponse {
+  string verdict = 1;
+  int64 n_windows = 2;
+  int32 channels_used = 3;
+  int32 features_total = 4;
+  int64 windows_running = 5;
+  int32 features_unavailable = 6;
+  int64 windows_above_watch = 7;
+  int64 windows_above_alert = 8;
+  double latest_risk = 9;
+  double peak_risk = 10;
+  string peak_window_end = 11;
+  repeated TimelinePoint timeline = 12;
+  repeated Contribution contributions = 13;
+  string filename = 14;
+  int32 span_days = 15;
+}
+message ModelHealthRequest {
+  optional string drift_verdict = 1;
+  optional double drift_psi_max = 2;
+  int64 alerts_reviewed = 3;
+  int64 alerts_false = 4;
+}
+message ModelHealthResponse {
+  string urgency = 1;
+  bool needed = 2;
+  repeated string reasons = 3;
+  optional string drift_verdict = 4;
+  int64 alerts_reviewed = 5;
+  int64 alerts_false = 6;
+  optional double false_alert_rate = 7;
+  optional double model_age_days = 8;
+}
