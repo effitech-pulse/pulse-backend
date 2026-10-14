@@ -1,0 +1,12 @@
+image: python:3.13
+stages: [test]
+test:
+  stage: test
+  variables:
+    MODEL_REF: v0.1.0
+    ML_AUTORUN_ENABLED: "false"
+  script:
+    - pip install "effitech-esp-model @ git+https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/effitech1/model.git@${MODEL_REF}"
+    - pip install -e '.[test]'
+    - pytest
+# В проекте model разрешите CI_JOB_TOKEN от Effitech через Job token permissions.

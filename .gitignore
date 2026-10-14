@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# venv
+.venv/
+venv/
+
+# данные/выгрузки (большие, не в репозитории)
+/data/
+*.parquet
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# секреты/сессии парсера (НЕ коммитить!)
+.env
+*.env
+.armits_token
+.last_login.html
+*.token
+
+# Frontend (Vite/React)
+frontend/node_modules/
+frontend/dist/
+
+# Dev-логи серверов
+backend_dev.log
+
+# Артефакты обучения CatBoost
+catboost_info/
+
+# Сгенерированные материалы (пересобираются из шаблонов:
+#   python landing/build.py, python docs/presentation/build.py, build_pptx.py)
+landing/index.html
+landing/presentation.html
+docs/presentation/presentation.html
+docs/presentation/*.pptx
+frontend/public/landing.html
+frontend/public/sample_fail.xlsx
+
+node_modules/
+dist/
+.env*
+!.env.example
+data/
+*.log
+
+build/
+.wheel-check/
+*.whl
