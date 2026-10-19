@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" version="30.0.4">
+  <diagram id="collect" name="1 · Периодический сбор">
+    <mxGraphModel grid="1" page="1" pageWidth="1580" pageHeight="980">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="collect-1" value="1 · Периодический сбор" style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#25344A;fontFamily=Helvetica;fontSize=25;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1490" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-2" value="Фактический сценарий Go Integrations.Schedule. Сбор не запускает автоматически модель. Порядок выполняемых действий показан стрелками." style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#526276;fontFamily=Helvetica;fontSize=14;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1490" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-3" value="1. Backend Scheduler&lt;br&gt;Источник running; наступил next_poll" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-4" value="2. PostgreSQL ClaimSource&lt;br&gt;Атомарная lease на 60 секунд" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-5" value="3. JSON API / БД&lt;br&gt;Fetch с watermark и перекрытием;&lt;br&gt;ограниченный пакет" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-6" value="4. Backend&lt;br&gt;Mapping, очистка маркеров,&lt;br&gt;сопоставление ID Pulse" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-7" value="5. PostgreSQL COMMIT&lt;br&gt;Точки + журнал + watermark;&lt;br&gt;lease освобождена" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#23724D;strokeColor=#23724D;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-8" value="6. Следующий цикл&lt;br&gt;Интервал источника;&lt;br&gt;дубликаты не перезаписываются" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-9" value="Ошибка&lt;br&gt;FailCollection, сообщение,&lt;br&gt;повтор через 60 секунд" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#A13C46;strokeColor=#A13C46;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-10" value="резервирование [SQL]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="collect-3" target="collect-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-11" value="получение [HTTP / SQL]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="collect-4" target="collect-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-12" value="пакет" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="collect-5" target="collect-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-13" value="валидные точки" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="collect-6" target="collect-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-14" value="атомарный успех" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="collect-7" target="collect-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-15" value="ошибка источника" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="collect-5" target="collect-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-16" value="ошибка mapping" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="collect-6" target="collect-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="collect-17" value="Идемпотентность: PK(well_id, measured_at) защищает запись точки. Watermark динамический и не подменяется сохранённым JSON-профилем.&lt;br&gt;Повторное чтение источника не является гарантией exactly-once во всей распределённой системе." style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#F1F5F9;strokeColor=#F1F5F9;fontColor=#334155;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="1490" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="check" name="2 · Ручная проверка телеметрии">
+    <mxGraphModel grid="1" page="1" pageWidth="1580" pageHeight="980">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="check-1" value="2 · Ручная проверка телеметрии" style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#25344A;fontFamily=Helvetica;fontSize=25;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1490" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="check-2" value="Фактический сценарий Checks.Create. Пользователь выбирает ID Pulse и период; результат сохраняется отдельно от яруса фонда." style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#526276;fontFamily=Helvetica;fontSize=14;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1490" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="check-3" value="1. Пользователь / SPA&lt;br&gt;Выбор скважины и периода;&lt;br&gt;стабильный request_id" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-4" value="2. Go API&lt;br&gt;Права и scope, период,&lt;br&gt;проверка повторного ключа" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-5" value="3. История телеметрии&lt;br&gt;PG + Pulse Data / ClickHouse;&lt;br&gt;полнота и разрешение" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-6" value="4. Backend&lt;br&gt;CSV и SHA256 входа;&lt;br&gt;Upload gRPC чанками" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-7" value="5. Python ML + pulse-model&lt;br&gt;Окна, признаки, модель,&lt;br&gt;риски и contributions" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-8" value="6. PostgreSQL COMMIT&lt;br&gt;manual_check: полный ответ,&lt;br&gt;версия модели и хеш входа" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#23724D;strokeColor=#23724D;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-9" value="Невалидный / неполный вход&lt;br&gt;или недоступный ML&lt;br&gt;Явная ошибка; нет ложного успеха" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#A13C46;strokeColor=#A13C46;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="check-10" value="POST checks [HTTP]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="check-3" target="check-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-11" value="чтение [SQL / HTTP]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="check-4" target="check-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-12" value="измерения" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="check-5" target="check-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-13" value="Upload [gRPC]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="check-6" target="check-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-14" value="ответ и metadata" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="check-7" target="check-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-15" value="truncated / ошибка" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="check-5" target="check-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="check-16" value="Повтор well_id + request_id относится к одному периоду. Сохранённая проверка открывается без нового расчёта.&lt;br&gt;Streaming Upload передаёт файл; модель не обучается на каждом сообщении. Заполнение training_median показывается отдельно от computed." style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#F1F5F9;strokeColor=#F1F5F9;fontColor=#334155;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="1490" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="review" name="3 · Решение технолога">
+    <mxGraphModel grid="1" page="1" pageWidth="1580" pageHeight="980">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="review-1" value="3 · Решение технолога" style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#25344A;fontFamily=Helvetica;fontSize=25;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1490" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="review-2" value="Фактический сценарий Reviews.Update. Предметная история уже существует у случая; общий журнал бизнес-событий ещё требует реализации." style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#526276;fontFamily=Helvetica;fontSize=14;align=left;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1490" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="review-3" value="1. Технолог&lt;br&gt;Открывает проверку / тревогу;&lt;br&gt;видит текущую revision" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-4" value="2. Go API&lt;br&gt;Идентификация на сервере;&lt;br&gt;права и scope" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-5" value="3. Service Reviews&lt;br&gt;Переход состояния, поля,&lt;br&gt;request_id и revision" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="220" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-6" value="4. PostgreSQL транзакция&lt;br&gt;case_review + review_event&lt;br&gt;с автором и before/after" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#23724D;strokeColor=#23724D;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="840" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-7" value="5. SPA&lt;br&gt;Показывает сохранённое решение&lt;br&gt;и обновлённую историю" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="450" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-8" value="409: конфликт версии&lt;br&gt;Показать актуальное состояние;&lt;br&gt;сохранить черновик" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#A13C46;strokeColor=#A13C46;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=15;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="520" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="review-9" value="PUT review [HTTP]" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="review-3" target="review-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review-10" value="валидированный запрос" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="review-4" target="review-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review-11" value="ожидаемая версия" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="review-5" target="review-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review-12" value="сохранённая state/revision" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="review-6" target="review-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review-13" value="версия устарела" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#526276;fontSize=13;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="review-5" target="review-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review-14" value="Заключение не изменяет вероятность модели. Закрытие уведомления не подтверждает обработку тревоги.&lt;br&gt;Автор берётся из Principal; в legacy отсутствует персональная аутентификация. Создание общего outbox и доставка уведомлений — следующий этап." style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#F1F5F9;strokeColor=#F1F5F9;fontColor=#334155;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;spacing=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="1490" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

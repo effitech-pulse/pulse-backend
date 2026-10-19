@@ -1,0 +1,32 @@
+{
+  "name": "Pulse Connector",
+  "well_identity": "pulse",
+  "kind": "json_pull",
+  "status": "draft",
+  "interval_seconds": 60,
+  "endpoint": "http://data:8092/v1/stream",
+  "table_name": "",
+  "records_path": "points",
+  "well_field": "well_id",
+  "time_field": "timestamp",
+  "mappings": [
+    {
+      "field": "values.F_out",
+      "parameter": "F_out",
+      "unit": "Гц",
+      "scale": 1,
+      "offset": 0,
+      "missing": "",
+      "is_set": false
+    },
+    {
+      "field": "values.R_izol",
+      "parameter": "R_izol",
+      "unit": "кОм",
+      "scale": 1,
+      "offset": 0,
+      "missing": "9999",
+      "is_set": false
+    }
+  ]
+}

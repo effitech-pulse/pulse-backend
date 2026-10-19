@@ -1,0 +1,24 @@
+PY ?= .venv/bin/python
+
+install:
+	$(PY) -m pip install -e ".[test]"
+test:
+	$(PY) -m pytest
+build:
+	$(PY) -m pip wheel --no-deps . -w dist
+
+honest-cache:
+	$(PY) -m scripts.eval_honest --prepare-only --rebuild
+
+honest-eval:
+	$(PY) -m scripts.eval_honest --seeds 0 1 2 --rotations 5
+
+db-audit:
+	$(PY) -m scripts.audit_database_data
+db-replay:
+	$(PY) -m scripts.replay_database_sample
+
+regime-cache:
+	$(PY) -m scripts.build_regime_cache --workers 4
+regime-eval:
+	$(PY) -m scripts.eval_regime

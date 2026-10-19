@@ -1,0 +1,1775 @@
+{
+  "collectionId": "VariableCollectionId:3:2",
+  "darkModeId": "128:0",
+  "variables": [
+    {
+      "id": "VariableID:3:3",
+      "name": "primitive/ink",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:4",
+      "name": "color/ink",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-ink)"
+      }
+    },
+    {
+      "id": "VariableID:3:5",
+      "name": "primitive/muted",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:6",
+      "name": "color/muted",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-muted)"
+      }
+    },
+    {
+      "id": "VariableID:3:7",
+      "name": "primitive/blue",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:8",
+      "name": "color/blue",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-blue)"
+      }
+    },
+    {
+      "id": "VariableID:3:9",
+      "name": "primitive/canvas",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:10",
+      "name": "color/canvas",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-canvas)"
+      }
+    },
+    {
+      "id": "VariableID:3:11",
+      "name": "primitive/surface",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:12",
+      "name": "color/surface",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-surface)"
+      }
+    },
+    {
+      "id": "VariableID:3:13",
+      "name": "primitive/border",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:14",
+      "name": "color/border",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-border)"
+      }
+    },
+    {
+      "id": "VariableID:3:15",
+      "name": "primitive/selected",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:16",
+      "name": "color/selected",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-selected)"
+      }
+    },
+    {
+      "id": "VariableID:3:17",
+      "name": "primitive/danger",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:18",
+      "name": "color/danger",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-danger)"
+      }
+    },
+    {
+      "id": "VariableID:3:19",
+      "name": "primitive/dangerBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:20",
+      "name": "color/dangerBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dangerBg)"
+      }
+    },
+    {
+      "id": "VariableID:3:21",
+      "name": "primitive/warning",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:22",
+      "name": "color/warning",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-warning)"
+      }
+    },
+    {
+      "id": "VariableID:3:23",
+      "name": "primitive/warningBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:24",
+      "name": "color/warningBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-warningBg)"
+      }
+    },
+    {
+      "id": "VariableID:3:25",
+      "name": "primitive/success",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:26",
+      "name": "color/success",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-success)"
+      }
+    },
+    {
+      "id": "VariableID:3:27",
+      "name": "primitive/successBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [],
+      "codeSyntax": {}
+    },
+    {
+      "id": "VariableID:3:28",
+      "name": "color/successBg",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-successBg)"
+      }
+    },
+    {
+      "id": "VariableID:3:29",
+      "name": "gap",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "GAP"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-gap)"
+      }
+    },
+    {
+      "id": "VariableID:3:30",
+      "name": "padding",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "GAP"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-padding)"
+      }
+    },
+    {
+      "id": "VariableID:3:31",
+      "name": "radius",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "CORNER_RADIUS"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-radius)"
+      }
+    },
+    {
+      "id": "VariableID:128:271",
+      "name": "dark/ink",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-ink)"
+      }
+    },
+    {
+      "id": "VariableID:128:272",
+      "name": "dark/muted",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-muted)"
+      }
+    },
+    {
+      "id": "VariableID:128:273",
+      "name": "dark/blue",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-blue)"
+      }
+    },
+    {
+      "id": "VariableID:128:274",
+      "name": "dark/canvas",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-canvas)"
+      }
+    },
+    {
+      "id": "VariableID:128:275",
+      "name": "dark/surface",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-surface)"
+      }
+    },
+    {
+      "id": "VariableID:128:276",
+      "name": "dark/border",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-border)"
+      }
+    },
+    {
+      "id": "VariableID:128:277",
+      "name": "dark/selected",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-selected)"
+      }
+    },
+    {
+      "id": "VariableID:128:278",
+      "name": "dark/danger",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-danger)"
+      }
+    },
+    {
+      "id": "VariableID:128:279",
+      "name": "dark/dangerBg",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-dangerBg)"
+      }
+    },
+    {
+      "id": "VariableID:128:280",
+      "name": "dark/warning",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-warning)"
+      }
+    },
+    {
+      "id": "VariableID:128:281",
+      "name": "dark/warningBg",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-warningBg)"
+      }
+    },
+    {
+      "id": "VariableID:128:282",
+      "name": "dark/success",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-success)"
+      }
+    },
+    {
+      "id": "VariableID:128:283",
+      "name": "dark/successBg",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-successBg)"
+      }
+    },
+    {
+      "id": "VariableID:128:284",
+      "name": "dark/actionPrimary",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-actionPrimary)"
+      }
+    },
+    {
+      "id": "VariableID:128:285",
+      "name": "dark/onAccent",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-onAccent)"
+      }
+    },
+    {
+      "id": "VariableID:128:286",
+      "name": "dark/controlBorder",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-controlBorder)"
+      }
+    },
+    {
+      "id": "VariableID:128:287",
+      "name": "dark/surfaceRaised",
+      "collection": "VariableCollectionId:128:270",
+      "scopes": [],
+      "codeSyntax": {
+        "WEB": "var(--pulse-dark-surfaceRaised)"
+      }
+    },
+    {
+      "id": "VariableID:128:288",
+      "name": "color/actionPrimary",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-actionPrimary)"
+      }
+    },
+    {
+      "id": "VariableID:128:289",
+      "name": "color/onAccent",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-onAccent)"
+      }
+    },
+    {
+      "id": "VariableID:128:290",
+      "name": "color/controlBorder",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "STROKE_COLOR"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-controlBorder)"
+      }
+    },
+    {
+      "id": "VariableID:128:291",
+      "name": "color/surfaceRaised",
+      "collection": "VariableCollectionId:3:2",
+      "scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "codeSyntax": {
+        "WEB": "var(--pulse-surfaceRaised)"
+      }
+    }
+  ],
+  "modes": [
+    {
+      "name": "Light",
+      "modeId": "3:0"
+    },
+    {
+      "name": "Dark",
+      "modeId": "128:0"
+    }
+  ],
+  "pageId": "132:270",
+  "boardId": "132:271",
+  "frames": [
+    {
+      "source": "3:52",
+      "name": "01 / Обзор фонда",
+      "id": "136:285",
+      "index": 0
+    },
+    {
+      "source": "3:53",
+      "name": "02 / Карточка скважины",
+      "id": "136:470",
+      "index": 1
+    },
+    {
+      "source": "3:54",
+      "name": "03 / Проверка файла",
+      "id": "136:615",
+      "index": 2
+    },
+    {
+      "source": "19:1431",
+      "name": "06 / Скважины",
+      "id": "141:285",
+      "index": 3
+    },
+    {
+      "source": "19:1519",
+      "name": "07 / Тревоги",
+      "id": "141:413",
+      "index": 4
+    },
+    {
+      "source": "19:1595",
+      "name": "08 / Проверка тревоги",
+      "id": "141:531",
+      "index": 5
+    },
+    {
+      "source": "19:1641",
+      "name": "09 / Тревога проверена",
+      "id": "141:618",
+      "index": 6
+    },
+    {
+      "source": "19:1694",
+      "name": "10 / Журнал",
+      "id": "141:713",
+      "index": 7
+    },
+    {
+      "source": "19:1754",
+      "name": "11 / Журнал действий",
+      "id": "141:814",
+      "index": 8
+    },
+    {
+      "source": "19:1805",
+      "name": "12 / Аналитика",
+      "id": "141:908",
+      "index": 9
+    },
+    {
+      "source": "19:1866",
+      "name": "13 / Расчёт выполняется",
+      "id": "141:1012",
+      "index": 10
+    },
+    {
+      "source": "19:1898",
+      "name": "14 / Файл: ошибка",
+      "id": "141:1086",
+      "index": 11
+    },
+    {
+      "source": "19:1928",
+      "name": "15 / Файл: недостаточно данных",
+      "id": "141:1158",
+      "index": 12
+    },
+    {
+      "source": "19:1958",
+      "name": "16 / Файл: обработка",
+      "id": "141:1230",
+      "index": 13
+    },
+    {
+      "source": "19:1988",
+      "name": "17 / Ноутбук 1280",
+      "id": "141:1302",
+      "index": 14
+    },
+    {
+      "source": "19:2040",
+      "name": "18 / Планшет 1024",
+      "id": "141:1447",
+      "index": 15
+    },
+    {
+      "source": "19:2064",
+      "name": "19 / Состояния интерфейса",
+      "id": "141:1477",
+      "index": 16
+    },
+    {
+      "source": "21:259",
+      "name": "20 / Состояния компонентов",
+      "id": "141:1523",
+      "index": 17
+    },
+    {
+      "source": "33:136",
+      "name": "21 / Мой профиль",
+      "id": "141:1550",
+      "index": 18
+    },
+    {
+      "source": "33:326",
+      "name": "22 / Редактирование профиля",
+      "id": "141:1649",
+      "index": 19
+    },
+    {
+      "source": "33:500",
+      "name": "23 / Профиль сохранён",
+      "id": "141:1732",
+      "index": 20
+    },
+    {
+      "source": "33:661",
+      "name": "24 / Меню аккаунта",
+      "id": "141:1803",
+      "index": 21
+    },
+    {
+      "source": "33:831",
+      "name": "25 / Подтверждение выхода",
+      "id": "141:2000",
+      "index": 22
+    },
+    {
+      "source": "33:994",
+      "name": "26 / После выхода",
+      "id": "141:2106",
+      "index": 23
+    },
+    {
+      "source": "33:1004",
+      "name": "27 / Последние события",
+      "id": "141:2115",
+      "index": 24
+    },
+    {
+      "source": "33:1178",
+      "name": "28 / Уведомления справа внизу",
+      "id": "141:2197",
+      "index": 25
+    },
+    {
+      "source": "34:65",
+      "name": "Попапы / видимость 0",
+      "id": "141:2292",
+      "index": 26
+    },
+    {
+      "source": "34:157",
+      "name": "Попапы / видимость 1",
+      "id": "141:2366",
+      "index": 27
+    },
+    {
+      "source": "34:249",
+      "name": "Попапы / видимость 2",
+      "id": "141:2447",
+      "index": 28
+    },
+    {
+      "source": "34:341",
+      "name": "Попапы / видимость 3",
+      "id": "141:2528",
+      "index": 29
+    },
+    {
+      "source": "34:433",
+      "name": "Попапы / видимость 4",
+      "id": "141:2616",
+      "index": 30
+    },
+    {
+      "source": "34:525",
+      "name": "Попапы / видимость 5",
+      "id": "141:2697",
+      "index": 31
+    },
+    {
+      "source": "34:617",
+      "name": "Попапы / видимость 6",
+      "id": "141:2785",
+      "index": 32
+    },
+    {
+      "source": "42:74",
+      "name": "29 / Вход",
+      "id": "141:2913",
+      "index": 33
+    },
+    {
+      "source": "42:103",
+      "name": "30 / Регистрация",
+      "id": "141:2933",
+      "index": 34
+    },
+    {
+      "source": "42:137",
+      "name": "31 / Заявка на доступ",
+      "id": "141:2953",
+      "index": 35
+    },
+    {
+      "source": "42:155",
+      "name": "32 / Восстановление пароля",
+      "id": "141:2969",
+      "index": 36
+    },
+    {
+      "source": "42:176",
+      "name": "31а / Ожидание одобрения",
+      "id": "141:2985",
+      "index": 37
+    },
+    {
+      "source": "42:192",
+      "name": "32а / Письмо для восстановления",
+      "id": "141:3000",
+      "index": 38
+    },
+    {
+      "source": "42:208",
+      "name": "29а / Ошибка входа",
+      "id": "141:3015",
+      "index": 39
+    },
+    {
+      "source": "43:939",
+      "name": "33 / Рассылки",
+      "id": "141:3033",
+      "index": 40
+    },
+    {
+      "source": "43:1047",
+      "name": "34 / Правило рассылки",
+      "id": "141:3138",
+      "index": 41
+    },
+    {
+      "source": "43:1160",
+      "name": "35 / Группы получателей",
+      "id": "141:3228",
+      "index": 42
+    },
+    {
+      "source": "43:1267",
+      "name": "36 / Редактирование группы",
+      "id": "141:3332",
+      "index": 43
+    },
+    {
+      "source": "43:1371",
+      "name": "37 / Журнал доставки",
+      "id": "141:3428",
+      "index": 44
+    },
+    {
+      "source": "43:1475",
+      "name": "38 / Предпросмотр письма",
+      "id": "141:3532",
+      "index": 45
+    },
+    {
+      "source": "43:1551",
+      "name": "36а / Группа сохранена",
+      "id": "141:3610",
+      "index": 46
+    },
+    {
+      "source": "43:1620",
+      "name": "37а / Ошибка доставки",
+      "id": "141:3682",
+      "index": 47
+    },
+    {
+      "source": "43:1693",
+      "name": "38а / Подтверждение тестового письма",
+      "id": "141:3757",
+      "index": 48
+    },
+    {
+      "source": "44:176",
+      "name": "39 / Статистика",
+      "id": "142:444",
+      "index": 49
+    },
+    {
+      "source": "44:305",
+      "name": "40 / Управление фондом",
+      "id": "142:566",
+      "index": 50
+    },
+    {
+      "source": "44:421",
+      "name": "41 / Фильтры и сортировка",
+      "id": "142:678",
+      "index": 51
+    },
+    {
+      "source": "44:519",
+      "name": "41а / Фонд отфильтрован",
+      "id": "142:760",
+      "index": 52
+    },
+    {
+      "source": "44:623",
+      "name": "42 / Добавить скважину",
+      "id": "142:863",
+      "index": 53
+    },
+    {
+      "source": "44:722",
+      "name": "43 / Редактировать скважину",
+      "id": "142:946",
+      "index": 54
+    },
+    {
+      "source": "44:823",
+      "name": "44 / Предпросмотр импорта",
+      "id": "142:1030",
+      "index": 55
+    },
+    {
+      "source": "44:921",
+      "name": "45 / Архивирование скважины",
+      "id": "142:1130",
+      "index": 56
+    },
+    {
+      "source": "44:998",
+      "name": "46 / Архив фонда",
+      "id": "142:1206",
+      "index": 57
+    }
+  ],
+  "palette": {
+    "ink": "#e5edf7",
+    "muted": "#9eafc4",
+    "blue": "#82adff",
+    "canvas": "#0c131d",
+    "surface": "#141e2b",
+    "border": "#2d3e53",
+    "selected": "#1d3455",
+    "danger": "#ff989a",
+    "dangerBg": "#3a2029",
+    "warning": "#e8bb69",
+    "warningBg": "#342b1c",
+    "success": "#7bcba2",
+    "successBg": "#19322a",
+    "actionPrimary": "#2f6fed",
+    "onAccent": "#ffffff",
+    "controlBorder": "#607893",
+    "surfaceRaised": "#1b2838"
+  },
+  "contrast": [
+    {
+      "pair": "ink/surface",
+      "contrast": 14.23
+    },
+    {
+      "pair": "muted/surface",
+      "contrast": 7.5
+    },
+    {
+      "pair": "blue/surface",
+      "contrast": 7.49
+    },
+    {
+      "pair": "danger/dangerBg",
+      "contrast": 7.2
+    },
+    {
+      "pair": "warning/warningBg",
+      "contrast": 7.79
+    },
+    {
+      "pair": "success/successBg",
+      "contrast": 7.12
+    },
+    {
+      "pair": "onAccent/actionPrimary",
+      "contrast": 4.55
+    },
+    {
+      "pair": "controlBorder/surface",
+      "contrast": 3.68
+    }
+  ],
+  "phase": "complete",
+  "qa": {
+    "screenCount": 58,
+    "geometryMismatches": [],
+    "unboundSolidPaints": 0,
+    "missingFonts": 0,
+    "prototypeLinksChecked": 1,
+    "lightPreserved": true,
+    "pageId": "132:270",
+    "overviewId": "136:285"
+  },
+  "figmaUrl": "https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=136-285",
+  "themeToggle": {
+    "mechanism": "CONDITIONAL / SET_VARIABLE_MODE",
+    "collectionId": "VariableCollectionId:3:2",
+    "lightModeId": "3:0",
+    "darkModeId": "128:0",
+    "variables": [
+      {
+        "id": "VariableID:158:272",
+        "name": "theme/isDark"
+      },
+      {
+        "id": "VariableID:158:273",
+        "name": "theme/isLight"
+      }
+    ],
+    "buttons": [
+      {
+        "frameId": "3:52",
+        "id": "169:270",
+        "moon": "169:273",
+        "sun": "169:275",
+        "headerId": "8:26"
+      },
+      {
+        "frameId": "3:53",
+        "id": "170:271",
+        "moon": "170:274",
+        "sun": "170:276",
+        "headerId": "8:179"
+      },
+      {
+        "frameId": "3:54",
+        "id": "170:279",
+        "moon": "170:282",
+        "sun": "170:284",
+        "headerId": "8:270"
+      },
+      {
+        "frameId": "19:1431",
+        "id": "170:287",
+        "moon": "170:290",
+        "sun": "170:292",
+        "headerId": "19:1450"
+      },
+      {
+        "frameId": "19:1519",
+        "id": "170:295",
+        "moon": "170:298",
+        "sun": "170:300",
+        "headerId": "19:1538"
+      },
+      {
+        "frameId": "19:1595",
+        "id": "170:303",
+        "moon": "170:306",
+        "sun": "170:308",
+        "headerId": "19:1614"
+      },
+      {
+        "frameId": "19:1641",
+        "id": "170:311",
+        "moon": "170:314",
+        "sun": "170:316",
+        "headerId": "19:1660"
+      },
+      {
+        "frameId": "19:1694",
+        "id": "170:319",
+        "moon": "170:322",
+        "sun": "170:324",
+        "headerId": "19:1713"
+      },
+      {
+        "frameId": "19:1754",
+        "id": "170:327",
+        "moon": "170:330",
+        "sun": "170:332",
+        "headerId": "19:1773"
+      },
+      {
+        "frameId": "19:1805",
+        "id": "170:335",
+        "moon": "170:338",
+        "sun": "170:340",
+        "headerId": "19:1824"
+      },
+      {
+        "frameId": "19:1866",
+        "id": "170:343",
+        "moon": "170:346",
+        "sun": "170:348",
+        "headerId": "19:1885"
+      },
+      {
+        "frameId": "19:1898",
+        "id": "170:351",
+        "moon": "170:354",
+        "sun": "170:356",
+        "headerId": "19:1917"
+      },
+      {
+        "frameId": "19:1928",
+        "id": "170:359",
+        "moon": "170:362",
+        "sun": "170:364",
+        "headerId": "19:1947"
+      },
+      {
+        "frameId": "19:1958",
+        "id": "170:367",
+        "moon": "170:370",
+        "sun": "170:372",
+        "headerId": "19:1977"
+      },
+      {
+        "frameId": "19:1988",
+        "id": "170:375",
+        "moon": "170:378",
+        "sun": "170:380",
+        "headerId": "19:2007"
+      },
+      {
+        "frameId": "19:2040",
+        "id": "170:383",
+        "moon": "170:386",
+        "sun": "170:388",
+        "headerId": "19:2042"
+      },
+      {
+        "frameId": "19:2064",
+        "id": "170:391",
+        "moon": "170:394",
+        "sun": "170:396",
+        "headerId": null
+      },
+      {
+        "frameId": "21:259",
+        "id": "170:399",
+        "moon": "170:402",
+        "sun": "170:404",
+        "headerId": null
+      },
+      {
+        "frameId": "33:136",
+        "id": "170:407",
+        "moon": "170:410",
+        "sun": "170:412",
+        "headerId": "33:155"
+      },
+      {
+        "frameId": "33:326",
+        "id": "170:415",
+        "moon": "170:418",
+        "sun": "170:420",
+        "headerId": "33:345"
+      },
+      {
+        "frameId": "33:500",
+        "id": "170:423",
+        "moon": "170:426",
+        "sun": "170:428",
+        "headerId": "33:519"
+      },
+      {
+        "frameId": "33:661",
+        "id": "170:431",
+        "moon": "170:434",
+        "sun": "170:436",
+        "headerId": "33:680"
+      },
+      {
+        "frameId": "33:831",
+        "id": "170:439",
+        "moon": "170:442",
+        "sun": "170:444",
+        "headerId": "33:850"
+      },
+      {
+        "frameId": "33:994",
+        "id": "170:447",
+        "moon": "170:450",
+        "sun": "170:452",
+        "headerId": null
+      },
+      {
+        "frameId": "33:1004",
+        "id": "170:455",
+        "moon": "170:458",
+        "sun": "170:460",
+        "headerId": "33:1023"
+      },
+      {
+        "frameId": "33:1178",
+        "id": "170:463",
+        "moon": "170:466",
+        "sun": "170:468",
+        "headerId": "33:1197"
+      },
+      {
+        "frameId": "34:65",
+        "id": "170:471",
+        "moon": "170:474",
+        "sun": "170:476",
+        "headerId": "34:115"
+      },
+      {
+        "frameId": "34:157",
+        "id": "170:479",
+        "moon": "170:482",
+        "sun": "170:484",
+        "headerId": "34:207"
+      },
+      {
+        "frameId": "34:249",
+        "id": "170:487",
+        "moon": "170:490",
+        "sun": "170:492",
+        "headerId": "34:299"
+      },
+      {
+        "frameId": "34:341",
+        "id": "170:495",
+        "moon": "170:498",
+        "sun": "170:500",
+        "headerId": "34:391"
+      },
+      {
+        "frameId": "34:433",
+        "id": "170:503",
+        "moon": "170:506",
+        "sun": "170:508",
+        "headerId": "34:483"
+      },
+      {
+        "frameId": "34:525",
+        "id": "170:511",
+        "moon": "170:514",
+        "sun": "170:516",
+        "headerId": "34:575"
+      },
+      {
+        "frameId": "34:617",
+        "id": "170:519",
+        "moon": "170:522",
+        "sun": "170:524",
+        "headerId": "34:667"
+      },
+      {
+        "frameId": "42:74",
+        "id": "170:527",
+        "moon": "170:530",
+        "sun": "170:532",
+        "headerId": null
+      },
+      {
+        "frameId": "42:103",
+        "id": "170:535",
+        "moon": "170:538",
+        "sun": "170:540",
+        "headerId": null
+      },
+      {
+        "frameId": "42:137",
+        "id": "170:543",
+        "moon": "170:546",
+        "sun": "170:548",
+        "headerId": null
+      },
+      {
+        "frameId": "42:155",
+        "id": "170:551",
+        "moon": "170:554",
+        "sun": "170:556",
+        "headerId": null
+      },
+      {
+        "frameId": "42:176",
+        "id": "170:559",
+        "moon": "170:562",
+        "sun": "170:564",
+        "headerId": null
+      },
+      {
+        "frameId": "42:192",
+        "id": "170:567",
+        "moon": "170:570",
+        "sun": "170:572",
+        "headerId": null
+      },
+      {
+        "frameId": "42:208",
+        "id": "170:575",
+        "moon": "170:578",
+        "sun": "170:580",
+        "headerId": null
+      },
+      {
+        "frameId": "43:939",
+        "id": "170:583",
+        "moon": "170:586",
+        "sun": "170:588",
+        "headerId": "43:989"
+      },
+      {
+        "frameId": "43:1047",
+        "id": "170:591",
+        "moon": "170:594",
+        "sun": "170:596",
+        "headerId": "43:1097"
+      },
+      {
+        "frameId": "43:1160",
+        "id": "170:599",
+        "moon": "170:602",
+        "sun": "170:604",
+        "headerId": "43:1210"
+      },
+      {
+        "frameId": "43:1267",
+        "id": "170:607",
+        "moon": "170:610",
+        "sun": "170:612",
+        "headerId": "43:1317"
+      },
+      {
+        "frameId": "43:1371",
+        "id": "170:615",
+        "moon": "170:618",
+        "sun": "170:620",
+        "headerId": "43:1421"
+      },
+      {
+        "frameId": "43:1475",
+        "id": "170:623",
+        "moon": "170:626",
+        "sun": "170:628",
+        "headerId": "43:1525"
+      },
+      {
+        "frameId": "43:1551",
+        "id": "170:631",
+        "moon": "170:634",
+        "sun": "170:636",
+        "headerId": "43:1601"
+      },
+      {
+        "frameId": "43:1620",
+        "id": "170:639",
+        "moon": "170:642",
+        "sun": "170:644",
+        "headerId": "43:1670"
+      },
+      {
+        "frameId": "43:1693",
+        "id": "170:647",
+        "moon": "170:650",
+        "sun": "170:652",
+        "headerId": "43:1743"
+      },
+      {
+        "frameId": "44:176",
+        "id": "170:655",
+        "moon": "170:658",
+        "sun": "170:660",
+        "headerId": "44:226"
+      },
+      {
+        "frameId": "44:305",
+        "id": "170:663",
+        "moon": "170:666",
+        "sun": "170:668",
+        "headerId": "44:355"
+      },
+      {
+        "frameId": "44:421",
+        "id": "170:671",
+        "moon": "170:674",
+        "sun": "170:676",
+        "headerId": "44:471"
+      },
+      {
+        "frameId": "44:519",
+        "id": "170:679",
+        "moon": "170:682",
+        "sun": "170:684",
+        "headerId": "44:569"
+      },
+      {
+        "frameId": "44:623",
+        "id": "170:687",
+        "moon": "170:690",
+        "sun": "170:692",
+        "headerId": "44:673"
+      },
+      {
+        "frameId": "44:722",
+        "id": "170:695",
+        "moon": "170:698",
+        "sun": "170:700",
+        "headerId": "44:772"
+      },
+      {
+        "frameId": "44:823",
+        "id": "170:703",
+        "moon": "170:706",
+        "sun": "170:708",
+        "headerId": "44:873"
+      },
+      {
+        "frameId": "44:921",
+        "id": "170:711",
+        "moon": "170:714",
+        "sun": "170:716",
+        "headerId": "44:971"
+      },
+      {
+        "frameId": "44:998",
+        "id": "170:719",
+        "moon": "170:722",
+        "sun": "170:724",
+        "headerId": "44:1048"
+      },
+      {
+        "frameId": "136:285",
+        "id": "170:1052",
+        "moon": "170:1055",
+        "sun": "170:1057",
+        "headerId": "136:339"
+      },
+      {
+        "frameId": "136:470",
+        "id": "170:1060",
+        "moon": "170:1063",
+        "sun": "170:1065",
+        "headerId": "136:524"
+      },
+      {
+        "frameId": "136:615",
+        "id": "170:1068",
+        "moon": "170:1071",
+        "sun": "170:1073",
+        "headerId": "136:669"
+      },
+      {
+        "frameId": "141:285",
+        "id": "170:1076",
+        "moon": "170:1079",
+        "sun": "170:1081",
+        "headerId": "141:339"
+      },
+      {
+        "frameId": "141:413",
+        "id": "170:1084",
+        "moon": "170:1087",
+        "sun": "170:1089",
+        "headerId": "141:467"
+      },
+      {
+        "frameId": "141:531",
+        "id": "170:1092",
+        "moon": "170:1095",
+        "sun": "170:1097",
+        "headerId": "141:585"
+      },
+      {
+        "frameId": "141:618",
+        "id": "170:1100",
+        "moon": "170:1103",
+        "sun": "170:1105",
+        "headerId": "141:672"
+      },
+      {
+        "frameId": "141:713",
+        "id": "170:1108",
+        "moon": "170:1111",
+        "sun": "170:1113",
+        "headerId": "141:767"
+      },
+      {
+        "frameId": "141:814",
+        "id": "170:1116",
+        "moon": "170:1119",
+        "sun": "170:1121",
+        "headerId": "141:868"
+      },
+      {
+        "frameId": "141:908",
+        "id": "170:1124",
+        "moon": "170:1127",
+        "sun": "170:1129",
+        "headerId": "141:962"
+      },
+      {
+        "frameId": "141:1012",
+        "id": "170:1132",
+        "moon": "170:1135",
+        "sun": "170:1137",
+        "headerId": "141:1066"
+      },
+      {
+        "frameId": "141:1086",
+        "id": "170:1140",
+        "moon": "170:1143",
+        "sun": "170:1145",
+        "headerId": "141:1140"
+      },
+      {
+        "frameId": "141:1158",
+        "id": "170:1148",
+        "moon": "170:1151",
+        "sun": "170:1153",
+        "headerId": "141:1212"
+      },
+      {
+        "frameId": "141:1230",
+        "id": "170:1156",
+        "moon": "170:1159",
+        "sun": "170:1161",
+        "headerId": "141:1284"
+      },
+      {
+        "frameId": "141:1302",
+        "id": "170:1164",
+        "moon": "170:1167",
+        "sun": "170:1169",
+        "headerId": "141:1356"
+      },
+      {
+        "frameId": "141:1447",
+        "id": "170:1172",
+        "moon": "170:1175",
+        "sun": "170:1177",
+        "headerId": "141:1449"
+      },
+      {
+        "frameId": "141:1477",
+        "id": "170:1180",
+        "moon": "170:1183",
+        "sun": "170:1185",
+        "headerId": null
+      },
+      {
+        "frameId": "141:1523",
+        "id": "170:1188",
+        "moon": "170:1191",
+        "sun": "170:1193",
+        "headerId": null
+      },
+      {
+        "frameId": "141:1550",
+        "id": "170:1196",
+        "moon": "170:1199",
+        "sun": "170:1201",
+        "headerId": "141:1603"
+      },
+      {
+        "frameId": "141:1649",
+        "id": "170:1204",
+        "moon": "170:1207",
+        "sun": "170:1209",
+        "headerId": "141:1702"
+      },
+      {
+        "frameId": "141:1732",
+        "id": "170:1212",
+        "moon": "170:1215",
+        "sun": "170:1217",
+        "headerId": "141:1785"
+      },
+      {
+        "frameId": "141:1803",
+        "id": "170:1220",
+        "moon": "170:1223",
+        "sun": "170:1225",
+        "headerId": "141:1857"
+      },
+      {
+        "frameId": "141:2000",
+        "id": "170:1228",
+        "moon": "170:1231",
+        "sun": "170:1233",
+        "headerId": "141:2053"
+      },
+      {
+        "frameId": "141:2106",
+        "id": "170:1236",
+        "moon": "170:1239",
+        "sun": "170:1241",
+        "headerId": null
+      },
+      {
+        "frameId": "141:2115",
+        "id": "170:1244",
+        "moon": "170:1247",
+        "sun": "170:1249",
+        "headerId": "141:2168"
+      },
+      {
+        "frameId": "141:2197",
+        "id": "170:1252",
+        "moon": "170:1255",
+        "sun": "170:1257",
+        "headerId": "141:2251"
+      },
+      {
+        "frameId": "141:2292",
+        "id": "170:1260",
+        "moon": "170:1263",
+        "sun": "170:1265",
+        "headerId": "141:2346"
+      },
+      {
+        "frameId": "141:2366",
+        "id": "170:1268",
+        "moon": "170:1271",
+        "sun": "170:1273",
+        "headerId": "141:2420"
+      },
+      {
+        "frameId": "141:2447",
+        "id": "170:1276",
+        "moon": "170:1279",
+        "sun": "170:1281",
+        "headerId": "141:2501"
+      },
+      {
+        "frameId": "141:2528",
+        "id": "170:1284",
+        "moon": "170:1287",
+        "sun": "170:1289",
+        "headerId": "141:2582"
+      },
+      {
+        "frameId": "141:2616",
+        "id": "170:1292",
+        "moon": "170:1295",
+        "sun": "170:1297",
+        "headerId": "141:2670"
+      },
+      {
+        "frameId": "141:2697",
+        "id": "170:1300",
+        "moon": "170:1303",
+        "sun": "170:1305",
+        "headerId": "141:2751"
+      },
+      {
+        "frameId": "141:2785",
+        "id": "170:1308",
+        "moon": "170:1311",
+        "sun": "170:1313",
+        "headerId": "141:2839"
+      },
+      {
+        "frameId": "141:2913",
+        "id": "170:1316",
+        "moon": "170:1319",
+        "sun": "170:1321",
+        "headerId": null
+      },
+      {
+        "frameId": "141:2933",
+        "id": "170:1324",
+        "moon": "170:1327",
+        "sun": "170:1329",
+        "headerId": null
+      },
+      {
+        "frameId": "141:2953",
+        "id": "170:1332",
+        "moon": "170:1335",
+        "sun": "170:1337",
+        "headerId": null
+      },
+      {
+        "frameId": "141:2969",
+        "id": "170:1340",
+        "moon": "170:1343",
+        "sun": "170:1345",
+        "headerId": null
+      },
+      {
+        "frameId": "141:2985",
+        "id": "170:1348",
+        "moon": "170:1351",
+        "sun": "170:1353",
+        "headerId": null
+      },
+      {
+        "frameId": "141:3000",
+        "id": "170:1356",
+        "moon": "170:1359",
+        "sun": "170:1361",
+        "headerId": null
+      },
+      {
+        "frameId": "141:3015",
+        "id": "170:1364",
+        "moon": "170:1367",
+        "sun": "170:1369",
+        "headerId": null
+      },
+      {
+        "frameId": "141:3033",
+        "id": "170:1372",
+        "moon": "170:1375",
+        "sun": "170:1377",
+        "headerId": "141:3087"
+      },
+      {
+        "frameId": "141:3138",
+        "id": "170:1380",
+        "moon": "170:1383",
+        "sun": "170:1385",
+        "headerId": "141:3192"
+      },
+      {
+        "frameId": "141:3228",
+        "id": "170:1388",
+        "moon": "170:1391",
+        "sun": "170:1393",
+        "headerId": "141:3282"
+      },
+      {
+        "frameId": "141:3332",
+        "id": "170:1396",
+        "moon": "170:1399",
+        "sun": "170:1401",
+        "headerId": "141:3386"
+      },
+      {
+        "frameId": "141:3428",
+        "id": "170:1404",
+        "moon": "170:1407",
+        "sun": "170:1409",
+        "headerId": "141:3482"
+      },
+      {
+        "frameId": "141:3532",
+        "id": "170:1412",
+        "moon": "170:1415",
+        "sun": "170:1417",
+        "headerId": "141:3586"
+      },
+      {
+        "frameId": "141:3610",
+        "id": "170:1420",
+        "moon": "170:1423",
+        "sun": "170:1425",
+        "headerId": "141:3664"
+      },
+      {
+        "frameId": "141:3682",
+        "id": "170:1428",
+        "moon": "170:1431",
+        "sun": "170:1433",
+        "headerId": "141:3736"
+      },
+      {
+        "frameId": "141:3757",
+        "id": "170:1436",
+        "moon": "170:1439",
+        "sun": "170:1441",
+        "headerId": "141:3811"
+      },
+      {
+        "frameId": "142:444",
+        "id": "170:1444",
+        "moon": "170:1447",
+        "sun": "170:1449",
+        "headerId": "142:498"
+      },
+      {
+        "frameId": "142:566",
+        "id": "170:1452",
+        "moon": "170:1455",
+        "sun": "170:1457",
+        "headerId": "142:620"
+      },
+      {
+        "frameId": "142:678",
+        "id": "170:1460",
+        "moon": "170:1463",
+        "sun": "170:1465",
+        "headerId": "142:732"
+      },
+      {
+        "frameId": "142:760",
+        "id": "170:1468",
+        "moon": "170:1471",
+        "sun": "170:1473",
+        "headerId": "142:814"
+      },
+      {
+        "frameId": "142:863",
+        "id": "170:1476",
+        "moon": "170:1479",
+        "sun": "170:1481",
+        "headerId": "142:917"
+      },
+      {
+        "frameId": "142:946",
+        "id": "170:1484",
+        "moon": "170:1487",
+        "sun": "170:1489",
+        "headerId": "142:1000"
+      },
+      {
+        "frameId": "142:1030",
+        "id": "170:1492",
+        "moon": "170:1495",
+        "sun": "170:1497",
+        "headerId": "142:1084"
+      },
+      {
+        "frameId": "142:1130",
+        "id": "170:1500",
+        "moon": "170:1503",
+        "sun": "170:1505",
+        "headerId": "142:1184"
+      },
+      {
+        "frameId": "142:1206",
+        "id": "170:1508",
+        "moon": "170:1511",
+        "sun": "170:1513",
+        "headerId": "142:1260"
+      }
+    ],
+    "qa": {
+      "count": 116,
+      "brokenActions": [],
+      "outsideFrames": []
+    }
+  }
+}

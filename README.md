@@ -1,17 +1,141 @@
-# Пульс скважины — API
+# Пульс скважины · Backend
 
-FastAPI, миграции и операционная БД. Библиотека модели устанавливается отдельным пакетом; исходники `esp` сюда не копируются.
+HTTP API системы диагностики УЭЦН. Backend ведёт реестр скважин и отказов, отдаёт данные интерфейсу, запускает ML-прогоны и сохраняет обратную связь технологов.
 
-Для разработки расположите проекты model и Effitech рядом (в подготовленном каталоге они называются pulse-model и pulse-backend):
+**Стек:** Go · Gin · PostgreSQL (pgx + Squirrel) · gRPC/protobuf. Вычисления модели и обучение выполняются в Python-проектах `pulse-ml-service` и `pulse-model`.
+
+## Быстрый запуск
+
+Нужны Go 1.25+, PostgreSQL 16 и соседний `pulse-contracts`. Для страниц риска также запустите `pulse-ml-service`.
+
+### 1. Подключите локальные контракты
+
+В подготовленном каталоге `repository-split` уже есть `go.work`. При работе с отдельными checkout расположите репозитории рядом и создайте workspace в их общей папке:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -e ../pulse-model
-.venv/bin/python -m pip install -e '.[test]'
-cp .env.example .env
-# Настройте DATABASE_URL, PG_* и ML_DATA_ROOT в .env.
-.venv/bin/python -m alembic upgrade head
-.venv/bin/python -m uvicorn src.main:app --reload --port 8000
+go work init ./pulse-backend ./pulse-contracts
+go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.1=./pulse-contracts
+cd pulse-backend
 ```
 
-Тесты: `.venv/bin/python -m pytest`. Для релиза установите wheel `effitech-esp-model` версии 0.1.0. ML_DATA_ROOT содержит models/stage1_binary_v1, cache/features_v3 и manifest/grant_manifest_1000.xlsx. PostgreSQL esp_app хранит приложение; PostgreSQL esp хранит исследовательские справочники. Артефакты модели и данные не включены в Git. Seed-скрипты в scripts/ ожидают локальный data/manifest — подготовьте его отдельно.
+Замену используем только в локальном workspace. `go.mod` фиксирует версию библиотеки контрактов `v0.1.1`; исходники контрактов в backend не копируются. Для PREP эта package version недостаточна: используйте проверенный source commit contracts `07213c430318affd140f55dea391cdc36220d93f`, а не прежний release tag. [Compatibility manifest](docs/readiness-compatibility.json) фиксирует все7reviewed runtime payload refs, зависимости и фактические Docker image IDs. Backend payload ref остаётся базой для последующего README/docs-only commit, hash которого не включается сам в себя.
+
+### 2. Настройте окружение
+
+```sh
+cp configs/app.env.example .env
+```
+
+Заполните основные параметры:
+
+| Переменная | Для чего | Пример |
+|---|---|---|
+| `DATABASE_URL` | Операционная PostgreSQL БД | `postgres://user:password@localhost:5432/esp_app` |
+| `HTTP_ADDR` | Адрес HTTP API | `127.0.0.1:8000` |
+| `API_KEY` | Общий ключ в режиме legacy | Ваш ключ |
+| `AUTH_MODE` | legacy или персональные сеансы local | `local` в примере и Compose; code default legacy |
+| `APP_SCOPE` | Граница пользовательского фонда | `cohort` (default); research выбирается явно |
+| `COHORT_VERSION` | Версия сохранённых 100 участников | `presentation-v1`; обязательна при cohort |
+| `AUTH_COOKIE_SECURE` | Secure cookie персональных сеансов | `true` |
+| `ML_SERVICE_TARGET` | Адрес Python ML-сервиса | `127.0.0.1:50051` |
+| `ML_SERVICE_API_KEY` | Общий ключ backend и ML-сервиса | Одинаковое значение в обоих сервисах |
+
+Все настройки и значения по умолчанию: [Конфигурация](docs/configuration.md).
+
+### 3. Подготовьте БД и запустите API
+
+```sh
+make migrate
+make build
+./bin/api
+```
+
+Миграции выполняются явно; текущая Go-схема имеет версию 11. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+
+Проверьте доступность:
+
+```sh
+curl http://127.0.0.1:8000/health
+# В local сначала персональный вход; анонимный /api/v1/wells возвращает 401.
+```
+
+При недоступности ML реестр и scoped справочники остаются доступны. Прямые ML-запросы могут вернуть503; cohort bulk сохраняет отдельные error/insufficient outcomes и не подменяет их нулевым риском.
+
+## Что предоставляет API
+
+| Раздел | Маршруты | Возможности |
+|---|---|---|
+| Доступ | `/api/v1/auth/*` | Сеансы, роли и область доступа; подготовлен адаптерный интерфейс SSO |
+| Скважины | `/api/v1/wells` | CRUD, импорт и экспорт XLSX |
+| Структура | `/api/v1/ngdu`, `/api/v1/departments` | НГДУ и цеха |
+| Отказы | `/api/v1/wells/{id}/incidents`, `/api/v1/incidents/stats` | История и статистика отказов |
+| Данные | `/api/v1/wells/{id}/predictions`, `complications`, `classification` | Прогнозы и осложнения |
+| ML | `/api/v1/ml/*` | Риск, SHAP, история, загрузка файла, прогоны, статусы тревог |
+| Наблюдаемость | `/health`, `/api/v1/audit`, `/api/v1/runs` | Проверка БД, аудит и события |
+| Аналитика | `/api/v1/analytics/*` | Подписанные Metabase URL |
+
+Настройка персонального входа, ограничения scope, будущий Keycloak/OIDC и общие фильтры: [интеграции и рабочие сценарии](docs/telemetry-integrations.md).
+
+Полный HTTP-контракт: [api/openapi.json](api/openapi.json), доступен также по `/openapi.json`.
+
+## Разработка
+
+```sh
+make check       # unit-тесты, границы слоёв, race detector, vet, форматирование
+make build       # bin/api, bin/migrate, bin/adminuser и bin/cohort
+```
+
+Интеграционные тесты:
+
+```sh
+make test-db-up
+TEST_DATABASE_URL='postgres://postgres:pulse-test@localhost:55432/pulse_test?sslmode=disable' make integration
+make test-db-down
+```
+
+Тесты создают и удаляют уникальные схемы. Используйте отдельную тестовую БД.
+
+## Структура
+
+```text
+cmd/                  Точки входа api, migrate, adminuser и cohort
+internal/
+  bootstrap/          Сборка зависимостей и жизненный цикл
+  config/             Настройки окружения
+  domain/             Типизированные модели и ошибки
+  service/            Сценарии приложения и интерфейсы адаптеров
+  repository/postgres/ SQL, транзакции и блокировки
+  adapter/            gRPC-клиент, XLSX и справочник параметров
+  transport/httpapi/  HTTP-маршруты, запросы, ответы и middleware
+  migrations/         Явное создание или принятие схемы БД
+api/                  OpenAPI
+configs/              Пример конфигурации
+build/package/        Dockerfile
+deployments/          Тестовое окружение PostgreSQL
+test/                 Интеграционные и архитектурные проверки
+```
+
+Расположение каталогов следует [golang-standards/project-layout](https://github.com/golang-standards/project-layout). Границы пакетов описаны в [архитектуре](docs/architecture.md), правила изменений — в [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Документация
+
+- [Архитектура и зависимости](docs/architecture.md)
+- [Конфигурация](docs/configuration.md)
+- [Миграции, Docker, задания и диагностика](docs/operations.md)
+- [Правила разработки](CONTRIBUTING.md)
+- [Контракты ML и Buf](https://github.com/effitech-pulse/pulse-contracts)
+
+
+## Состояние документации — 19.10.2026
+
+[Датированный аудит](docs/documentation-audit-2026-10-19.md) сохраняет исходные находки; [журнал очереди A](docs/documentation-queue-a-execution-2026-10-19.md) — изменения, приёмку и результаты проверок. [Матрица проверок](docs/verification-matrix.md) различает обязательный gate, настроенный CI, локальный PASS и допустимый SKIP. [Автономный handbook](docs/project-handbook/README.md) содержит снимок межмодульных документов и политику обновления источников.
+
+Межмодульные ссылки рассчитаны на соседние checkout split workspace и не добавляют runtime-зависимость модуля. В standalone checkout используйте локальные README/AGENTS; межмодульный комплект доступен после получения pulse-backend. Очередь A документационная; продуктовая очередь B и промышленная приёмка модели ею не выполнены.
+
+## PREP — текущая техническая готовность
+
+[Scope и ledger PREP](docs/ready-for-development-2026-10-19.md) фиксирует техническую приёмку PREP-01–07 и отделяет её от научной приёмки и финальной handbook публикации. Пользовательский refresh оценивает сохранённый cohort через app telemetry→ML Upload, хранит полный snapshot с nullable исходами и partial provenance; research Score остаётся отдельным профилем. Membership100 не равен числу scored: archived/inactive/insufficient/error не становятся нулевым риском.
+
+Compose-файлы теперь задают local auth и cohort; существующий `pulse-local` на8080 автоматически не мигрировался и в PREP не перезапускался. Browser-проверка на rebuilt image:22/22,fail0/pageErrors0; финальный after11run33done:100members/100scored,restricted0; прежние snapshots30/32 сохранены. Проверки выполнялись в [изолированном runtime](docs/readiness-runtime.md) на8088/8018 с копией app-БД. Научная оценка отложена пользователем до подключения новых данных; обучение/promotion и промышленная готовность не заявлены.
+
+Техническая подготовка принята20.10.2026 после независимого Senior review и runtime/browser checks. [Native artifact hashes](docs/readiness-native-artifacts.json) сохраняют119source/50wheel identities. Финальная handbook сборка/автономная проверка и README/docs-only commit выполняются отдельным публикационным gate; remote push/cloud/release не выполнялись.

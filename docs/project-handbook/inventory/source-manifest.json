@@ -1,0 +1,58 @@
+{
+  "scope": "Working tree documentation snapshot; HEAD is not the full implementation version",
+  "repositories": [
+    {
+      "name": "pulse-model",
+      "head": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45",
+      "branch": "codex/documentation-queue-a",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-model"
+    },
+    {
+      "name": "pulse-data",
+      "head": "20c5c78b8febc0cde78812e653634f039f4a923a",
+      "branch": "codex/causal-baseline",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-data"
+    },
+    {
+      "name": "pulse-ml-service",
+      "head": "bb9ecadc2a7b5b87df9a6652ddeca9a8b752fe16",
+      "branch": "codex/causal-baseline",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-ml-service"
+    },
+    {
+      "name": "pulse-contracts",
+      "head": "07213c430318affd140f55dea391cdc36220d93f",
+      "branch": "codex/documentation-queue-a",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-contracts"
+    },
+    {
+      "name": "pulse-backend",
+      "head": "99b7fa3d2a469933e1e724953b42f7e8b64a41ec",
+      "branch": "codex/documentation-queue-a",
+      "dirty_entries": 156,
+      "repository_url": "https://github.com/effitech-pulse/pulse-backend"
+    },
+    {
+      "name": "pulse-frontend",
+      "head": "ebf944c8105e4d7fbff9d2560202d066acb3e61c",
+      "branch": "codex/documentation-queue-a",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-frontend"
+    },
+    {
+      "name": "pulse-landing",
+      "head": "e1cd27c973bf33aadcd00d101a0b99343f34c428",
+      "branch": "codex/documentation-queue-a",
+      "dirty_entries": 0,
+      "repository_url": "https://github.com/effitech-pulse/pulse-landing"
+    }
+  ],
+  "http_operations": 78,
+  "figma_catalog_rows": 150,
+  "source_file_count": 537,
+  "snapshot_registry": "snapshot-sources.json"
+}

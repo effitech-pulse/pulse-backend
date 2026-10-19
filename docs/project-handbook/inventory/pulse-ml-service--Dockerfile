@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+FROM python:3.13-slim
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+WORKDIR /packages
+COPY --from=model pyproject.toml /packages/model/pyproject.toml
+COPY --from=model esp /packages/model/esp
+COPY --from=model scripts /packages/model/scripts
+COPY --from=contracts pyproject.toml /packages/contracts/pyproject.toml
+COPY --from=contracts gen/python /packages/contracts/gen/python
+COPY pyproject.toml /packages/ml/pyproject.toml
+COPY pulse_ml /packages/ml/pulse_ml
+COPY runtime-constraints.txt /packages/runtime-constraints.txt
+RUN pip install -c /packages/runtime-constraints.txt /packages/model /packages/contracts /packages/ml && pip check
+ENV ML_GRPC_BIND=0.0.0.0:50051 ML_DATA_ROOT=/data
+WORKDIR /app
+EXPOSE 50051
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s CMD ["python", "-m", "pulse_ml.healthcheck"]
+CMD ["python","-m","pulse_ml.server"]

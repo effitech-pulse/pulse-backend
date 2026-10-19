@@ -1,0 +1,18 @@
+{
+  "edition": "Технический срез рабочего дерева; реализация и план разделены",
+  "sections": 19,
+  "figma_entries": 150,
+  "http_operations": 78,
+  "source_records": 537,
+  "editable_diagram_pages": 7,
+  "contains_production_data": false,
+  "contains_model_weights": false,
+  "contains_credentials": false,
+  "entrypoints": [
+    "README.md",
+    "index.html"
+  ],
+  "rebuild": "python3 tools/build.py",
+  "validate": "python3 tools/validate.py",
+  "sources_check": "python3 tools/sync_sources.py --workspace <repository-split> --check"
+}

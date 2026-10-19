@@ -1,0 +1,768 @@
+{
+  "edition": "2026-10-20 / PREP supplement",
+  "workspace_root": "repository-split, supplied explicitly via --workspace",
+  "policy": "SOURCE_POLICY.md",
+  "entries": [
+    {
+      "snapshot": "assets/pulse-symbol.svg",
+      "source": "pulse-frontend/public/figma/pulse-symbol.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "c1866356f2fd0a2ab3bdfcb5558df679badc93409126954edf0bc934d3d5208c",
+      "snapshot_sha256": "c1866356f2fd0a2ab3bdfcb5558df679badc93409126954edf0bc934d3d5208c"
+    },
+    {
+      "snapshot": "contracts/buf.gen.yaml",
+      "source": "pulse-contracts/buf.gen.yaml",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "9e034171f6e79df515e2fdece054514c5ad9b6d76288afb2087eb42fb8de589a",
+      "snapshot_sha256": "9e034171f6e79df515e2fdece054514c5ad9b6d76288afb2087eb42fb8de589a"
+    },
+    {
+      "snapshot": "contracts/buf.yaml",
+      "source": "pulse-contracts/buf.yaml",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "68161cb67baaff1ac60e60c3122e30abea7fca71cdfe200a7560e0e2d8d18422",
+      "snapshot_sha256": "68161cb67baaff1ac60e60c3122e30abea7fca71cdfe200a7560e0e2d8d18422"
+    },
+    {
+      "snapshot": "contracts/ml.proto",
+      "source": "pulse-contracts/proto/pulse/ml/v1/ml.proto",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "e81a6b46bc5bd8c5d318962a4b32e598473bd679fb375fdb92407f0ce720da3e",
+      "snapshot_sha256": "e81a6b46bc5bd8c5d318962a4b32e598473bd679fb375fdb92407f0ce720da3e"
+    },
+    {
+      "snapshot": "contracts/openapi.json",
+      "source": "pulse-backend/api/openapi.json",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "594f10a93bb52d0468ef1740fa898c5015a2fc5d0bdcb02929b7b17aee9dcf92",
+      "snapshot_sha256": "594f10a93bb52d0468ef1740fa898c5015a2fc5d0bdcb02929b7b17aee9dcf92"
+    },
+    {
+      "snapshot": "contracts/runtime-constraints.txt",
+      "source": "pulse-ml-service/runtime-constraints.txt",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "889abf5399ef70c84430992ad8cd02590965d71717d6bc033ba19a00b0b0429a",
+      "snapshot_sha256": "889abf5399ef70c84430992ad8cd02590965d71717d6bc033ba19a00b0b0429a"
+    },
+    {
+      "snapshot": "design/ThemeProvider.tsx",
+      "source": "pulse-frontend/src/theme/ThemeProvider.tsx",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "fd261859ff4c3b2b753f4d9a0689d6f26ea2937538eeaf3894fea1dfaa818f6e",
+      "snapshot_sha256": "fd261859ff4c3b2b753f4d9a0689d6f26ea2937538eeaf3894fea1dfaa818f6e"
+    },
+    {
+      "snapshot": "design/antdTheme.ts",
+      "source": "pulse-frontend/src/theme/antdTheme.ts",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "6510f97ef92c9c05d284560eef17d30215fa1a9426c6f68793cbc50e95497132",
+      "snapshot_sha256": "6510f97ef92c9c05d284560eef17d30215fa1a9426c6f68793cbc50e95497132"
+    },
+    {
+      "snapshot": "design/brand-kit/GUIDELINES.md",
+      "source": "pulse-frontend/design/brand-kit/GUIDELINES.md",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "c51887657fdf48024ca0b8f9b39d3f8bcede4697c4daba865440c1c5d10715d5",
+      "snapshot_sha256": "c51887657fdf48024ca0b8f9b39d3f8bcede4697c4daba865440c1c5d10715d5"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/apple-touch-icon.png",
+      "source": "pulse-frontend/design/brand-kit/exports/apple-touch-icon.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "cb14351c5b446ede72a697ec4d5ad53fb910f9f73bda5a31acbf7ba8934f1f52",
+      "snapshot_sha256": "cb14351c5b446ede72a697ec4d5ad53fb910f9f73bda5a31acbf7ba8934f1f52"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/favicon-16.png",
+      "source": "pulse-frontend/design/brand-kit/exports/favicon-16.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "af37f3f71dbbd049cc7883cc8a99f0a792b6130694ea90a5aa6be4b6ac12462e",
+      "snapshot_sha256": "af37f3f71dbbd049cc7883cc8a99f0a792b6130694ea90a5aa6be4b6ac12462e"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/favicon-32.png",
+      "source": "pulse-frontend/design/brand-kit/exports/favicon-32.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "4c184e45982155a42bcacf184a93b3a65fbde22afc5283efec0073abc1430b44",
+      "snapshot_sha256": "4c184e45982155a42bcacf184a93b3a65fbde22afc5283efec0073abc1430b44"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/favicon-48.png",
+      "source": "pulse-frontend/design/brand-kit/exports/favicon-48.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "5144724d617b09b412fbbcb4b16a626fea360baa32650f69b83c770e17bf80fa",
+      "snapshot_sha256": "5144724d617b09b412fbbcb4b16a626fea360baa32650f69b83c770e17bf80fa"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/favicon.ico",
+      "source": "pulse-frontend/design/brand-kit/exports/favicon.ico",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "a69abf862dc7e716c7cd80fc08902e259de6ec282b46c25a6e10733565c850e3",
+      "snapshot_sha256": "a69abf862dc7e716c7cd80fc08902e259de6ec282b46c25a6e10733565c850e3"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/favicon.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/favicon.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "88bc17da2bd397f4a9d93d7d7f38e8ea3b9959413c7e4a8928850a13d7ce48cd",
+      "snapshot_sha256": "88bc17da2bd397f4a9d93d7d7f38e8ea3b9959413c7e4a8928850a13d7ce48cd"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/head-snippet.html",
+      "source": "pulse-frontend/design/brand-kit/exports/head-snippet.html",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "31657007e1cb94c328a93cd5bfb01ec9f1459e87a7fadefe656f6140b31d81ed",
+      "snapshot_sha256": "31657007e1cb94c328a93cd5bfb01ec9f1459e87a7fadefe656f6140b31d81ed"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/icon-192.png",
+      "source": "pulse-frontend/design/brand-kit/exports/icon-192.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "3e525f400ef305fcd258d6e00ddb9cd4f920486312ec296e0aa4380eca96c580",
+      "snapshot_sha256": "3e525f400ef305fcd258d6e00ddb9cd4f920486312ec296e0aa4380eca96c580"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/icon-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/icon-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "871b9b2ade5b2ff83229d17f687b8f41beb7279b03f46112eb403478320d042f",
+      "snapshot_sha256": "871b9b2ade5b2ff83229d17f687b8f41beb7279b03f46112eb403478320d042f"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/maskable-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/maskable-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "8511644e0486fd87e76063f7b572d7ed3f2130922aa0f331764d4a1f85d92ee7",
+      "snapshot_sha256": "8511644e0486fd87e76063f7b572d7ed3f2130922aa0f331764d4a1f85d92ee7"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-app-icon-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-app-icon-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "9373638002525b222fbee539f68177945c68f65dc45f70ae6c3a8aa52f1c218c",
+      "snapshot_sha256": "9373638002525b222fbee539f68177945c68f65dc45f70ae6c3a8aa52f1c218c"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-app-icon.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-app-icon.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "8d4d5e8ad1fe3a7ad7680750772ab9d272b8d26d87bd923b86652977356672e0",
+      "snapshot_sha256": "8d4d5e8ad1fe3a7ad7680750772ab9d272b8d26d87bd923b86652977356672e0"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-black-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-black-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "6441dfa480ed84f16acc27fe30088c8b83efba4e8ed7f0fab2c8137e06fa0397",
+      "snapshot_sha256": "6441dfa480ed84f16acc27fe30088c8b83efba4e8ed7f0fab2c8137e06fa0397"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-black.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-black.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "841f80d62b55fc380019820dbda36d759061bc7094aa6a2a8bb6ae9d73d6251f",
+      "snapshot_sha256": "841f80d62b55fc380019820dbda36d759061bc7094aa6a2a8bb6ae9d73d6251f"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-favicon-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-favicon-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "5dba0e8eeb4435a1b93888139a1c8c70b7cbc23698bfe5f10629a774e775d5ef",
+      "snapshot_sha256": "5dba0e8eeb4435a1b93888139a1c8c70b7cbc23698bfe5f10629a774e775d5ef"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-favicon.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-favicon.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "88bc17da2bd397f4a9d93d7d7f38e8ea3b9959413c7e4a8928850a13d7ce48cd",
+      "snapshot_sha256": "88bc17da2bd397f4a9d93d7d7f38e8ea3b9959413c7e4a8928850a13d7ce48cd"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-horizontal-black.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-horizontal-black.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "165e298539e4a8e3eeb03f6d9d664b72bbe767b89a192f1b3d310ec41b8ce820",
+      "snapshot_sha256": "165e298539e4a8e3eeb03f6d9d664b72bbe767b89a192f1b3d310ec41b8ce820"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-horizontal-mono-2f6fed.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-horizontal-mono-2f6fed.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "f9e355af8e48d579efe00d669c073bbcccf5b9de0ab931a5685247652a062038",
+      "snapshot_sha256": "f9e355af8e48d579efe00d669c073bbcccf5b9de0ab931a5685247652a062038"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-horizontal-white.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-horizontal-white.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "6aaec80fea520f9112eca5283cbd5665e3a0601228709865924e9da82f8f5904",
+      "snapshot_sha256": "6aaec80fea520f9112eca5283cbd5665e3a0601228709865924e9da82f8f5904"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-mono-2f6fed-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-mono-2f6fed-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "f59817f79254597cdb8d6cb724dfe63053661a915524c16b4df5576de97afa54",
+      "snapshot_sha256": "f59817f79254597cdb8d6cb724dfe63053661a915524c16b4df5576de97afa54"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-mono-2f6fed.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-mono-2f6fed.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "664655651f1f2c343b00754d281593dfb11db2f20ca87a648d555e12e9f289e0",
+      "snapshot_sha256": "664655651f1f2c343b00754d281593dfb11db2f20ca87a648d555e12e9f289e0"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-square-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-square-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "d22bddc202dcc4cac5c7de13938a627cd3ffc53f8e82ce738add0e3a974d7e96",
+      "snapshot_sha256": "d22bddc202dcc4cac5c7de13938a627cd3ffc53f8e82ce738add0e3a974d7e96"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-square.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-square.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "6b01bbc241592593af282412c11445396886ca5855b6bdb7915e718c8e04f4a4",
+      "snapshot_sha256": "6b01bbc241592593af282412c11445396886ca5855b6bdb7915e718c8e04f4a4"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-white-512.png",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-white-512.png",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "e420c409e27f587e18f03c28ffb778e3da7a4423832c8adda7284d08271b20ff",
+      "snapshot_sha256": "e420c409e27f587e18f03c28ffb778e3da7a4423832c8adda7284d08271b20ff"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/pulse-white.svg",
+      "source": "pulse-frontend/design/brand-kit/exports/pulse-white.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "cddf6d5532172e6311fdd92c3f0940ab7847bafdea1a8ff30cdf06c25b39405f",
+      "snapshot_sha256": "cddf6d5532172e6311fdd92c3f0940ab7847bafdea1a8ff30cdf06c25b39405f"
+    },
+    {
+      "snapshot": "design/brand-kit/exports/site.webmanifest",
+      "source": "pulse-frontend/design/brand-kit/exports/site.webmanifest",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "8ccbf3ac0f0468b94b363e8c4bc6a84fe526140508e7f8c349ca09fd590f5352",
+      "snapshot_sha256": "8ccbf3ac0f0468b94b363e8c4bc6a84fe526140508e7f8c349ca09fd590f5352"
+    },
+    {
+      "snapshot": "design/brand-kit/presentation.html",
+      "source": "pulse-frontend/design/brand-kit/presentation.html",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "b5c7459b9a193f9eec899acdb5306cfb03631304e732f85bad182d572c87c454",
+      "snapshot_sha256": "b5c7459b9a193f9eec899acdb5306cfb03631304e732f85bad182d572c87c454"
+    },
+    {
+      "snapshot": "design/brand-kit/pulse-horizontal.svg",
+      "source": "pulse-frontend/design/brand-kit/pulse-horizontal.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "4a6604de63ae95a9c263c4f27d957defafb3487269b340c0267b8b69f51369cc",
+      "snapshot_sha256": "4a6604de63ae95a9c263c4f27d957defafb3487269b340c0267b8b69f51369cc"
+    },
+    {
+      "snapshot": "design/brand-kit/pulse-symbol.svg",
+      "source": "pulse-frontend/design/brand-kit/pulse-symbol.svg",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "d963c73e2223f3230be4df9df57dea5cbfdc4eb7a707c07c7e8ee7ebcebb15d4",
+      "snapshot_sha256": "d963c73e2223f3230be4df9df57dea5cbfdc4eb7a707c07c7e8ee7ebcebb15d4"
+    },
+    {
+      "snapshot": "design/designTokens.ts",
+      "source": "pulse-frontend/src/theme/designTokens.ts",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "833fc7cf3e90653db686e35a45021144861abd3103920091a378399eed8776fd",
+      "snapshot_sha256": "833fc7cf3e90653db686e35a45021144861abd3103920091a378399eed8776fd"
+    },
+    {
+      "snapshot": "design/figma/dark-state.json",
+      "source": "pulse-frontend/design/dark-theme/figma-state.json",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "4ca5be934ce6fe3d09d5bbb76d0b65b4eaf7c9028a07c120b1922dab2f92753b",
+      "snapshot_sha256": "4ca5be934ce6fe3d09d5bbb76d0b65b4eaf7c9028a07c120b1922dab2f92753b"
+    },
+    {
+      "snapshot": "design/figma/figma-state.json",
+      "source": "pulse-frontend/design/figma-state.json",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "29cf816fb6eef5e66b336765858151f3ca16bb877c3963dd0b391f0c4aa7a8eb",
+      "snapshot_sha256": "29cf816fb6eef5e66b336765858151f3ca16bb877c3963dd0b391f0c4aa7a8eb"
+    },
+    {
+      "snapshot": "design/figma/integrations-dark-state.json",
+      "source": "pulse-frontend/design/integrations/figma-dark-state.json",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "9f4fb8d511d0692503b5f565898981ab9bcb72f7b2831676784defe97f31589c",
+      "snapshot_sha256": "9f4fb8d511d0692503b5f565898981ab9bcb72f7b2831676784defe97f31589c"
+    },
+    {
+      "snapshot": "design/figma/integrations-state.json",
+      "source": "pulse-frontend/design/integrations/figma-state.json",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "459a359b2aa1b9fb99eeb1bfe4dc54c29309cc2a30dd020a2f22f8743c2a2eec",
+      "snapshot_sha256": "459a359b2aa1b9fb99eeb1bfe4dc54c29309cc2a30dd020a2f22f8743c2a2eec"
+    },
+    {
+      "snapshot": "design/figma/v4-created.json",
+      "source": "pulse-frontend/design/v4/figma-created.json",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "e5eac0c0afb6341d28f341f2f25147ded87e909575945de99ce2cc562de8d921",
+      "snapshot_sha256": "e5eac0c0afb6341d28f341f2f25147ded87e909575945de99ce2cc562de8d921"
+    },
+    {
+      "snapshot": "design/prototype-v3.html",
+      "source": "pulse-frontend/design/v3/preview.html",
+      "owner": "designer",
+      "mode": "copy",
+      "source_sha256": "50105b84f166fe6fe6a64650c997eb23398d24921676ddc85c54f06f975df170",
+      "snapshot_sha256": "50105b84f166fe6fe6a64650c997eb23398d24921676ddc85c54f06f975df170"
+    },
+    {
+      "snapshot": "diagrams/pulse-c4-components.png",
+      "source": "pulse-backend/docs/diagrams/pulse-c4-components.png",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "332d10fb9034fda3428eddc4788217f1f9a8600d7e03cb8e6e650b60620d0088",
+      "snapshot_sha256": "332d10fb9034fda3428eddc4788217f1f9a8600d7e03cb8e6e650b60620d0088"
+    },
+    {
+      "snapshot": "diagrams/pulse-c4-containers.png",
+      "source": "pulse-backend/docs/diagrams/pulse-c4-containers.png",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "0c60052d5793acd182689e29e9ca2c50d18e6bcca03a7f3d87ec58116d690da5",
+      "snapshot_sha256": "0c60052d5793acd182689e29e9ca2c50d18e6bcca03a7f3d87ec58116d690da5"
+    },
+    {
+      "snapshot": "diagrams/pulse-c4-context.png",
+      "source": "pulse-backend/docs/diagrams/pulse-c4-context.png",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "8f113bc6be9532acdc91ad232486ef9d0def0e804c6fd8562fd8c88fadb0f452",
+      "snapshot_sha256": "8f113bc6be9532acdc91ad232486ef9d0def0e804c6fd8562fd8c88fadb0f452"
+    },
+    {
+      "snapshot": "diagrams/pulse-c4-deployment.png",
+      "source": "pulse-backend/docs/diagrams/pulse-c4-deployment.png",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "ca9c25a60e7251a65fe60f8f7982450d0bd1482be2438e396407c9e15c846557",
+      "snapshot_sha256": "ca9c25a60e7251a65fe60f8f7982450d0bd1482be2438e396407c9e15c846557"
+    },
+    {
+      "snapshot": "diagrams/pulse-c4.drawio",
+      "source": "pulse-backend/docs/diagrams/pulse-c4.drawio",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "23acb639cd5ed979a9507c2213e22a887fe8f78c714fdf91618c4e39737fb960",
+      "snapshot_sha256": "23acb639cd5ed979a9507c2213e22a887fe8f78c714fdf91618c4e39737fb960"
+    },
+    {
+      "snapshot": "diagrams/readiness-architecture.drawio",
+      "source": "pulse-backend/docs/readiness-architecture-2026-10-19.drawio",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "4bd8c2ead7e7ee4dc024504aaca66e3e84348e342350033d0cce192c868623d0",
+      "snapshot_sha256": "4bd8c2ead7e7ee4dc024504aaca66e3e84348e342350033d0cce192c868623d0"
+    },
+    {
+      "snapshot": "examples/readiness-protocol.example.json",
+      "source": "pulse-model/docs/examples/readiness-protocol.example.json",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "e4c362fd349f68fa720436b6c96de0b1809c197cc56fac01470cbf388f7273df",
+      "snapshot_sha256": "e4c362fd349f68fa720436b6c96de0b1809c197cc56fac01470cbf388f7273df"
+    },
+    {
+      "snapshot": "inventory/pulse-backend--Makefile",
+      "source": "pulse-backend/Makefile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "7abdc305000794be3ec248ca3c07269bd070670276c774b2ea216ea81f08da39",
+      "snapshot_sha256": "7abdc305000794be3ec248ca3c07269bd070670276c774b2ea216ea81f08da39"
+    },
+    {
+      "snapshot": "inventory/pulse-backend--go.mod",
+      "source": "pulse-backend/go.mod",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "2d27af22c9484bcbfc521aee7e24ecd61d784b08303bdf947ee3b34836850d49",
+      "snapshot_sha256": "2d27af22c9484bcbfc521aee7e24ecd61d784b08303bdf947ee3b34836850d49"
+    },
+    {
+      "snapshot": "inventory/pulse-contracts--Makefile",
+      "source": "pulse-contracts/Makefile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "0f9e1f3bb5cff3790d8176e7e7b896db39b74a115ccc94c6f93e0eb64a174a6c",
+      "snapshot_sha256": "0f9e1f3bb5cff3790d8176e7e7b896db39b74a115ccc94c6f93e0eb64a174a6c"
+    },
+    {
+      "snapshot": "inventory/pulse-contracts--go.mod",
+      "source": "pulse-contracts/go.mod",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "d90a54e9c3e1d1c29382fe8cbdd9d5c3c74953d943c1b021928f053b1a443aa9",
+      "snapshot_sha256": "d90a54e9c3e1d1c29382fe8cbdd9d5c3c74953d943c1b021928f053b1a443aa9"
+    },
+    {
+      "snapshot": "inventory/pulse-contracts--pyproject.toml",
+      "source": "pulse-contracts/pyproject.toml",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "e7da492bf97e2cec34561593ba0c0f8086ad2b886e77ee9a3fc51a4c6a363c4b",
+      "snapshot_sha256": "e7da492bf97e2cec34561593ba0c0f8086ad2b886e77ee9a3fc51a4c6a363c4b"
+    },
+    {
+      "snapshot": "inventory/pulse-data--Dockerfile",
+      "source": "pulse-data/Dockerfile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "d155d40151c35f88e5a3e13b36dabcd72f47350ab921cf6e36aec586c98b1fb5",
+      "snapshot_sha256": "d155d40151c35f88e5a3e13b36dabcd72f47350ab921cf6e36aec586c98b1fb5"
+    },
+    {
+      "snapshot": "inventory/pulse-data--Makefile",
+      "source": "pulse-data/Makefile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "ea6e6241bab69976e8fe392efc1830c56cb5ebb435eec4b273667f91291ecb32",
+      "snapshot_sha256": "ea6e6241bab69976e8fe392efc1830c56cb5ebb435eec4b273667f91291ecb32"
+    },
+    {
+      "snapshot": "inventory/pulse-data--pyproject.toml",
+      "source": "pulse-data/pyproject.toml",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "babe6ca3ccfa82ca85ea477cb73bc72cf53c7aac1110779fe48d415b3af8bb94",
+      "snapshot_sha256": "babe6ca3ccfa82ca85ea477cb73bc72cf53c7aac1110779fe48d415b3af8bb94"
+    },
+    {
+      "snapshot": "inventory/pulse-frontend--Dockerfile",
+      "source": "pulse-frontend/Dockerfile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "e9c8f14ba41ed14fdb27e5280f7a20e691e829277aab55a0c75a17fcf8f4679d",
+      "snapshot_sha256": "e9c8f14ba41ed14fdb27e5280f7a20e691e829277aab55a0c75a17fcf8f4679d"
+    },
+    {
+      "snapshot": "inventory/pulse-frontend--package.json",
+      "source": "pulse-frontend/package.json",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "0876aef53fbbf7bb502dd3a8f25948c62c41e07b4eb0572797a53ddb2e5d8ef6",
+      "snapshot_sha256": "0876aef53fbbf7bb502dd3a8f25948c62c41e07b4eb0572797a53ddb2e5d8ef6"
+    },
+    {
+      "snapshot": "inventory/pulse-ml-service--Dockerfile",
+      "source": "pulse-ml-service/Dockerfile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "eb32d80789179225e3d631c0b9ea10ebb1277cfce15de4c7741102e538f766b3",
+      "snapshot_sha256": "eb32d80789179225e3d631c0b9ea10ebb1277cfce15de4c7741102e538f766b3"
+    },
+    {
+      "snapshot": "inventory/pulse-ml-service--pyproject.toml",
+      "source": "pulse-ml-service/pyproject.toml",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "c7c9541a1c6027e638991c12415636d2d5ae6be961692d0ce039332d0db0bf9e",
+      "snapshot_sha256": "c7c9541a1c6027e638991c12415636d2d5ae6be961692d0ce039332d0db0bf9e"
+    },
+    {
+      "snapshot": "inventory/pulse-model--Makefile",
+      "source": "pulse-model/Makefile",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "3e0345f28e75b4acf5a4910ceb143f0476436e1806d8fee4811a662f8909059e",
+      "snapshot_sha256": "3e0345f28e75b4acf5a4910ceb143f0476436e1806d8fee4811a662f8909059e"
+    },
+    {
+      "snapshot": "inventory/pulse-model--pyproject.toml",
+      "source": "pulse-model/pyproject.toml",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "bec2dd5ad4955958350813466c2febc67d627a80f660306e4e9ea4bd0c4967e4",
+      "snapshot_sha256": "bec2dd5ad4955958350813466c2febc67d627a80f660306e4e9ea4bd0c4967e4"
+    },
+    {
+      "snapshot": "inventory/readiness-compatibility.json",
+      "source": "pulse-backend/docs/readiness-compatibility.json",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "43a3735e86a6504642597b8bba54c1ba16dbb2a6c187e3584f41ee03bbf51205",
+      "snapshot_sha256": "43a3735e86a6504642597b8bba54c1ba16dbb2a6c187e3584f41ee03bbf51205"
+    },
+    {
+      "snapshot": "inventory/readiness-native-artifacts.json",
+      "source": "pulse-backend/docs/readiness-native-artifacts.json",
+      "owner": "tech-lead",
+      "mode": "copy",
+      "source_sha256": "aabcbef0ea3cab19886677055eac06ed5b2c56245c38da95f1fc4da9b43160f2",
+      "snapshot_sha256": "aabcbef0ea3cab19886677055eac06ed5b2c56245c38da95f1fc4da9b43160f2"
+    },
+    {
+      "snapshot": "references/backend-configuration.md",
+      "source": "pulse-backend/docs/configuration.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "c797ea3c99ebfd24573c135f2a03e0d44be61ca48a10f2c89c2df0037bf2c897",
+      "snapshot_sha256": "c28dbbfdcd96065944ac7adc7d33c36326c4c3ba97e276d15df1d6ad8257249e"
+    },
+    {
+      "snapshot": "references/backend-operations.md",
+      "source": "pulse-backend/docs/operations.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "390b69043e9c1c200ce61296faf1579c65c90007234630bebb27152677fec4b3",
+      "snapshot_sha256": "25bea6ade4141873294c4da17ca2c15259c7bd5810d6994e52e30ee3b1b5057e"
+    },
+    {
+      "snapshot": "references/causal-baseline.md",
+      "source": "pulse-model/docs/causal_baseline.md",
+      "owner": "architect-analyst",
+      "mode": "markdown",
+      "source_sha256": "e11603823077b0fc00f989a23e6ccfd3734312219cabd1aa82cf7b1243027fbe",
+      "snapshot_sha256": "dee999ad6d6ae94f96829f1642d999890b9b0c804e0373aec64f1683c2d4930e"
+    },
+    {
+      "snapshot": "references/frontend-design.md",
+      "source": "pulse-frontend/DESIGN.md",
+      "owner": "designer",
+      "mode": "markdown",
+      "source_sha256": "343259cbe5600125e688b5dba7555689851c5d095b69f478cda0cebcf6e26680",
+      "snapshot_sha256": "a680541e376bf5fff0151249067b09f1777b4ef4ac904b36a4ddf89214515835"
+    },
+    {
+      "snapshot": "references/frontend-handoff.md",
+      "source": "pulse-frontend/design/HANDOFF.md",
+      "owner": "designer",
+      "mode": "markdown",
+      "source_sha256": "a0b041aa7ca1cf224285132188ac9d3ed29c63bce0cef8a585e39dd444a7562a",
+      "snapshot_sha256": "f60254575501aa328d8787b31c5ab7c409d164b5a5ba79fe9ea67f05810715a1"
+    },
+    {
+      "snapshot": "references/frontend-readme.md",
+      "source": "pulse-frontend/README.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "122b3c9d52430cb7f9becb2cba49566ab60b90dc2263156187e998efc15cc84f",
+      "snapshot_sha256": "afbc67708bda3e3332816f9d3ff34e824ac76e414527e75c67fce114d766e391"
+    },
+    {
+      "snapshot": "references/independent-acceptance.md",
+      "source": "pulse-model/docs/independent-acceptance.md",
+      "owner": "architect-analyst",
+      "mode": "markdown",
+      "source_sha256": "065b6c3f6b11069cf8fe29091626c70c60d78370d8071450ddcd562c4047735e",
+      "snapshot_sha256": "ac467fd6cd2e3cad42e9afc44294378583af032bfdeabfd1d944138f92956e3b"
+    },
+    {
+      "snapshot": "references/ml-service-readme.md",
+      "source": "pulse-ml-service/README.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "57bc0058ffe017dd40f7ab8bf96ce755ad1c201a56b977cd2a6671a5c06a0f06",
+      "snapshot_sha256": "4e1583219edb1499b5901251818d2c8b1eee3e86afbc0d270c3f4278573e9bd7"
+    },
+    {
+      "snapshot": "references/model-rpc-compatibility.md",
+      "source": "pulse-ml-service/docs/model-rpc-compatibility.md",
+      "owner": "architect-analyst",
+      "mode": "markdown",
+      "source_sha256": "6d38990a582aeab04c3d51856c3f0c3b3c91d3f01435c8aeebebf0c249c0aea7",
+      "snapshot_sha256": "1a4590076d704575b5979876e585faeccbd3bd1c0c7a2c8e2d2ac8768d7a54f6"
+    },
+    {
+      "snapshot": "references/readiness-architecture.md",
+      "source": "pulse-backend/docs/readiness-architecture-2026-10-19.md",
+      "owner": "architect-analyst",
+      "mode": "markdown",
+      "source_sha256": "60516e7ca50a98f43f4292e8a0e122b299fdc95bb617ab868ca39dd1e1950b01",
+      "snapshot_sha256": "df99cddd3f966bdcae3b145faca37296bdb02acfd022eae114b8fddd7d806b29"
+    },
+    {
+      "snapshot": "references/readiness-ledger.md",
+      "source": "pulse-backend/docs/ready-for-development-2026-10-19.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "edab7c9436481b9dd4aed9e7aa549213dc07c0edcc0ceaee4764944abceb35ee",
+      "snapshot_sha256": "846602e51a6b62d5f8cae6c12a45f83fcdd2b92e57394674dfca8f6b0b9ad572"
+    },
+    {
+      "snapshot": "references/readiness-runtime.md",
+      "source": "pulse-backend/docs/readiness-runtime.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "99f5b1e132fd790ca5ce51e8dddd45c066552c0639ffe71557183738073724f9",
+      "snapshot_sha256": "809d70c0db47bb94e904719289ef02b4c6c92c4648eea6a1947ec2202309d28e"
+    },
+    {
+      "snapshot": "references/runtime-installation.md",
+      "source": "pulse-ml-service/docs/runtime-installation.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "9ef84093aee699f66409d030fa287cc415edfd2e7d1caa0d08ba9c8f09969a65",
+      "snapshot_sha256": "4058cef39e7f7cda671d42cfc86eb67ae105b95ac16dddc50c1ce9dbf4bab897"
+    },
+    {
+      "snapshot": "references/verification-matrix.md",
+      "source": "pulse-backend/docs/verification-matrix.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "6c11408b1589f15ee4ff4f46254874f4a1b17147a8a952a82c410b4db4c9613f",
+      "snapshot_sha256": "20e8a797f87c68d6566bd1b0c54cc0937a57cbfcdc48a078c576b3b2b5c75f2c"
+    },
+    {
+      "snapshot": "schemas/clickhouse/init.sql",
+      "source": "pulse-data/deploy/clickhouse/init.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "884b25c275f31db12874e79cc0f9a74fc5f4e5eb5e8f205e9be01be2505cbfb2",
+      "snapshot_sha256": "884b25c275f31db12874e79cc0f9a74fc5f4e5eb5e8f205e9be01be2505cbfb2"
+    },
+    {
+      "snapshot": "schemas/postgres/access.sql",
+      "source": "pulse-backend/internal/migrations/access.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "a0722aff8bccdc650e99f7ae82c2596a5f1fd4ba0db30763741634fae575bf0b",
+      "snapshot_sha256": "a0722aff8bccdc650e99f7ae82c2596a5f1fd4ba0db30763741634fae575bf0b"
+    },
+    {
+      "snapshot": "schemas/postgres/cohort.sql",
+      "source": "pulse-backend/internal/migrations/cohort.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "dae90976fd741809e07858061c20de352f171cae26e0bc907be5104dde1c5476",
+      "snapshot_sha256": "dae90976fd741809e07858061c20de352f171cae26e0bc907be5104dde1c5476"
+    },
+    {
+      "snapshot": "schemas/postgres/fund_type.sql",
+      "source": "pulse-backend/internal/migrations/fund_type.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "804652b72cb9926f4c7be5b2ea8f378804bfcac4a85a1844633e3a15ada1cee1",
+      "snapshot_sha256": "804652b72cb9926f4c7be5b2ea8f378804bfcac4a85a1844633e3a15ada1cee1"
+    },
+    {
+      "snapshot": "schemas/postgres/integrations.sql",
+      "source": "pulse-backend/internal/migrations/integrations.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "64248d41a36c89210214fc8aed5ec63718552bc0b49aaf177cf397113fa178ae",
+      "snapshot_sha256": "64248d41a36c89210214fc8aed5ec63718552bc0b49aaf177cf397113fa178ae"
+    },
+    {
+      "snapshot": "schemas/postgres/manual_checks.sql",
+      "source": "pulse-backend/internal/migrations/manual_checks.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "d3209c490f6a7ab6d60200ed16797525ddccc0eaa793f22771a882d0f302ff52",
+      "snapshot_sha256": "d3209c490f6a7ab6d60200ed16797525ddccc0eaa793f22771a882d0f302ff52"
+    },
+    {
+      "snapshot": "schemas/postgres/ml_snapshot.sql",
+      "source": "pulse-backend/internal/migrations/ml_snapshot.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "326b2628affba070a5a62822bb1527bfd8c874fb88105fa4f1681f49177828a8",
+      "snapshot_sha256": "326b2628affba070a5a62822bb1527bfd8c874fb88105fa4f1681f49177828a8"
+    },
+    {
+      "snapshot": "schemas/postgres/research-init.sql",
+      "source": "pulse-data/deploy/postgres/init.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "29460e73ff8961ad89ed509f23ddfd9fa255df4230a37298ab683c61a1a20699",
+      "snapshot_sha256": "29460e73ff8961ad89ed509f23ddfd9fa255df4230a37298ab683c61a1a20699"
+    },
+    {
+      "snapshot": "schemas/postgres/reviews.sql",
+      "source": "pulse-backend/internal/migrations/reviews.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "a2f82225c9b19387247ab97027848b2f4b8e4c1b82ae21d37c87565a23fef4c9",
+      "snapshot_sha256": "a2f82225c9b19387247ab97027848b2f4b8e4c1b82ae21d37c87565a23fef4c9"
+    },
+    {
+      "snapshot": "schemas/postgres/run_scope.sql",
+      "source": "pulse-backend/internal/migrations/run_scope.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "f8f470e3ee6606df29039847db02b4421e6e4b0736ba1aad8b567612ef98b690",
+      "snapshot_sha256": "f8f470e3ee6606df29039847db02b4421e6e4b0736ba1aad8b567612ef98b690"
+    },
+    {
+      "snapshot": "schemas/postgres/schema.sql",
+      "source": "pulse-backend/internal/migrations/schema.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "72918ade7b80bd59e76a09089bed1080d66e79faf750258d6810f9656c2a1508",
+      "snapshot_sha256": "72918ade7b80bd59e76a09089bed1080d66e79faf750258d6810f9656c2a1508"
+    },
+    {
+      "snapshot": "schemas/postgres/well_identity.sql",
+      "source": "pulse-backend/internal/migrations/well_identity.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "f45d5ec3d5b538ba2513c8623424ac533f0faff928e4159f7129eb9607426796",
+      "snapshot_sha256": "f45d5ec3d5b538ba2513c8623424ac533f0faff928e4159f7129eb9607426796"
+    },
+    {
+      "snapshot": "schemas/postgres/well_lifecycle.sql",
+      "source": "pulse-backend/internal/migrations/well_lifecycle.sql",
+      "owner": "architect-analyst",
+      "mode": "copy",
+      "source_sha256": "da999ce8eeb99ffaf5ba143d11b74a92f33912dedf74086270340fc12f68635e",
+      "snapshot_sha256": "da999ce8eeb99ffaf5ba143d11b74a92f33912dedf74086270340fc12f68635e"
+    }
+  ],
+  "snapshot_date": "2026-10-20"
+}

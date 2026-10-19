@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+FROM python:3.13-slim
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+WORKDIR /packages
+COPY --from=model pyproject.toml /packages/model/pyproject.toml
+COPY --from=model esp /packages/model/esp
+COPY --from=model scripts /packages/model/scripts
+COPY pyproject.toml /packages/data/pyproject.toml
+COPY runtime-constraints.txt /packages/runtime-constraints.txt
+COPY utils /packages/data/utils
+COPY scripts /packages/data/scripts
+RUN pip install -c /packages/runtime-constraints.txt /packages/model /packages/data && pip check
+WORKDIR /app
+EXPOSE 8092
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8092/health',timeout=3)" || exit 1
+CMD ["python","-m","utils.telemetry_emulator.server","--profiles","/data/emulator/calibration.json","--scenario","/data/emulator/scenario.json","--coverage","/data/reports/telemetry_coverage.csv","--host","0.0.0.0","--port","8092"]

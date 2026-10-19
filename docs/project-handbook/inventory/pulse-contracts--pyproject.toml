@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "effitech-pulse-contracts"
+version = "0.1.1"
+requires-python = ">=3.11"
+dependencies = ["grpcio>=1.78,<2", "protobuf>=6.31.1,<7"]
+
+[project.optional-dependencies]
+codegen = ["grpcio-tools==1.78.0"]
+test = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["gen/python"]
+
+[tool.setuptools.package-data]
+"pulse.ml.v1" = ["*.pyi"]

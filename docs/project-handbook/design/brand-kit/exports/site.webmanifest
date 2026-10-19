@@ -1,0 +1,24 @@
+{
+  "name": "\u041f\u0443\u043b\u044c\u0441 \u0441\u043a\u0432\u0430\u0436\u0438\u043d\u044b",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#2f6fed",
+  "background_color": "#2f6fed",
+  "display": "standalone"
+}

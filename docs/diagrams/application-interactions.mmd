@@ -1,0 +1,26 @@
+flowchart LR
+subgraph client ["Рабочее место"]
+ browserUi["Браузер: интерфейс React"]
+end
+subgraph gateway ["Вход в приложение"]
+ frontendWeb["pulse-frontend: Nginx"]
+end
+subgraph service ["Приложения в Docker"]
+ backendApi["pulse-backend: API и сборщик"]
+ dataApi["pulse-data: JSON API и генератор"]
+ modelRpc["pulse-ml-service + библиотека pulse-model"]
+end
+subgraph datastore ["Данные"]
+ postgresDb["PostgreSQL: esp_app и esp"]
+ telemetryDb["ClickHouse: архив телеметрии"]
+ sharedFiles["workspace-data: модели, признаки, сценарий"]
+end
+browserUi -->|"HTTP :8080"| frontendWeb
+frontendWeb -->|"/api/v1"| backendApi
+backendApi -->|"gRPC: проверка по команде"| modelRpc
+backendApi -->|"JSON: периодический сбор"| dataApi
+backendApi -->|"Реестр, проверки, заключения"| postgresDb
+modelRpc -->|"Читает дебит и метаданные"| postgresDb
+dataApi -->|"Читает реальный архив"| telemetryDb
+modelRpc -->|"Модели и признаки: чтение"| sharedFiles
+dataApi -->|"Сценарий и профили: чтение"| sharedFiles

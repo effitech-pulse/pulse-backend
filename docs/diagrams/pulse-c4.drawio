@@ -1,0 +1,391 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="Pulse architecture" version="24.7.17" type="device">
+  <diagram id="context" name="C1 · Контекст системы">
+    <mxGraphModel dx="1450" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1450" pageHeight="950" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="context-1" value="C1 · Контекст системы" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=26;fontColor=#25344A;fontStyle=1;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="24" width="1370" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="context-2" value="Область: Пульс скважины. Пользователи и внешнее окружение; внутренние приложения раскрыты на странице C2." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=14;fontColor=#25344A;fontStyle=0;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="1370" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="context-3" value="&lt;b style=&quot;font-size:18px&quot;&gt;Технолог&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Человек]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Следит за фондом, изучает телеметрию,&lt;br&gt;проверяет тревоги и фиксирует заключение&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#08427B;strokeColor=#08427B;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="context-4" value="&lt;b style=&quot;font-size:18px&quot;&gt;Администратор&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Человек]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Управляет фондом, пользователями,&lt;br&gt;источниками и сопоставлением полей&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#08427B;strokeColor=#08427B;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="context-5" value="&lt;b style=&quot;font-size:18px&quot;&gt;Пульс скважины&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Программная система]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Предиктивная диагностика УЭЦН.&lt;br&gt;Реестр, сбор, графики, ручные проверки&lt;br&gt;моделью и история решений&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="510" y="320" width="370" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="context-6" value="&lt;b style=&quot;font-size:18px&quot;&gt;Архив промысловых данных&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешняя программная система]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Историческая телеметрия,&lt;br&gt;метаданные и суточный дебит&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="320" width="280" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="context-7" value="Изучает и проверяет&lt;br&gt;[Web]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="context-3" target="context-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="context-8" value="Настраивает и управляет&lt;br&gt;[Web]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="context-4" target="context-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="context-9" value="Читает доступные данные&lt;br&gt;[API / запросы к хранилищам]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="context-5" target="context-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="context-10" value="Файловый сценарий: технолог/администратор загружает CSV, XLSX или Parquet через интерфейс Pulse; выгружает выбранные данные.&lt;br&gt;Внешние ID используются для связывания источников; пользователь работает с ID Pulse." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="430" y="650" width="960" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="context-11" value="Целевое расширение: Keycloak / другой IdP по OIDC/SSO. В текущем локальном запуске SSO не подключён; AUTH_MODE=legacy. Не показан как действующая связь." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="430" y="760" width="960" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="context-12" value="Обозначения: синий — часть Pulse · тёмно-синий — человек · серый — внешняя система/контейнер. Стрелка: инициатор → используемый элемент; подпись — назначение и протокол. Пунктирная рамка — граница системы или контейнера." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="860" width="1370" height="64" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="containers" name="C2 · Контейнеры и взаимодействия">
+    <mxGraphModel dx="1900" dy="1240" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1240" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="containers-1" value="C2 · Контейнеры и взаимодействия" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=26;fontColor=#25344A;fontStyle=1;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="24" width="1820" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-2" value="Область: одна система Pulse. Контейнер C4 — приложение или хранилище; библиотеки pulse-model и pulse-contracts не являются отдельными серверами." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=14;fontColor=#25344A;fontStyle=0;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="1820" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-3" value="&lt;b&gt;Пульс скважины · граница программной системы&lt;/b&gt;" style="rounded=1;arcSize=3;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#9AA7B5;strokeWidth=2;dashed=1;align=left;verticalAlign=top;spacingTop=14;spacingLeft=16;fontSize=16;fontColor=#334155;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="350" y="130" width="1220" height="940" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-4" value="&lt;b style=&quot;font-size:18px&quot;&gt;Пользователь&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Человек]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Технолог / администратор&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#08427B;strokeColor=#08427B;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-5" value="&lt;b style=&quot;font-size:18px&quot;&gt;Web-интерфейс&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · React / TypeScript]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-frontend · SPA в браузере&lt;br&gt;Фонд, карточки, графики и файлы&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="420" y="200" width="290" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-6" value="&lt;b style=&quot;font-size:18px&quot;&gt;Web-сервер&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · Nginx]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-frontend&lt;br&gt;Раздаёт SPA и проксирует /api&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="420" y="490" width="290" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-7" value="&lt;b style=&quot;font-size:18px&quot;&gt;API и сборщик&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · Go / Gin]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-backend&lt;br&gt;Доступ, фонд, проверки, заключения,&lt;br&gt;периодический сбор и watermark&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="350" width="310" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-8" value="&lt;b style=&quot;font-size:18px&quot;&gt;ML-сервис&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · Python / gRPC]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-ml-service&lt;br&gt;Вычисление признаков и риска, SHAP.&lt;br&gt;Использует библиотеку pulse-model&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="200" width="290" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-9" value="&lt;b style=&quot;font-size:18px&quot;&gt;Pulse Data API&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · Python / JSON HTTP]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-data&lt;br&gt;Чтение реального архива;&lt;br&gt;генерация показательного фонда&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="640" width="290" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-10" value="&lt;b style=&quot;font-size:18px&quot;&gt;Операционная база&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · PostgreSQL / esp_app]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Реестр, привязки, телеметрия сборщика,&lt;br&gt;проверки, заключения, права и аудит&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="420" y="850" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-11" value="&lt;b style=&quot;font-size:18px&quot;&gt;Исследовательские данные&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · PostgreSQL / esp]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Метаданные скважин&lt;br&gt;и суточный дебит&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="850" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-12" value="&lt;b style=&quot;font-size:18px&quot;&gt;Артефакты и сценарий&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Контейнер · файловое хранилище]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;workspace-data&lt;br&gt;Модели, признаки, профили, manifest.&lt;br&gt;В Docker подключены только для чтения&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="850" width="290" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-13" value="&lt;b style=&quot;font-size:18px&quot;&gt;Архив телеметрии&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешний контейнер · ClickHouse]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;telemetry&lt;br&gt;Существующий исторический архив&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="620" width="250" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-14" value="Работает с фондом&lt;br&gt;[Web]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-4" target="containers-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-15" value="Загружает SPA; отправляет API-запросы&lt;br&gt;[HTTP :8080]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-5" target="containers-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-16" value="Проксирует /api/v1&lt;br&gt;[HTTP :8000]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-6" target="containers-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-17" value="Ручная проверка / запрос модели&lt;br&gt;[gRPC :50051]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-7" target="containers-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-18" value="Архив и периодический сбор&lt;br&gt;[HTTP JSON :8092]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="containers-7" target="containers-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1195" y="435" />
+              <mxPoint x="1195" y="570" />
+              <mxPoint x="1375" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="containers-19" value="Читает и записывает&lt;br&gt;[PostgreSQL :5432]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="containers-7" target="containers-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="730" />
+              <mxPoint x="570" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="containers-20" value="Читает дебит и метаданные&lt;br&gt;[PostgreSQL :5432]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0;exitY=0.8;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="containers-8" target="containers-11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1180" y="400" />
+              <mxPoint x="1180" y="820" />
+              <mxPoint x="1000" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="containers-21" value="Читает модель, manifest, признаки&lt;br&gt;[файлы, read-only]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="containers-8" target="containers-12">
+          <mxGeometry relative="1" as="geometry" x="-0.58">
+            <Array as="points">
+              <mxPoint x="1550" y="280" />
+              <mxPoint x="1550" y="1040" />
+              <mxPoint x="1520" y="1040" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="containers-22" value="Читает историческую телеметрию&lt;br&gt;[HTTP SQL :8123]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-9" target="containers-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-23" value="Читает профили и сценарий&lt;br&gt;[файлы, read-only]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="containers-9" target="containers-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-24" value="Сбор ≠ скоринг: сборщик периодически получает JSON и сохраняет измерения. Запуск модели выполняется отдельно по команде; в этом Compose ML_AUTORUN_ENABLED=false. Результат сценария генератора не назначает модели риск или ярус." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="350" y="1090" width="1220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="containers-25" value="Обозначения: синий — часть Pulse · тёмно-синий — человек · серый — внешняя система/контейнер. Стрелка: инициатор → используемый элемент; подпись — назначение и протокол. Пунктирная рамка — граница системы или контейнера." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1170" width="1820" height="64" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="components" name="C3 · Компоненты pulse-backend">
+    <mxGraphModel dx="2600" dy="1480" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2600" pageHeight="1480" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="components-1" value="C3 · Компоненты pulse-backend" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=26;fontColor=#25344A;fontStyle=1;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="24" width="2520" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="components-2" value="Область: только контейнер pulse-backend. Сервисы зависят от интерфейсов; реализации адаптеров собираются в bootstrap." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=14;fontColor=#25344A;fontStyle=0;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="2520" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="components-3" value="&lt;b&gt;pulse-backend · Go / Gin&lt;/b&gt;" style="rounded=1;arcSize=3;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#9AA7B5;strokeWidth=2;dashed=1;align=left;verticalAlign=top;spacingTop=14;spacingLeft=16;fontSize=16;fontColor=#334155;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="130" width="1750" height="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="components-4" value="&lt;b style=&quot;font-size:18px&quot;&gt;Web-сервер / SPA&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешний контейнер · Nginx / React]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;HTTP /api/v1&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="components-5" value="&lt;b style=&quot;font-size:18px&quot;&gt;HTTP API и middleware&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компонент · transport/httpapi]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;DTO, маршруты, проверка доступа,&lt;br&gt;CORS, аудит и обработка ошибок&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="190" width="330" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="components-6" value="&lt;b style=&quot;font-size:18px&quot;&gt;Доступ&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компонент · service.Access]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Principal, роли и области фонда;&lt;br&gt;локальные учётные записи и сеансы&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="430" y="480" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-7" value="&lt;b style=&quot;font-size:18px&quot;&gt;Каталог и заключения&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компоненты · service]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Catalog, Reviews, Presentation:&lt;br&gt;фонд, архив, версии и история&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="830" y="480" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-8" value="&lt;b style=&quot;font-size:18px&quot;&gt;Интеграции и проверки&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компоненты · service]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Integrations + Checks:&lt;br&gt;сбор, mapping, watermark,&lt;br&gt;сохранение ручного результата&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="480" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-9" value="&lt;b style=&quot;font-size:18px&quot;&gt;Прогоны модели&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компонент · service.ML]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Резервирование прогона, lock,&lt;br&gt;результаты и статусы&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="480" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-10" value="&lt;b style=&quot;font-size:18px&quot;&gt;PostgreSQL repository&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компонент · repository/postgres]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Порты сервисов: Squirrel + pgx.&lt;br&gt;Транзакции, версии, locks и leases&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="880" width="300" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="components-11" value="&lt;b style=&quot;font-size:18px&quot;&gt;Источники телеметрии&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компоненты · adapter/telemetry]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Connector, Archive, Secrets.&lt;br&gt;HTTP JSON и внешние БД&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="880" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-12" value="&lt;b style=&quot;font-size:18px&quot;&gt;ML gRPC adapter&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Компонент · adapter/grpcml]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Типизированное преобразование&lt;br&gt;protobuf ↔ domain, deadline&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="880" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-13" value="&lt;b style=&quot;font-size:18px&quot;&gt;esp_app&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешний контейнер · PostgreSQL]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Операционное хранилище&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1270" width="300" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="components-14" value="&lt;b style=&quot;font-size:18px&quot;&gt;Pulse Data&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешний контейнер · Python]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;JSON API телеметрии&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="2220" y="880" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-15" value="&lt;b style=&quot;font-size:18px&quot;&gt;ML-сервис&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Внешний контейнер · Python]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Оценка и объяснение модели&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="2220" y="480" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="components-16" value="Запросы [HTTP]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-4" target="components-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="components-17" value="Проверяет доступ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0;exitY=0.7;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-5" target="components-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="400" />
+              <mxPoint x="580" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-18" value="Операции фонда" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-5" target="components-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1060" y="420" />
+              <mxPoint x="980" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-19" value="Сбор / ручная проверка" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.65;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-5" target="components-8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="410" />
+              <mxPoint x="1380" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-20" value="Запуск / статус прогона" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-5" target="components-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1340" y="390" />
+              <mxPoint x="1780" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-21" value="Порт каталога и истории" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-7" target="components-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="740" />
+              <mxPoint x="750" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-22" value="Порт учётных записей" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-6" target="components-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-23" value="Порт телеметрии и проверок" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-8" target="components-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1380" y="700" />
+              <mxPoint x="670" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-24" value="Получает и преобразует данные" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-8" target="components-11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1460" y="800" />
+              <mxPoint x="1270" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-25" value="Запрашивает оценку" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0.15;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-8" target="components-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="680" />
+              <mxPoint x="1680" y="680" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-26" value="Вызывает модель" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-9" target="components-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="components-27" value="Порт прогонов и locks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0.95;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-9" target="components-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1990" y="600" />
+              <mxPoint x="1990" y="840" />
+              <mxPoint x="800" y="840" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-28" value="Чтение / запись [SQL]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-10" target="components-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="components-29" value="Читает JSON [HTTP]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-11" target="components-14">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1270" y="1110" />
+              <mxPoint x="2170" y="1110" />
+              <mxPoint x="2170" y="960" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-30" value="Контракт MLService [gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="components-12" target="components-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2060" y="960" />
+              <mxPoint x="2060" y="558" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="components-31" value="Дополнительные адаптеры: spreadsheet — XLSX; parameterfile — словарь параметров; postgres.ExternalTelemetry — чтение внешних БД.&lt;br&gt;Domain содержит типы и инварианты. pulse-contracts поставляет generated SDK. SQL находится только в repository, protobuf — в gRPC-адаптере." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1260" width="1500" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="deployment" name="Deployment · локальный Docker">
+    <mxGraphModel dx="1900" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="deployment-1" value="Deployment · локальный Docker" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=26;fontColor=#25344A;fontStyle=1;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="24" width="1820" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-2" value="Поддерживающая диаграмма C4, не уровень C4 Code. Фактическая конфигурация: deployments/compose.local.yaml; существующие БД сохраняются." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Helvetica;fontSize=14;fontColor=#25344A;fontStyle=0;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="1820" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-3" value="&lt;b&gt;Рабочий компьютер · Docker Desktop&lt;/b&gt;" style="rounded=1;arcSize=3;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#9AA7B5;strokeWidth=2;dashed=1;align=left;verticalAlign=top;spacingTop=14;spacingLeft=16;fontSize=16;fontColor=#334155;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="330" y="140" width="1510" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-4" value="&lt;b style=&quot;font-size:18px&quot;&gt;Браузер&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Экземпляр · React SPA]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Открывает 127.0.0.1:8080&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-5" value="&lt;b&gt;Compose project: pulse-local · сеть pulse-local_app&lt;/b&gt;" style="rounded=1;arcSize=3;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#9AA7B5;strokeWidth=2;dashed=1;align=left;verticalAlign=top;spacingTop=14;spacingLeft=16;fontSize=16;fontColor=#334155;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="390" y="200" width="1010" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-6" value="&lt;b style=&quot;font-size:18px&quot;&gt;frontend-1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Экземпляр · Nginx]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-frontend:local&lt;br&gt;127.0.0.1:8080 → :80&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="440" y="270" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-7" value="&lt;b style=&quot;font-size:18px&quot;&gt;backend-1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Экземпляр · Go API]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-backend:local&lt;br&gt;127.0.0.1:8000, :8002 → :8000&lt;br&gt;AUTH_MODE=legacy; ML autorun=false&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="270" width="340" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-8" value="&lt;b style=&quot;font-size:18px&quot;&gt;ml-1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Экземпляр · Python / gRPC]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-ml-service:local&lt;br&gt;Внутренний порт :50051&lt;br&gt;Health RPC&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="440" y="650" width="280" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-9" value="&lt;b style=&quot;font-size:18px&quot;&gt;data-1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Экземпляр · Python / HTTP]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;pulse-data:local&lt;br&gt;Внутренний порт :8092&lt;br&gt;Health /health&lt;/span&gt;" style="rounded=1;arcSize=7;html=1;whiteSpace=wrap;fillColor=#1168BD;strokeColor=#1168BD;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="650" width="340" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-10" value="&lt;b style=&quot;font-size:18px&quot;&gt;grant-postgres&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Существующий контейнер · PostgreSQL]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Сеть postgres_default&lt;br&gt;Внутри :5432; на хосте :5433&lt;br&gt;esp_app + esp&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="270" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-11" value="&lt;b style=&quot;font-size:18px&quot;&gt;grant-clickhouse&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px&quot;&gt;[Существующий контейнер · ClickHouse]&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:13px&quot;&gt;Сеть clickhouse_default&lt;br&gt;HTTP :8123&lt;br&gt;telemetry&lt;/span&gt;" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;fillColor=#6B7280;strokeColor=#6B7280;fontColor=#FFFFFF;fontFamily=Helvetica;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-12" value="HTTP :8080" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-4" target="deployment-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-13" value="HTTP backend:8000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-6" target="deployment-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-14" value="gRPC ml:50051" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-7" target="deployment-8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="510" />
+              <mxPoint x="580" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="deployment-15" value="HTTP data:8092" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-7" target="deployment-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-16" value="SQL · esp_app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-7" target="deployment-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-17" value="SQL · esp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-8" target="deployment-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="870" />
+              <mxPoint x="1430" y="870" />
+              <mxPoint x="1430" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="deployment-18" value="HTTP SQL :8123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=24;html=1;endArrow=block;endFill=1;strokeColor=#526276;strokeWidth=1.7;fontFamily=Helvetica;fontColor=#334155;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=0;" edge="1" parent="1" source="deployment-9" target="deployment-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deployment-19" value="Read-only bind mounts: ML ← models, manifest, cache/features_v3; Data ← emulator, telemetry_coverage.csv; Backend ← parameters.local.json.&lt;br&gt;PostgreSQL подключён к backend и ML; ClickHouse — к Pulse Data. Нативный Vite :5174 может использовать Docker API :8000. Локальные порты привязаны к 127.0.0.1." style="rounded=1;arcSize=4;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacing=14;fillColor=#F1F5F9;strokeColor=#CBD5E1;fontColor=#334155;fontFamily=Helvetica;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1060" width="1450" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

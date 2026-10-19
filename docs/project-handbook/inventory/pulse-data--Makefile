@@ -1,0 +1,14 @@
+PY ?= .venv/bin/python
+
+install:
+	$(PY) -m pip install -e ".[test]"
+test:
+	$(PY) -m pytest
+build:
+	$(PY) -m pip wheel --no-deps . -w dist
+
+# Фиксированные project names сохраняют прежние тома после переноса исходников.
+postgres-up:
+	docker compose -p postgres -f deploy/postgres/docker-compose.postgres.yml up -d
+clickhouse-up:
+	docker compose -p clickhouse -f deploy/clickhouse/docker-compose.clickhouse.yml up -d

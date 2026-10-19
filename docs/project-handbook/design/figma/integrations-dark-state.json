@@ -1,0 +1,234 @@
+{
+  "fileKey": "km4tIbp3LnMTRrV6yi6Qho",
+  "pageId": "375:661",
+  "pageName": "Интеграции и телеметрия · Dark",
+  "url": "https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=375-662",
+  "date": "2026-10-15",
+  "screens": [
+    {
+      "sourceId": "337:4169",
+      "id": "375:662",
+      "name": "01 / Источники данных · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 68,
+      "instances": 11
+    },
+    {
+      "sourceId": "337:4344",
+      "id": "375:839",
+      "name": "02 / Выбор источника · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 40,
+      "instances": 6
+    },
+    {
+      "sourceId": "337:4454",
+      "id": "375:951",
+      "name": "03 / JSON · получение из API · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 47,
+      "instances": 13
+    },
+    {
+      "sourceId": "337:4585",
+      "id": "375:1084",
+      "name": "04 / Словарь полей · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 61,
+      "instances": 11
+    },
+    {
+      "sourceId": "337:4754",
+      "id": "375:1255",
+      "name": "05 / Сбор и запуск · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 44,
+      "instances": 11
+    },
+    {
+      "sourceId": "337:4877",
+      "id": "375:1380",
+      "name": "06 / Состояние и журнал · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 71,
+      "instances": 14
+    },
+    {
+      "sourceId": "337:5059",
+      "id": "375:1564",
+      "name": "07 / Демо-симулятор · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 43,
+      "instances": 11
+    },
+    {
+      "sourceId": "337:5179",
+      "id": "375:1686",
+      "name": "08 / Телеметрия скважины · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 74,
+      "instances": 13
+    },
+    {
+      "sourceId": "337:5361",
+      "id": "375:1870",
+      "name": "09 / Выделенный интервал · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 74,
+      "instances": 13
+    },
+    {
+      "sourceId": "337:5542",
+      "id": "375:2053",
+      "name": "10 / Файловая загрузка · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 52,
+      "instances": 6
+    },
+    {
+      "sourceId": "337:5685",
+      "id": "375:2198",
+      "name": "11 / Подключение БД · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 49,
+      "instances": 14
+    },
+    {
+      "sourceId": "337:5821",
+      "id": "375:2336",
+      "name": "12 / Ошибка источника · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 46,
+      "instances": 8
+    },
+    {
+      "sourceId": "337:5941",
+      "id": "375:2458",
+      "name": "13 / JSON · приём данных · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 41,
+      "instances": 9
+    },
+    {
+      "sourceId": "350:535",
+      "id": "375:2576",
+      "name": "14 / Выбор параметров · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 93,
+      "instances": 14
+    },
+    {
+      "sourceId": "363:536",
+      "id": "375:2782",
+      "name": "15 / Несколько каналов · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 53,
+      "instances": 14
+    },
+    {
+      "sourceId": "363:784",
+      "id": "375:2923",
+      "name": "16 / Каналы с разными единицами · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 49,
+      "instances": 10
+    },
+    {
+      "sourceId": "363:1023",
+      "id": "375:3055",
+      "name": "17 / Сравнение периодов · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 63,
+      "instances": 15
+    },
+    {
+      "sourceId": "363:1291",
+      "id": "375:3216",
+      "name": "18 / Табличные данные · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 84,
+      "instances": 15
+    },
+    {
+      "sourceId": "363:1579",
+      "id": "375:3397",
+      "name": "19 / Экспорт телеметрии · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 49,
+      "instances": 18
+    },
+    {
+      "sourceId": "363:1826",
+      "id": "375:3537",
+      "name": "20 / Импорт телеметрии · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 43,
+      "instances": 13
+    },
+    {
+      "sourceId": "363:2057",
+      "id": "375:3661",
+      "name": "21 / Файл подготовлен · Dark",
+      "width": 1440,
+      "height": 1024,
+      "texts": 46,
+      "instances": 10
+    }
+  ],
+  "theme": {
+    "collectionId": "VariableCollectionId:3:2",
+    "modeId": "128:0",
+    "switches": 42
+  },
+  "validation": {
+    "pageId": "375:661",
+    "screens": 21,
+    "counts": {
+      "FRAME": 1199,
+      "VECTOR": 381,
+      "TEXT": 1190,
+      "RECTANGLE": 111,
+      "INSTANCE": 249
+    },
+    "fonts": [
+      "Roboto"
+    ],
+    "imageNodes": [],
+    "navigationLinks": 130,
+    "badLinks": [],
+    "geometryMismatches": [],
+    "unboundVisiblePaints": [],
+    "contrasts": {
+      "body": 14.23,
+      "secondary": 7.5,
+      "primaryButton": 4.55,
+      "fieldBorder": 3.68,
+      "blueLine": 7.49,
+      "amberLine": 9.39,
+      "greenLine": 8.72,
+      "danger": 7.2
+    },
+    "overflows": []
+  },
+  "scope": "Редактируемые макеты Figma и прототип. Приложение не изменялось."
+}

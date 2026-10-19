@@ -1,0 +1,20 @@
+{
+  "schema_version": "readiness_v1",
+  "context_version": "causal_v1",
+  "dataset_sha256": "REPLACE_WITH_SHA256_OF_EXACT_PREPARED_CSV",
+  "lead_days": 7,
+  "horizon_days": 14,
+  "window_days": 2,
+  "embargo_days": 3,
+  "lookback_days": 14,
+  "cutoffs": ["2026-01-01", "2026-03-01", "2026-05-01"],
+  "seeds": [0, 1, 2],
+  "rotations": [0, 1, 2, 3, 4],
+  "mapping": {"type": "physical_oilfield", "version": ""},
+  "fit_roles": {"transformations": "train", "calibrator": "calibration", "threshold": "selection"},
+  "holdout": {"independent": false, "sealed": false, "previously_reviewed": true, "custodian": "", "version": ""},
+  "availability": {"features": "available_by_window_end", "labels": "available_by_role_cutoff", "negative_observation": "observed_through_horizon"},
+  "label_as_of": {"train": "2026-01-01", "calibration": "2026-03-01", "selection": "2026-05-01", "test": "2026-08-01"},
+  "criteria": {"owner": "", "version": "", "false_negative_cost": null, "false_positive_cost": null, "max_false_alarm_episodes_per_100_well_days": null, "min_timely_recall": null},
+  "metric_definitions": {"alarm_episode": "", "observed_well_days": "", "uncertainty": "", "missing_class": "not_measurable"}
+}

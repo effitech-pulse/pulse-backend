@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "plan": "PREP-01..07 / 2026-10-19",
+  "verified_date": "2026-10-20",
+  "lock_scope": "Reviewed runtime payload source; final backend documentation/handbook publication is a descendant commit changing only README.md and docs/. This manifest never attempts to contain its own Git commit hash.",
+  "source_refs": {
+    "pulse-contracts": "07213c430318affd140f55dea391cdc36220d93f",
+    "pulse-model": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45",
+    "pulse-data": "20c5c78b8febc0cde78812e653634f039f4a923a",
+    "pulse-ml-service": "bb9ecadc2a7b5b87df9a6652ddeca9a8b752fe16",
+    "pulse-backend": "99b7fa3d2a469933e1e724953b42f7e8b64a41ec",
+    "pulse-frontend": "ebf944c8105e4d7fbff9d2560202d066acb3e61c",
+    "pulse-landing": "e1cd27c973bf33aadcd00d101a0b99343f34c428"
+  },
+  "dependencies": {
+    "pulse-backend": {
+      "pulse-contracts": "07213c430318affd140f55dea391cdc36220d93f"
+    },
+    "pulse-data": {
+      "pulse-model": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45"
+    },
+    "pulse-ml-service": {
+      "pulse-model": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45",
+      "pulse-contracts": "07213c430318affd140f55dea391cdc36220d93f"
+    }
+  },
+  "source_availability": "Local Git objects verified; private remote availability and cloud jobs not checked. No push, release or model promotion.",
+  "runtime": {
+    "compose": "deployments/compose.prep.yaml",
+    "isolation": "pulse-prep project, separate restored pulse_prep PostgreSQL volume; original pulse-local runtime untouched",
+    "frontend": "http://127.0.0.1:8088",
+    "api": "http://127.0.0.1:8018",
+    "auth_mode": "local",
+    "app_scope": "cohort",
+    "cohort_version": "presentation-v1",
+    "cohort_member_count": 100,
+    "database_schema_version": 11,
+    "images": {
+      "backend": {
+        "image_id": "sha256:0971914cb2b540347e50167bce8ec06963bda8356ba969aac5036a6c76844caf",
+        "tag": "pulse-backend:prep",
+        "state": "running",
+        "health": "no_container_healthcheck"
+      },
+      "frontend": {
+        "image_id": "sha256:0215efd3544678d18fc65100c6a9e8d959af3c20b01df0fdf87a2c76caf67aae",
+        "tag": "pulse-frontend:prep",
+        "state": "running",
+        "health": "healthy"
+      },
+      "ml": {
+        "image_id": "sha256:2bf3a2716cb92b195ff661923590e479c1d4701638601d50496758f16ca5c203",
+        "tag": "pulse-ml-service:prep",
+        "state": "running",
+        "health": "healthy",
+        "numeric_versions": {
+          "numpy": "2.5.1",
+          "pandas": "2.3.3",
+          "scipy": "1.18.0",
+          "scikit-learn": "1.9.0",
+          "catboost": "1.2.10",
+          "lifelines": "0.30.3",
+          "joblib": "1.5.3"
+        },
+        "pip_check": "No broken requirements found."
+      },
+      "data": {
+        "image_id": "sha256:bd4674e5fc89928be76c07b798d5f7acac69bded4a907724e98506ea5dc71e8f",
+        "tag": "pulse-data:prep",
+        "state": "running",
+        "health": "healthy",
+        "numeric_versions": {
+          "numpy": "2.5.1",
+          "pandas": "2.3.3",
+          "scipy": "1.18.0",
+          "scikit-learn": "1.9.0",
+          "catboost": "1.2.10",
+          "lifelines": "0.30.3",
+          "joblib": "1.5.3"
+        },
+        "pip_check": "No broken requirements found."
+      }
+    },
+    "image_identity_scope": "Local Docker image IDs, not published registry manifests; model weights/emulator profiles remain private external inputs."
+  },
+  "verification": {
+    "backend": {
+      "make_check": "PASS",
+      "four_cli_build": "PASS",
+      "real_isolated_postgresql_race_integration": "PASS, 67.610s",
+      "senior_fix_rereview": "F1/F2/F3 CLOSED; 10 targeted PG/race tests plus lease check",
+      "source_image_identity_note": "After the tested Docker build, inherited embedded internal/migrations/schema.sql was normalized for trailing whitespace and EOF in the payload commit. Independent Senior confirmed SQL text equivalence under this normalization; the 38 reviewed runtime source hashes were unchanged. The recorded image ID identifies the tested bytes; a byte-identical source/image rebuild is not claimed."
+    },
+    "contracts": "Python7 PASS; Go PASS; Buf lint/breaking/regeneration PASS",
+    "model": "355 PASS; readiness targeted60 PASS, Senior F1/F2 CLOSED",
+    "ml_linux": "78 PASS, 0 skips; pip check PASS",
+    "data_linux": "32 PASS; pip check PASS",
+    "ml_native": "fresh offline install:78 PASS,0 skips,pip check PASS; artifacts in readiness-native-artifacts.json",
+    "frontend": "30 PASS, TypeScript/Vite PASS; Node22 Docker tests/build PASS",
+    "browser": "22/22 final bounded responsive/lifecycle scenarios,0 failures,0 pageErrors; separate local authentication6/6",
+    "migration11": "apply and repeat PASS; previous row values and snapshot digests preserved; no old profile backfill",
+    "final_run": {
+      "local_run_id": 33,
+      "status": "done",
+      "profile": "cohort",
+      "cohort_version": "presentation-v1",
+      "members": 100,
+      "scored": 100,
+      "alerts": 0,
+      "archived": 0,
+      "inactive": 0,
+      "insufficient": 0,
+      "errors": 0,
+      "seconds": 97.035779,
+      "restricted_visible_count": 0,
+      "previous_snapshots_30_32_unchanged": true,
+      "temporary_lifecycle_fixtures_restored": true
+    },
+    "upload": "Protected bundle-only synthetic Upload first/repeat1.361/0.821/0.822s, same decision; final samples are not claimed cold.",
+    "limits": [
+      "No actual alert-review browser mutation: synthetic final runs produced zero alerts; linkage/status logic covered by backend integration and frontend tests/review.",
+      "Independent scientific acceptance deferred / not_assessed: user has no external dataset and plans to connect the ML module later. No new quality metrics, training or promotion.",
+      "Output snapshots are immutable; input bytes are not archived, provenance is partial, complete scientific replay is not claimed.",
+      "Cloud CI, remote refs, TLS/SSO and production SLA are outside this local technical acceptance."
+    ],
+    "cohort_reference_writes": "Admin POST departments/ngdu:403/403 on final isolated profile"
+  },
+  "native_artifact_manifest": "readiness-native-artifacts.json",
+  "evidence_retention": "Detailed source freezes, test logs, browser screenshots and private local input/backup remain in /private/tmp/pulse-prep-20261019; temporary files may be removed by the OS. Public docs retain reviewed refs/results and artifact hashes only."
+}

@@ -1,0 +1,359 @@
+{
+  "runId": "pulse-design-2026-10-14",
+  "fileKey": "km4tIbp3LnMTRrV6yi6Qho",
+  "url": "https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho",
+  "scope": "Рабочие сценарии, состояния, адаптивность и прототип",
+  "foundations": {
+    "createdNodeIds": [
+      "0:1",
+      "3:37",
+      "3:38",
+      "3:39",
+      "3:40",
+      "3:41",
+      "3:42",
+      "3:43",
+      "3:44",
+      "3:45",
+      "3:46",
+      "3:47",
+      "3:48",
+      "3:49",
+      "3:50",
+      "3:51",
+      "3:52",
+      "3:53",
+      "3:54"
+    ],
+    "collectionId": "VariableCollectionId:3:2",
+    "variables": {
+      "ink": "VariableID:3:4",
+      "muted": "VariableID:3:6",
+      "blue": "VariableID:3:8",
+      "canvas": "VariableID:3:10",
+      "surface": "VariableID:3:12",
+      "border": "VariableID:3:14",
+      "selected": "VariableID:3:16",
+      "danger": "VariableID:3:18",
+      "dangerBg": "VariableID:3:20",
+      "warning": "VariableID:3:22",
+      "warningBg": "VariableID:3:24",
+      "success": "VariableID:3:26",
+      "successBg": "VariableID:3:28",
+      "gap": "VariableID:3:29",
+      "padding": "VariableID:3:30",
+      "radius": "VariableID:3:31"
+    },
+    "styles": {
+      "Body": "S:4f71fc946c189c3bc7359961990b94b78cfeb50c,",
+      "Label": "S:b311a9ae0bbf569467c3f553e63a638ab92f5faa,",
+      "Small": "S:618815f1766ef3f9c57a6e8fad54265c99ab3345,",
+      "Title": "S:2cef85191e00fab42595eadb6b7f940a5a067f33,",
+      "Metric": "S:d3046ced6675e5bad7e692babc05cda7c43c06d0,"
+    },
+    "components": {
+      "Button / Primary": "3:38",
+      "Button / Secondary": "3:40",
+      "Badge / Alert": "3:42",
+      "Badge / Watch": "3:44",
+      "Badge / Normal": "3:46",
+      "Navigation / Active": "3:48",
+      "Navigation / Default": "3:50"
+    },
+    "screens": {
+      "01 / Обзор фонда": "3:52",
+      "02 / Карточка скважины": "3:53",
+      "03 / Проверка файла": "3:54"
+    },
+    "font": "Roboto",
+    "gapAnalysis": "Code Connect отсутствует; файл пуст. Simple Design System использует другую токенизацию и не содержит статусов проекта; локальные компоненты построены под палитру приложения."
+  },
+  "logoBoardId": "9:35",
+  "completedSteps": [
+    "file-created",
+    "discovery",
+    "foundations",
+    "screens-built-and-visually-reviewed",
+    "logo-concepts-two-rounds-tested"
+  ],
+  "pending": [
+    "Согласовать дизайн",
+    "Уточнить контракты новых API"
+  ],
+  "status": "Figma v4: доступ, рассылки, статистика, фонд и фильтры; попапы 4 секунды",
+  "chosenLogo": "A / Поток",
+  "approvedBrandFrameId": "13:35",
+  "v2": {
+    "screens": [
+      {
+        "id": "19:1431",
+        "name": "06 / Скважины",
+        "width": 1440,
+        "height": 1024,
+        "children": 87
+      },
+      {
+        "id": "19:1519",
+        "name": "07 / Тревоги",
+        "width": 1440,
+        "height": 1024,
+        "children": 75
+      },
+      {
+        "id": "19:1595",
+        "name": "08 / Проверка тревоги",
+        "width": 1440,
+        "height": 1024,
+        "children": 45
+      },
+      {
+        "id": "19:1641",
+        "name": "09 / Тревога проверена",
+        "width": 1440,
+        "height": 1024,
+        "children": 52
+      },
+      {
+        "id": "19:1694",
+        "name": "10 / Журнал",
+        "width": 1440,
+        "height": 1024,
+        "children": 59
+      },
+      {
+        "id": "19:1754",
+        "name": "11 / Журнал действий",
+        "width": 1440,
+        "height": 1024,
+        "children": 50
+      },
+      {
+        "id": "19:1805",
+        "name": "12 / Аналитика",
+        "width": 1440,
+        "height": 1024,
+        "children": 60
+      },
+      {
+        "id": "19:1866",
+        "name": "13 / Расчёт выполняется",
+        "width": 1440,
+        "height": 1024,
+        "children": 31
+      },
+      {
+        "id": "19:1898",
+        "name": "14 / Файл: ошибка",
+        "width": 1440,
+        "height": 1024,
+        "children": 29
+      },
+      {
+        "id": "19:1928",
+        "name": "15 / Файл: недостаточно данных",
+        "width": 1440,
+        "height": 1024,
+        "children": 29
+      },
+      {
+        "id": "19:1958",
+        "name": "16 / Файл: обработка",
+        "width": 1440,
+        "height": 1024,
+        "children": 29
+      },
+      {
+        "id": "19:1988",
+        "name": "17 / Ноутбук 1280",
+        "width": 1280,
+        "height": 1024,
+        "children": 51
+      },
+      {
+        "id": "19:2040",
+        "name": "18 / Планшет 1024",
+        "width": 1024,
+        "height": 1024,
+        "children": 23
+      }
+    ],
+    "statesBoardId": "19:2064",
+    "componentsBoardId": "21:259",
+    "prototypeLinks": 99
+  },
+  "v3": {
+    "screens": [
+      {
+        "id": "33:136",
+        "name": "21 / Мой профиль",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:326",
+        "name": "22 / Редактирование профиля",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:500",
+        "name": "23 / Профиль сохранён",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:661",
+        "name": "24 / Меню аккаунта",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:831",
+        "name": "25 / Подтверждение выхода",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:994",
+        "name": "26 / После выхода",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:1004",
+        "name": "27 / Последние события",
+        "width": 1440,
+        "height": 1024
+      },
+      {
+        "id": "33:1178",
+        "name": "28 / Уведомления справа внизу",
+        "width": 1440,
+        "height": 1024
+      }
+    ],
+    "updatedScreens": 23,
+    "prototypeLinks": 221,
+    "notificationStates": {
+      "0": "34:65",
+      "1": "34:157",
+      "2": "34:249",
+      "3": "34:341",
+      "4": "34:433",
+      "5": "34:525",
+      "6": "34:617",
+      "7": "33:1178"
+    },
+    "validation": "reviewed"
+  },
+  "v4": {
+    "screens": [
+      {
+        "name": "29 / Вход",
+        "id": "42:74"
+      },
+      {
+        "name": "30 / Регистрация",
+        "id": "42:103"
+      },
+      {
+        "name": "31 / Заявка на доступ",
+        "id": "42:137"
+      },
+      {
+        "name": "32 / Восстановление пароля",
+        "id": "42:155"
+      },
+      {
+        "name": "31а / Ожидание одобрения",
+        "id": "42:176"
+      },
+      {
+        "name": "32а / Письмо для восстановления",
+        "id": "42:192"
+      },
+      {
+        "name": "29а / Ошибка входа",
+        "id": "42:208"
+      },
+      {
+        "name": "33 / Рассылки",
+        "id": "43:939"
+      },
+      {
+        "name": "34 / Правило рассылки",
+        "id": "43:1047"
+      },
+      {
+        "name": "35 / Группы получателей",
+        "id": "43:1160"
+      },
+      {
+        "name": "36 / Редактирование группы",
+        "id": "43:1267"
+      },
+      {
+        "name": "37 / Журнал доставки",
+        "id": "43:1371"
+      },
+      {
+        "name": "38 / Предпросмотр письма",
+        "id": "43:1475"
+      },
+      {
+        "name": "36а / Группа сохранена",
+        "id": "43:1551"
+      },
+      {
+        "name": "37а / Ошибка доставки",
+        "id": "43:1620"
+      },
+      {
+        "name": "38а / Подтверждение тестового письма",
+        "id": "43:1693"
+      },
+      {
+        "name": "39 / Статистика",
+        "id": "44:176"
+      },
+      {
+        "name": "40 / Управление фондом",
+        "id": "44:305"
+      },
+      {
+        "name": "41 / Фильтры и сортировка",
+        "id": "44:421"
+      },
+      {
+        "name": "41а / Фонд отфильтрован",
+        "id": "44:519"
+      },
+      {
+        "name": "42 / Добавить скважину",
+        "id": "44:623"
+      },
+      {
+        "name": "43 / Редактировать скважину",
+        "id": "44:722"
+      },
+      {
+        "name": "44 / Предпросмотр импорта",
+        "id": "44:823"
+      },
+      {
+        "name": "45 / Архивирование скважины",
+        "id": "44:921"
+      },
+      {
+        "name": "46 / Архив фонда",
+        "id": "44:998"
+      }
+    ],
+    "fieldComponentId": "42:70",
+    "notificationTimeoutMs": 4000,
+    "updatedNavigationScreens": 47,
+    "businessCases": "v4/BUSINESS_CASES.md",
+    "validation": "native-nodes-roboto-no-raster-ui; composition-reviewed",
+    "frontendIntegration": false
+  }
+}

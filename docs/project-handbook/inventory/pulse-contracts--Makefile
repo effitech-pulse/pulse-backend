@@ -1,0 +1,37 @@
+BUF ?= buf
+GO ?= go
+PYTHON ?= python
+BASELINE ?= .git\#ref=main
+
+.PHONY: tools generate lint breaking check test
+
+tools:
+	$(GO) install github.com/bufbuild/buf/cmd/buf@v1.73.0
+	$(GO) install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+	$(GO) install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.0
+	$(PYTHON) -m pip install -e '.[codegen,test]'
+
+generate:
+	$(BUF) generate
+	@descriptor=$$(mktemp); \
+	trap 'rm -f "$$descriptor"' EXIT; \
+	$(BUF) build --as-file-descriptor-set -o "$$descriptor" && \
+	mkdir -p gen/python && \
+	$(PYTHON) -m grpc_tools.protoc --descriptor_set_in="$$descriptor" \
+		--python_out=gen/python --pyi_out=gen/python --grpc_python_out=gen/python \
+		pulse/ml/v1/ml.proto
+
+lint:
+	$(BUF) format --diff --exit-code
+	$(BUF) lint
+	$(BUF) build -o /dev/null
+
+breaking:
+	$(BUF) breaking --against '$(BASELINE)'
+
+check: lint generate
+	git diff --exit-code -- gen
+
+test:
+	$(GO) test ./...
+	$(PYTHON) -m pytest tests

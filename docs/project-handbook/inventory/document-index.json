@@ -1,0 +1,97 @@
+[
+  {
+    "id": "01-project",
+    "title": "Назначение и границы проекта",
+    "path": "chapters/01-project.md"
+  },
+  {
+    "id": "02-status",
+    "title": "Текущее состояние и согласованные изменения",
+    "path": "chapters/02-status.md"
+  },
+  {
+    "id": "03-design",
+    "title": "Дизайн кит и правила интерфейса",
+    "path": "chapters/03-design.md"
+  },
+  {
+    "id": "04-figma-catalog",
+    "title": "Каталог макетов Figma",
+    "path": "chapters/04-figma-catalog.md"
+  },
+  {
+    "id": "05-architecture",
+    "title": "Архитектура и взаимодействие приложений",
+    "path": "chapters/05-architecture.md"
+  },
+  {
+    "id": "06-modules",
+    "title": "Разделение кода по модулям",
+    "path": "chapters/06-modules.md"
+  },
+  {
+    "id": "07-data",
+    "title": "Данные и схемы хранения",
+    "path": "chapters/07-data.md"
+  },
+  {
+    "id": "08-api",
+    "title": "HTTP API и gRPC контракты",
+    "path": "chapters/08-api.md"
+  },
+  {
+    "id": "09-integrations",
+    "title": "Источники и обработка телеметрии",
+    "path": "chapters/09-integrations.md"
+  },
+  {
+    "id": "10-machine-learning",
+    "title": "Модель и причинная валидация",
+    "path": "chapters/10-machine-learning.md"
+  },
+  {
+    "id": "11-workflows",
+    "title": "Рабочие сценарии и жизненный цикл скважины",
+    "path": "chapters/11-workflows.md"
+  },
+  {
+    "id": "12-security",
+    "title": "Аутентификация RBAC и защита данных",
+    "path": "chapters/12-security.md"
+  },
+  {
+    "id": "13-events",
+    "title": "Журналы события и уведомления",
+    "path": "chapters/13-events.md"
+  },
+  {
+    "id": "14-configuration",
+    "title": "Конфигурация и зависимости окружения",
+    "path": "chapters/14-configuration.md"
+  },
+  {
+    "id": "15-operations",
+    "title": "Сборка запуск и сопровождение",
+    "path": "chapters/15-operations.md"
+  },
+  {
+    "id": "16-quality",
+    "title": "Тестирование и критерии приёмки",
+    "path": "chapters/16-quality.md"
+  },
+  {
+    "id": "17-decisions",
+    "title": "Решения и план развития",
+    "path": "chapters/17-decisions.md"
+  },
+  {
+    "id": "18-code-inventory",
+    "title": "Инвентаризация исходников и версий",
+    "path": "chapters/18-code-inventory.md"
+  },
+  {
+    "id": "19-traceability",
+    "title": "Связь требований макетов кода и проверок",
+    "path": "chapters/19-traceability.md"
+  }
+]
