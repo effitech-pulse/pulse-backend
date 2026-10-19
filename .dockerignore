@@ -1,0 +1,9 @@
+.git
+.env
+.env.*
+__pycache__
+*.pyc
+dist
+docs/project-handbook/pulse-project-documentation.zip
+bin
+*.log

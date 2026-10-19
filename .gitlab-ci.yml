@@ -1,12 +1,28 @@
-image: python:3.13
+image: golang:1.25
 stages: [test]
 test:
   stage: test
+  services:
+    - name: postgres:16
+      alias: postgres
   variables:
-    MODEL_REF: v0.1.0
-    ML_AUTORUN_ENABLED: "false"
+    CONTRACTS_REF: 07213c430318affd140f55dea391cdc36220d93f
+    POSTGRES_DB: pulse_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: pulse-ci-test
+    TEST_DATABASE_URL: postgres://postgres:pulse-ci-test@postgres:5432/pulse_test?sslmode=disable
   script:
-    - pip install "effitech-esp-model @ git+https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/effitech1/model.git@${MODEL_REF}"
-    - pip install -e '.[test]'
-    - pytest
-# В проекте model разрешите CI_JOB_TOKEN от Effitech через Job token permissions.
+    - ': "${CONTRACTS_REPOSITORY:?Set a clone URL accessible with runner Git credentials}"'
+    - git init .ci-contracts
+    - git -C .ci-contracts remote add origin "$CONTRACTS_REPOSITORY"
+    - git -C .ci-contracts fetch --depth 1 origin "$CONTRACTS_REF"
+    - git -C .ci-contracts checkout --detach FETCH_HEAD
+    - test "$(git -C .ci-contracts rev-parse HEAD)" = "$CONTRACTS_REF"
+    - go work init . ./.ci-contracts
+    - go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.1=./.ci-contracts
+    - test -z "$(gofmt -l cmd internal api test)"
+    - make check
+    - make integration
+    - make build
+# CONTRACTS_REPOSITORY задаётся в CI variables; доступ к private contracts
+# настраивается через Git credentials runner. Не включайте токен в clone URL.

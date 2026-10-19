@@ -1,0 +1,455 @@
+{
+  "Annulus_pressure": [
+    "#Затрубное давление (уровнемер)"
+  ],
+  "set_Annular_pressure": [
+    "#Затрубное давление"
+  ],
+  "Ped_load": [
+    "#Загрузка двигателя по мощности"
+  ],
+  "F_out": [
+    "#Выходная частота"
+  ],
+  "Uab": [
+    "#Напряжение Uab"
+  ],
+  "Ubc": [
+    "#Напряжение Ubc"
+  ],
+  "Uac": [
+    "#Напряжение Uac"
+  ],
+  "U_disbalance": [
+    "#Дисбаланс напряжений"
+  ],
+  "Ud": [
+    "#Напряжение Udc"
+  ],
+  "U_out_fc": [
+    "#Выходное напряжение ПЧ"
+  ],
+  "I_out_fc": [
+    "#Выходной ток ПЧ"
+  ],
+  "T_rad_fc": [
+    "#Температура IGBT"
+  ],
+  "F_turbine": [
+    "#Частота турбинного вращения"
+  ],
+  "P_out_active": [
+    "#Активная выходная мощность"
+  ],
+  "Analog_input_1_signal": [
+    "#Сигнал на аналоговом входе 1"
+  ],
+  "P_out_full": [
+    "#Полная выходная мощность"
+  ],
+  "R_izol": [
+    "#Сопротивление изоляции"
+  ],
+  "Analog_input_2_signal": [
+    "#Сигнал на аналоговом входе 2"
+  ],
+  "U_out_tmpn": [
+    "#Напряжение на выходе ТМПН"
+  ],
+  "Ia": [
+    "#Ток фазы А"
+  ],
+  "Ib": [
+    "#Ток фазы В"
+  ],
+  "Ic": [
+    "#Ток фазы С"
+  ],
+  "I_disbalance": [
+    "#Дисбаланс токов"
+  ],
+  "Current_motor_max": [
+    "#Загрузка двигателя по току"
+  ],
+  "CosF": [
+    "#COS F"
+  ],
+  "stat_Work_time_total": [
+    "#Наработка двигателя всего"
+  ],
+  "stat_Work_time_month": [
+    "#Наработка двигателя за месяц"
+  ],
+  "stat_Work_time_last_start_hour": [
+    "#Наработка двигателя с момента последнего запуска"
+  ],
+  "stat_Work_time_lasr_start_minute": [
+    "#Наработка двигателя с момента последнего запуска"
+  ],
+  "stat_Stop_time_total": [
+    "#Общее время простоя двигателя"
+  ],
+  "stat_Number_start_total": [
+    "#Количество запусков двигателя всего"
+  ],
+  "stat_Number_start_day": [
+    "#Количество запусков двигателя за текущий день"
+  ],
+  "stat_Number_start_month": [
+    "#Количество запусков двигателя за текущий месяц"
+  ],
+  "stat_Number_stop_underload": [
+    "#Количество остановов по защите от недогрузки"
+  ],
+  "stat_Number_stop_overload": [
+    "#Количество остановов по защите от перегрузки"
+  ],
+  "stat_Number_stop_other": [
+    "#Количество остановов по прочим причинам"
+  ],
+  "DHS_state": [
+    "#Состояние датчиков ТМС"
+  ],
+  "DHS_frame_number": [
+    "#Номер кадра ТМС"
+  ],
+  "Pump_intake_pressure_kgs": [
+    "#Давление на приеме ЭЦН"
+  ],
+  "Pump_discharge_pressure": [
+    "#Давление на выкиде ЭЦН"
+  ],
+  "Pump_discharge_temperature": [
+    "#Температура на выкиде ЭЦН"
+  ],
+  "Pump_intake_temperature": [
+    "#Температура на приеме ЭЦН"
+  ],
+  "Motor_oil_temperature": [
+    "#Температура масла ПЭД"
+  ],
+  "Vibration_X": [
+    "#Вибрация Х"
+  ],
+  "Motor_winding_temperature": [
+    "#Температура обмотки ПЭД"
+  ],
+  "Vibration_Y": [
+    "#Вибрация Y"
+  ],
+  "Vibration_Z": [
+    "#Вибрация Z"
+  ],
+  "Vibration_XY": [
+    "#Вибрация XY"
+  ],
+  "Vibration_XYZ": [
+    "#Вибрация XYZ"
+  ],
+  "Pump_discharge_flow": [
+    "#Расход жидкости на выкиде ЭЦН"
+  ],
+  "Current_pressure_PID_set": [
+    "#Текущее значение поддерживаемого давления в режиме максимизации дебита"
+  ],
+  "Current_motor_state": [
+    "#Состояние двигателя"
+  ],
+  "set_Auto_adaptation_mode": [
+    "#Режим автоадаптации"
+  ],
+  "Number_current_point_for_diagram": [
+    "#Текущий номер режима"
+  ],
+  "Number_of_point_result": [
+    "#Количество записанных режимов"
+  ],
+  "set_Next_mode_frequency": [
+    "#Частота следующего режима"
+  ],
+  "set_Next_mode": [
+    "#Переход на следующий режим"
+  ],
+  "State_of_mode_build_diagram": [
+    "#Состояние исследования"
+  ],
+  "Research_mode_result": [
+    "#Режим исследования"
+  ],
+  "Finish_time_for_mode_1": [
+    "#Режим 1, время окончания"
+  ],
+  "set_debit_for_mode_1": [
+    "#Режим 1, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_1": [
+    "#Режим 1, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_1": [
+    "#Режим 1, частота"
+  ],
+  "Finish_time_for_mode_2": [
+    "#Режим 2, время окончания"
+  ],
+  "set_debit_for_mode_2": [
+    "#Режим 2, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_2": [
+    "#Режим 2, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_2": [
+    "#Режим 2, частота"
+  ],
+  "Finish_time_for_mode_3": [
+    "#Режим 1, время окончания"
+  ],
+  "set_debit_for_mode_3": [
+    "#Режим 3, дебит при стабилизации"
+  ],
+  "ser_pressure_for_mode_3": [
+    "#Режим 3, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_3": [
+    "#Режим 3, частота"
+  ],
+  "set_debit_for_mode_4": [
+    "#Режим 4, дебит при стабилизации"
+  ],
+  "Finish_time_for_mode_4": [
+    "#Режим 4, время окончания"
+  ],
+  "set_pressure_for_mode_4": [
+    "#Режим 4, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_4": [
+    "#Режим 4, частота"
+  ],
+  "Finish_time_for_mode_5": [
+    "#Режим 5, время окончания"
+  ],
+  "set_debit_for_mode_5": [
+    "#Режим 5, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_5": [
+    "#Режим 5, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_5": [
+    "#Режим 5, частота"
+  ],
+  "Finish_time_for_mode_6": [
+    "#Режим 6, время окончания"
+  ],
+  "set_debit_for_mode_6": [
+    "#Режим 6, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_6": [
+    "#Режим 6, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_6": [
+    "#Режим 6, частота режима"
+  ],
+  "Finish_time_for_mode_7": [
+    "#Режим 7, время окончания"
+  ],
+  "set_debit_for_mode_7": [
+    "#Режим 7, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_7": [
+    "#Режим 7, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_7": [
+    "#Режим 7, частота"
+  ],
+  "Finish_time_of_mode_8": [
+    "#Режим 8, время окончания"
+  ],
+  "set_debit_for_mode_8": [
+    "#Режим 8, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_8": [
+    "#Режим 8, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_8": [
+    "#Режим 8, частота"
+  ],
+  "Finish_time_of_mode_9": [
+    "#Режим 9, время окончания"
+  ],
+  "set_debit_for_mode_9": [
+    "#Режим 9, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_9": [
+    "#Режим 9, давление ВДП при стабилизации"
+  ],
+  "set_debit_for_mode_10": [
+    "#Режим 10, дебит при стабилизации"
+  ],
+  "set_pressure_for_mode_10": [
+    "#Режим 10, давление ВДП при стабилизации"
+  ],
+  "set_PID_pressure_setting_change": [
+    "#Изменение уставки ПИД-регулятора давления"
+  ],
+  "set_Underload_protection": [
+    "#Защита от недогрузки двигателя"
+  ],
+  "set_Underload_setting": [
+    "#Уставка недогрузки"
+  ],
+  "set_EKM_protection": [
+    "#Защита по ЭКМ"
+  ],
+  "set_Vibration_protection": [
+    "#Защита от высокой вибрации"
+  ],
+  "set_Motor_oil_pressure_protection": [
+    "#Защита по минимальному давлению масла двигателя"
+  ],
+  "set_Motor_oil_temperature_protection": [
+    "#Защита по температуре масла двигателя"
+  ],
+  "set_Start_mode_fc": [
+    "#Режим пуска"
+  ],
+  "set_Dynamic_break_mode": [
+    "#Режим динамического торможения"
+  ],
+  "set_Rotating_direction": [
+    "#Направление вращения"
+  ],
+  "set_Motor_control_mode": [
+    "#Тип ПЭД"
+  ],
+  "set_Linear_regulator_mode": [
+    "#Линейный регулятор"
+  ],
+  "set_Minimum_frequency_protection": [
+    "#Защита по минимальной выходной частоте"
+  ],
+  "set_Maximum_frequency_protection": [
+    "#Защита по максимальной выходной частоте"
+  ],
+  "set_PID-regulator_mode": [
+    "#Режим ПИД-регулирования"
+  ],
+  "set_PID-regulator_parameter_type": [
+    "#Тип поддерживаемого параметра для ПИД-регулятора"
+  ],
+  "set_PID-regulator_regulator_type": [
+    "#Тип регулятора"
+  ],
+  "set_Frequency_change_mode": [
+    "#Режим работы со сменой (чередованием) частоты"
+  ],
+  "set_Programm_mode": [
+    "#Работа по программе"
+  ],
+  "set_Working_time_hour": [
+    "#Время работы по программе"
+  ],
+  "set_Working_time_minute": [
+    "#Время работы по программе"
+  ],
+  "set_Stop_time_hour": [
+    "#Время простоя по программе"
+  ],
+  "set_Stop_time_minute": [
+    "#Время простоя по программе"
+  ],
+  "set_Use_rework_by_program": [
+    "#Доработка по программе"
+  ],
+  "set_Use_recalc_time_of_program_mode": [
+    "#Автоматический перерасчет времени работы и простоя по программе"
+  ],
+  "set_Program_frequency_change_mode": [
+    "#Режим программного изменения частоты"
+  ],
+  "set_Gal_lock_removal_mode": [
+    "#Режим прокачки газа строч "
+  ],
+  "set_Joggle_mode": [
+    "#Режим встряхивания"
+  ],
+  "set_Output_voltage_optimization_mode": [
+    "#Режим автоматической оптимизации выходного напряжения"
+  ],
+  "set_External_alarm_AR_type": [
+    "#Внешняя авария, тип АПВ"
+  ],
+  "set_External_alarm_AR_delay": [
+    "#Внешняя авария, задержка АПВ"
+  ],
+  "set_External_alarm_AR_number": [
+    "#Внешняя авария, количество АПВ"
+  ],
+  "set_External_alarm_control_delay": [
+    "#Внешняя авария, задержка срабатывания после пуска двигателя"
+  ],
+  "set_External_alarm_stop_delay": [
+    "#Внешняя авария, время отключения при работающем двигателе"
+  ],
+  "set_External_alarm_protection": [
+    "#Внешняя авария, защита"
+  ],
+  "set_External_alarm_active_state": [
+    "#Внешняя авария, активное состояние (тип контакта)"
+  ],
+  "set_Built-in_energometer_mode": [
+    "#Режим работы встроенного электросчетчика контроллера"
+  ],
+  "set_Sinus_filter_capacity": [
+    "#Емкость синус-фильтра"
+  ],
+  "set_Use_sinus_filter": [
+    "#Учет синус-фильтра"
+  ],
+  "set_COSF_for_breakdown_PMM": [
+    "#COSФ при срыве синхронизации"
+  ],
+  "set_Start_frequency_for_PMM": [
+    "#Стартовая частота"
+  ],
+  "set_Out_of_synchronization_time": [
+    "#Время рассинхронизации"
+  ],
+  "set_Voltage_regulator_integral_factor": [
+    "#Интегральный коэффициент регулятора напряжения"
+  ],
+  "set_Autoadapt_period": [
+    "#Период автоадаптации"
+  ],
+  "set_Overload_avoid": [
+    "#Уход от перегруза"
+  ],
+  "set_Underload_avoid": [
+    "#Уход от недогруза"
+  ],
+  "set_Overheat_motor_avoid": [
+    "#Уход от перегрева двигателя"
+  ],
+  "set_FC_overheat_avoid": [
+    "#Уход от перегрева ПЧ"
+  ],
+  "set_Auto_drainage": [
+    "#Автодренирование ПЗП"
+  ],
+  "set_Auto_jog_mode": [
+    "#Режим встряхивания"
+  ],
+  "set_Auto_optim_Uout": [
+    "#Режим автоматической оптимизации выходного напряжения"
+  ],
+  "set_Auto_gas_pumping_mode": [
+    "#Режим прокачки газа строч"
+  ],
+  "Debit_for_mode_10": [
+    "#Режим 10, дебит при стабилизации"
+  ],
+  "Pressure_of_mode_10": [
+    "#Режим 10, давление ВДП при стабилизации"
+  ],
+  "Frequency_of_mode_10": [
+    "#Режим 10, частота"
+  ]
+}

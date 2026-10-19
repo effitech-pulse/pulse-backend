@@ -1,0 +1,86 @@
+# Isolated PREP runtime. No connection to grant-postgres/ClickHouse or live volumes.
+# Supply secrets with --env-file .env.prep; see docs/readiness-runtime.md.
+name: pulse-prep
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: pulse_prep
+      POSTGRES_USER: pulse_prep
+      POSTGRES_PASSWORD: ${PREP_POSTGRES_PASSWORD:?Set PREP_POSTGRES_PASSWORD in the private env file}
+    ports:
+      - "127.0.0.1:${PREP_POSTGRES_PORT:-55439}:5432"
+    volumes: [prep-postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse_prep -d pulse_prep"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  ml:
+    image: pulse-ml-service:prep
+    build:
+      context: ../../pulse-ml-service
+      additional_contexts:
+        model: ../../pulse-model
+        contracts: ../../pulse-contracts
+    environment:
+      ML_GRPC_BIND: 0.0.0.0:50051
+      ML_DATA_ROOT: /data
+      ML_SERVICE_API_KEY: ${PREP_ML_API_KEY:?Set PREP_ML_API_KEY in the private env file}
+    volumes:
+      - ../../workspace-data/models:/data/models:ro
+    healthcheck:
+      test: ["CMD", "python", "-m", "pulse_ml.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 30
+  data:
+    image: pulse-data:prep
+    build:
+      context: ../../pulse-data
+      additional_contexts:
+        model: ../../pulse-model
+    command: ["python", "-m", "utils.telemetry_emulator.server", "--profiles", "/data/emulator/calibration.json", "--scenario", "/data/emulator/scenario.json", "--host", "0.0.0.0", "--port", "8092"]
+    volumes:
+      - ../../workspace-data/emulator:/data/emulator:ro
+  backend:
+    image: pulse-backend:prep
+    build:
+      context: ..
+      dockerfile: build/package/Dockerfile
+      additional_contexts:
+        contracts: ../../pulse-contracts
+    environment:
+      HTTP_ADDR: :8000
+      DATABASE_URL: postgresql://pulse_prep:${PREP_POSTGRES_PASSWORD:?Set PREP_POSTGRES_PASSWORD}@postgres:5432/pulse_prep?sslmode=disable
+      ML_SERVICE_TARGET: ml:50051
+      ML_SERVICE_API_KEY: ${PREP_ML_API_KEY:?Set PREP_ML_API_KEY}
+      ML_SERVICE_TIMEOUT_S: ${PREP_ML_TIMEOUT_S:-1800}
+      ML_AUTORUN_ENABLED: "false"
+      TELEMETRY_DATA_API_URL: http://data:8092
+      INTEGRATION_ALLOWED_HOSTS: data
+      AUTH_MODE: local
+      AUTH_COOKIE_SECURE: "false"
+      APP_SCOPE: cohort
+      COHORT_VERSION: ${PREP_COHORT_VERSION:-presentation-v1}
+      CORS_ORIGINS: http://127.0.0.1:${PREP_HTTP_PORT:-8088},http://localhost:${PREP_HTTP_PORT:-8088}
+      PARAM_DICT_PATH: /app/parameters_dict.json
+      TZ: Europe/Moscow
+    ports:
+      - "127.0.0.1:${PREP_API_PORT:-8018}:8000"
+    volumes:
+      - ../configs/parameters.local.json:/app/parameters_dict.json:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+      ml: {condition: service_healthy}
+      data: {condition: service_healthy}
+  frontend:
+    image: pulse-frontend:prep
+    build: ../../pulse-frontend
+    ports:
+      - "127.0.0.1:${PREP_HTTP_PORT:-8088}:80"
+    depends_on:
+      backend: {condition: service_started}
+volumes:
+  prep-postgres: {}

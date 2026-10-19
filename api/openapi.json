@@ -1,0 +1,7717 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Пульс скважины — API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells": {
+      "get": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "List wells",
+        "operationId": "list_wells_api_v1_wells_get",
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Только активные скважины.",
+              "default": true,
+              "title": "Active Only"
+            },
+            "description": "Только активные скважины."
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "operational",
+                "presentation"
+              ],
+              "description": "Явная принадлежность к рабочему или показательному фонду; не роль доступа."
+            },
+            "description": "Без параметра сохраняется совместимый ответ по всем фондам."
+          },
+          {
+            "name": "ngdu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "ID Pulse или номер скважины, регистр не учитывается"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id_asc",
+                "id_desc",
+                "name_asc",
+                "name_desc"
+              ]
+            }
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "current",
+                "archived",
+                "all"
+              ],
+              "default": "current"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WellRead"
+                  },
+                  "title": "Response List Wells Api V1 Wells Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+      },
+      "post": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Create one well manually",
+        "operationId": "create_well_api_v1_wells_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WellCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/import": {
+      "post": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Bulk-import wells from an Excel file (NGDU, WELL_NUMBER, ARMITS_ID, UNITEK_ID, CEX)",
+        "operationId": "import_wells_api_v1_wells_import_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_wells_api_v1_wells_import_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellImportResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/bulk": {
+      "post": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Bulk-create wells from JSON (used by the import preview after editing)",
+        "operationId": "create_wells_bulk_api_v1_wells_bulk_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WellImport"
+                },
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellImportResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/export": {
+      "get": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Export all wells to Excel (.xlsx)",
+        "operationId": "export_wells_api_v1_wells_export_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "identity",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pulse"
+              ]
+            },
+            "description": "pulse: PULSE_ID, номер, НГДУ, цех; без внешних ID. Без параметра сохранён прежний формат."
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "operational",
+                "presentation"
+              ],
+              "description": "Явная принадлежность к рабочему или показательному фонду; не роль доступа."
+            },
+            "description": "Без параметра сохраняется совместимый ответ по всем фондам."
+          },
+          {
+            "name": "ngdu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "ID Pulse или номер скважины, регистр не учитывается"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id_asc",
+                "id_desc",
+                "name_asc",
+                "name_desc"
+              ]
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "current",
+                "archived",
+                "all"
+              ],
+              "default": "current"
+            }
+          },
+          {
+            "name": "lifecycle",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Расширяет Pulse-экспорт полями ACTIVE, ARCHIVED_AT, RESPONSIBLE, REVISION; прежние четыре колонки сохраняются первыми."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+      }
+    },
+    "/api/v1/wells/{well_id}": {
+      "get": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Get a well by id",
+        "operationId": "get_well_api_v1_wells__well_id__get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "include_archived",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Update / deactivate a well",
+        "operationId": "update_well_api_v1_wells__well_id__patch",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WellUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "wells"
+        ],
+        "summary": "Delete a well",
+        "operationId": "delete_well_api_v1_wells__well_id__delete",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Совместимый DELETE архивирует скважину без удаления связанных данных. Возвращает 204; обычный GET после этого возвращает 404. Для просмотра архива нужен include_archived=true. В local требуется If-Match с текущей revision; в legacy версия необязательна."
+      }
+    },
+    "/api/v1/wells/{well_id}/predictions": {
+      "get": {
+        "tags": [
+          "wells",
+          "predictions"
+        ],
+        "summary": "List recent predictions for a well",
+        "operationId": "well_predictions_api_v1_wells__well_id__predictions_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PredictionRead"
+                  },
+                  "title": "Response Well Predictions Api V1 Wells  Well Id  Predictions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/predictions/export": {
+      "get": {
+        "tags": [
+          "wells",
+          "predictions"
+        ],
+        "summary": "Export a well's predictions to Excel (.xlsx)",
+        "operationId": "export_well_predictions_api_v1_wells__well_id__predictions_export_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/complications": {
+      "get": {
+        "tags": [
+          "wells",
+          "complications"
+        ],
+        "summary": "List active complications for a well",
+        "operationId": "well_complications_api_v1_wells__well_id__complications_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComplicationRead"
+                  },
+                  "title": "Response Well Complications Api V1 Wells  Well Id  Complications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/classification": {
+      "get": {
+        "tags": [
+          "wells",
+          "complications"
+        ],
+        "summary": "Classify a well by its complications",
+        "operationId": "well_classification_api_v1_wells__well_id__classification_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellClassification"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/incidents": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "List failure cases of a well",
+        "operationId": "list_incidents_api_v1_wells__well_id__incidents_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IncidentRead"
+                  },
+                  "title": "Response List Incidents Api V1 Wells  Well Id  Incidents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Add a failure case to a well",
+        "operationId": "create_incident_api_v1_wells__well_id__incidents_post",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IncidentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidents/{incident_id}": {
+      "delete": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Delete a failure case",
+        "operationId": "delete_incident_api_v1_incidents__incident_id__delete",
+        "parameters": [
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Incident Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidents/stats": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Aggregate failure stats (by type, by month) for the dashboard",
+        "operationId": "incident_stats_api_v1_incidents_stats_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "ngdu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "ID Pulse или номер скважины, регистр не учитывается"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id_asc",
+                "id_desc",
+                "name_asc",
+                "name_desc"
+              ]
+            }
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "operational",
+                "presentation"
+              ]
+            }
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "current",
+                "archived",
+                "all"
+              ],
+              "default": "current"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+      }
+    },
+    "/api/v1/departments": {
+      "get": {
+        "tags": [
+          "departments"
+        ],
+        "summary": "List departments",
+        "operationId": "list_departments_api_v1_departments_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentRead"
+                  },
+                  "title": "Response List Departments Api V1 Departments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "departments"
+        ],
+        "summary": "Create a department",
+        "operationId": "create_department_api_v1_departments_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/departments/{dep_id}": {
+      "put": {
+        "tags": [
+          "departments"
+        ],
+        "summary": "Rename a department",
+        "operationId": "update_department_api_v1_departments__dep_id__put",
+        "parameters": [
+          {
+            "name": "dep_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dep Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartmentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "departments"
+        ],
+        "summary": "Delete a department",
+        "operationId": "delete_department_api_v1_departments__dep_id__delete",
+        "parameters": [
+          {
+            "name": "dep_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dep Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ngdu": {
+      "get": {
+        "tags": [
+          "ngdu"
+        ],
+        "summary": "List NGDU",
+        "operationId": "list_ngdu_api_v1_ngdu_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NgduRead"
+                  },
+                  "title": "Response List Ngdu Api V1 Ngdu Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ngdu"
+        ],
+        "summary": "Create an NGDU",
+        "operationId": "create_ngdu_api_v1_ngdu_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NgduCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NgduRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ngdu/{ngdu_id}": {
+      "put": {
+        "tags": [
+          "ngdu"
+        ],
+        "summary": "Rename an NGDU",
+        "operationId": "update_ngdu_api_v1_ngdu__ngdu_id__put",
+        "parameters": [
+          {
+            "name": "ngdu_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ngdu Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NgduUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NgduRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ngdu"
+        ],
+        "summary": "Delete an NGDU",
+        "operationId": "delete_ngdu_api_v1_ngdu__ngdu_id__delete",
+        "parameters": [
+          {
+            "name": "ngdu_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ngdu Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/status": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Metabase embedding status",
+        "operationId": "get_status_api_v1_analytics_status_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/dashboards/{dashboard_id}/embed": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Signed iframe URL for an embeddable dashboard",
+        "operationId": "get_embed_url_api_v1_analytics_dashboards__dashboard_id__embed_get",
+        "parameters": [
+          {
+            "name": "dashboard_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dashboard Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbedUrl"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs": {
+      "get": {
+        "tags": [
+          "run-archive"
+        ],
+        "summary": "List recent pipeline events",
+        "operationId": "list_runs_api_v1_runs_get",
+        "parameters": [
+          {
+            "name": "dag_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dag Id"
+            }
+          },
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "status_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status Type"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RunArchiveRead"
+                  },
+                  "title": "Response List Runs Api V1 Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/export": {
+      "get": {
+        "tags": [
+          "run-archive"
+        ],
+        "summary": "Export pipeline events to Excel (.xlsx)",
+        "operationId": "export_runs_api_v1_runs_export_get",
+        "parameters": [
+          {
+            "name": "dag_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dag Id"
+            }
+          },
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "status_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status Type"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/{dag_id}/{run_id}": {
+      "get": {
+        "tags": [
+          "run-archive"
+        ],
+        "summary": "List events for a specific DAG run",
+        "operationId": "run_events_api_v1_runs__dag_id___run_id__get",
+        "parameters": [
+          {
+            "name": "dag_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dag Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RunArchiveRead"
+                  },
+                  "title": "Response Run Events Api V1 Runs  Dag Id   Run Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parameters": {
+      "get": {
+        "tags": [
+          "parameters"
+        ],
+        "summary": "Parameter dictionary",
+        "operationId": "list_parameters_api_v1_parameters_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParameterRead"
+                  },
+                  "title": "Response List Parameters Api V1 Parameters Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Recent user actions (last week)",
+        "operationId": "list_audit_api_v1_audit_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditRead"
+                  },
+                  "title": "Response List Audit Api V1 Audit Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/wells/refresh": {
+      "post": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Refresh",
+        "description": "Запускает фоновый прогон модели по фонду. 409 — если прогон уже идёт.",
+        "operationId": "ml_refresh_api_v1_ml_wells_refresh_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Refresh Api V1 Ml Wells Refresh Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/runs": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Runs",
+        "description": "История прогонов (новые сверху) + флаг текущего прогона.",
+        "operationId": "ml_runs_api_v1_ml_runs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "runs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MLRun"
+                      }
+                    }
+                  },
+                  "required": [
+                    "running",
+                    "runs"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/alerts/{alert_id}": {
+      "patch": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Alert Status",
+        "description": "Обратная связь технолога по тревоге: принято в работу / ложная.",
+        "operationId": "ml_alert_status_api_v1_ml_alerts__alert_id__patch",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Alert Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlertStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Alert Status Api V1 Ml Alerts  Alert Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/wells": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Wells",
+        "operationId": "ml_wells_api_v1_ml_wells_get",
+        "parameters": [
+          {
+            "name": "min_risk",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Risk"
+            }
+          },
+          {
+            "name": "alert_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Alert Only"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CohortRiskList"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResearchRiskList"
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "profile",
+                    "mapping": {
+                      "cohort": "#/components/schemas/CohortRiskList",
+                      "research": "#/components/schemas/ResearchRiskList"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/wells/by-unitek/{unitek_id}": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Well By Unitek",
+        "operationId": "ml_well_by_unitek_api_v1_ml_wells_by_unitek__unitek_id__get",
+        "parameters": [
+          {
+            "name": "unitek_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Unitek Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CohortOutcome"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResearchWellRisk"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/wells/{well_id}/explain": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Explain",
+        "operationId": "ml_explain_api_v1_ml_wells__well_id__explain_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 6,
+              "title": "Top N"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Explain Api V1 Ml Wells  Well Id  Explain Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/wells/{well_id}/history": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Well History",
+        "operationId": "ml_well_history_api_v1_ml_wells__well_id__history_get",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Well Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 400,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Well History Api V1 Ml Wells  Well Id  History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/health": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Health",
+        "operationId": "ml_health_api_v1_ml_health_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Health Api V1 Ml Health Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/metrics": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Metrics",
+        "operationId": "ml_metrics_api_v1_ml_metrics_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Metrics Api V1 Ml Metrics Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/upload": {
+      "post": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Ml Upload",
+        "operationId": "ml_upload_api_v1_ml_upload_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_ml_upload_api_v1_ml_upload_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ml Upload Api V1 Ml Upload Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations": {
+      "get": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Список источников",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TelemetrySource"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Создать черновик",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetrySource"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TelemetrySourceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/check": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Проверить источник",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TelemetrySourceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/logs": {
+      "get": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Журнал сбора",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TelemetryCollectionLog"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/{source_id}": {
+      "put": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Сохранить настройки и версию профиля",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetrySource"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TelemetrySourceInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/integrations/{source_id}/status": {
+      "patch": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Запустить или приостановить",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetrySource"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "running",
+                      "paused"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/integrations/{source_id}/collect": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Собрать сейчас",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCollectionLog"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/integrations/{source_id}/ingest": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Принять JSON источника",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCollectionLog"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "records"
+                ],
+                "properties": {
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "minItems": 1,
+                    "maxItems": 10000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/telemetry": {
+      "get": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Измерения за период",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Подтвердить импорт",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCollectionLog"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "points"
+                ],
+                "properties": {
+                  "points": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TelemetryMeasurement"
+                    },
+                    "minItems": 1,
+                    "maxItems": 100000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/telemetry/score": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Проверить период моделью",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "well_id",
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "well_id": {
+                    "type": "string"
+                  },
+                  "start": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/telemetry/bounds": {
+      "get": {
+        "summary": "Границы доступной истории телеметрии",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Границы истории; null при отсутствии измерений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryBounds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/telemetry": {
+      "get": {
+        "summary": "Телеметрия по внутреннему ID Pulse",
+        "tags": [
+          "Pulse wells"
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/telemetry/bounds": {
+      "get": {
+        "summary": "Границы телеметрии по ID Pulse",
+        "tags": [
+          "Pulse wells"
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryBounds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/telemetry/score": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Расчёт модели по ID Pulse",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/telemetry/import": {
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Импорт измерений с ID Pulse в points[].well_id",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryCollectionLog"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "503": {
+            "description": "Источник или ML недоступен"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "points"
+                ],
+                "properties": {
+                  "points": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TelemetryMeasurement"
+                    },
+                    "minItems": 1,
+                    "maxItems": 100000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/risk": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Результат модели по внутреннему ID Pulse",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CohortOutcome"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResearchWellRisk"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/risk/history": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Результат модели по внутреннему ID Pulse",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 400,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CohortOutcome"
+                    },
+                    {
+                      "type": "object",
+                      "description": "Legacy research risk history"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/checks": {
+      "get": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "История ручных проверок скважины по ID Pulse",
+        "description": "До 25 записей в порядке created_at DESC, id DESC. Следующая страница — before последней записи. История содержит успешные ответы ML, в том числе insufficient. Ошибки расчёта не создают успешную проверку.",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManualCheck"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Скважина не найдена"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Выполнить и сохранить ручную проверку",
+        "description": "Не меняет ярус фонда или тревоги. Сохраняет полный ответ, версию артефактов модели и SHA256 CSV, переданного в ML. При неизвестной версии возвращается null. Закрытие вкладки не отменяет расчёт; после остановки сервера незавершённый запрос можно повторить с тем же request_id.",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualCheckInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManualCheck"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ключ повтора использован для другого периода"
+          },
+          "422": {
+            "description": "Некорректный запрос или неполная выборка"
+          },
+          "503": {
+            "description": "Источник или модель недоступны"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/checks/{check_id}": {
+      "get": {
+        "tags": [
+          "telemetry"
+        ],
+        "summary": "Открыть сохранённый результат без повторного расчёта",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "check_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManualCheck"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Проверка не найдена у этой скважины"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/checks/{check_id}/review": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Состояние обработки и история изменений",
+        "description": "До 50 событий, новые первыми; before — revision последнего события предыдущей страницы. Состояние и события читаются согласованно.",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "check_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Результат не найден"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Сохранить ответственного, статус, комментарий и заключение",
+        "description": "Оптимистическая блокировка по revision. Закрытие требует ответственного, заключения и комментария; повторное открытие — причины. Автор задаётся сервером. Повтор request_id с тем же телом не создаёт событие. Запись состояния, события и статуса тревоги атомарна. Оценка модели и ярус сохраняются.",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "check_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Результат не найден"
+          },
+          "409": {
+            "description": "Устаревшая версия или повтор ключа с другим телом"
+          },
+          "422": {
+            "description": "Некорректное состояние или незаполненные обязательные поля"
+          }
+        }
+      }
+    },
+    "/api/v1/ml/alerts/{alert_id}/review": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Состояние обработки и история изменений",
+        "description": "До 50 событий, новые первыми; before — revision последнего события предыдущей страницы. Состояние и события читаются согласованно.",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Результат не найден"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Сохранить ответственного, статус, комментарий и заключение",
+        "description": "Оптимистическая блокировка по revision. Закрытие требует ответственного, заключения и комментария; повторное открытие — причины. Автор задаётся сервером. Повтор request_id с тем же телом не создаёт событие. Запись состояния, события и статуса тревоги атомарна. Оценка модели и ярус сохраняются.",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Результат не найден"
+          },
+          "409": {
+            "description": "Устаревшая версия или повтор ключа с другим телом"
+          },
+          "422": {
+            "description": "Некорректное состояние или незаполненные обязательные поля"
+          }
+        }
+      }
+    },
+    "/api/v1/presentation/summary": {
+      "get": {
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Сводка ручных проверок показательного фонда",
+        "description": "Сценарии деградации и реальные оценки модели разделены. Данные рабочего фонда не включаются.",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresentationSummary"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Pulse Data недоступен"
+          }
+        }
+      }
+    },
+    "/api/v1/presentation/scenario": {
+      "get": {
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Конфигурация сценария Pulse Data",
+        "description": "Сценарии деградации и реальные оценки модели разделены. Данные рабочего фонда не включаются.",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresentationScenario"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Pulse Data недоступен"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Режим входа и текущий пользователь (без сеанса principal=null)",
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Локальный вход; выдаёт защищённый cookie сеанса",
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Завершить текущий сеанс",
+        "responses": {
+          "204": {
+            "description": "Успех"
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/users": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Учётные записи (администратор)",
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Создать учётную запись (администратор)",
+        "responses": {
+          "201": {
+            "description": "Успех",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/users/{user_id}": {
+      "put": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Изменить учётную запись и отозвать сеансы (администратор)",
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Конфликт версии или идентичности"
+          },
+          "422": {
+            "description": "Некорректные данные"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          },
+          "503": {
+            "description": "Персональный вход не включён"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/wells/{well_id}/archive": {
+      "post": {
+        "summary": "Архивировать скважину",
+        "tags": [
+          "wells"
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WellLifecycleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно; Active и ID Pulse не меняются",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellRead"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт версии или состояния"
+          },
+          "403": {
+            "description": "Нужен администратор"
+          },
+          "422": {
+            "description": "Некорректный запрос"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/restore": {
+      "post": {
+        "summary": "Восстановить скважину",
+        "tags": [
+          "wells"
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WellLifecycleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно; Active и ID Pulse не меняются",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellRead"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт версии или состояния"
+          },
+          "403": {
+            "description": "Нужен администратор"
+          },
+          "422": {
+            "description": "Некорректный запрос"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/history": {
+      "get": {
+        "summary": "История карточки в разрешённой области доступа",
+        "tags": [
+          "wells"
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "До 50 изменений, новые первыми",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WellHistory"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/runs/{run_id}/snapshot": {
+      "get": {
+        "tags": [
+          "ml"
+        ],
+        "summary": "Сохранённый immutable cohort snapshot в пределах прав читателя",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Сохранённые outcomes; coverage относится только к видимому пересечению",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortSnapshot"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Снимок этой когорты не найден; исторические записи не пересчитываются"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertStatusUpdate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "AlertStatusUpdate"
+      },
+      "AnalyticsStatus": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "dashboards": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardInfo"
+            },
+            "type": "array",
+            "title": "Dashboards"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "dashboards"
+        ],
+        "title": "AnalyticsStatus",
+        "description": "Whether Metabase embedding is configured + the available dashboards."
+      },
+      "AuditRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ts": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ts"
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "status_code": {
+            "type": "integer",
+            "title": "Status Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ts",
+          "actor",
+          "method",
+          "path",
+          "status_code"
+        ],
+        "title": "AuditRead"
+      },
+      "Body_import_wells_api_v1_wells_import_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_wells_api_v1_wells_import_post"
+      },
+      "Body_ml_upload_api_v1_ml_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_ml_upload_api_v1_ml_upload_post"
+      },
+      "ComplicationRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "well_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "well_id",
+          "code",
+          "name",
+          "category",
+          "description",
+          "active",
+          "created_at"
+        ],
+        "title": "ComplicationRead"
+      },
+      "DashboardInfo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "DashboardInfo"
+      },
+      "DepartmentCreate": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "DepartmentCreate"
+      },
+      "DepartmentRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "DepartmentRead"
+      },
+      "DepartmentUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "DepartmentUpdate"
+      },
+      "EmbedUrl": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "EmbedUrl"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "'ok' if the service is healthy."
+          },
+          "database": {
+            "type": "string",
+            "title": "Database",
+            "description": "'ok' or 'error' for DB connectivity."
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "default": "1.0.0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "database"
+        ],
+        "title": "HealthResponse"
+      },
+      "IncidentCreate": {
+        "properties": {
+          "failure_type": {
+            "type": "string",
+            "title": "Failure Type",
+            "description": "Тип/класс поломки."
+          },
+          "failure_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Failure Date",
+            "description": "Дата (период) возникновения отказа."
+          },
+          "days_before": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Days Before",
+            "description": "Окно истории до отказа, дней.",
+            "default": 60
+          }
+        },
+        "type": "object",
+        "required": [
+          "failure_type",
+          "failure_date"
+        ],
+        "title": "IncidentCreate"
+      },
+      "IncidentRead": {
+        "properties": {
+          "failure_type": {
+            "type": "string",
+            "title": "Failure Type",
+            "description": "Тип/класс поломки."
+          },
+          "failure_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Failure Date",
+            "description": "Дата (период) возникновения отказа."
+          },
+          "days_before": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Days Before",
+            "description": "Окно истории до отказа, дней.",
+            "default": 60
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "well_id": {
+            "type": "integer",
+            "title": "Well Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "failure_type",
+          "failure_date",
+          "id",
+          "well_id",
+          "created_at"
+        ],
+        "title": "IncidentRead"
+      },
+      "IncidentStats": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "by_type": {
+            "items": {
+              "$ref": "#/components/schemas/TypeCount"
+            },
+            "type": "array",
+            "title": "By Type"
+          },
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/MonthCount"
+            },
+            "type": "array",
+            "title": "By Month"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "by_type",
+          "by_month"
+        ],
+        "title": "IncidentStats",
+        "description": "Агрегаты по всем отказам — для дашборда."
+      },
+      "MonthCount": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month",
+            "description": "Месяц в формате YYYY-MM."
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "count"
+        ],
+        "title": "MonthCount"
+      },
+      "NgduCreate": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "NgduCreate"
+      },
+      "NgduRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "NgduRead"
+      },
+      "NgduUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "NgduUpdate"
+      },
+      "ParameterRead": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Aliases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "name",
+          "aliases"
+        ],
+        "title": "ParameterRead"
+      },
+      "PredictionRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "well_id": {
+            "type": "integer",
+            "title": "Well Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "processing_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Processing Date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "well_id",
+          "status",
+          "processing_date",
+          "created_at"
+        ],
+        "title": "PredictionRead"
+      },
+      "RunArchiveRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "dag_id": {
+            "type": "string",
+            "title": "Dag Id"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "execution_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Execution Date"
+          },
+          "well_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Id"
+          },
+          "ngdu": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ngdu"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "status_type": {
+            "type": "string",
+            "title": "Status Type"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters"
+          },
+          "artifacts_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifacts Path"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dag_id",
+          "run_id",
+          "execution_date",
+          "well_id",
+          "ngdu",
+          "department",
+          "status_type",
+          "severity",
+          "source",
+          "message",
+          "parameters",
+          "artifacts_path",
+          "created_at"
+        ],
+        "title": "RunArchiveRead"
+      },
+      "TypeCount": {
+        "properties": {
+          "failure_type": {
+            "type": "string",
+            "title": "Failure Type"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "failure_type",
+          "count"
+        ],
+        "title": "TypeCount"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WellClassification": {
+        "properties": {
+          "well_id": {
+            "type": "integer",
+            "title": "Well Id"
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification"
+          }
+        },
+        "type": "object",
+        "required": [
+          "well_id",
+          "classification"
+        ],
+        "title": "WellClassification",
+        "description": "Result of classifying a well by its complications."
+      },
+      "WellCreate": {
+        "properties": {
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Number"
+          },
+          "ngdu": {
+            "type": "integer",
+            "title": "Ngdu"
+          },
+          "department": {
+            "type": "integer",
+            "title": "Department"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "fund_type": {
+            "type": "string",
+            "enum": [
+              "operational",
+              "presentation"
+            ],
+            "description": "Явная принадлежность к рабочему или показательному фонду; не роль доступа."
+          },
+          "responsible": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          }
+        },
+        "type": "object",
+        "required": [
+          "ngdu",
+          "department"
+        ],
+        "title": "WellCreate",
+        "description": "Скважина Pulse. id — независимый внутренний идентификатор; внешние ID относятся к связям с источниками."
+      },
+      "WellImportResult": {
+        "properties": {
+          "created": {
+            "type": "integer",
+            "title": "Created",
+            "default": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped",
+            "default": 0
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "WellImportResult",
+        "description": "Outcome of an Excel bulk import."
+      },
+      "WellRead": {
+        "properties": {
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Number"
+          },
+          "ngdu": {
+            "type": "integer",
+            "title": "Ngdu"
+          },
+          "department": {
+            "type": "integer",
+            "title": "Department"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "fund_type": {
+            "type": "string",
+            "enum": [
+              "operational",
+              "presentation"
+            ],
+            "description": "Явная принадлежность к рабочему или показательному фонду; не роль доступа."
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "archived_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "responsible": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          }
+        },
+        "type": "object",
+        "required": [
+          "unitek_id",
+          "armits_id",
+          "ngdu",
+          "department",
+          "id",
+          "fund_type",
+          "revision",
+          "archived_at",
+          "responsible"
+        ],
+        "title": "WellRead",
+        "description": "Скважина Pulse. id — независимый внутренний идентификатор; внешние ID относятся к связям с источниками."
+      },
+      "WellUpdate": {
+        "properties": {
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Number"
+          },
+          "ngdu": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ngdu"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "responsible": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Обязательно в AUTH_MODE=local. В legacy отсутствие допускается для совместимости; каждая запись увеличивает версию."
+          }
+        },
+        "type": "object",
+        "title": "WellUpdate",
+        "description": "Скважина Pulse. id — независимый внутренний идентификатор; внешние ID относятся к связям с источниками."
+      },
+      "TelemetryMapping": {
+        "type": "object",
+        "required": [
+          "field",
+          "parameter",
+          "scale",
+          "offset",
+          "is_set"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "parameter": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "missing": {
+            "type": "string"
+          },
+          "is_set": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TelemetrySource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "table_name": {
+            "type": "string"
+          },
+          "records_path": {
+            "type": "string"
+          },
+          "well_field": {
+            "type": "string"
+          },
+          "time_field": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "json_pull",
+              "json_push",
+              "postgres",
+              "mysql",
+              "clickhouse"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "running",
+              "paused",
+              "error"
+            ]
+          },
+          "interval_seconds": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 86400
+          },
+          "profile_version": {
+            "type": "integer"
+          },
+          "last_received": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_measured": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelemetryMapping"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "well_identity": {
+            "type": "string",
+            "enum": [
+              "pulse",
+              "unitek",
+              "armits"
+            ],
+            "description": "Тип ID в поле well_field. Пустое/отсутствующее значение сохраняет поведение старых профилей."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "status",
+          "interval_seconds",
+          "mappings",
+          "well_field",
+          "time_field"
+        ]
+      },
+      "TelemetrySourceInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "table_name": {
+            "type": "string"
+          },
+          "records_path": {
+            "type": "string"
+          },
+          "well_field": {
+            "type": "string"
+          },
+          "time_field": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "json_pull",
+              "json_push",
+              "postgres",
+              "mysql",
+              "clickhouse"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "running",
+              "paused",
+              "error"
+            ]
+          },
+          "interval_seconds": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 86400
+          },
+          "profile_version": {
+            "type": "integer"
+          },
+          "last_received": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_measured": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelemetryMapping"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "secret": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "well_identity": {
+            "type": "string",
+            "enum": [
+              "pulse",
+              "unitek",
+              "armits"
+            ],
+            "description": "Тип ID в поле well_field. Пустое/отсутствующее значение сохраняет поведение старых профилей."
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "interval_seconds",
+          "mappings",
+          "well_field",
+          "time_field"
+        ]
+      },
+      "TelemetryMeasurement": {
+        "type": "object",
+        "required": [
+          "well_id",
+          "timestamp",
+          "values"
+        ],
+        "properties": {
+          "well_id": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "quality": {
+            "type": "string"
+          }
+        }
+      },
+      "TelemetryCollectionLog": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "accepted": {
+            "type": "integer"
+          },
+          "duplicates": {
+            "type": "integer"
+          },
+          "rejected": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "TelemetryResult": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelemetryMeasurement"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "resolution": {
+            "type": "string"
+          }
+        }
+      },
+      "TelemetryBounds": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "WellImport": {
+        "properties": {
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Необязательная связь с внешней системой"
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Well Number"
+          },
+          "ngdu": {
+            "type": "integer",
+            "title": "Ngdu"
+          },
+          "department": {
+            "type": "integer",
+            "title": "Department"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Существующий ID Pulse; строка пропускается без изменения. Для новой скважины поле не задаётся."
+          },
+          "fund_type": {
+            "type": "string",
+            "enum": [
+              "operational",
+              "presentation"
+            ],
+            "description": "Явная принадлежность к рабочему или показательному фонду; не роль доступа."
+          },
+          "responsible": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          }
+        },
+        "type": "object",
+        "required": [
+          "ngdu",
+          "department"
+        ],
+        "title": "WellCreate",
+        "description": "Скважина Pulse. id — независимый внутренний идентификатор; внешние ID относятся к связям с источниками."
+      },
+      "TelemetryCheckResult": {
+        "type": "object",
+        "properties": {
+          "n_windows": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channels_used": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "features_total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "windows_running": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "features_unavailable": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "windows_above_watch": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "windows_above_alert": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "span_days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latest_risk": {
+            "type": "number"
+          },
+          "peak_risk": {
+            "type": "number"
+          },
+          "peak_window_end": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "model_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "model_version": {
+            "type": "string",
+            "nullable": true
+          },
+          "model_saved_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "norm",
+              "watch",
+              "alert",
+              "insufficient"
+            ]
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "window_end": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "risk": {
+                  "type": "number"
+                },
+                "raw_score": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "watch_fired": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "high_fired": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "feature": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "shap": {
+                  "type": "number"
+                },
+                "value_source": {
+                  "type": "string",
+                  "nullable": true,
+                  "enum": [
+                    "computed",
+                    "training_median",
+                    "zero_fallback",
+                    null
+                  ],
+                  "description": "Происхождение значения признака: по данным, медиана обучения или резервный ноль; null для старых ответов."
+                }
+              }
+            }
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ManualCheck": {
+        "type": "object",
+        "required": [
+          "id",
+          "well_id",
+          "request_id",
+          "start",
+          "end",
+          "created_at",
+          "input_sha256",
+          "points_count",
+          "resolution",
+          "result"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "well_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "input_sha256": {
+            "type": "string"
+          },
+          "points_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/TelemetryCheckResult"
+          }
+        }
+      },
+      "ManualCheckInput": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{16,80}$",
+            "description": "Ключ повтора: тот же ID и период возвращают сохранённый результат; другой период даёт 409."
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "RFC3339, точность до микросекунды"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "RFC3339, точность до микросекунды"
+          }
+        }
+      },
+      "ReviewState": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "closed"
+            ]
+          },
+          "owner": {
+            "type": "string"
+          },
+          "conclusion": {
+            "type": "string",
+            "enum": [
+              "",
+              "confirmed",
+              "not_confirmed",
+              "inconclusive"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "revision",
+          "status",
+          "owner",
+          "conclusion",
+          "updated_at"
+        ]
+      },
+      "ReviewActor": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "authenticated": {
+            "type": "boolean",
+            "description": "true только при персональной авторизации; общий API-ключ не идентифицирует человека."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "authenticated"
+        ]
+      },
+      "ReviewEvent": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ReviewActor"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/ReviewState"
+          },
+          "after": {
+            "$ref": "#/components/schemas/ReviewState"
+          }
+        },
+        "required": [
+          "revision",
+          "created_at",
+          "actor",
+          "comment",
+          "before",
+          "after"
+        ]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/ReviewState"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewEvent"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "state",
+          "events",
+          "has_more"
+        ]
+      },
+      "ReviewInput": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{16,80}$"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "closed"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "conclusion": {
+            "type": "string",
+            "enum": [
+              "",
+              "confirmed",
+              "not_confirmed",
+              "inconclusive"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        },
+        "required": [
+          "request_id",
+          "revision",
+          "status",
+          "owner",
+          "conclusion",
+          "comment"
+        ]
+      },
+      "PresentationCheck": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string"
+          },
+          "latest_risk": {
+            "type": "number"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "model_version": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PresentationWell": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WellRead"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "latest_check": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PresentationCheck"
+                  }
+                ],
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "PresentationSummary": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "checked": {
+            "type": "integer"
+          },
+          "watch": {
+            "type": "integer"
+          },
+          "alert": {
+            "type": "integer"
+          },
+          "insufficient": {
+            "type": "integer"
+          },
+          "wells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PresentationWell"
+            }
+          }
+        }
+      },
+      "PresentationScenario": {
+        "type": "object",
+        "properties": {
+          "scenario_id": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "profiles_sha256": {
+            "type": "string"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "affected": {
+            "type": "integer"
+          },
+          "profile_count": {
+            "type": "integer"
+          },
+          "ramp_days": {
+            "type": "number"
+          }
+        }
+      },
+      "AccessScope": {
+        "type": "object",
+        "required": [
+          "funds",
+          "ngdus",
+          "departments"
+        ],
+        "properties": {
+          "funds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "operational",
+                "presentation"
+              ]
+            }
+          },
+          "ngdus": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "null: все; []: доступ запрещён; 0 и отрицательные ID сохраняются."
+          },
+          "departments": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "required": [
+          "id",
+          "login",
+          "name",
+          "role",
+          "scope",
+          "active",
+          "revision",
+          "created_at",
+          "last_login"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "login": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "technologist",
+              "viewer"
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AccessScope"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_login": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "AccountInput": {
+        "type": "object",
+        "required": [
+          "login",
+          "name",
+          "role",
+          "scope"
+        ],
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "technologist",
+              "viewer"
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AccessScope"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "15+ символов, до 72 байт UTF-8. При создании можно пропустить для будущего SSO; при изменении пропуск сохраняет хеш."
+          }
+        }
+      },
+      "Principal": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "technologist",
+              "viewer"
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AccessScope"
+          },
+          "authenticated": {
+            "type": "boolean"
+          },
+          "mechanism": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthState": {
+        "type": "object",
+        "required": [
+          "mode",
+          "principal"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "local"
+            ]
+          },
+          "principal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Principal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "login",
+          "password"
+        ],
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "WellLifecycleInput": {
+        "type": "object",
+        "required": [
+          "revision",
+          "reason"
+        ],
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      },
+      "WellEvent": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "metadata",
+              "archive",
+              "restore"
+            ]
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ReviewActor"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/WellRead"
+          },
+          "after": {
+            "$ref": "#/components/schemas/WellRead"
+          }
+        }
+      },
+      "WellHistory": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WellEvent"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ThresholdRule": {
+        "type": "object",
+        "properties": {
+          "scale": {
+            "type": "string"
+          },
+          "comparison": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "k_windows": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lookback_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "scale",
+          "comparison",
+          "threshold",
+          "k_windows"
+        ]
+      },
+      "DecisionRule": {
+        "type": "object",
+        "properties": {
+          "context_version": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "rule_sha256": {
+            "type": "string"
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThresholdRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThresholdRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "context_version",
+          "policy_id",
+          "rule_sha256",
+          "high_enabled"
+        ]
+      },
+      "DecisionEvidence": {
+        "type": "object",
+        "properties": {
+          "raw_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "watch_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ManifestEntry": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Provenance": {
+        "type": "object",
+        "properties": {
+          "envelope_version": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "computed_at": {
+            "type": "string"
+          },
+          "input_kind": {
+            "type": "string"
+          },
+          "context_completeness": {
+            "type": "string"
+          },
+          "provenance_status": {
+            "type": "string"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_saved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "context_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_recipe_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_schema_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManifestEntry"
+            }
+          },
+          "source_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManifestEntry"
+            }
+          }
+        }
+      },
+      "CohortCoverage": {
+        "type": "object",
+        "properties": {
+          "member_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visible_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "scored_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "archived_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inactive_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "insufficient_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "error_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "member_count",
+          "visible_count",
+          "scored_count",
+          "archived_count",
+          "inactive_count",
+          "insufficient_count",
+          "error_count"
+        ]
+      },
+      "CohortOutcome": {
+        "type": "object",
+        "properties": {
+          "app_well_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scored",
+              "archived",
+              "inactive",
+              "insufficient",
+              "error"
+            ]
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TelemetryCheckResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_sha256": {
+            "type": "string"
+          },
+          "bounds": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TelemetryBounds"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/WellRead"
+          },
+          "run_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cohort_version": {
+            "type": "string"
+          },
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alert_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagnostics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CohortDiagnostics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_watermark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "app_well_id",
+          "status",
+          "reason_code",
+          "result",
+          "bounds",
+          "resolution"
+        ]
+      },
+      "CohortSnapshot": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "string",
+            "const": "cohort"
+          },
+          "cohort_version": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "outcomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CohortOutcome"
+            }
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CohortCoverage"
+          },
+          "provenance_status": {
+            "type": "string",
+            "enum": [
+              "partial",
+              "historical_unknown",
+              "complete"
+            ]
+          },
+          "evaluation_status": {
+            "type": "string",
+            "enum": [
+              "evaluated",
+              "no_scored_members"
+            ]
+          },
+          "outcome_completeness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "not_evaluated"
+            ]
+          }
+        },
+        "required": [
+          "profile",
+          "cohort_version",
+          "snapshot_id",
+          "run_id",
+          "as_of",
+          "count",
+          "running",
+          "outcomes",
+          "coverage",
+          "provenance_status",
+          "evaluation_status",
+          "outcome_completeness"
+        ]
+      },
+      "ResearchWellRisk": {
+        "type": "object",
+        "properties": {
+          "well_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "app_well_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk": {
+            "type": "number"
+          },
+          "alert": {
+            "type": "boolean"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_ok": {
+            "type": "boolean"
+          },
+          "windows_fired": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "windows_total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "well_id",
+          "risk",
+          "alert",
+          "data_ok",
+          "windows_fired",
+          "windows_total"
+        ]
+      },
+      "ResearchRiskList": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "string",
+            "const": "research"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "alert_threshold": {
+            "type": "number"
+          },
+          "high_threshold": {
+            "type": "number"
+          },
+          "wells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchWellRisk"
+            }
+          }
+        },
+        "required": [
+          "profile",
+          "count",
+          "running",
+          "alert_threshold",
+          "high_threshold",
+          "wells"
+        ]
+      },
+      "CohortRiskList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CohortSnapshot"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scored": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CohortOutcome"
+                }
+              }
+            },
+            "required": [
+              "scored"
+            ]
+          }
+        ]
+      },
+      "CohortDiagnostics": {
+        "type": "object",
+        "properties": {
+          "verdict": {
+            "type": "string"
+          },
+          "n_windows": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "windows_running": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channels_used": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "features_unavailable": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MLRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "done",
+              "error"
+            ]
+          },
+          "trigger": {
+            "type": "string"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "cohort",
+                  "research"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cohort_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provenance_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "complete",
+                  "partial",
+                  "historical_unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failure_reason_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "run_failed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wells_scored": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alerts_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drift_verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drift_psi_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drift_top": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "started_at",
+          "status",
+          "trigger"
+        ],
+        "description": "Cohort history includes identified running/error attempts before snapshot. Uncomputed counts/provenance are null; error is safe public text. Historical NULL identity is not assigned to a cohort."
+      }
+    },
+    "securitySchemes": {
+      "PulseSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "pulse_session",
+        "description": "HttpOnly SameSite=Strict; только AUTH_MODE=local. Роли и scope назначаются в Pulse."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "Liveness / readiness probes."
+    },
+    {
+      "name": "wells",
+      "description": "Wells registry."
+    },
+    {
+      "name": "predictions",
+      "description": "Per-well daily regime predictions."
+    },
+    {
+      "name": "complications",
+      "description": "Per-well complications and classification."
+    },
+    {
+      "name": "departments",
+      "description": "Department reference."
+    },
+    {
+      "name": "run-archive",
+      "description": "Pipeline run events."
+    }
+  ]
+}
