@@ -167,3 +167,14 @@
 | [19 / Экспорт телеметрии · Dark](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=375-3397) | `375:3397` | 1440 × 1024 |
 | [20 / Импорт телеметрии · Dark](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=375-3537) | `375:3537` | 1440 × 1024 |
 | [21 / Файл подготовлен · Dark](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=375-3661) | `375:3661` | 1440 × 1024 |
+
+## F1 · версии карточки 20.10.2026
+
+Исходные Light `3:53` и Dark `136:470` сохранены. Восемь новых узлов передают только изменённую композицию F1; текущие графики/формы повторно используются из приложения. Наличие узла не доказывает browser parity или научную корректность демонстрационных значений. [Frontend handoff](../references/frontend-handoff.md) определяет source mapping; [O1/F1 software acceptance](../references/o1-f1-execution.md): browser 7/7 + mobile controls 2/2, pageErrors 0 и scoped visual/mobile-account PASS. Полный pixel/WCAG audit вне этой приёмки.
+
+| Состояние | Light | Dark |
+|---|---|---|
+| Риски и шесть вкладок | [696:328](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-328) | [696:1766](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-1766) |
+| Сведения, паспорт и осложнения | [696:528](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-528) | [696:2040](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-2040) |
+| Мобильная строка 390 | [696:713](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-713) | [696:2299](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-2299) |
+| Ошибка и отдельный код обращения | [696:733](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-733) | [696:2319](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho?node-id=696-2319) |

@@ -25,10 +25,10 @@ SUFFIXES = {
 SKIP_DIRS = {
     ".git", ".venv", "venv", "node_modules", "data", "dist", "__pycache__",
     ".pytest_cache", ".mypy_cache", ".ruff_cache", "catboost_info", ".ci-model",
-    ".ci-contracts", "bin", "build", "archive", "reference", ".idea",
+    ".ci-contracts", "bin", "build", "archive", "reference", ".idea", ".superpowers",
 }
 SKIP_NAMES = {".env", ".npmrc", ".netrc", "id_rsa", "id_ed25519"}
-PRIVATE_PARTS = {"data", "workspace-data", ".venv", "venv", ".git", ".aws", ".ssh", "node_modules", "archive", "reference"}
+PRIVATE_PARTS = {"data", "workspace-data", ".venv", "venv", ".git", ".aws", ".ssh", "node_modules", "archive", "reference", ".superpowers"}
 
 
 def digest(data: bytes) -> str:

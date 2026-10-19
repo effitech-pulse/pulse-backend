@@ -114,3 +114,39 @@ ML listener доступен только через loopback или защищ�
 ## PREP evidence и граница приёмки
 
 Native macOS clean wheels:78tests/0skip и pip check; fresh Linux ML image:78tests; bundle-only Upload и пользовательский bulk проверены в isolated runtime без research cache/PG. Подробные команды, source identity, pending финальные review/browser/commits и ограничения — [PREP ledger](readiness-ledger.md). Новая научная оценка отложена пользователем до подключения независимых данных; качество/7–14 суток не переоценены.
+
+## O1: локальная наблюдаемость транспорта
+
+gRPC executable пишет в stdout ограниченные JSON records (не более 8192 байт):
+UTC timestamp, severity/event, service identity и безопасные status/duration.
+`x-request-id` — ID попытки, отдельно от бизнес `request_id`: одно значение
+`[A-Za-z0-9_-]{16,64}`, иначе новый случайный 32-символьный hex. W3C `traceparent`
+валидируется официальным propagator (одно видимое значение, до 512 байт);
+`baggage`/`tracestate` и ключ `x-ml-api-key` не попадают в события/spans.
+В grpcio 1.78 C-core нормализует повторные wire `traceparent` до последнего
+значения ещё перед Python interceptor: этот слой проверяет доступное ему значение,
+а распознавание исходных wire-дублей не обещается. ID/parent не влияют на auth.
+
+Core OTel API/SDK **1.38.0**, semconv **0.59b0**: manual SERVER span охватывает
+выполнение unary и весь stream-unary Upload, включая чтение чанков, создание
+результата, отказ авторизации, ошибку и отмену. Контекст очищается в `finally`.
+Отмена по-прежнему не гарантирует прерывания pandas/CatBoost. В production provider
+с локальным 100% sampler нет exporter, сети, retention списка или batch queue;
+exporter используется только в тестах. Resource строится явным allowlist,
+`OTEL_RESOURCE_ATTRIBUTES` не импортируется. `SERVICE_VERSION` (по умолчанию
+`unknown`) и `DEPLOYMENT_ENVIRONMENT` (`local`) допускают до 128 безопасных ASCII
+символов; instance — случайный opaque ID. Span limits: attributes 32, events 16,
+links 8, string attribute 256. Debug выключен по умолчанию.
+
+Только фиксированные события и разрешённые поля проходят форматтер: без bodies,
+имён файлов, телеметрии, metadata maps, raw exception/message/stack и credentials.
+Неисправный formatter/stdout sink не меняет ответ RPC; потеря диагностики возможна.
+Stdout сам не гарантирует retention или отсутствие OS blocking. Runtime profile
+координатора должен задавать Docker `local`, `max-size=10m`, `max-file=3`;
+CLI retention задаёт launcher. Collector и централизованное хранение относятся к O2.
+
+Проверка: `python -m pytest tests/test_observability.py`; реальные listener-тесты
+требуют разрешённого loopback. API/SDK требуют Python >=3.9 и не повышают declared
+floor проекта >=3.11. Сохранённый численный runtime-profile с numpy 2.5.1 требует
+Python >=3.12; нативный O1 smoke выполнен на Python 3.13. grpcio 1.78.0/protobuf
+6.33.6 и численные constraints сохранены. Это software gate, не оценка качества модели.

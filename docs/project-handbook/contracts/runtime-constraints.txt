@@ -8,3 +8,6 @@ lifelines==0.30.3
 joblib==1.5.3
 grpcio==1.78.0
 protobuf==6.33.6
+opentelemetry-api==1.38.0
+opentelemetry-sdk==1.38.0
+opentelemetry-semantic-conventions==0.59b0

@@ -73,6 +73,27 @@ class SourceSyncTest(unittest.TestCase):
         self.assertEqual(self.invoke("--check"), 0)
         self.assertIn("fixture-new-source.md", (self.package / "inventory/source-files.csv").read_text())
 
+    def test_sdd_scratch_is_not_a_public_source(self) -> None:
+        scratch = self.workspace / "pulse-backend/.superpowers/sdd/fixture/progress.md"
+        scratch.parent.mkdir(parents=True)
+        scratch.write_text("# Temporary execution notes\n")
+        self.assertEqual(self.invoke("--check"), 0)
+        self.assertEqual(self.invoke("--sync"), 0)
+        self.assertNotIn(".superpowers/", (self.package / "inventory/source-files.csv").read_text())
+
+    def test_sdd_scratch_registry_source_is_rejected_without_partial_write(self) -> None:
+        scratch = self.workspace / "pulse-backend/.superpowers/sdd/progress.md"
+        scratch.parent.mkdir(parents=True)
+        scratch.write_text("# Temporary execution notes\n")
+        registry_path = self.package / "inventory/snapshot-sources.json"
+        registry = json.loads(registry_path.read_text())
+        registry["entries"][-1]["source"] = "pulse-backend/.superpowers/sdd/progress.md"
+        registry_path.write_text(json.dumps(registry))
+        before = self.package_digests()
+        with self.assertRaises(SystemExit):
+            self.invoke("--sync")
+        self.assertEqual(before, self.package_digests())
+
     def test_changed_snapshot_is_detected_and_sync_restores_source(self) -> None:
         snapshot = self.package / "contracts/ml.proto"
         snapshot.write_bytes(snapshot.read_bytes() + b"\n// fixture corruption\n")

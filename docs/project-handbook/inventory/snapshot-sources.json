@@ -1,5 +1,5 @@
 {
-  "edition": "2026-10-20 / PREP supplement",
+  "edition": "2026-10-20 / O1-F1 supplement",
   "workspace_root": "repository-split, supplied explicitly via --workspace",
   "policy": "SOURCE_POLICY.md",
   "entries": [
@@ -48,8 +48,8 @@
       "source": "pulse-ml-service/runtime-constraints.txt",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "889abf5399ef70c84430992ad8cd02590965d71717d6bc033ba19a00b0b0429a",
-      "snapshot_sha256": "889abf5399ef70c84430992ad8cd02590965d71717d6bc033ba19a00b0b0429a"
+      "source_sha256": "dcc863de98215300690826378aafd54082b98daae69dbfaf38979382494047cc",
+      "snapshot_sha256": "dcc863de98215300690826378aafd54082b98daae69dbfaf38979382494047cc"
     },
     {
       "snapshot": "design/ThemeProvider.tsx",
@@ -432,8 +432,8 @@
       "source": "pulse-backend/go.mod",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "2d27af22c9484bcbfc521aee7e24ecd61d784b08303bdf947ee3b34836850d49",
-      "snapshot_sha256": "2d27af22c9484bcbfc521aee7e24ecd61d784b08303bdf947ee3b34836850d49"
+      "source_sha256": "a226fa8bca7125fa62ff21040faab5b09424cfe5a31d35813b5ad47c0d7c2f14",
+      "snapshot_sha256": "a226fa8bca7125fa62ff21040faab5b09424cfe5a31d35813b5ad47c0d7c2f14"
     },
     {
       "snapshot": "inventory/pulse-contracts--Makefile",
@@ -480,8 +480,8 @@
       "source": "pulse-data/pyproject.toml",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "babe6ca3ccfa82ca85ea477cb73bc72cf53c7aac1110779fe48d415b3af8bb94",
-      "snapshot_sha256": "babe6ca3ccfa82ca85ea477cb73bc72cf53c7aac1110779fe48d415b3af8bb94"
+      "source_sha256": "3b6decaf72e788f8c99a2b7e84e9e16cbd49bc0d6d832910125bc7a3a04af517",
+      "snapshot_sha256": "3b6decaf72e788f8c99a2b7e84e9e16cbd49bc0d6d832910125bc7a3a04af517"
     },
     {
       "snapshot": "inventory/pulse-frontend--Dockerfile",
@@ -512,8 +512,8 @@
       "source": "pulse-ml-service/pyproject.toml",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "c7c9541a1c6027e638991c12415636d2d5ae6be961692d0ce039332d0db0bf9e",
-      "snapshot_sha256": "c7c9541a1c6027e638991c12415636d2d5ae6be961692d0ce039332d0db0bf9e"
+      "source_sha256": "d31f4a3abde1c14bbc735530feec4341ebeaca6507710c773d33d91c0463fd4f",
+      "snapshot_sha256": "d31f4a3abde1c14bbc735530feec4341ebeaca6507710c773d33d91c0463fd4f"
     },
     {
       "snapshot": "inventory/pulse-model--Makefile",
@@ -576,16 +576,16 @@
       "source": "pulse-frontend/DESIGN.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "343259cbe5600125e688b5dba7555689851c5d095b69f478cda0cebcf6e26680",
-      "snapshot_sha256": "a680541e376bf5fff0151249067b09f1777b4ef4ac904b36a4ddf89214515835"
+      "source_sha256": "44061d0b8fbaa67e3d6eb118da6fb27c402b5674d793886b956dd261f6b13ac3",
+      "snapshot_sha256": "55c8c2c4491f9f5faccb30ea20ac641a9266d93a45bfcd625ea3604d19874026"
     },
     {
       "snapshot": "references/frontend-handoff.md",
       "source": "pulse-frontend/design/HANDOFF.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "a0b041aa7ca1cf224285132188ac9d3ed29c63bce0cef8a585e39dd444a7562a",
-      "snapshot_sha256": "f60254575501aa328d8787b31c5ab7c409d164b5a5ba79fe9ea67f05810715a1"
+      "source_sha256": "3fdccafa8beacb269d48abd0c0d844e0bc801fcf536ab038e93d1e47d28d61f4",
+      "snapshot_sha256": "b9fe48ef1eb626a3b6b37c343e2a564a2080772068595482971587bbc93eed56"
     },
     {
       "snapshot": "references/frontend-readme.md",
@@ -608,8 +608,8 @@
       "source": "pulse-ml-service/README.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "57bc0058ffe017dd40f7ab8bf96ce755ad1c201a56b977cd2a6671a5c06a0f06",
-      "snapshot_sha256": "4e1583219edb1499b5901251818d2c8b1eee3e86afbc0d270c3f4278573e9bd7"
+      "source_sha256": "1317d7fa0dedad5e46fb7befe71df9ff76b1fd04607785e472f4d9efe8015cf1",
+      "snapshot_sha256": "f5aa223eb15669897584a370de2b9f86271c67d0d6b93d2f6bdcb853ac5a0ee2"
     },
     {
       "snapshot": "references/model-rpc-compatibility.md",
@@ -762,6 +762,30 @@
       "mode": "copy",
       "source_sha256": "da999ce8eeb99ffaf5ba143d11b74a92f33912dedf74086270340fc12f68635e",
       "snapshot_sha256": "da999ce8eeb99ffaf5ba143d11b74a92f33912dedf74086270340fc12f68635e"
+    },
+    {
+      "snapshot": "references/o1-f1-execution.md",
+      "source": "pulse-backend/docs/o1-f1-execution-2026-10-20.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "41f57fd3d6a0f189f44fd19490d8d5ae4bb596c193cba45b65886f8742cb3757",
+      "snapshot_sha256": "1b0c82418a5ab43d9cf741a2f9836beded563cfd7e66a6693072206e0534ce4c"
+    },
+    {
+      "snapshot": "references/observability-o1.md",
+      "source": "pulse-backend/docs/observability-o1.md",
+      "owner": "backend-middle",
+      "mode": "markdown",
+      "source_sha256": "3c04e979d673aa2975a51b9b292ff2ec9d05d5ca622fa586f39b027612670a9c",
+      "snapshot_sha256": "26196c19c8caf7c6a2a9b8a5e401218347cf03963ba1364ea445a2f737fab0fa"
+    },
+    {
+      "snapshot": "references/o1-f1-runtime.md",
+      "source": "pulse-backend/docs/o1-f1-runtime.md",
+      "owner": "tech-lead",
+      "mode": "markdown",
+      "source_sha256": "7c2b5b8fa5f274e0a5dceb3a6b97234104f7d11f426dc744f454a9800002d2f3",
+      "snapshot_sha256": "18c43172c7ae8ef8712d642b19e86467fbcb53ae2afab5c3a176f3151bbb322c"
     }
   ],
   "snapshot_date": "2026-10-20"

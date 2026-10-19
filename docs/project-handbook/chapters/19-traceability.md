@@ -3,7 +3,7 @@
 | Требование | Макет / описание | Код | Статус и проверка |
 |---|---|---|---|
 | Общая навигация и обзор | Figma 3:52 | AppLayout, Dashboard, ThemeProvider | Частичный перенос; browser QA Light/Dark |
-| Риски скважины | Figma 3:53 | WellDetailPage, ExplainBars, ml API | Есть; новый порядок вкладок ещё требуется |
+| Риски и шесть вкладок | Figma F1 696:328/1766; исходный3:53 сохранён | WellDetailPage, ExplainBars, ml API | F1 software accepted; task/whole-wave Senior, browser 7+2/9 и scoped visual/mobile-account PASS |
 | Несколько каналов | Figma 363:536, 363:784 | TelemetryWorkspace/TelemetryChart | Есть; нули/пропуски и относительная база тестируются |
 | Сравнение A/B | Figma 363:1023 | TelemetryWorkspace, lib/telemetry | Есть; короткий период не растягивается |
 | Таблица измерений | Figma 363:1291 | TelemetryWorkspace | Есть; качество и пропуски |
@@ -49,10 +49,20 @@
 |---|---|---|
 | PREP-01 | Семь exact source refs, локальное сохранение без push | [Compatibility manifest](../inventory/readiness-compatibility.json), source inventory; локальный commit не доказывает cloud/release |
 | PREP-02 | Native/Linux/PG/runtime и после-review browser | [Ledger](../references/readiness-ledger.md), [playbook](../references/readiness-runtime.md), глава16;22/22 bounded browser PASS |
-| PREP-03 | Immutable cohort100, membership∩RBAC, no admin bypass, no global reference writes | [Architecture](../references/readiness-architecture.md), migrations9/11, guards/integration evidence |
+| PREP-03 | Immutable cohort 100, membership∩RBAC, no admin bypass, no global reference writes | [Architecture](../references/readiness-architecture.md), migrations9/11, guards/integration evidence |
 | PREP-04 | Local access и nullable cohort UI, peak/latest/value_source, responsive/keyboard/account | Architecture§§13–15; source Senior и browser по отдельным датированным запускам |
 | PREP-05 | Bundle-only Upload, общий typed evaluator, explicit legacy/unsupported policies | [RPC matrix](../references/model-rpc-compatibility.md), model-free fixtures; не научная приёмка |
 | PREP-06 | Полный immutable output, partial provenance, mutable alert overlay; `running`/`error` identity11 | Migrations10/11, restart/digest/rollback/re-review в ledger; immutable входы не сохраняются |
 | PREP-07 | Независимый протокол, validation и evidence без обучения | [Acceptance](../references/independent-acceptance.md), [незаполненный пример](../examples/readiness-protocol.example.json); scientific not_assessed/user-deferred |
 
 Локальные raw evidence logs/скриншоты и private cohort bindings не копируются в публичный комплект. Первичные документы и реестр определяют владельцев; генерация/sync/build/ZIP выполняются координатором после freeze. Финальные cloud jobs не подразумеваются наличием workflow.
+
+## Программная приёмка O1/F1 · 20.10.2026
+
+| Задача / владелец | Реализация и зависимости | Проверка / принятая граница |
+|---|---|---|
+| O1 / backend-middle через architect-analyst | Go/Python observability modules, реальные HTTP/gRPC/PG spans и safe JSON; Nginx — Go writer, Compose — координатор | ACCEPTED: ML 110/Data 60, Go check/build/real PG 68.351s, Linux builds/pipcheck и runtime 12/12. Source и whole-wave Senior PASS. Нет runtime exporter/stores/брокера |
+| F1 / designer, architect-analyst согласование | Шесть вкладок, восемь Figma nodes, URL/history и прежние forms/client header UI | ACCEPTED: tests 37/build, browser 7/7 + mobile controls 2/2/pageErrors 0, scoped visual/mobile-account и whole-wave Senior PASS |
+| Приёмка / tech-lead + координатор | O1-01–05/F1-01–05/GATE-01–02 закрыты по fixed source и evidence | [Execution ledger](../references/o1-f1-execution.md), [O1 contract](../references/observability-o1.md), [runtime](../references/o1-f1-runtime.md). PREP refs исторические; provenance partial |
+
+Четыре новые payload refs приведены в ledger; local commit не означает push/remote availability. Handbook publication sync/build/validate/external source check/ZIP выполняет координатор после authored freeze. Успешный live ML scoring/persist, forced rollover и полный assembled parent-ID graph не заявлены. F2/F3/F4/O2/Q/брокер/jobs вне этой приёмки; дальнейшее продолжение по поручению 20.10 и roadmap передаётся отдельно после publication gate. Scientific not_assessed.

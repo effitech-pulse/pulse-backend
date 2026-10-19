@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="Pulse architect" modified="2026-10-20T00:00:00.000Z" version="24.7.17">
+  <diagram id="target-containers" name="C2 proposed only">
+    <mxGraphModel dx="1600" dy="1100" grid="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1150">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="C4 Container — PROPOSED target, не текущий deployment. Blue=existing process; green=new; storage yellow." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1640" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="appzone" value="Trust zone: authenticated application / private runtime network" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;align=left;verticalAlign=top;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="1380" height="510" as="geometry" />
+        </mxCell>
+        <mxCell id="opszone" value="Trust zone: proposed private operations plane / operator access only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;align=left;verticalAlign=top;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="660" width="1380" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="person" value="Пользователь&lt;br&gt;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="20" y="150" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="spa" value="Frontend/Nginx&lt;br&gt;[Existing Container]&lt;br&gt;JSON access + correlation planned" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="20" y="280" width="210" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="Go API&lt;br&gt;[Existing Container + extensions]&lt;br&gt;Scope/legacy sync + future job admission&lt;br&gt;OTel HTTP/client instrumentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="330" y="155" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ml" value="Python ML&lt;br&gt;[Existing Container + extensions]&lt;br&gt;gRPC Upload / pulse-model library&lt;br&gt;Expected immutable bundle constraints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="780" y="155" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="data" value="Pulse Data HTTP source&lt;br&gt;[Existing Container]&lt;br&gt;Source collection remains Go-owned&lt;br&gt;Q2 reads only when approved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="155" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL&lt;br&gt;[Existing Container + logical tables]&lt;br&gt;results/reviews/schema11&lt;br&gt;PROPOSED jobs/outbox/inbox/artifacts&lt;br&gt;No raw payload in status queries" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="330" y="395" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="worker" value="Go worker / dispatcher&lt;br&gt;[PROPOSED Container]&lt;br&gt;PG claim/fence → pinned inputs → RPC&lt;br&gt;persist result before consumer ACK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="780" y="395" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="rabbit" value="RabbitMQ&lt;br&gt;[PROPOSED Container]&lt;br&gt;Opaque job refs only&lt;br&gt;confirm ≠ consumer ACK ≠ PG commit&lt;br&gt;Single local node != HA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="395" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="collector" value="OTel Collector-contrib&lt;br&gt;[PROPOSED Container]&lt;br&gt;OTLP / bounded queues + redaction&lt;br&gt;Nginx named-volume read-only filelog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="330" y="715" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="loki" value="Loki logs&lt;br&gt;[PROPOSED storage]" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="690" y="715" width="220" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="tempo" value="Tempo traces&lt;br&gt;[PROPOSED storage]" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="715" width="220" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="prom" value="Prometheus metrics&lt;br&gt;[PROPOSED storage]" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="715" width="260" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="graf" value="Grafana UI&lt;br&gt;[PROPOSED Container]&lt;br&gt;Ops auth / no public Collector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="915" width="250" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="operator" value="Оператор&lt;br&gt;[Person]&lt;br&gt;Отдельные права" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="20" y="855" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" value="HTTPS/loopback HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="person" target="spa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="http" value="HTTP /api/v1; W3C context / request ID" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="spa" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rpc" value="gRPC legacy sync / existing typed SDK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="api" target="ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="source" value="HTTP JSON telemetry / source bounds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="api" target="data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="SQL short transactions / idempotency / outbox" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pub" value="Outbox dispatcher publish + confirms" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="worker" target="rabbit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="consume" value="AMQP jobs / manual ACK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="rabbit" target="worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="claim" value="SQL claims/fence/input refs/result commit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="worker" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="infer" value="gRPC pinned execution / attempt trace links" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="worker" target="ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="otlp1" value="OTLP logs/traces/metrics; stdout fallback" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="api" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="otlp2" value="OTLP logs/traces/metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="ml" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="otlp3" value="OTLP; no raw telemetry attrs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="data" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="otlp4" value="OTLP job timing / no ID labels" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="worker" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nginxlog" value="Shared named log volume read-only; rotation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="spa" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="logs" value="Sanitized logs / structured IDs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="collector" target="loki">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="traces" value="Sampled traces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="collector" target="tempo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics" value="Scrape bounded metric dimensions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="prom" target="collector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lu" value="Query logs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="graf" target="loki">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tu" value="Query traces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="graf" target="tempo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pu" value="Query metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="graf" target="prom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ops" value="Private HTTP(S) / operator authentication" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="operator" target="graf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="foot" value="F1 карточка не ждёт брокера/OTel. File queue только после immutable raw+canonical/options+bundle availability. Bulk Q2: freeze100 + durable claim/fence, без HTTP session lock пока queued. Logs не business journal; observability outage не отменяет business commit." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1050" width="1640" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -6,6 +6,12 @@
 
 Колокольчик открывает текущие alert со статусом new и ошибки источников для администратора. Он читает состояние API, не реализует очередь доставки, подтверждение прочтения, объединение событий или отправку email. Старые таблицы notification_rule/recipient_group не подтверждают, что эти сценарии завершены.
 
+## O1: технические logs и spans
+
+В текущем O1 source Go API и Python ML/Data используют core OpenTelemetry API/trace SDK 1.38.0 и allowlist JSON logging. Общие поля: `timestamp`, `severity_text`, `event_name`, `service.name`, `service.version`, `service.instance.id`, `deployment.environment.name`; при активном контексте — `http_request_id`, `trace_id`, `span_id`. Optional typed duration/status и static `error_code` не содержат сырые error/stack/payload. Record≤8192 UTF-8 bytes; секреты, metadata, SQL params, query/path IDs, filename/telemetry/comment и персональные данные не сериализуются. Неизвестные diagnostics получают фиксированный fallback event.
+
+Spans охватывают реальные HTTP/gRPC/PG-вызовы; Upload заканчивается с terminal result/error, без span на chunk. PG-only check не получает фиктивный Data leg. Background operation связан с инициатором и сохраняет прежний lifecycle. Runtime provider имеет sampler 100%/bounded span limits, без сетевого exporter, очереди или retention list; test exporter используется только в тестах. O1 не предоставляет центральный поиск и не создаёт предметный журнал/уведомления. [O1 contract](../references/observability-o1.md) и [execution ledger](../references/o1-f1-execution.md) фиксируют software acceptance: root runtime 12/12 подтвердил actual Go→ML invalid-CSV Upload 422/no-persist и Go→Data unsaved connection check 503/no-import с общими trace/attempt IDs, whole-wave Senior PASS. Полный assembled parent-ID graph и успешный ingest/scoring→persist этим smoke не заявлены; точные parent/link relations подтверждены отдельными SDK/exporter/listener tests.
+
 ## Согласованный предметный журнал
 
 | Событие | Основание | Переход пользователя |

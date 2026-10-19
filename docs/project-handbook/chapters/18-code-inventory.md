@@ -2,16 +2,16 @@
 
 Файловая инвентаризация: [CSV с SHA256](../inventory/source-files.csv), [репозитории и HEAD](../inventory/source-manifest.json). В перечень включены исходники и публичные конфигурации; исключены данные, окружения, Git metadata, бинарники, секреты и этот комплект документации.
 
-Согласованные runtime payload семи репозиториев уже сохранены локальными коммитами и связаны [compatibility manifest](../inventory/readiness-compatibility.json). HEAD в генерируемой таблице — база снимка исходников; только backend получает последующий docs-only commit публикации. Dirty entries фиксируются перед публикацией и не означают, что код PREP ещё ожидает сохранения. Обновление чисел/HEAD выполняет final sync; push и remote availability этим не подтверждаются.
+Исторические PREP runtime payload семи репозиториев сохранены локальными коммитами и связаны [compatibility manifest](../inventory/readiness-compatibility.json). Четыре новые reviewed O1/F1 payload refs backend/frontend/ML/Data сохранены отдельно в [execution ledger](../references/o1-f1-execution.md); PREP refs ими не заменены. HEAD в генерируемой таблице — база снимка исходников; только backend получает последующий docs-only commit публикации. Dirty entries фиксируются перед публикацией и не означают, что код PREP ещё ожидает сохранения. Обновление чисел/HEAD выполняет final sync; push и remote availability этим не подтверждаются.
 
 | Репозиторий | HEAD | Изменённые/новые записи Git | Репозиторий |
 |---|---|---|---|
 | pulse-model | `f5c2a3de031f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
-| pulse-data | `20c5c78b8feb` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `bb9ecadc2a7b` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-data | `a1dc418ba69b` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
+| pulse-ml-service | `22b34c3854d4` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
 | pulse-contracts | `07213c430318` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `99b7fa3d2a46` | 156 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
-| pulse-frontend | `ebf944c8105e` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
+| pulse-backend | `b6c03e07babe` | 30 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-frontend | `2c6521a27e49` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e1cd27c973bf` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 
 ## Каталоги исполнения
@@ -45,7 +45,7 @@
 
 - `scripts/`
 - `cmd/`: `adminuser/`, `api/`, `cohort/`, `migrate/`
-- `internal/`: `adapter/`, `bootstrap/`, `config/`, `domain/`, `migrations/`, `repository/`, `service/`, `transport/`
+- `internal/`: `adapter/`, `bootstrap/`, `config/`, `domain/`, `migrations/`, `observability/`, `repository/`, `service/`, `transport/`
 - `test/`: `architecture/`, `integration/`
 - `deployments/`: `local/`
 

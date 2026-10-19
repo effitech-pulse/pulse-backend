@@ -61,3 +61,11 @@ Python: существующая общая repository-split/.venv не пере
 ## Хранение и проверка попыток
 
 Migration11 применена повторно на isolated БД с сохранением прежних значений и snapshot digests. Новые `running`/`error` строки получают profile/cohort_version при Begin до чтения участников; незавершённое не маскируется пустым done. Старые строки остаются unknown. После restart выбранный сохранённый output читается без повторного ML. Позднее изменение alert review отображается отдельным overlay выбранного run и не меняет его digest. Точные команды/логи и итог final run относятся к [PREP ledger](../references/readiness-ledger.md); handbook не запускает этот runtime заново.
+
+## O1: локальная диагностика и хранение
+
+O1 пишет безопасные JSON records в stdout. Изолированный Compose-профиль координатора задаёт Docker `local`, `max-size=10m`, `max-file=3` на runtime-container; root подтвердил Linux builds/pipcheck и exact LogConfig всех четырёх runtime-container; runtime 12/12 включает actual Go→ML Upload 422/no-persist и Go→Data unsaved connection check 503/no-import с common IDs. Нагрузочный rollover и полный assembled parent-ID graph этим не подтверждены. Direct CLI stdout сам не ротируется. Нет обещания durability/losslessness или защиты от OS-level блокировки stdout. Collector/exporter/stores — O2 и не запущены в O1.
+
+Nginx access — JSON с numeric `duration_s` в секундах и статической route group без URI/query/IP; trace/span IDs не выдумываются. Native request error stream отключён (`error_log /dev/null crit`), launcher/config errors до загрузки конфига остаются native. Для support используйте safe `X-Request-ID`, сохраняя бизнес request_id операции при retry. Не публикуйте приватные сырые logs.
+
+[O1 contract](../references/observability-o1.md) и [runtime playbook](../references/o1-f1-runtime.md) описывают проверенный профиль; [execution ledger](../references/o1-f1-execution.md) отделяет новое evidence от исторического PREP. Python SDK 1.38.0 совместим с declared≥3.11, но numerical constraints-профиль с NumPy2.5.1 сам требует≥3.12; O1 не меняет эту границу. Task/whole-wave Senior, browser 7+2/9 и scoped visual/mobile-account PASS закрывают software acceptance. Scientific not_assessed, successful live ML→PG и forced rollover не заявлены. Actual publication sync/build/validate/external check/ZIP выполняет координатор после authored freeze.

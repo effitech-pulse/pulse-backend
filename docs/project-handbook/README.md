@@ -4,13 +4,15 @@
 
 **Начните с [HTML-версии с поиском](index.html)** или читайте разделы Markdown ниже. [Figma](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho) и [C4 в draw.io](diagrams/pulse-c4.drawio) связаны с описанием текущего кода. [Сценарии в draw.io](diagrams/pulse-flows.drawio) дополняют архитектуру.
 
-## Статус · дополнение PREP, 20.10.2026
+## Статус · PREP и исполнение O1/F1, 20.10.2026
 
 Изолированный PREP на loopback 8088/8018 проверен с персональным входом и `APP_SCOPE=cohort`, версия `presentation-v1`: зафиксированы 100 существующих участников, scope действует на API/экспорт/расчёты без обхода membership администратором. Обычный compose.local также получил local/cohort defaults, но изменение файла не переключает ранее запущенный экземпляр 8080; его рабочие БД и контейнеры в PREP не менялись.
 
 Backend выполняет пользовательский bulk через телеметрию приложения и bundle-only Upload. Полный output snapshot сохраняется неизменяемо; provenance остаётся partial, поскольку точные входные bytes для replay не сохраняются. Senior-замечания PREP закрыты; ограниченный browser gate — 22/22 PASS, без ошибок страницы. Это технические проверки, а не научная приёмка модели. Пользователь отложил внешние данные и подключит ML позже: scientific acceptance `not_assessed`, продвижения модели нет. SSO, общий предметный журнал, доставка уведомлений, брокер и Kubernetes остаются отдельными задачами; полный перенос Figma не объявлен.
 
 [PREP ledger](references/readiness-ledger.md), [архитектура](references/readiness-architecture.md), [runtime playbook](references/readiness-runtime.md) и [совместимость семи репозиториев](inventory/readiness-compatibility.json) и [native artifact hashes](inventory/readiness-native-artifacts.json) фиксируют источники и границы свидетельств. [Статус](chapters/02-status.md) отделяет подтверждённое от оставшихся задач. Push, cloud job и публикация release не выполнялись; горизонт 7–14 суток остаётся целью.
+
+**O1/F1 приняты как программное изменение в согласованной области.** Core OTel SDK 1.38.0/безопасные JSON logs и шесть вкладок с восемью versioned Figma nodes проверены: task и whole-wave Senior Spec/Standards PASS, findings 0; runtime 12/12 и browser 7+2/9, pageErrors 0, scoped visual PASS. HTTP код обращения отделён от бизнес `request_id`; exporter/центрального хранилища нет. [Execution ledger](references/o1-f1-execution.md), [O1 contract](references/observability-o1.md) и [runtime playbook](references/o1-f1-runtime.md) фиксируют payload refs, evidence и пределы: нет successful live ML→PG прогона, forced rollover или научной приёмки. Фактические sync/build/validate/ZIP и source check выполняет координатор после этого authored freeze; до них обновление HTML/ZIP не заявлено. PREP manifest сохранён историческим.
 
 ## Содержание
 
@@ -43,7 +45,7 @@ Backend выполняет пользовательский bulk через те
 - `schemas/` — снимки операционных миграций, исследовательской PG и ClickHouse.
 - `examples/` — иллюстративные JSON-запросы с описанием ограничений.
 - `inventory/` — версии репозиториев, публичные манифесты и хеши исходников.
-- `references/` — автономные копии матрицы проверок, PREP ledger/архитектуры/runtime, моделей/RPC, независимого acceptance protocol, frontend handoff и причинного бейзлайна.
+- `references/` — автономные копии матрицы проверок, PREP ledger/архитектуры/runtime, O1/F1 execution/contract/runtime, моделей/RPC, независимого acceptance protocol, frontend handoff и причинного бейзлайна.
 - `SOURCE_POLICY.md` — источники, владельцы, триггеры и порядок синхронизации.
 - `tools/` — sync_sources.py для отдельной сверки workspace, пересборка HTML/ZIP и автономная валидация.
 - `checksums.sha256` — контрольные суммы файлов комплекта.

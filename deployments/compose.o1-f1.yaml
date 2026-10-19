@@ -1,0 +1,19 @@
+# Apply after compose.prep.yaml for the isolated O1/F1 acceptance run.
+# Source builds come from the base file; the original :prep tags remain available.
+services:
+  backend:
+    image: pulse-backend:o1-f1
+    logging: &bounded-local-logs
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+  frontend:
+    image: pulse-frontend:o1-f1
+    logging: *bounded-local-logs
+  ml:
+    image: pulse-ml-service:o1-f1
+    logging: *bounded-local-logs
+  data:
+    image: pulse-data:o1-f1
+    logging: *bounded-local-logs

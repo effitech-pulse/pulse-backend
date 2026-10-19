@@ -52,6 +52,10 @@ Generated SDK: Go в `gen/go/pulse/ml/v1`, Python в `gen/python/pulse/ml/v1`. �
 
 [Пример JSON](../examples/manual-check.json) содержит технический ID/период для адаптации под доступную скважину. Запрос `POST /api/v1/wells/{well_id}/checks` не меняет ярус и обработку тревоги фонда. Успешный ответ сохраняется и открывается по `GET /api/v1/wells/{well_id}/checks/{check_id}`.
 
+## O1: HTTP-корреляция
+
+`X-Request-ID` обозначает конкретную HTTP-попытку, gRPC передаёт его как `x-request-id`. Допустим один ID из 16–64 ASCII alnum/underscore/hyphen; недопустимый или отсутствующий заменяется случайными 32 hex. Nginx всегда создаёт свой ID и возвращает его также на локальной ошибке; direct Go/Data валидируют независимо. В error UI optional `http_request_id` берётся только из безопасного response header и отображается отдельным «Код обращения». Тело ответа и DTO ради O1 не расширяются, network-only ошибка не получает выдуманного ID. Стабильный бизнес `request_id` и fingerprint повторной проверки/review сохраняются при retry. Корреляция не даёт прав и не доказывает provenance. [O1/F1 ledger](../references/o1-f1-execution.md): runtime 12/12 и browser 7+2/9 подтвердили scoped fixtures, whole-wave Senior PASS. Controlled error/409 fixtures не выданы за успешные production writes.
+
 ## Каталог операций
 
 Таблица ниже сгенерирована из вложенного OpenAPI-снимка.
