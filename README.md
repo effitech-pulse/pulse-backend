@@ -139,3 +139,5 @@ test/                 Интеграционные и архитектурные
 Compose-файлы теперь задают local auth и cohort; существующий `pulse-local` на8080 автоматически не мигрировался и в PREP не перезапускался. Browser-проверка на rebuilt image:22/22,fail0/pageErrors0; финальный after11run33done:100members/100scored,restricted0; прежние snapshots30/32 сохранены. Проверки выполнялись в [изолированном runtime](docs/readiness-runtime.md) на8088/8018 с копией app-БД. Научная оценка отложена пользователем до подключения новых данных; обучение/promotion и промышленная готовность не заявлены.
 
 Техническая подготовка принята20.10.2026 после независимого Senior review и runtime/browser checks. [Native artifact hashes](docs/readiness-native-artifacts.json) сохраняют119source/50wheel identities. Финальная handbook сборка/автономная проверка и README/docs-only commit выполняются отдельным публикационным gate; remote push/cloud/release не выполнялись.
+
+Диагностика O1: [корреляция, spans и ограничения локальных JSON logs](docs/observability-o1.md).

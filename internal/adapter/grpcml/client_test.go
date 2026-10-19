@@ -78,11 +78,15 @@ func (s *testServicer) Upload(stream grpc.ClientStreamingServer[pb.UploadChunk, 
 	return stream.SendAndClose(&pb.UploadResponse{Filename: filename, NWindows: int64(total), SpanDays: 30})
 }
 
-func grpcTestClient(t *testing.T) *GRPCClient {
+func grpcTestClient(t *testing.T, services ...pb.MLServiceServer) *GRPCClient {
 	t.Helper()
 	listener := bufconn.Listen(16 * 1024 * 1024)
 	server := grpc.NewServer()
-	pb.RegisterMLServiceServer(server, &testServicer{})
+	servicer := pb.MLServiceServer(&testServicer{})
+	if len(services) > 0 {
+		servicer = services[0]
+	}
+	pb.RegisterMLServiceServer(server, servicer)
 	go server.Serve(listener)
 	conn, err := grpc.NewClient("passthrough:///memory", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(func(ctx context.Context, target string) (net.Conn, error) { return listener.Dial() }))
 	if err != nil {

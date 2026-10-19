@@ -6,10 +6,15 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 func (s *Server) auditMiddleware() gin.HandlerFunc {
@@ -26,7 +31,7 @@ func (s *Server) auditMiddleware() gin.HandlerFunc {
 }
 
 func (s *Server) recoverPanic(c *gin.Context, recovered any) {
-	slog.Error("handler panic", "error", recovered)
+	slog.ErrorContext(c.Request.Context(), "handler panic", "error_code", "panic")
 	if !c.Writer.Written() {
 		writeError(c, fmt.Errorf("handler panic"))
 	}
@@ -35,6 +40,7 @@ func (s *Server) recoverPanic(c *gin.Context, recovered any) {
 
 func (s *Server) corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Access-Control-Expose-Headers", "X-Request-ID")
 		origin := c.GetHeader("Origin")
 		for _, allowed := range s.Config.CORS {
 			if origin == allowed {
@@ -46,7 +52,7 @@ func (s *Server) corsMiddleware() gin.HandlerFunc {
 		}
 		if c.Request.Method == http.MethodOptions && origin != "" {
 			c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-			c.Header("Access-Control-Allow-Headers", "Content-Type,X-API-Key")
+			c.Header("Access-Control-Allow-Headers", "Content-Type,X-API-Key,X-Request-ID,traceparent")
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
@@ -72,5 +78,33 @@ func (s *Server) authorizeMiddleware() gin.HandlerFunc {
 		}
 		c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), p))
 		c.Next()
+	}
+}
+
+// observationMiddleware охватывает auth/recovery и пишет только шаблон маршрута.
+func (s *Server) observationMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		route := c.FullPath()
+		name := "HTTP unmatched"
+		if route != "" {
+			name = "HTTP " + route
+		}
+		ctx, span := observability.Start(observability.ExtractHTTP(c.Request.Context(), c.Request.Header), name, trace.SpanKindServer)
+		c.Request = c.Request.WithContext(ctx)
+		c.Header(observability.RequestIDHeader, observability.RequestID(ctx))
+		c.Next()
+		status := c.Writer.Status()
+		if status >= 500 {
+			span.SetStatus(codes.Error, "internal_error")
+		}
+		method := c.Request.Method
+		switch method {
+		case "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD":
+		default:
+			method = "OTHER"
+		}
+		span.SetAttributes(attribute.String("http.request.method", method), attribute.String("http.route", route), attribute.Int("http.response.status_code", status))
+		observability.Complete(ctx, span, "request completed", start, nil, slog.String("http.request.method", method), slog.String("http.route", route), slog.Int("http.response.status_code", status))
 	}
 }

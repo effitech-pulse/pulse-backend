@@ -151,6 +151,9 @@ func call(t *testing.T, h http.Handler, method, path, body string, want int) any
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != want {
 		t.Fatalf("%s %s: got %d want %d: %s", method, path, w.Code, want, w.Body.String())
 	}
@@ -175,6 +178,9 @@ func TestAuthCORSAndValidation(t *testing.T) {
 	r.Header.Set("Origin", "http://localhost:3000")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != 200 || w.Header().Get("Access-Control-Allow-Origin") != "http://localhost:3000" {
 		t.Fatal(w.Code, w.Header())
 	}
@@ -182,6 +188,9 @@ func TestAuthCORSAndValidation(t *testing.T) {
 	r.Header.Set("X-API-Key", "secret")
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != 422 {
 		t.Fatal(w.Code)
 	}
@@ -291,6 +300,9 @@ func TestBulkImportAndRollback(t *testing.T) {
 	r.Header.Set("Content-Type", multi.FormDataContentType())
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != 200 {
 		t.Fatal(w.Code, w.Body.String())
 	}

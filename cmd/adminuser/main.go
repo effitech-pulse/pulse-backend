@@ -14,13 +14,15 @@ import (
 
 	"github.com/effitech-pulse/pulse-backend/internal/config"
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
 	"github.com/effitech-pulse/pulse-backend/internal/service"
 )
 
 func main() {
+	observability.Install("unknown")
 	if err := run(); err != nil {
-		slog.Error("создание администратора не выполнено", "error", err)
+		slog.Error("создание администратора не выполнено", "error_code", "operation_failed")
 		os.Exit(1)
 	}
 }

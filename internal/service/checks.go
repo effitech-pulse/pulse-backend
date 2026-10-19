@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 type CheckStore interface {
@@ -53,7 +54,7 @@ func checkPeriod(v domain.ManualCheck, in domain.CheckInput) (domain.ManualCheck
 }
 
 // Create сохраняет результат до ответа клиенту. Повтор запроса возвращает сохранённый расчёт.
-func (s *Checks) Create(ctx context.Context, well domain.Well, in domain.CheckInput) (domain.ManualCheck, error) {
+func (s *Checks) Create(ctx context.Context, well domain.Well, in domain.CheckInput) (out domain.ManualCheck, err error) {
 	if err := scopedWell(ctx, s.scope, well.ID); err != nil {
 		return domain.ManualCheck{}, err
 	}
@@ -72,7 +73,10 @@ func (s *Checks) Create(ctx context.Context, well domain.Well, in domain.CheckIn
 		return domain.ManualCheck{}, err
 	}
 	// Закрытие вкладки не отменяет уже запущенную ручную проверку и её запись.
-	work, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
+	operationStart := time.Now()
+	operation, span := observability.Detached(ctx, "check.execute")
+	defer func() { observability.Complete(operation, span, "operation completed", operationStart, err) }()
+	work, cancel := context.WithTimeout(operation, 5*time.Minute)
 	defer cancel()
 	if s.telemetry.scorer == nil {
 		return domain.ManualCheck{}, domain.NewError(domain.Unavailable, "ML-сервис не подключён")
@@ -107,7 +111,7 @@ func (s *Checks) Create(ctx context.Context, well domain.Well, in domain.CheckIn
 		Result:      result,
 	}
 	// Для записи выделяется отдельный срок, даже если лимит расчёта истёк на последнем шаге.
-	save, stop := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	save, stop := context.WithTimeout(context.WithoutCancel(work), 10*time.Second)
 	defer stop()
 	saved, err := s.store.SaveManualCheck(save, v)
 	if err != nil {

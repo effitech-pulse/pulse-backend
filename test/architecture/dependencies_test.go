@@ -34,7 +34,8 @@ func TestDependencyDirection(t *testing.T) {
 			}
 			for _, imp := range f.Imports {
 				value, _ := strconv.Unquote(imp.Path.Value)
-				if dir == "internal/service" && value == "github.com/effitech-pulse/pulse-backend/internal/domain" {
+				// O1: сервисы используют только безопасный общий observability, без транспортов/адаптеров.
+				if dir == "internal/service" && (value == "github.com/effitech-pulse/pulse-backend/internal/domain" || value == "github.com/effitech-pulse/pulse-backend/internal/observability") {
 					continue
 				}
 				for _, prefix := range forbidden {

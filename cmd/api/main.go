@@ -12,20 +12,35 @@ import (
 	_ "time/tzdata"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel"
+	"google.golang.org/grpc/grpclog"
 
 	"github.com/effitech-pulse/pulse-backend/internal/bootstrap"
 	"github.com/effitech-pulse/pulse-backend/internal/config"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 func main() {
+	observability.Install("unknown")
+	grpclog.SetLoggerV2(grpclog.NewLoggerV2(slog.NewLogLogger(slog.Default().Handler(), slog.LevelInfo).Writer(), slog.NewLogLogger(slog.Default().Handler(), slog.LevelWarn).Writer(), slog.NewLogLogger(slog.Default().Handler(), slog.LevelError).Writer()))
 	gin.SetMode(gin.ReleaseMode)
 	if err := run(); err != nil {
-		slog.Error("API stopped", "error", err)
+		slog.Error("API stopped", "error_code", "operation_failed")
 		os.Exit(1)
 	}
 }
 
 func run() error {
+	provider, err := observability.NewProvider("unknown")
+	if err != nil {
+		return err
+	}
+	otel.SetTracerProvider(provider)
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = provider.Shutdown(ctx)
+	}()
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -41,6 +56,7 @@ func run() error {
 		Addr:              cfg.Addr,
 		Handler:           application.HTTP.Handler(),
 		ReadHeaderTimeout: 10 * time.Second,
+		ErrorLog:          slog.NewLogLogger(slog.Default().Handler(), slog.LevelError),
 		ReadTimeout:       60 * time.Second,
 		WriteTimeout:      cfg.MLTimeout + 30*time.Second,
 		IdleTimeout:       120 * time.Second,
@@ -51,7 +67,7 @@ func run() error {
 	}()
 	go application.ML.Schedule(ctx)
 	go application.HTTP.Integrations.Schedule(ctx)
-	slog.Info("Go API started", "address", cfg.Addr, "ml_target", cfg.MLTarget)
+	slog.Info("Go API started")
 	select {
 	case err = <-errCh:
 		cancel()

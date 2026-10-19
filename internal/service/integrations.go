@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 type TelemetryStore interface {
@@ -488,7 +489,9 @@ func (s *Integrations) Import(ctx context.Context, points []domain.Measurement) 
 	}
 	return s.store.CommitTelemetry(ctx, "manual", points, 0, "Файл импортирован; совпадения сохранены без перезаписи", false)
 }
-func (s *Integrations) Collect(ctx context.Context, id string, due bool) (domain.CollectionLog, error) {
+func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out domain.CollectionLog, err error) {
+	ctx, finish := observability.Operation(ctx, "telemetry.collect")
+	defer func() { finish(err) }()
 	claimed, err := s.store.ClaimSource(ctx, id, due)
 	if err != nil {
 		return domain.CollectionLog{}, err
@@ -506,11 +509,11 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (domain
 		records, err = s.connector.Fetch(ctx, source, secret)
 	}
 	if err != nil {
-		slog.Warn("telemetry collection failed", "source_id", id)
+		slog.WarnContext(ctx, "telemetry collection failed", "error_code", "operation_failed")
 		failCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
 		if e := s.store.FailCollection(failCtx, id, "Ошибка подключения. Проверьте настройки и доступность источника."); e != nil {
-			slog.Error("record collection failure", "source_id", id)
+			slog.ErrorContext(ctx, "record collection failure", "error_code", "operation_failed")
 		}
 		return domain.CollectionLog{}, domain.NewError(domain.Unavailable, "Не удалось получить данные источника")
 	}
@@ -526,7 +529,7 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (domain
 		failCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
 		if failure := s.store.FailCollection(failCtx, id, "Проверьте тип ID и связи скважин со справочником Pulse"); failure != nil {
-			slog.Error("record mapping failure", "source_id", id)
+			slog.ErrorContext(ctx, "record mapping failure", "error_code", "operation_failed")
 		}
 		return domain.CollectionLog{}, err
 	}

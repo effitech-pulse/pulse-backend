@@ -17,7 +17,7 @@ func (s *Server) routes() *gin.Engine {
 	router.HandleMethodNotAllowed = true
 	router.MaxMultipartMemory = 2 * 1024 * 1024
 	_ = router.SetTrustedProxies(nil)
-	router.Use(s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
+	router.Use(s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
 		s.corsMiddleware(), s.authorizeMiddleware())
 	router.GET("/health", s.wrap(s.health))
 	router.GET("/openapi.json", func(c *gin.Context) {

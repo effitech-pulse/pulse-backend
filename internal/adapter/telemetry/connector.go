@@ -5,12 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 type DatabaseReader interface {
@@ -42,7 +47,7 @@ func AllowedURL(raw string, hosts []string) (*url.URL, error) {
 	}
 	return u, nil
 }
-func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret string) ([]map[string]any, error) {
+func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret string) (out []map[string]any, err error) {
 	u, err := AllowedURL(s.Endpoint, c.AllowedHosts)
 	if err != nil {
 		return nil, err
@@ -56,6 +61,12 @@ func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret s
 	if u.User != nil {
 		return nil, fmt.Errorf("JSON auth belongs in secret field")
 	}
+	start := time.Now()
+	ctx, span := observability.Start(ctx, "source.json", trace.SpanKindClient)
+	span.SetAttributes(attribute.String("http.request.method", "GET"))
+	defer func() {
+		observability.Complete(ctx, span, "source completed", start, err, slog.String("http.request.method", "GET"))
+	}()
 	q := u.Query()
 	since := time.Now().Add(-24 * time.Hour)
 	if s.LastMeasured != nil {
@@ -67,6 +78,7 @@ func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret s
 	if err != nil {
 		return nil, err
 	}
+	observability.InjectHTTP(ctx, req.Header)
 	req.Header.Set("Accept", "application/json")
 	if secret != "" {
 		req.Header.Set("Authorization", "Bearer "+secret)
@@ -77,6 +89,7 @@ func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret s
 		return nil, fmt.Errorf("source unavailable")
 	}
 	defer resp.Body.Close()
+	span.SetAttributes(attribute.Int("http.response.status_code", resp.StatusCode))
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("source returned HTTP %d", resp.StatusCode)
 	}
@@ -110,7 +123,7 @@ func (c Connector) Fetch(ctx context.Context, s domain.TelemetrySource, secret s
 	if len(array) > 10000 {
 		return nil, fmt.Errorf("source batch exceeds 10000 records")
 	}
-	out := make([]map[string]any, 0, len(array))
+	out = make([]map[string]any, 0, len(array))
 	for _, v := range array {
 		m, ok := v.(map[string]any)
 		if !ok {

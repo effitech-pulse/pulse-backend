@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 
 	sq "github.com/Masterminds/squirrel"
+
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 func checkQuery() sq.SelectBuilder {
@@ -24,7 +26,9 @@ func (r *Repository) ManualCheck(ctx context.Context, well int64, id string) (do
 func (r *Repository) ManualCheckRequest(ctx context.Context, well int64, request string) (domain.ManualCheck, error) {
 	return one[domain.ManualCheck](ctx, r.pool, checkQuery().Where(sq.Eq{"well_id": well, "request_id": request}))
 }
-func (r *Repository) SaveManualCheck(ctx context.Context, v domain.ManualCheck) (domain.ManualCheck, error) {
+func (r *Repository) SaveManualCheck(ctx context.Context, v domain.ManualCheck) (out domain.ManualCheck, err error) {
+	ctx, finish := observability.Database(ctx, "check.save")
+	defer func() { finish(err) }()
 	raw, err := json.Marshal(v.Result)
 	if err != nil {
 		return domain.ManualCheck{}, err

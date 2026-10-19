@@ -26,6 +26,9 @@ func authRequest(t *testing.T, h http.Handler, method, path, body string, cookie
 	}
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != want {
 		t.Fatalf("%s %s: %d want %d: %s", method, path, w.Code, want, w.Body.String())
 	}
@@ -78,6 +81,9 @@ func TestAccountsEnforceRoleAndWellScopeAcrossRoutes(t *testing.T) {
 	r.Header.Set("X-User-Role", "admin")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != 401 {
 		t.Fatal(w.Code)
 	}
@@ -128,6 +134,9 @@ func TestAccountsEnforceRoleAndWellScopeAcrossRoutes(t *testing.T) {
 	r.Header.Set("Origin", "https://foreign.example")
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
+	if len(w.Header().Get("X-Request-ID")) != 32 {
+		t.Fatal("missing generated HTTP correlation header")
+	}
 	if w.Code != 403 {
 		t.Fatal(w.Code)
 	}

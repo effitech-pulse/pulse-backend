@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 type RunOptions struct {
@@ -54,24 +55,28 @@ func (m *ML) StartRun(ctx context.Context, trigger string) (bool, error) {
 		return acquired, err
 	}
 	m.jobs.Add(1)
-	go m.execute(lease, trigger)
+	seed := observability.BackgroundSeed(ctx)
+	go m.execute(seed, lease, trigger)
 	return true, nil
 }
 
-func (m *ML) execute(lease RunLease, trigger string) {
+func (m *ML) execute(seed context.Context, lease RunLease, trigger string) {
 	defer m.jobs.Done()
 	defer lease.Close()
-	ctx, cancel := context.WithTimeout(context.Background(), m.options.Timeout+30*time.Second)
+	operationStart := time.Now()
+	operation, span := observability.Detached(seed, "ml.run")
+	var err error
+	defer func() { observability.Complete(operation, span, "operation completed", operationStart, err) }()
+	ctx, cancel := context.WithTimeout(operation, m.options.Timeout+30*time.Second)
 	defer cancel()
 	var id int64
-	var err error
 	if m.options.Profile == "cohort" {
 		id, err = lease.BeginCohort(ctx, trigger, m.options.CohortVersion)
 	} else {
 		id, err = lease.Begin(ctx, trigger)
 	}
 	if err != nil {
-		slog.Error("run creation failed", "error", err)
+		slog.ErrorContext(ctx, "run creation failed", "error_code", "operation_failed")
 		return
 	}
 	if m.scope != nil {
@@ -81,7 +86,7 @@ func (m *ML) execute(lease RunLease, trigger string) {
 		err = scoreErr
 		if err == nil {
 			if writer, ok := lease.(CohortRunLease); ok {
-				save, finish := context.WithTimeout(context.Background(), 20*time.Second)
+				save, finish := context.WithTimeout(context.WithoutCancel(ctx), 20*time.Second)
 				err = writer.PersistCohort(save, id, snapshot)
 				finish()
 			} else {
@@ -96,15 +101,15 @@ func (m *ML) execute(lease RunLease, trigger string) {
 		}
 	}
 	if err != nil {
-		slog.Error("ML run failed", "run_id", id, "error", err)
-		finishCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		slog.ErrorContext(ctx, "ML run failed", "error_code", "operation_failed")
+		finishCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 		defer cancel()
 		message := err.Error()
 		if len(message) > 2000 {
 			message = message[:2000]
 		}
 		if err := lease.Fail(finishCtx, id, message); err != nil {
-			slog.Error("record run failure", "error", err)
+			slog.ErrorContext(ctx, "record run failure", "error_code", "operation_failed")
 		}
 	}
 }
@@ -133,7 +138,7 @@ func (m *ML) Schedule(ctx context.Context) {
 			return
 		case <-timer.C:
 			if _, err := m.StartRun(ctx, "scheduled"); err != nil {
-				slog.Error("scheduled ML run failed", "error", err)
+				slog.ErrorContext(ctx, "scheduled ML run failed", "error_code", "operation_failed")
 			}
 		}
 	}

@@ -5,12 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 // Archive читает Pulse Data; не имеет доступа к БД и не выполняет генерацию.
@@ -19,7 +24,7 @@ type Archive struct {
 	AllowedHosts []string
 }
 
-func (a Archive) get(ctx context.Context, path string, query url.Values, out any) error {
+func (a Archive) get(ctx context.Context, path string, query url.Values, out any) (err error) {
 	if a.BaseURL == "" {
 		return nil
 	}
@@ -30,17 +35,25 @@ func (a Archive) get(ctx context.Context, path string, query url.Values, out any
 	if u.Scheme != "http" && u.Scheme != "https" {
 		return fmt.Errorf("HTTP address required")
 	}
+	start := time.Now()
+	ctx, span := observability.Start(ctx, "Data "+path, trace.SpanKindClient)
+	span.SetAttributes(attribute.String("http.request.method", "GET"), attribute.String("http.route", path))
+	defer func() {
+		observability.Complete(ctx, span, "source completed", start, err, slog.String("http.route", path), slog.String("http.request.method", "GET"))
+	}()
 	u.RawQuery = query.Encode()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return err
 	}
+	observability.InjectHTTP(ctx, req.Header)
 	client := &http.Client{Timeout: 30 * time.Second, CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }}
 	response, err := client.Do(req)
 	if err != nil {
 		return domain.NewError(domain.Unavailable, "Pulse Data недоступен")
 	}
 	defer response.Body.Close()
+	span.SetAttributes(attribute.Int("http.response.status_code", response.StatusCode))
 	if response.StatusCode != 200 {
 		return domain.NewError(domain.Unavailable, "Pulse Data не вернул телеметрию")
 	}

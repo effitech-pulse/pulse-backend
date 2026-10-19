@@ -67,7 +67,7 @@ func respond[T any](c *gin.Context, status int, value T, err error) error {
 func writeError(c *gin.Context, err error) {
 	var e *domain.Error
 	if !errors.As(err, &e) {
-		slog.Error("request failed", "error", err)
+		slog.ErrorContext(c.Request.Context(), "request failed", "error_code", "internal_error")
 		_ = writeJSON(c, 500, struct {
 			Code    string `json:"code"`
 			Message string `json:"message"`
@@ -184,6 +184,6 @@ func (s *Server) recordAudit(c *gin.Context, status int) {
 		actor = "user:" + strconv.FormatInt(*p.AccountID, 10)
 	}
 	if err := s.Catalog.RecordAudit(ctx, actor, c.Request.Method, c.Request.URL.Path, status); err != nil {
-		slog.Warn("audit failed", "error", err)
+		slog.WarnContext(c.Request.Context(), "audit failed", "error_code", "operation_failed")
 	}
 }

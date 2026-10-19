@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"github.com/effitech-pulse/pulse-backend/internal/observability"
 )
 
 func scanSource(row pgx.Row) (domain.TelemetrySource, error) {
@@ -110,8 +111,10 @@ func (r *Repository) ClaimSource(ctx context.Context, id string, due bool) (bool
 	tag, err := execute(ctx, r.pool, q)
 	return tag.RowsAffected() == 1, err
 }
-func (r *Repository) CommitTelemetry(ctx context.Context, id string, points []domain.Measurement, rejected int, message string, release bool) (domain.CollectionLog, error) {
-	log := domain.CollectionLog{SourceID: id, Timestamp: time.Now().UTC(), Rejected: rejected, Message: message}
+func (r *Repository) CommitTelemetry(ctx context.Context, id string, points []domain.Measurement, rejected int, message string, release bool) (log domain.CollectionLog, err error) {
+	ctx, finish := observability.Database(ctx, "telemetry.save")
+	defer func() { finish(err) }()
+	log = domain.CollectionLog{SourceID: id, Timestamp: time.Now().UTC(), Rejected: rejected, Message: message}
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
 		return log, err
@@ -182,8 +185,10 @@ func (r *Repository) FailCollection(ctx context.Context, id, message string) err
 	}
 	return tx.Commit(ctx)
 }
-func (r *Repository) Telemetry(ctx context.Context, well string, start, end time.Time) (domain.TelemetryResult, error) {
-	out := domain.TelemetryResult{Points: []domain.Measurement{}}
+func (r *Repository) Telemetry(ctx context.Context, well string, start, end time.Time) (out domain.TelemetryResult, err error) {
+	ctx, finish := observability.Database(ctx, "telemetry.read")
+	defer func() { finish(err) }()
+	out = domain.TelemetryResult{Points: []domain.Measurement{}}
 	q, args, err := build(sqlBuilder.Select("well_id", "measured_at", "values", "quality").From("telemetry_measurement").Where(sq.Eq{"well_id": well}).Where(sq.GtOrEq{"measured_at": start}).Where(sq.LtOrEq{"measured_at": end}).OrderBy("measured_at").Limit(10001))
 	if err != nil {
 		return out, err
@@ -214,8 +219,9 @@ func (r *Repository) CollectionLogs(ctx context.Context) ([]domain.CollectionLog
 	return list[domain.CollectionLog](ctx, r.pool, sqlBuilder.Select("timestamp", "source_id", "accepted", "duplicates", "rejected", "message").From("telemetry_collection_log").OrderBy("id DESC").Limit(200))
 }
 
-func (r *Repository) TelemetryBounds(ctx context.Context, well string) (domain.TelemetryBounds, error) {
-	var out domain.TelemetryBounds
+func (r *Repository) TelemetryBounds(ctx context.Context, well string) (out domain.TelemetryBounds, err error) {
+	ctx, finish := observability.Database(ctx, "telemetry.bounds")
+	defer func() { finish(err) }()
 	q, args, err := build(sqlBuilder.Select("min(measured_at)", "max(measured_at)").From("telemetry_measurement").Where(sq.Eq{"well_id": well}))
 	if err != nil {
 		return out, err
