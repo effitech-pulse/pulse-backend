@@ -14,11 +14,11 @@ HTTP API системы диагностики УЭЦН. Backend ведёт ре
 
 ```sh
 go work init ./pulse-backend ./pulse-contracts
-go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.1=./pulse-contracts
+go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.2=./pulse-contracts
 cd pulse-backend
 ```
 
-Замену используем только в локальном workspace. `go.mod` фиксирует версию библиотеки контрактов `v0.1.1`; исходники контрактов в backend не копируются. Для PREP эта package version недостаточна: используйте проверенный source commit contracts `07213c430318affd140f55dea391cdc36220d93f`, а не прежний release tag. [Compatibility manifest](docs/readiness-compatibility.json) фиксирует все7reviewed runtime payload refs, зависимости и фактические Docker image IDs. Backend payload ref остаётся базой для последующего README/docs-only commit, hash которого не включается сам в себя.
+Замену используем только в локальном workspace. `go.mod` фиксирует локальный Q0 candidate SDK `v0.1.2` (**UNRELEASED**), source commit `272f23027e4a3ba636305b931f6ab83e5fca8166`; public tag/checksum не предполагается; remote fetch/pipeline не проверены и требуют отдельной разрешённой публикации contracts. Локальная сборка использует этот exact reviewed source; исходники контрактов в backend не копируются. Docker build использует этот принятый checkout через named context `--build-context contracts=../pulse-contracts` (build only). Для Q0 применяйте отдельный GOWORK; общий workspace `go.work` не изменяется. Для PREP эта package version недостаточна: используйте проверенный source commit contracts `07213c430318affd140f55dea391cdc36220d93f`, а не прежний release tag. [Compatibility manifest](docs/readiness-compatibility.json) фиксирует все7reviewed runtime payload refs, зависимости и фактические Docker image IDs. Backend payload ref остаётся базой для последующего README/docs-only commit, hash которого не включается сам в себя.
 
 ### 2. Настройте окружение
 
@@ -50,7 +50,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию 11. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию 12 (additive Q0 saved-input primitives; production routes пока не подключены). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 

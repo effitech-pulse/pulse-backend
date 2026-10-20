@@ -144,6 +144,9 @@ var operationLayers = map[string]string{
 
 func metricDimensions(s sdktrace.ReadOnlySpan) (string, string, string) {
 	op := s.Name()
+	if op == "MLService/UploadPinned" {
+		op = "MLService/Upload"
+	}
 	layer, ok := operationLayers[op]
 	if !ok {
 		op = "other"

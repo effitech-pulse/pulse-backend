@@ -158,12 +158,17 @@ func TestCompletionMetricsSurviveTraceQueueLoss(t *testing.T) {
 }
 
 func TestMetricOperationsUseActualStaticAdapterAndGinNames(t *testing.T) {
-	for _, tc := range []struct{ name, layer string }{{"Data /v1/bounds", "source"}, {"Data /v1/telemetry", "source"}, {"Data /v1/scenario", "source"}, {"MLService/GetSnapshot", "rpc"}, {"HTTP /api/v1/wells/:well_id", "http"}, {"HTTP /api/v1/wells/:well_id/checks", "http"}, {"HTTP /api/v1/ml/upload", "http"}} {
+	for _, tc := range []struct{ name, layer string }{{"Data /v1/bounds", "source"}, {"Data /v1/telemetry", "source"}, {"Data /v1/scenario", "source"}, {"MLService/GetSnapshot", "rpc"}, {"MLService/Upload", "rpc"}, {"HTTP /api/v1/wells/:well_id", "http"}, {"HTTP /api/v1/wells/:well_id/checks", "http"}, {"HTTP /api/v1/ml/upload", "http"}} {
 		span := tracetest.SpanStub{Name: tc.name}.Snapshot()
 		layer, op, _ := metricDimensions(span)
 		if op != tc.name || layer != tc.layer {
 			t.Fatal("valid static operation collapsed", tc, layer, op)
 		}
+	}
+	span := tracetest.SpanStub{Name: "MLService/UploadPinned"}.Snapshot()
+	layer, op, _ := metricDimensions(span)
+	if layer != "rpc" || op != "MLService/Upload" || span.Name() != "MLService/UploadPinned" {
+		t.Fatal("pinned metric alias changed operation or span identity", layer, op, span.Name())
 	}
 	if len(operationLayers) > 63 {
 		t.Fatal("named operation allowlist leaves no slot for other")

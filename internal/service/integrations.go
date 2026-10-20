@@ -115,8 +115,15 @@ func (s *Integrations) scoreData(ctx context.Context, data domain.TelemetryResul
 	return s.scorer.Upload(ctx, "telemetry.csv", strings.NewReader(content))
 }
 func telemetryCSV(data domain.TelemetryResult) (string, error) {
+	var output strings.Builder
+	if err := writeTelemetryCSV(&output, data); err != nil {
+		return "", err
+	}
+	return output.String(), nil
+}
+func writeTelemetryCSV(output io.Writer, data domain.TelemetryResult) error {
 	if len(data.Points) == 0 || data.Truncated {
-		return "", domain.NewError(domain.Invalid, "Для скоринга нужна непустая полная выборка. Уменьшите период при достижении лимита.")
+		return domain.NewError(domain.Invalid, "Для скоринга нужна непустая полная выборка. Уменьшите период при достижении лимита.")
 	}
 	var err error
 	keys := map[string]bool{}
@@ -130,10 +137,9 @@ func telemetryCSV(data domain.TelemetryResult) (string, error) {
 		columns = append(columns, k)
 	}
 	sort.Strings(columns)
-	var buffer strings.Builder
-	writer := csv.NewWriter(&buffer)
+	writer := csv.NewWriter(output)
 	if err = writer.Write(append([]string{"timestamp"}, columns...)); err != nil {
-		return "", err
+		return err
 	}
 	for _, p := range data.Points {
 		row := []string{p.Timestamp.UTC().Format(time.RFC3339Nano)}
@@ -145,14 +151,14 @@ func telemetryCSV(data domain.TelemetryResult) (string, error) {
 			row = append(row, v)
 		}
 		if err = writer.Write(row); err != nil {
-			return "", err
+			return err
 		}
 	}
 	writer.Flush()
 	if err = writer.Error(); err != nil {
-		return "", err
+		return err
 	}
-	return buffer.String(), nil
+	return nil
 }
 func (s *Integrations) List(ctx context.Context) ([]domain.TelemetrySource, error) {
 	return s.store.Sources(ctx)
@@ -417,6 +423,11 @@ func telemetryWellID(value any) string {
 
 // MapTelemetry чистит маркеры до преобразования и отделяет уставки от измерений.
 func MapTelemetry(records []map[string]any, source domain.TelemetrySource) ([]domain.Measurement, int) {
+	return MapTelemetryAt(records, source, time.Now())
+}
+
+// MapTelemetryAt использует зафиксированное время валидации сохранённого входа.
+func MapTelemetryAt(records []map[string]any, source domain.TelemetrySource, validationAsOf time.Time) ([]domain.Measurement, int) {
 	points := make([]domain.Measurement, 0, len(records))
 	rejected := 0
 	for _, record := range records {
@@ -428,7 +439,7 @@ func MapTelemetry(records []map[string]any, source domain.TelemetrySource) ([]do
 		case time.Time:
 			ts = v
 		}
-		if wellID == "" || len(wellID) > 200 || ts.IsZero() || ts.After(time.Now().Add(time.Hour)) {
+		if wellID == "" || len(wellID) > 200 || ts.IsZero() || ts.After(validationAsOf.Add(time.Hour)) {
 			rejected++
 			continue
 		}

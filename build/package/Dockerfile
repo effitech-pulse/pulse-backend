@@ -5,7 +5,7 @@ WORKDIR /workspace
 COPY --from=contracts / /workspace/pulse-contracts
 COPY . /workspace/pulse-backend
 RUN go work init ./pulse-backend ./pulse-contracts && \
-    go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.1=./pulse-contracts
+    go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.2=./pulse-contracts
 WORKDIR /workspace/pulse-backend
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 go build -trimpath -o /out/api ./cmd/api && \

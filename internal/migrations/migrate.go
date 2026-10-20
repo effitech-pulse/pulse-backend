@@ -42,8 +42,11 @@ var snapshotSchema string
 //go:embed run_scope.sql
 var runScopeSchema string
 
+//go:embed file_inputs.sql
+var fileInputsSchema string
+
 // CurrentVersion соответствует последней additive migration.
-const CurrentVersion = 11
+const CurrentVersion = 12
 
 // Apply создаёт схему новой БД или принимает БД на проверенном Alembic head.
 func Apply(ctx context.Context, pool *pgxpool.Pool) error {
@@ -117,6 +120,9 @@ func Apply(ctx context.Context, pool *pgxpool.Pool) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, runScopeSchema); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, fileInputsSchema); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

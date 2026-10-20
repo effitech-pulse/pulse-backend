@@ -6,7 +6,7 @@ test:
     - name: postgres:16
       alias: postgres
   variables:
-    CONTRACTS_REF: 07213c430318affd140f55dea391cdc36220d93f
+    CONTRACTS_REF: 272f23027e4a3ba636305b931f6ab83e5fca8166
     POSTGRES_DB: pulse_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: pulse-ci-test
@@ -19,7 +19,7 @@ test:
     - git -C .ci-contracts checkout --detach FETCH_HEAD
     - test "$(git -C .ci-contracts rev-parse HEAD)" = "$CONTRACTS_REF"
     - go work init . ./.ci-contracts
-    - go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.1=./.ci-contracts
+    - go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.2=./.ci-contracts
     - test -z "$(gofmt -l cmd internal api test)"
     - make check
     - make integration
