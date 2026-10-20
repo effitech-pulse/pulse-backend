@@ -1,5 +1,11 @@
 # Решения и план развития
 
+## Актуальное продолжение · 20.10.2026
+
+[Roadmap](../references/functional-roadmap.md): O1/F1 приняты; O2 — implementation/runtime VERIFIED, W1/final rollback CLOSED; final docs/publication gate PASS, O2 принята как локальный пилот, затем Q0→Q1/F2 и прежние зависимости. [O2 execution](../references/o2-q0-execution.md) и [архитектура](../references/o2-architecture.md) отделяют проверяемый local pilot от production. [Q0 architecture](../references/q0-architecture.md) описывает immutable input/pinning prerequisite, не installed broker/durable consumer.
+
+[Паспорт/эксплуатация/Excel/аналитика/помощник](../references/well-operations-proposal.md) и [архитектурная сверка](../references/well-operations-data-review.md) — отдельное рассматриваемое дополнение. Загрузка и выгрузка Excel запрошены; источник паспортов/работ неизвестен, graph qg/qg_tex независим. Рекомендация existing PG+bounded JSONB не равна установке/миграции; образ робота — brief, не нарисованный UI. Этот снимок не назначает реализацию нового блока и не меняет scientific deferred.
+
 ## Согласованная последовательность
 
 1. PREP реализовал fixed cohort100, server scope, отдельный runtime и local access; проверенные границы — в главе02 и PREP ledger. Пользовательское имя Pulse Connector не отменяет описание происхождения данных.

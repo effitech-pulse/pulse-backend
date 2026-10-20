@@ -1,5 +1,9 @@
 # Текущее состояние и согласованные изменения
 
+## Дополнение O2 · реализация и runtime проверены, 20.10.2026
+
+Optional observability source Go/Python/stack прошёл Senior review; **implementation/runtime VERIFIED**, W1/P2 CLOSED, три UI cycles и final rollback PASS. Финальные docs review/publication PASS; O2 принята в согласованной области локального пилота. [O2 execution](../references/o2-q0-execution.md), [runtime evidence](../references/o2-runtime.md), [runbook](../references/observability-o2.md) фиксируют actual paths/outages и оставшиеся gates; это отдельное evidence, не пересмотр PREP/O1/F1 ниже. Изолированный PREP использует PostgreSQL55439, lane integration — PostgreSQL55432. Loopback3300 Grafana имеет native auth и отдельно разрешённый пользователем bridge с возможным egress; Collector/Loki/Tempo/Prometheus остаются во внутренних сетях; бизнес-сети не меняются. Lossless/exactly-once/production capacity не заявляются. После O2 идёт Q0→Q1/F2 по прежним зависимостям; [Q0 architecture](../references/q0-architecture.md) и [паспорт/Excel/помощник](../references/well-operations-proposal.md) остаются планами. Scientific not_assessed/user-deferred.
+
 Редакция: **PREP и программная приёмка O1/F1, 20.10.2026**. Предыдущая очередь DOC-01–07 принята; её исторические материалы сохраняют дату. Текущие факты сверены с [PREP ledger](../references/readiness-ledger.md), [архитектурой](../references/readiness-architecture.md) и [playbook](../references/readiness-runtime.md). Выполнение команд и browser QA принадлежат указанным в ledger исполнителям; этот текст не является новым прогоном тестов.
 
 ## Проверенный локальный профиль

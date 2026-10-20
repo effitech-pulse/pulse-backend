@@ -16,6 +16,8 @@ Backend выполняет пользовательский bulk через те
 
 ## Содержание
 
+**O2 · реализация и runtime проверены, 20.10.2026.** Optional Collector/Loki/Tempo/Prometheus/Grafana прошли source Senior review; W1/P2 закрыто Senior, три UI cycles и финальный rollback прошли. Финальные docs review и автономная публикационная проверка PASS; O2 принята как локальный пилот. [Runbook](references/observability-o2.md), [runtime evidence](references/o2-runtime.md), [execution ledger](references/o2-q0-execution.md) и [архитектура/C4](references/o2-architecture.md) отделяют выполненные проверки от открытых gates. Пилот на8088/8018 использует PREP PG55439; PG55432 — отдельные integration tests. Grafana-only bridge с возможным egress прямо разрешён пользователем для локального пилота; это не сетевой deny и не production approval. Scientific not_assessed сохраняется. Новые Q0 и паспорт/Excel/помощник документы представлены как архитектура/план, не реализация. Sync/build/validate/source check и standalone ZIP validation PASS; фактический итог публикационного gate зафиксирован в execution ledger.
+
 - [Назначение и границы проекта](chapters/01-project.md)
 - [Текущее состояние и согласованные изменения](chapters/02-status.md)
 - [Дизайн кит и правила интерфейса](chapters/03-design.md)

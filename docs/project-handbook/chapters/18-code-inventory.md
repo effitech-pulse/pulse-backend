@@ -1,5 +1,7 @@
 # Инвентаризация исходников и версий
 
+Редакция O2 индексирует **public working tree**, включая допустимые untracked public planning/concept документы других владельцев. SHA/наличие input не означает принятую реализацию, авторство публикации или inclusion в commit. Mapped snapshots с владельцами перечислены отдельно в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1 refs ниже исторические; текущий O2 implementation/runtime proof не объявлен committed/remote по обновлению inventory. Финальный sync выполнен после стабилизации source/evidence; external source check и автономная проверка пакета PASS.
+
 Файловая инвентаризация: [CSV с SHA256](../inventory/source-files.csv), [репозитории и HEAD](../inventory/source-manifest.json). В перечень включены исходники и публичные конфигурации; исключены данные, окружения, Git metadata, бинарники, секреты и этот комплект документации.
 
 Исторические PREP runtime payload семи репозиториев сохранены локальными коммитами и связаны [compatibility manifest](../inventory/readiness-compatibility.json). Четыре новые reviewed O1/F1 payload refs backend/frontend/ML/Data сохранены отдельно в [execution ledger](../references/o1-f1-execution.md); PREP refs ими не заменены. HEAD в генерируемой таблице — база снимка исходников; только backend получает последующий docs-only commit публикации. Dirty entries фиксируются перед публикацией и не означают, что код PREP ещё ожидает сохранения. Обновление чисел/HEAD выполняет final sync; push и remote availability этим не подтверждаются.
@@ -7,11 +9,11 @@
 | Репозиторий | HEAD | Изменённые/новые записи Git | Репозиторий |
 |---|---|---|---|
 | pulse-model | `f5c2a3de031f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
-| pulse-data | `a1dc418ba69b` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `22b34c3854d4` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-data | `942e0adb58c9` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
+| pulse-ml-service | `10df91a9e053` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
 | pulse-contracts | `07213c430318` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `b6c03e07babe` | 30 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
-| pulse-frontend | `2c6521a27e49` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
+| pulse-backend | `8b21da52ad95` | 49 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-frontend | `c937bd6067c7` | 3 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e1cd27c973bf` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 
 ## Каталоги исполнения

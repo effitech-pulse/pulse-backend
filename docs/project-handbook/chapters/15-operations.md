@@ -1,5 +1,11 @@
 # Сборка запуск и сопровождение
 
+## O2 · optional supervised pilot, implementation/runtime verified
+
+Используйте [O2 runbook](../references/observability-o2.md) и [runtime evidence](../references/o2-runtime.md): prep→O1→O2 overlays, отдельные `:o2` images, private password file, supervisor/budget и отдельный контролируемый rollback приложений на `:o1-f1`. PREP UI/API8088/8018/PG55439 отделены от integration PG55432 и исходного8080/live DB. Grafana доступна на loopback3300 с native auth; пользователь прямо разрешил Grafana-only UI bridge с возможным egress. Это не network deny или unattended deployment.
+
+Пять optional services могут останавливаться независимо; бизнес-данные/PG и stdout fallback сохраняют свою роль. Supervisor polling/retention не физическая disk quota и допускает overshoot; RAM queues/counters/offsets не durable/lossless. Store volumes и business history не удаляются; `down -v` не применяется. W1/P2 и final rollback закрыты Senior; финальные docs/publication PASS, O2 принята как supervised local pilot. Фактические ресурсные числа/ограничения публикуются в runtime-отчёте; они не становятся production SLA.
+
 ## Проверенный PREP и обычный local
 
 Основная инструкция: [изолированный runtime](../references/readiness-runtime.md). PREP использует отдельную восстановленную app-БД pulse_prep и loopback UI8088/API8018, без рабочих research сетей. Порядок: подготовить секреты без вывода значений → поднять PG/ML/Data → восстановить согласованный backup в отдельную БД → явно применить миграции → capture existing presentation-v1 → bootstrap первого администратора → запустить backend/frontend. Успешный Health не заменяет каждый следующий шаг.

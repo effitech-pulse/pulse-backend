@@ -1,5 +1,16 @@
 # Связь требований макетов кода и проверок
 
+## O2 · implementation/runtime verified; публикационный gate, 20.10.2026
+
+| Требование / владелец | Связь и состояние |
+|---|---|
+| O2-1…4 / tech-lead + координатор | [Execution](../references/o2-q0-execution.md) → [runtime evidence](../references/o2-runtime.md) → [runbook](../references/observability-o2.md); source/runtime Senior PASS, W1/P2 CLOSED,13phase rollback ID/SHA preserved; final docs/publication PASS |
+| Pins/budgets/C4 / architect-analyst | [Архитектура](../references/o2-architecture.md), [редактируемая C4](../diagrams/o2-observability.drawio); local non-HA, никакого production capacity/lossless claim |
+| Следующая очередь / tech-lead + architect-analyst | [Roadmap](../references/functional-roadmap.md), [Q0 architecture](../references/q0-architecture.md); после O2 — Q0→Q1/F2, затем прежние зависимости, не installed broker |
+| Новый продуктовый блок / tech-lead + architect-analyst | [Proposal](../references/well-operations-proposal.md), [review](../references/well-operations-data-review.md): loading/export Excel запрошены, implementation не назначена; scientific not_assessed |
+
+Авторизованные рамки пилота: PREP PG55439 отдельно от lane test PG55432; Grafana bridge прямо разрешён пользователем с возможным egress, Collector/Loki/Tempo/Prometheus остаются internal, бизнес-сети не менялись. Root runtime evidence завершено, отдельный финальный gate handbook пройден; source inventory public working tree не является commit/push и может учитывать чужие untracked inputs.
+
 | Требование | Макет / описание | Код | Статус и проверка |
 |---|---|---|---|
 | Общая навигация и обзор | Figma 3:52 | AppLayout, Dashboard, ThemeProvider | Частичный перенос; browser QA Light/Dark |

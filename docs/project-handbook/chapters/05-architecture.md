@@ -2,6 +2,8 @@
 
 ## Представления C4
 
+Для проверенного локального O2-пилота доступны [архитектура/budgets](../references/o2-architecture.md) и [редактируемая O2 C4](../diagrams/o2-observability.drawio). Optional diagnostics не меняет бизнес-владение PostgreSQL/ML и не является брокером jobs; финальная runtime-приёмка отмечается в [evidence](../references/o2-runtime.md). Базовые PREP/O1 схемы ниже сохраняют историческую область. Grafana-only UI bridge — прямо согласованное локальное egress исключение, не политика production.
+
 [Редактируемый файл draw.io](../diagrams/pulse-c4.drawio) содержит C1 (контекст), C2 (контейнеры), C3 (компоненты backend) и Deployment локального Docker. Контейнер C4 — приложение или хранилище; его нельзя автоматически отождествлять с Docker-контейнером. Deployment является дополнительной диаграммой, а не уровнем Code. [Описание нотации C4](https://c4model.com/diagrams).
 
 ![Контейнеры и взаимодействия](../diagrams/pulse-c4-containers.png)

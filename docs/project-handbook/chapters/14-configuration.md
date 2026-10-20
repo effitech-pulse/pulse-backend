@@ -49,6 +49,8 @@ Frontend: `VITE_API_PROXY_TARGET` для dev-прокси; штатный Vite p
 | Назначение | Хост | Внутри сети |
 |---|---|---|
 | PREP UI / API | 127.0.0.1:8088 / :8018 | frontend:80 / backend:8000 |
+| PREP app PostgreSQL | 127.0.0.1:55439 | Изолированный восстановленный pulse_prep; не integration test DB |
+| O2 Grafana (optional local pilot) | 127.0.0.1:3300 | Только native-auth UI; bridge исключение с разрешённым egress |
 | Исходный local UI | 127.0.0.1:8080 | frontend:80 |
 | Go API | 127.0.0.1:8000 и :8002 | backend:8000 |
 | ML | Не опубликован | ml:50051 |
@@ -56,6 +58,8 @@ Frontend: `VITE_API_PROXY_TARGET` для dev-прокси; штатный Vite p
 | Существующая PG | localhost:5433 | grant-postgres:5432 |
 | Существующий CH HTTP | localhost:8123 | grant-clickhouse:8123 |
 | Изолированная тестовая PG | localhost:55432 | Отдельный test Compose |
+
+O2 включается явно и только как supervised local pilot: [runbook/конфигурация](../references/observability-o2.md), [pins/budgets](../references/o2-architecture.md). Credentials остаются в private files вне Git; их значения/пути не копируются в комплект. Collector/stores/OTLP/metrics endpoints не публикуются на host. W1 memory и final rollback проверены независимо; final docs/publication gate PASS, точные runtime значения принадлежат [отчёту](../references/o2-runtime.md).
 
 Порты и сети относятся к текущему рабочему месту; их наличие не описывает production SLA или отказоустойчивый кластер. Публиковать эти defaults во внешнюю сеть без отдельной настройки доступа нельзя.
 

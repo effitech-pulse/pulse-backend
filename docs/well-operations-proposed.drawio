@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-10-20T00:00:00.000Z" agent="Pulse architecture review" version="24.7.17" type="device">
+  <diagram name="Current C1 Context" id="Current-C1-Context">
+    <mxGraphModel dx="1420" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="CURRENT • C1 System Context • scoped view, 20.10.2026" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="30" y="20" width="1380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z1" value="User device / untrusted input" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="300" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="z2" value="Pulse operated trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="130" width="500" height="470" as="geometry" />
+        </mxCell>
+        <mxCell id="z3" value="External data trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="130" width="410" height="470" as="geometry" />
+        </mxCell>
+        <mxCell id="u" value="[Person]&#10;Viewer / Technologist / Admin&#10;local/legacy profile differs" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="50" y="220" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="pulse" value="[Software System]&#10;Pulse&#10;Well / telemetry / checks / review&#10;No equipment passport/work model" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="460" y="260" width="380" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="src" value="[External System]&#10;Approved telemetry archives/sources&#10;IRZ / ARMITS source code exists&#10;live coverage not checked" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="220" width="330" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="HTTP via SPA / server authorization" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="u" target="pulse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="Configured reads / collection; profile dependent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="src" target="pulse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n" value="Scope note: current passport/work archive is unknown. Existing HTTP audit is technical activity, not employee results. This is not a live deployment assessment." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="50" y="690" width="1320" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Current C2 Containers" id="Current-C2-Containers">
+    <mxGraphModel dx="1420" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="CURRENT • C2 Container • scoped existing paths" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="30" y="20" width="1380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z1" value="User device" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="300" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="z2" value="Pulse application trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="130" width="600" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="z3" value="Data/source trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="130" width="390" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="spa" value="[Container: React SPA]&#10;pulse-frontend" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="50" y="250" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="[Container: Go HTTP backend]&#10;pulse-backend&#10;Catalog / scope / telemetry / XLSX" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="440" y="230" width="500" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="[Container: PostgreSQL app DB]&#10;Well, telemetry JSONB, check, review,&#10;cohort, action_log" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="440" y="470" width="500" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ml" value="[Container: Python gRPC ML]&#10;pulse-ml-service + model library&#10;ESP recipe applicability limited" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="440" y="700" width="500" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ch" value="[Container: telemetry archive]&#10;ClickHouse / configured archive&#10;profile-dependent adapter" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="240" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="dp" value="[Container: PostgreSQL16 data DB]&#10;measurement qg/qg_tex/qn&#10;Different well schema / namespace" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="520" width="320" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="a" value="HTTP /api/v1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="spa" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b" value="SQL / pgx; repository transactions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c" value="gRPC / pulse-contracts SDK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d" value="Read archive adapter; scoped identity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="ch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n" value="Daily flow gap: checked backend has no dedicated qg/qg_tex interface. Data well.id cannot be joined to app well.id implicitly. No passport/MongoDB/provider is shown as deployed." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="1360" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Proposed C1 Context" id="Proposed-C1-Context">
+    <mxGraphModel dx="1420" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="PROPOSED • C1 Context • not approved for implementation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="30" y="20" width="1380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z1" value="User device / untrusted input" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="300" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="z2" value="Pulse operated trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="130" width="610" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="z3" value="External / unapproved egress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="130" width="380" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="u" value="[Person]&#10;Viewer / Technologist / Admin&#10;Capabilities and current scope" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="50" y="300" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="p" value="[Software System]&#10;Pulse proposed operations&#10;Passport + temporal work/assignment&#10;Scoped report + Excel + curated help" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="440" y="290" width="510" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="source" value="[External System: UNKNOWN]&#10;Authoritative passport/work source&#10;Owner / import policy OPEN" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="220" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="provider" value="[Optional External System]&#10;Help provider NOT SELECTED&#10;Egress/cost/retention gate" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="560" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="a" value="HTTP; no automatic equipment control" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="u" target="p">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b" value="Proposed source adapter; provenance; not connected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="source" target="p">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c" value="Only after accepted minimal-context policy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="p" target="provider">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n" value="Initial design recommendation: PostgreSQL relational + bounded versioned JSONB. MongoDB is an alternative under assessment, not a deployed or selected store. Robot with helmet is a design brief only." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="1360" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Proposed C2 Containers" id="Proposed-C2-Containers">
+    <mxGraphModel dx="1420" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="PROPOSED • C2 Container • initial PG recommendation, no runtime changes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="30" y="20" width="1380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z1" value="User device" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="300" height="630" as="geometry" />
+        </mxCell>
+        <mxCell id="z2" value="Pulse application trust zone • current auth before aggregate/export/retrieval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="130" width="610" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="z3" value="Data / optional external trust zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64748b;dashed=1;verticalAlign=top;align=left;fontSize=16;fontStyle=1;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="130" width="380" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="spa" value="[Container: existing React SPA]&#10;Proposed operations/help UI&#10;Figma + architect agreement" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="50" y="280" width="260" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="[Container: existing Go backend]&#10;Proposed deep report module&#10;Temporal commands / scoped report&#10;XLSX adapter / curated help&#10;Protected events separate from O2" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="440" y="240" width="510" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="[Container: existing app PostgreSQL]&#10;Proposed equipment/passport JSONB&#10;Assignment/work/revision/events&#10;Existing Well/scope/check/review&#10;Journal: separate access/retention" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#dae8fc;strokeColor=#4b5563;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="440" y="610" width="510" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="dp" value="[Container: existing data PG16]&#10;Daily qg/qg_tex&#10;Verified Pulse↔ARMITS mapping&#10;Read-only adapter proposed" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="kb" value="[Versioned knowledge resources]&#10;Curated role-filtered routes/docs&#10;Citations / owner / freshness" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#d5e8d4;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="510" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="provider" value="[Optional provider: gated]&#10;No writes or equipment control&#10;Fallback: ordinary help/search" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;align=center;verticalAlign=middle;spacing=10;fillColor=#e1d5e7;strokeColor=#4b5563;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="730" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="a" value="HTTP + current capabilities/scope" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="spa" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b" value="SQL: atomic replacement + event/receipt; read snapshot" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c" value="Proposed bounded read adapter; no implicit well.id JOIN" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="api" target="dp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d" value="Server ACL before retrieval" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e" value="Only policy-approved context; timeout/quota" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="api" target="provider">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n" value="No new microservice or second database is required by this draft. Help is read-only navigation. Daily graph can precede passport discovery. Q0 pin/recipe and O2→Q0→Q1/F2 queue remain unchanged." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="950" width="1360" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

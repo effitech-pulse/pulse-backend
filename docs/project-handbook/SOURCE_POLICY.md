@@ -14,6 +14,8 @@
 | Проверки и gates | pulse-backend/docs/verification-matrix.md | tech-lead: Makefile/package scripts/CI/runtime/SKIP; разовый PASS не становится обещанием CI |
 | Семантика модели/RPC | pulse-ml-service/docs/model-rpc-compatibility.md | architect-analyst: feature context/decision rule/provenance; предложения не объявляются реализованными |
 | Научные ограничения | pulse-model/docs/causal_baseline.md и EXPERIMENTS.md | architect-analyst + tech-lead: новый датированный эксперимент; генератор и старые group-CV не подменяют temporal-приёмку |
+| O2 диагностика/пилот | pulse-backend/docs/observability-o2.md, o2-runtime-2026-10-20.md; o2-architecture-2026-10-20.md и o2-observability.drawio | Координатор владеет runbook/runtime evidence; architect-analyst — pins/budgets/C4; tech-lead — execution/главы/публикация. Source review, runtime proof и финальная приёмка отмечаются отдельно |
+| Последующие Q0 и паспорт/Excel/помощник | pulse-backend/docs/q0-architecture-2026-10-20.md, well-operations-assistant-proposal-2026-10-20.md, well-operations-data-review-2026-10-20.md | tech-lead + architect-analyst: accepted requirements/architecture/OPEN; наличие снимка не означает реализацию, загрузку частных файлов или смену порядка очередей |
 | Рабочие инструкции модулей | README/AGENTS каждого репозитория | tech-lead: граница модуля, команды, утверждённое решение или статус |
 | Основные главы 01–19, схемы сценариев | Markdown/diagrams внутри этого handbook | tech-lead; архитектурные схемы сверяет architect-analyst; правятся содержательно после изменения источников |
 
@@ -57,6 +59,8 @@ python3 tools/test_sync_sources.py -v
 4. При передаче архива дополнительно проверить validate.py в отдельной копии без соседних репозиториев. Этот проход создаёт файлы документации, но не публикует release/PR/сайт.
 
 ## Исключения и отсутствие цикла хешей
+
+Публикационный снимок соответствует **public working tree**, а не только HEAD/индексу Git. Inventory автоматически учитывает допустимые публичные untracked документы, включая отдельные assistant/concept предложения других владельцев; их наличие/hash не означает принятую реализацию, принадлежность автору публикации или включение в его commit. Mapped snapshots назначаются реестром отдельно с владельцем; SDD/private runtime evidence в комплект не копируются. В итоговом отчёте различаются authored changes, generated snapshots/inventory и чужие public inputs. Внешний `--check` подтверждает соответствие этой базе, не чистоту Git или remote publication.
 
 Source inventory содержит публичные текстовые исходники/конфигурации разрешённых расширений и Makefile/Dockerfile. Каталоги данных, окружений, Git, node_modules, build outputs, кэши, исторический archive/reference, секреты `.env*`/ключи/credentials и symlinks исключены. В индекс не входят бинарные веса, реальные выгрузки и сам project-handbook. Отдельные публичные SVG/PNG входят только в явно назначенные snapshots реестра, а не в общий текстовый source inventory. Наличие секретного/data-пути в реестре отклоняется. Полный preflight источников и targets проверяет каждый компонент на symlink и повторно проверяет resolved области до чтения mapped source или записи копий; некорректный реестр не создаёт частичных результатов. Политика индексации также пропускает приватные каталоги .aws/.ssh и не следует symlinks. Временные SDD-заметки в `.superpowers/` исключены из обхода и запрещены как explicit registry source/target; долговечные requirements/evidence живут в модульных docs. Это исключение не скрывает произвольные dot-каталоги.
 

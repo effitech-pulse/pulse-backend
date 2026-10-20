@@ -1,5 +1,9 @@
 # Тестирование и критерии приёмки
 
+## O2 · implementation/runtime verified, публикационный gate
+
+[Execution](../references/o2-q0-execution.md) связывает O2-1…4 с [runtime evidence](../references/o2-runtime.md). Source Go/Python/stack Senior reviews пройдены; runtime VERIFIED: W1/P2 CLOSED,150samples/151.256s/425.25MiB peak и86.75MiB headroom без swap/max/oom/restarts, три UI round-trips PASS; final rollback13phase ID/SHA+recovered failure ID PASS. Финальные docs review/publication PASS; O2 принята как локальный пилот. Реальные trace/log paths, отдельные пять20s outages, actual expiry guard и retained checks относятся к координаторскому evidence. Handbook не повторяет эти тесты и не объявляет source PASS доказательством runtime/capacity. PREP PG55439 и lane test PG55432 разделены; business identity/hash проверяются отдельно от telemetry counters. Scientific not_assessed сохранён.
+
 Полная [матрица проверок и CI gates](../references/verification-matrix.md) содержит команды, окружения, допустимые SKIP и свежие свидетельства очереди A. Это локализованная копия источника pulse-backend/docs/verification-matrix.md; [политика](../SOURCE_POLICY.md) задаёт её владельца и синхронизацию. Ниже — краткая карта и исторические свидетельства прежнего прохода. Внешний CI не объявляется пройденным по наличию workflow.
 
 ## Автоматические проверки

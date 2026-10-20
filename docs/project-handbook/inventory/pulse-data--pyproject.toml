@@ -7,7 +7,7 @@ name = "effitech-esp-data"
 version = "0.1.0"
 description = "Пульс скважины: сбор и загрузка данных"
 requires-python = ">=3.11"
-dependencies = ["opentelemetry-api==1.38.0", "opentelemetry-sdk==1.38.0", "effitech-esp-model==0.1.0", "requests>=2.31", "python-dotenv>=1", "pandas>=2.0,<2.4", "numpy>=1.24", "openpyxl>=3.1", "clickhouse-connect>=0.7", "psycopg2-binary>=2.9", "yadisk>=3", "sqlalchemy>=2"]
+dependencies = ["opentelemetry-api==1.38.0", "opentelemetry-sdk==1.38.0", "opentelemetry-exporter-otlp-proto-grpc==1.38.0", "opentelemetry-exporter-otlp-proto-common==1.38.0", "opentelemetry-proto==1.38.0", "effitech-esp-model==0.1.0", "requests>=2.31", "python-dotenv>=1", "pandas>=2.0,<2.4", "numpy>=1.24", "openpyxl>=3.1", "clickhouse-connect>=0.7", "psycopg2-binary>=2.9", "yadisk>=3", "sqlalchemy>=2"]
 
 [project.optional-dependencies]
 test = ["pytest>=7"]

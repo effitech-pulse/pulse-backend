@@ -14,6 +14,8 @@ Spans охватывают реальные HTTP/gRPC/PG-вызовы; Upload з
 
 ## Согласованный предметный журнал
 
+Проверенная реализация O2 добавляет optional централизованный поиск технических diagnostics, а не новый business/employee журнал: [runbook](../references/observability-o2.md), [runtime](../references/o2-runtime.md). Log→trace/linked roots и metrics относятся к исполнению; operation request key, committed event и HTTP attempt ID различаются. Очереди/offsets/cumulative RAM counters не дают lossless/exactly-once; повтор diagnostics после Collector restart допустим и не означает повтор business результата. W1/final rollback закрыты; final docs/publication gate PASS, scientific not_assessed не меняется.
+
 | Событие | Основание | Переход пользователя |
 |---|---|---|
 | Получены измерения | Успешный завершённый цикл сбора | Источник / период телеметрии |

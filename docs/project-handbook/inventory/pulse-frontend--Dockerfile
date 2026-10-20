@@ -5,6 +5,9 @@ RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm test && npm run build
 FROM nginx:stable-alpine
+RUN addgroup -g 20000 telemetry && addgroup nginx telemetry
+COPY nginx.o2.conf /etc/nginx/o2.conf
+COPY docker/99-o2-logrotate.sh /docker-entrypoint.d/99-o2-logrotate.sh
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80

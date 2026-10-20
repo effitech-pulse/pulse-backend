@@ -1,0 +1,337 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-10-20T00:00:00.000Z" agent="Pulse architect-analyst" version="24.7.17" compressed="false">
+  <diagram id="C1-Current-Context" name="C1 Current Context">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="technologist" value="Технолог / администратор&#10;[Person]" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="100" y="150" width="120" height="100" />
+        </mxCell>
+        <mxCell id="pulse" value="Pulse&#10;[Software System]&#10;Диагностика УЭЦН, проверки, сохранённая история; O1 local correlation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="500" y="160" width="400" height="170" />
+        </mxCell>
+        <mxCell id="archives" value="Промысловые источники&#10;[External Software System]&#10;IRZ / Unitek / ARMITS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1130" y="170" width="300" height="140" />
+        </mxCell>
+        <mxCell id="engineer" value="Инженер&#10;[Person]" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="560" width="120" height="100" />
+        </mxCell>
+        <mxCell id="docker" value="Локальные JSON stdout&#10;[External operational environment]&#10;Docker local rotation, no collector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="510" y="560" width="390" height="110" />
+        </mxCell>
+        <mxCell id="c1a" value="HTTP / session + role/scope" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="technologist" target="pulse">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="c1b" value="HTTP / source credentials; no payload in telemetry" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="pulse" target="archives">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="c1c" value="Host Docker CLI / authorized operator" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="engineer" target="docker">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="c1d" value="O1 sanitized JSON, trace/request fields" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="pulse" target="docker">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="n" value="CURRENT — O1 accepted. Нет централизованных stores, exporter queues или browser RUM. PG audit и idempotency — бизнес-истина, logs её не заменяют." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="190" y="850" width="1200" height="55" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="C1-Optional-Context" name="C1 Optional Context">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tech" value="Технолог&#10;[Person]" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="100" y="160" width="120" height="100" />
+        </mxCell>
+        <mxCell id="pulse" value="Pulse&#10;[Software System]&#10;Существующие API/ML/Data/PG; права и persist semantics сохранены" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="480" y="150" width="420" height="160" />
+        </mxCell>
+        <mxCell id="sources" value="Промысловые источники&#10;[External Software System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1160" y="150" width="280" height="110" />
+        </mxCell>
+        <mxCell id="eng" value="Инженер&#10;[Person]" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="560" width="120" height="100" />
+        </mxCell>
+        <mxCell id="obs" value="Локальная наблюдаемость O2&#10;[Operational Software System]&#10;Collector → Loki / Tempo / Prometheus → Grafana&#10;optional, synthetic supervised non-HA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="490" y="490" width="520" height="200" />
+        </mxCell>
+        <mxCell id="trust" value="Local operator trust contour — private telemetry network / authenticated loopback UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="410" y="420" width="760" height="330" />
+        </mxCell>
+        <mxCell id="p1" value="HTTP/session; business unaffected by O2 outage" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="tech" target="pulse">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="p2" value="Existing HTTP/source auth" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="pulse" target="sources">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="p3" value="Sanitized JSON files + OTLP/gRPC; no payload/baggage" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="pulse" target="obs">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="p4" value="127.0.0.1:3300 / authenticated Grafana" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="eng" target="obs">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="n" value="OPTIONAL IMPLEMENTED PILOT — Disabled by default; one ingest route per stream. Нет broker/new consumer, browser clicks/RUM/staff IDs, HA/production claim. End-to-end diagnostics могут теряться. Grafana-only UI bridge permits outbound traffic; no egress-deny claim. UI bridge: AUTHORIZED LOCAL PILOT EXCEPTION by direct human consent. Host3300 runtime verified." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="150" y="850" width="1200" height="55" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="C2-Current-Containers" name="C2 Current Containers">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="business" value="Pulse local business trust contour — current O1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="70" y="100" width="1210" height="630" />
+        </mxCell>
+        <mxCell id="browser" value="Технолог browser&#10;[Container: React SPA]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="820" width="250" height="100" />
+        </mxCell>
+        <mxCell id="front" value="pulse-frontend&#10;[Container: Nginx]&#10;Static SPA + sanitized access JSON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="120" y="170" width="270" height="120" />
+        </mxCell>
+        <mxCell id="back" value="pulse-backend&#10;[Container: Go Gin]&#10;HTTP → service → PG/gRPC; O1 spans" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="510" y="160" width="310" height="140" />
+        </mxCell>
+        <mxCell id="ml" value="pulse-ml-service&#10;[Container: Python gRPC]&#10;pulse-model library inside" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="950" y="160" width="280" height="130" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL&#10;[Container: database]&#10;Business authority / audit / idempotency" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="520" y="510" width="310" height="140" />
+        </mxCell>
+        <mxCell id="data" value="pulse-data&#10;[Container: Python HTTP / source adapter]&#10;Separate collection flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="950" y="500" width="280" height="140" />
+        </mxCell>
+        <mxCell id="src" value="Sources IRZ/Unitek/ARMITS&#10;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1320" y="500" width="250" height="120" />
+        </mxCell>
+        <mxCell id="stdout" value="O1 stdout&#10;[Operational destination]&#10;Four JSON streams / Docker local driver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1040" y="820" width="380" height="110" />
+        </mxCell>
+        <mxCell id="a" value="HTTP :8088" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="browser" target="front">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="b" value="HTTP :8000 / request ID" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="front" target="back">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="c" value="gRPC :50051 / traceparent, deadline, API key" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="ml">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="d" value="PostgreSQL :5432" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="pg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e" value="HTTP :8092 / collection only" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="data">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="f" value="Existing source HTTP; generator profile may be local" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="data" target="src">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="outfront" value="Safe JSON stdout" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="front" target="stdout">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="outback" value="Safe JSON stdout" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="back" target="stdout">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="outml" value="Safe JSON stdout" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="ml" target="stdout">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="outdata" value="Safe JSON stdout" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="data" target="stdout">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="n" value="CURRENT: exports отсутствуют. Model/contracts — libraries, landing вне потока. Только фактические вызовы дают span; PG-only не требует Data." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="120" y="1010" width="1300" height="55" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="C2-Optional-Containers" name="C2 Optional Containers">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1350" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="apparea" value="Existing business contour — independent of telemetry failure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="70" width="1180" height="400" />
+        </mxCell>
+        <mxCell id="front" value="Nginx / frontend&#10;[Container]&#10;HTTP + stdout; optional fixed file" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="90" y="150" width="240" height="110" />
+        </mxCell>
+        <mxCell id="back" value="Go API&#10;[Container]&#10;O1 spans; counting adapter + metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="390" y="150" width="260" height="110" />
+        </mxCell>
+        <mxCell id="ml" value="Python ML&#10;[Container]&#10;O1 spans; bounded adapters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="710" y="150" width="240" height="110" />
+        </mxCell>
+        <mxCell id="data" value="Python Data&#10;[Container]&#10;Collection/source HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="990" y="150" width="220" height="110" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL&#10;[Database Container]&#10;Business state unchanged" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="400" y="330" width="250" height="100" />
+        </mxCell>
+        <mxCell id="b1" value="HTTP:8000" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="front" target="back">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="b2" value="gRPC:50051 + deadline/key" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="ml">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="b3" value="HTTP:8092 collection only" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="data">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="b4" value="PG:5432" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="pg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="ingest" value="Telemetry ingest contour — apps + Collector only; no Docker.sock / global logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="520" width="1240" height="280" />
+        </mxCell>
+        <mxCell id="files" value="4 isolated producer log volumes&#10;[Container filesystem: tmpfs16MiB each]&#10;RW own producer; Collector RO; fixed files only" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="90" y="590" width="400" height="130" />
+        </mxCell>
+        <mxCell id="collector" value="Collector-contrib0.163.1&#10;[Container: Go]&#10;filelog + OTLP/gRPC4317&#10;privacy / memory limit / bounded queues" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="730" y="580" width="460" height="150" />
+        </mxCell>
+        <mxCell id="filefront" value="Sanitized JSON only / rotate" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;" edge="1" parent="1" source="front" target="files">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="fileback" value="Sanitized JSON only / rotate" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;" edge="1" parent="1" source="back" target="files">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="fileml" value="Sanitized JSON only / rotate" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;" edge="1" parent="1" source="ml" target="files">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="filedata" value="Sanitized JSON only / rotate" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;" edge="1" parent="1" source="data" target="files">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="otlpback" value="OTLP/gRPC4317 traces + metrics" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="back" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="otlpml" value="OTLP/gRPC4317 traces + metrics" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="ml" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="otlpdata" value="OTLP/gRPC4317 traces + metrics" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="data" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="read" value="filelog read-only / checkpoints in own16MiB" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="files" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="stores" value="Internal telemetry data plane — stores не публикуются; Grafana-only UI bridge authorized for local pilot only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="860" width="1750" height="300" />
+        </mxCell>
+        <mxCell id="loki" value="Loki3.7.8&#10;[Container + local volume]&#10;Logs OTLP/HTTP; TTL7d ceiling" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="930" width="290" height="130" />
+        </mxCell>
+        <mxCell id="tempo" value="Tempo3.1.0 all&#10;[Container + local volume]&#10;Trace OTLP/gRPC; TTL3d ceiling" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="930" width="320" height="130" />
+        </mxCell>
+        <mxCell id="prom" value="Prometheus3.15.0&#10;[Container + local volume]&#10;Scrape8888/8889;15d/256MB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="810" y="930" width="330" height="130" />
+        </mxCell>
+        <mxCell id="graf" value="Grafana13.2.4&#10;[Container]&#10;AUTHORIZED LOCAL PILOT EXCEPTION: dual-homed UI bridge&#10;External egress capability; host3300 verified" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1220" y="930" width="370" height="130" />
+        </mxCell>
+        <mxCell id="engineer" value="Инженер&#10;[Person]" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1630" y="590" width="130" height="100" />
+        </mxCell>
+        <mxCell id="l" value="OTLP/HTTP3100 /otlp" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="collector" target="loki">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="t" value="OTLP/gRPC4317" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="collector" target="tempo">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="m" value="HTTP scrape15s :8888/internal + :8889/app" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="prom" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="queryloki" value="Internal query HTTP" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="graf" target="loki">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="querytempo" value="Internal query HTTP" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="graf" target="tempo">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="queryprom" value="Internal query HTTP" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="graf" target="prom">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="ui" value="HTTP127.0.0.1:3300 + Grafana auth" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="engineer" target="graf">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="limits" value="PILOT: safety ceilings≠capacity. Persistent store volumes have NO physical disk quota. Supervised≤30min/200requests/concurrency2; abort≥1GiB growth/&lt;10GiB free/unobservable. Stdout stays local, not re-ingested. No lossless/HA claim. Grafana UI bridge is non-internal; outbound traffic is possible, no egress enforcement. UI bridge authorized by direct human consent for local pilot only; Grafana Go soft384MiB/hard512MiB; HOST3300 VERIFIED." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="130" y="1210" width="1550" height="80" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="C3-Processor-Component" name="C3 Processor Component">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="runtimearea" value="Inside app process — private observability module, existing business interface unchanged" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;verticalAlign=top;align=left;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="70" y="100" width="1510" height="790" />
+        </mxCell>
+        <mxCell id="span" value="Existing O1 span lifecycle&#10;[Component: SDK SpanProcessor caller]&#10;OnEnd: bounded metric update + try enqueue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="170" width="390" height="130" />
+        </mxCell>
+        <mxCell id="queue" value="Bounded counting queue&#10;[Component]&#10;256 records; drop-newest exact counter&#10;No caller network wait" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="640" y="170" width="350" height="130" />
+        </mxCell>
+        <mxCell id="worker" value="Single worker&#10;[Component]&#10;Batch64 /1s; exporter timeout500ms&#10;No per-batch thread / no worker replacement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1120" y="170" width="390" height="140" />
+        </mxCell>
+        <mxCell id="export" value="Official OTLP gRPC exporter1.38&#10;[Adapter]&#10;Explicit endpoint/empty metadata, env isolated at startup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1120" y="450" width="390" height="150" />
+        </mxCell>
+        <mxCell id="counter" value="Fixed numeric state&#10;[Component]&#10;queue/drop/export errors; no identity labels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="640" y="470" width="350" height="130" />
+        </mxCell>
+        <mxCell id="metric" value="Metrics SDK/exporter1.38&#10;[Adapter]&#10;One5s reader /500ms timeout&#10;Cumulative counters / no backlog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="470" width="390" height="140" />
+        </mxCell>
+        <mxCell id="log" value="Existing safe JSON formatter&#10;[Component]&#10;≤8192bytes; stdout always; file try_emit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="720" width="390" height="100" />
+        </mxCell>
+        <mxCell id="file" value="Single file worker&#10;[Adapter]&#10;256 records /2MiB×3 rotate /16MiB filesystem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="640" y="720" width="350" height="110" />
+        </mxCell>
+        <mxCell id="collector" value="Internal Collector&#10;[External to app process]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1170" y="970" width="300" height="100" />
+        </mxCell>
+        <mxCell id="q" value="nonblocking OnEnd" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="span" target="queue">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="w" value="bounded pop / flush watermark" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="queue" target="worker">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e" value="one bounded ExportSpans batch" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="worker" target="export">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="fail" value="failure/panic/timeout counters" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="worker" target="counter">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="drop" value="full/closed/drop counters" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="queue" target="counter">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="state" value="bounded collection" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="counter" target="metric">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="logf" value="safe bytes only; no raw LogRecord" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="log" target="file">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="fc" value="file enqueue/I/O drops" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="file" target="counter">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="ec" value="OTLP/gRPC" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="export" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="mc" value="OTLP/gRPC" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" parent="1" source="metric" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="fl" value="filelog RO mount" style="endArrow=block;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;fontSize=11;dashed=1;" edge="1" parent="1" source="file" target="collector">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="n" value="Shutdown≤2s: deadline returns even if fake exporter ignores cancellation; at most one blocked worker until process exit, never a new worker. Startup env/resource restoration before app jobs/listeners; no re-init." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="130" y="40" width="1400" height="55" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -141,3 +141,11 @@ Compose-файлы теперь задают local auth и cohort; сущест�
 Техническая подготовка принята20.10.2026 после независимого Senior review и runtime/browser checks. [Native artifact hashes](docs/readiness-native-artifacts.json) сохраняют119source/50wheel identities. Финальная handbook сборка/автономная проверка и README/docs-only commit выполняются отдельным публикационным gate; remote push/cloud/release не выполнялись.
 
 Диагностика O1: [корреляция, spans и ограничения локальных JSON logs](docs/observability-o1.md).
+
+## O2 — реализация и runtime проверены, 20.10.2026
+
+Optional Collector/Loki/Tempo/Prometheus/Grafana описаны в [O2 runbook](docs/observability-o2.md); фактические проверки — в [runtime evidence](docs/o2-runtime-2026-10-20.md), требования и статус — в [execution ledger](docs/o2-q0-execution-2026-10-20.md). Source и runtime Senior-проверки пройдены, W1/P2 закрыто; финальный rollback сохранил13phase результатов по прежним ID/SHA и recovered ML-failure ID. O2 принята в согласованной области локального пилота после финального docs review и автономной проверки пакета; production capacity не заявляется.
+
+Пилот использует изолированные UI/API 8088/8018 и PREP PostgreSQL **55439**. Порт **55432** предназначен для отдельной lane integration test DB; это разные БД. Исходный 8080/live DB не затрагиваются. Grafana публикуется только на `127.0.0.1:3300` с native authentication; отдельная сеть `grafana-ui` — явно разрешённое пользователем исключение локального пилота с возможным исходящим трафиком, не egress deny. Collector/Loki/Tempo/Prometheus остаются во внутренних сетях; бизнес-сети не меняются.
+
+Запуск ограничен supervisor/budget и требует оператора; stdout fallback сохраняется. RAM counters/очереди/file offsets не обещают lossless/exactly-once, центральные diagnostics не заменяют business audit. Далее — Q0→Q1/F2 по [roadmap](docs/functional-roadmap-2026-10-20.md). Паспорт/Excel/помощник остаются [отдельным рассматриваемым предложением](docs/well-operations-assistant-proposal-2026-10-20.md), scientific acceptance — user-deferred/not_assessed.

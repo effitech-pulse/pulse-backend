@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "effitech-ml-service"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["opentelemetry-api==1.38.0", "opentelemetry-sdk==1.38.0", "effitech-esp-model==0.1.0", "effitech-pulse-contracts==0.1.1", "grpcio>=1.78,<2", "protobuf>=6.31.1,<7"]
+dependencies = ["opentelemetry-api==1.38.0", "opentelemetry-sdk==1.38.0", "opentelemetry-exporter-otlp-proto-grpc==1.38.0", "opentelemetry-exporter-otlp-proto-common==1.38.0", "opentelemetry-proto==1.38.0", "effitech-esp-model==0.1.0", "effitech-pulse-contracts==0.1.1", "grpcio>=1.78,<2", "protobuf>=6.31.1,<7"]
 
 [project.scripts]
 pulse-ml-service = "pulse_ml.server:main"
