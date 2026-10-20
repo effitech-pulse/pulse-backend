@@ -1,0 +1,164 @@
+# Optional supervised PREP pilot. Apply after compose.prep.yaml + compose.o1-f1.yaml.
+# Profile controls five stores only; producer flag defaults false. Root coordinates
+# activation only after config/capability/guard gates. Never use with local/live DB.
+services:
+  backend:
+    image: pulse-backend:o2
+    environment: &producer-env
+      PULSE_OBSERVABILITY_ENABLED: ${PULSE_OBSERVABILITY_ENABLED:-false}
+      PULSE_OBSERVABILITY_LOG_DIR: /var/log/pulse
+    group_add: ["20000"]
+    volumes: [o2-logs-backend:/var/log/pulse]
+    networks: [default, o2]
+  ml:
+    image: pulse-ml-service:o2
+    environment: *producer-env
+    group_add: ["20000"]
+    volumes: [o2-logs-ml:/var/log/pulse]
+    networks: [default, o2]
+  data:
+    image: pulse-data:o2
+    environment: *producer-env
+    group_add: ["20000"]
+    volumes: [o2-logs-data:/var/log/pulse]
+    networks: [default, o2]
+  frontend:
+    image: pulse-frontend:o2
+    environment:
+      PULSE_OBSERVABILITY_ENABLED: ${PULSE_OBSERVABILITY_ENABLED:-false}
+    group_add: ["20000"]
+    volumes: [o2-logs-frontend:/var/log/pulse]
+    networks: [default, o2]
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.163.1@sha256:1175b03003053962012f5a231f5567f66a3e8fdb960c7835c0e48f7aa1555806
+    profiles: [observability]
+    user: "10001:20000"
+    command: ["--config=/etc/otelcol/config.yaml"]
+    environment:
+      GOMEMLIMIT: 192MiB
+    mem_limit: 256m
+    cpus: 0.5
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=16m,mode=0700,uid=10001,gid=20000"]
+    volumes:
+      - ./observability/collector.yaml:/etc/otelcol/config.yaml:ro
+      - o2-filelog-offsets:/var/lib/otelcol/filelog
+      - o2-logs-backend:/var/log/pulse/backend:ro
+      - o2-logs-ml:/var/log/pulse/ml:ro
+      - o2-logs-data:/var/log/pulse/data:ro
+      - o2-logs-frontend:/var/log/pulse/frontend:ro
+    networks: [o2, telemetry]
+    logging: &telemetry-logs
+      driver: local
+      options: {max-size: "10m", max-file: "3"}
+  loki:
+    image: grafana/loki:3.7.8@sha256:1107dd5274e0ada47e42472b7a7e71f3b2a2fe878878108f3e2f9e51528f0193
+    profiles: [observability]
+    command: ["-config.file=/etc/loki.yaml"]
+    mem_limit: 1024m
+    cpus: 1
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    volumes:
+      - ./observability/loki.yaml:/etc/loki.yaml:ro
+      - o2-loki:/loki
+    networks: [telemetry]
+    logging: *telemetry-logs
+  tempo:
+    image: grafana/tempo:3.1.0@sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd
+    profiles: [observability]
+    command: ["-config.file=/etc/tempo.yaml"]
+    mem_limit: 1024m
+    cpus: 1
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    volumes:
+      - ./observability/tempo.yaml:/etc/tempo.yaml:ro
+      - o2-tempo:/var/tempo
+    networks: [telemetry]
+    logging: *telemetry-logs
+  prometheus:
+    image: prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
+    profiles: [observability]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.retention.size=256MB
+    mem_limit: 512m
+    cpus: 0.5
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./observability/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - o2-prometheus:/prometheus
+    networks: [telemetry]
+    logging: *telemetry-logs
+  grafana:
+    image: grafana/grafana:13.2.4@sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f
+    profiles: [observability]
+    # Trusted fixed secret copy only; wrapper execs server as472 with empty caps.
+    user: "0:0"
+    entrypoint: ["/bin/sh", "/etc/grafana/o2-init.sh"]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    environment:
+      GOMEMLIMIT: 384MiB
+      GF_SECURITY_ADMIN_USER: pulse-operator
+      GF_PATHS_CONFIG: /etc/grafana/o2.ini
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
+      GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
+      GF_LOG_LEVEL: warn
+    mem_limit: 512m
+    cpus: 0.5
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+      - /run/o2:size=64k,mode=0700
+    secrets: [grafana_password]
+    volumes:
+      - ./observability/grafana-init.sh:/etc/grafana/o2-init.sh:ro
+      - ./observability/grafana.ini:/etc/grafana/o2.ini:ro
+      - ./observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/pulse.yaml:ro
+      - o2-grafana:/var/lib/grafana
+    ports: ["127.0.0.1:3300:3000"]
+    # Host publishing needs a non-internal bridge on the tested Docker Desktop.
+    # Grafana alone has external egress capability in this supervised pilot;
+    # updates/plugins/reporting stay disabled. Stores remain internal-only.
+    networks: [telemetry, grafana-ui]
+    logging: *telemetry-logs
+networks:
+  o2: {internal: true}
+  telemetry: {internal: true}
+  grafana-ui: {driver: bridge}
+secrets:
+  grafana_password:
+    file: ${PULSE_GRAFANA_PASSWORD_FILE:?Set a private absolute secret file outside Git}
+volumes:
+  o2-logs-backend: &producer-tmpfs
+    driver: local
+    driver_opts: {type: tmpfs, device: tmpfs, o: "size=16m,uid=0,gid=20000,mode=2770"}
+  o2-logs-ml: *producer-tmpfs
+  o2-logs-data: *producer-tmpfs
+  o2-logs-frontend: *producer-tmpfs
+  o2-filelog-offsets:
+    driver: local
+    driver_opts: {type: tmpfs, device: tmpfs, o: "size=16m,uid=10001,gid=20000,mode=0700"}
+  o2-loki: {}
+  o2-tempo: {}
+  o2-prometheus: {}
+  o2-grafana: {}

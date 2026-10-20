@@ -1,0 +1,340 @@
+# Fixed source routes; only reconstructed allowlisted JSON leaves this pipeline.
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  file_storage:
+    directory: /var/lib/otelcol/filelog
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        max_recv_msg_size_mib: 4
+  filelog/backend:
+    include:
+    - /var/log/pulse/backend/pulse.jsonl
+    - /var/log/pulse/backend/pulse.jsonl.1
+    - /var/log/pulse/backend/pulse.jsonl.2
+    include_file_name: false
+    include_file_path: false
+    include_file_owner_name: false
+    include_file_owner_group_name: false
+    max_concurrent_files: 12
+    max_log_size: 8192
+    max_log_size_behavior: truncate
+    start_at: beginning
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 1s
+      max_elapsed_time: 5s
+    resource:
+      service.name: pulse-backend
+      deployment.environment.name: local
+    operators:
+    - type: filter
+      id: drop_oversize
+      expr: len(body) >= 8192
+      on_error: drop_quiet
+    - type: json_parser
+      parse_to: body
+      parse_ints: true
+      on_error: drop_quiet
+      timestamp:
+        parse_from: body.timestamp
+        layout_type: gotime
+        layout: 2006-01-02T15:04:05.999999999Z07:00
+      severity:
+        parse_from: body.severity_text
+    - type: filter
+      id: wrong_source
+      expr: body["service.name"] != "pulse-backend" or body["deployment.environment.name"] != "local"
+      on_error: drop_quiet
+  filelog/ml:
+    include:
+    - /var/log/pulse/ml/pulse.jsonl
+    - /var/log/pulse/ml/pulse.jsonl.1
+    - /var/log/pulse/ml/pulse.jsonl.2
+    include_file_name: false
+    include_file_path: false
+    include_file_owner_name: false
+    include_file_owner_group_name: false
+    max_concurrent_files: 12
+    max_log_size: 8192
+    max_log_size_behavior: truncate
+    start_at: beginning
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 1s
+      max_elapsed_time: 5s
+    resource:
+      service.name: pulse-ml-service
+      deployment.environment.name: local
+    operators:
+    - type: filter
+      id: drop_oversize
+      expr: len(body) >= 8192
+      on_error: drop_quiet
+    - type: json_parser
+      parse_to: body
+      parse_ints: true
+      on_error: drop_quiet
+      timestamp:
+        parse_from: body.timestamp
+        layout_type: gotime
+        layout: 2006-01-02T15:04:05.999999999Z07:00
+      severity:
+        parse_from: body.severity_text
+    - type: filter
+      id: wrong_source
+      expr: body["service.name"] != "pulse-ml-service" or body["deployment.environment.name"] != "local"
+      on_error: drop_quiet
+  filelog/data:
+    include:
+    - /var/log/pulse/data/pulse.jsonl
+    - /var/log/pulse/data/pulse.jsonl.1
+    - /var/log/pulse/data/pulse.jsonl.2
+    include_file_name: false
+    include_file_path: false
+    include_file_owner_name: false
+    include_file_owner_group_name: false
+    max_concurrent_files: 12
+    max_log_size: 8192
+    max_log_size_behavior: truncate
+    start_at: beginning
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 1s
+      max_elapsed_time: 5s
+    resource:
+      service.name: pulse-data
+      deployment.environment.name: local
+    operators:
+    - type: filter
+      id: drop_oversize
+      expr: len(body) >= 8192
+      on_error: drop_quiet
+    - type: json_parser
+      parse_to: body
+      parse_ints: true
+      on_error: drop_quiet
+      timestamp:
+        parse_from: body.timestamp
+        layout_type: gotime
+        layout: 2006-01-02T15:04:05.999999999Z07:00
+      severity:
+        parse_from: body.severity_text
+    - type: filter
+      id: wrong_source
+      expr: body["service.name"] != "pulse-data" or body["deployment.environment.name"] != "local"
+      on_error: drop_quiet
+  filelog/frontend:
+    include:
+    - /var/log/pulse/frontend/pulse.jsonl
+    - /var/log/pulse/frontend/pulse.jsonl.1
+    - /var/log/pulse/frontend/pulse.jsonl.2
+    include_file_name: false
+    include_file_path: false
+    include_file_owner_name: false
+    include_file_owner_group_name: false
+    max_concurrent_files: 12
+    max_log_size: 8192
+    max_log_size_behavior: truncate
+    start_at: beginning
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 1s
+      max_elapsed_time: 5s
+    resource:
+      service.name: pulse-frontend
+      deployment.environment.name: local
+    operators:
+    - type: filter
+      id: drop_oversize
+      expr: len(body) >= 8192
+      on_error: drop_quiet
+    - type: json_parser
+      parse_to: body
+      parse_ints: true
+      on_error: drop_quiet
+      timestamp:
+        parse_from: body.timestamp
+        layout_type: gotime
+        layout: 2006-01-02T15:04:05.999999999Z07:00
+      severity:
+        parse_from: body.severity_text
+    - type: filter
+      id: wrong_source
+      expr: body["service.name"] != "pulse-frontend" or body["deployment.environment.name"] != "local"
+      on_error: drop_quiet
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 192
+    spike_limit_mib: 48
+  filter/schema:
+    error_mode: propagate
+    logs:
+      log_record:
+      - not IsMap(log.body)
+      - not IsString(log.body["event_name"])
+      - not IsMatch(log.body["event_name"], "^(telemetry[.]snapshot|admin[.]create_failed|admin[.]created|migration[.]failed|migration[.]ready|cohort[.]capture_failed|cohort[.]captured|http[.]completed|http[.]failed|http[.]panic|audit[.]failed|rpc[.]completed|source[.]completed|database[.]completed|operation[.]completed|service[.]started|service[.]stopped|run[.]create_failed|run[.]failed|run[.]persist_failed|run[.]schedule_failed|run[.]unlock_failed|collection[.]failed|collection[.]persist_failed|collection[.]mapping_failed|diagnostic[.]suppressed|rpc[.]server[.]completed|rpc[.]server[.]error|http[.]server[.]completed|runtime[.]log)$$")
+      - not IsMatch(log.body["severity_text"], "^(DEBUG|INFO|WARN|ERROR)$$")
+  transform/logs:
+    error_mode: propagate
+    log_statements:
+    - context: log
+      statements:
+      - keep_keys(log.body, ["timestamp", "severity_text", "event_name", "service.name", "service.version", "service.instance.id", "deployment.environment.name",
+        "trace_id", "span_id", "http_request_id", "http.request.method", "http.route", "http.response.status_code", "rpc.method", "rpc.grpc.status_code",
+        "duration_ms", "duration_s", "operation_digest", "error_code", "trace_queue_size", "log_queue_size", "trace_dropped_total", "log_dropped_total",
+        "trace_export_failed_total", "metric_export_failed_total"])
+      - set(log.attributes, {})
+      - set(log.severity_text, log.body["severity_text"])
+      - set(resource.attributes["service.version"], log.body["service.version"]) where IsString(log.body["service.version"]) and IsMatch(log.body["service.version"],
+        "^[a-zA-Z0-9_.+-]{1,128}$$")
+      - set(resource.attributes["service.instance.id"], log.body["service.instance.id"]) where IsString(log.body["service.instance.id"]) and IsMatch(log.body["service.instance.id"],
+        "^([a-f0-9-]{16,36}|nginx-[0-9]{1,12})$$")
+      - delete_key(log.body, "service.version") where log.body["service.version"] != nil and (not IsString(log.body["service.version"]) or not
+        IsMatch(log.body["service.version"], "^[a-zA-Z0-9_.+-]{1,128}$$"))
+      - delete_key(log.body, "service.instance.id") where log.body["service.instance.id"] != nil and (not IsString(log.body["service.instance.id"])
+        or not IsMatch(log.body["service.instance.id"], "^([a-f0-9-]{16,36}|nginx-[0-9]{1,12})$$"))
+      - delete_key(log.body, "trace_id") where log.body["trace_id"] != nil and (not IsString(log.body["trace_id"]) or not IsMatch(log.body["trace_id"],
+        "^[a-f0-9]{32}$$"))
+      - delete_key(log.body, "span_id") where log.body["span_id"] != nil and (not IsString(log.body["span_id"]) or not IsMatch(log.body["span_id"],
+        "^[a-f0-9]{16}$$"))
+      - delete_key(log.body, "http_request_id") where log.body["http_request_id"] != nil and (not IsString(log.body["http_request_id"]) or not
+        IsMatch(log.body["http_request_id"], "^[a-zA-Z0-9._-]{1,128}$$"))
+      - delete_key(log.body, "http.request.method") where log.body["http.request.method"] != nil and (not IsString(log.body["http.request.method"])
+        or not IsMatch(log.body["http.request.method"], "^(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|OTHER)$$"))
+      - delete_key(log.body, "http.route") where log.body["http.route"] != nil and (not IsString(log.body["http.route"]) or not IsMatch(log.body["http.route"],
+        "^[/a-zA-Z0-9_:*.-]{1,256}$$"))
+      - delete_key(log.body, "rpc.method") where log.body["rpc.method"] != nil and (not IsString(log.body["rpc.method"]) or not IsMatch(log.body["rpc.method"],
+        "^[/a-zA-Z0-9_.-]{1,256}$$"))
+      - delete_key(log.body, "operation_digest") where log.body["operation_digest"] != nil and (not IsString(log.body["operation_digest"]) or
+        not IsMatch(log.body["operation_digest"], "^[a-f0-9]{64}$$"))
+      - delete_key(log.body, "error_code") where log.body["error_code"] != nil and (not IsString(log.body["error_code"]) or not IsMatch(log.body["error_code"],
+        "^(operation_failed|panic|internal_error)$$"))
+      - delete_key(log.body, "http.response.status_code") where log.body["http.response.status_code"] != nil and (not IsDouble(log.body["http.response.status_code"])
+        and not IsInt(log.body["http.response.status_code"]))
+      - delete_key(log.body, "http.response.status_code") where log.body["http.response.status_code"] != nil and log.body["http.response.status_code"]
+        < 0
+      - delete_key(log.body, "rpc.grpc.status_code") where log.body["rpc.grpc.status_code"] != nil and (not IsDouble(log.body["rpc.grpc.status_code"])
+        and not IsInt(log.body["rpc.grpc.status_code"]))
+      - delete_key(log.body, "rpc.grpc.status_code") where log.body["rpc.grpc.status_code"] != nil and log.body["rpc.grpc.status_code"] < 0
+      - delete_key(log.body, "duration_ms") where log.body["duration_ms"] != nil and (not IsDouble(log.body["duration_ms"]) and not IsInt(log.body["duration_ms"]))
+      - delete_key(log.body, "duration_ms") where log.body["duration_ms"] != nil and log.body["duration_ms"] < 0
+      - delete_key(log.body, "duration_s") where log.body["duration_s"] != nil and (not IsDouble(log.body["duration_s"]) and not IsInt(log.body["duration_s"]))
+      - delete_key(log.body, "duration_s") where log.body["duration_s"] != nil and log.body["duration_s"] < 0
+      - delete_key(log.body, "trace_queue_size") where log.body["trace_queue_size"] != nil and not IsInt(log.body["trace_queue_size"])
+      - delete_key(log.body, "trace_queue_size") where log.body["trace_queue_size"] != nil and log.body["trace_queue_size"] < 0
+      - delete_key(log.body, "log_queue_size") where log.body["log_queue_size"] != nil and not IsInt(log.body["log_queue_size"])
+      - delete_key(log.body, "log_queue_size") where log.body["log_queue_size"] != nil and log.body["log_queue_size"] < 0
+      - delete_key(log.body, "trace_dropped_total") where log.body["trace_dropped_total"] != nil and not IsInt(log.body["trace_dropped_total"])
+      - delete_key(log.body, "trace_dropped_total") where log.body["trace_dropped_total"] != nil and log.body["trace_dropped_total"] < 0
+      - delete_key(log.body, "log_dropped_total") where log.body["log_dropped_total"] != nil and not IsInt(log.body["log_dropped_total"])
+      - delete_key(log.body, "log_dropped_total") where log.body["log_dropped_total"] != nil and log.body["log_dropped_total"] < 0
+      - delete_key(log.body, "trace_export_failed_total") where log.body["trace_export_failed_total"] != nil and not IsInt(log.body["trace_export_failed_total"])
+      - delete_key(log.body, "trace_export_failed_total") where log.body["trace_export_failed_total"] != nil and log.body["trace_export_failed_total"]
+        < 0
+      - delete_key(log.body, "metric_export_failed_total") where log.body["metric_export_failed_total"] != nil and not IsInt(log.body["metric_export_failed_total"])
+      - delete_key(log.body, "metric_export_failed_total") where log.body["metric_export_failed_total"] != nil and log.body["metric_export_failed_total"]
+        < 0
+      - delete_key(log.body, "trace_queue_size") where log.body["event_name"] != "telemetry.snapshot"
+      - delete_key(log.body, "log_queue_size") where log.body["event_name"] != "telemetry.snapshot"
+      - delete_key(log.body, "trace_dropped_total") where log.body["event_name"] != "telemetry.snapshot"
+      - delete_key(log.body, "log_dropped_total") where log.body["event_name"] != "telemetry.snapshot"
+      - delete_key(log.body, "trace_export_failed_total") where log.body["event_name"] != "telemetry.snapshot"
+      - delete_key(log.body, "metric_export_failed_total") where log.body["event_name"] != "telemetry.snapshot"
+      - set(log.trace_id, TraceID(log.body["trace_id"])) where log.body["trace_id"] != nil
+      - set(log.span_id, SpanID(log.body["span_id"])) where log.body["span_id"] != nil
+      - set(log.body, String(log.body))
+  resource/metrics:
+    attributes:
+    - key: service.instance.id
+      action: delete
+    - key: service.version
+      action: delete
+  batch:
+    send_batch_size: 64
+    send_batch_max_size: 64
+    timeout: 1s
+exporters:
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+    timeout: 1s
+    sending_queue: &id001
+      enabled: true
+      sizer: bytes
+      queue_size: 4194304
+      num_consumers: 1
+      block_on_overflow: false
+    retry_on_failure: &id002
+      enabled: true
+      initial_interval: 1s
+      max_interval: 1s
+      max_elapsed_time: 5s
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    timeout: 1s
+    sending_queue: *id001
+    retry_on_failure: *id002
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: false
+service:
+  extensions:
+  - health_check
+  - file_storage
+  telemetry:
+    logs:
+      level: error
+    metrics:
+      level: detailed
+      readers:
+      - pull:
+          exporter:
+            prometheus:
+              host: 0.0.0.0
+              port: 8888
+  pipelines:
+    traces:
+      receivers:
+      - otlp
+      processors:
+      - memory_limiter
+      - batch
+      exporters:
+      - otlp/tempo
+    metrics:
+      receivers:
+      - otlp
+      processors:
+      - memory_limiter
+      - resource/metrics
+      - batch
+      exporters:
+      - prometheus
+    logs:
+      receivers:
+      - filelog/backend
+      - filelog/ml
+      - filelog/data
+      - filelog/frontend
+      processors:
+      - memory_limiter
+      - filter/schema
+      - transform/logs
+      - batch
+      exporters:
+      - otlphttp/loki

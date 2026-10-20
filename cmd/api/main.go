@@ -12,7 +12,6 @@ import (
 	_ "time/tzdata"
 
 	"github.com/gin-gonic/gin"
-	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/effitech-pulse/pulse-backend/internal/bootstrap"
@@ -31,15 +30,14 @@ func main() {
 }
 
 func run() error {
-	provider, err := observability.NewProvider("unknown")
+	runtime, err := observability.NewRuntime(context.Background(), "unknown", observability.ExportConfig{Enabled: os.Getenv("PULSE_OBSERVABILITY_ENABLED") == "true", LogDir: os.Getenv("PULSE_OBSERVABILITY_LOG_DIR")})
 	if err != nil {
 		return err
 	}
-	otel.SetTracerProvider(provider)
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		_ = provider.Shutdown(ctx)
+		_ = runtime.Shutdown(ctx)
 	}()
 	cfg, err := config.Load()
 	if err != nil {

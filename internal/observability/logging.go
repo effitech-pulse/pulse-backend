@@ -18,6 +18,7 @@ var instanceID = RequestID(WithRequestID(context.Background(), ""))
 var digestPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
 var safeCode = regexp.MustCompile(`^[a-z][a-z0-9_.-]{0,63}$`)
 var events = map[string]string{
+	"telemetry.snapshot": "telemetry.snapshot",
 	"создание администратора не выполнено": "admin.create_failed", "первый администратор создан": "admin.created", "migration failed": "migration.failed", "database schema ready": "migration.ready", "cohort capture failed": "cohort.capture_failed", "cohort captured": "cohort.captured",
 	"request completed": "http.completed", "request failed": "http.failed", "handler panic": "http.panic", "audit failed": "audit.failed",
 	"rpc completed": "rpc.completed", "source completed": "source.completed", "database completed": "database.completed", "operation completed": "operation.completed",
@@ -34,8 +35,9 @@ func bounded(v string, n int) string {
 }
 
 type logSink struct {
-	mu  sync.Mutex
-	out io.Writer
+	mu   sync.Mutex
+	out  io.Writer
+	emit func([]byte) bool
 }
 type handler struct {
 	sink    *logSink
@@ -44,7 +46,10 @@ type handler struct {
 }
 
 func NewLogger(w io.Writer, version string) *slog.Logger {
-	return slog.New(&handler{sink: &logSink{out: w}, version: bounded(version, 128)})
+	return newLogger(w, version, nil)
+}
+func newLogger(w io.Writer, version string, emit func([]byte) bool) *slog.Logger {
+	return slog.New(&handler{sink: &logSink{out: w, emit: emit}, version: bounded(version, 128)})
 }
 func Install(version string)                                    { slog.SetDefault(NewLogger(os.Stdout, version)) }
 func (h *handler) Enabled(_ context.Context, l slog.Level) bool { return l >= slog.LevelInfo }
@@ -81,6 +86,10 @@ func (h *handler) Handle(ctx context.Context, r slog.Record) (err error) {
 		}
 		// Никогда не вызываем Resolve/String/Error у пользовательского значения.
 		switch a.Key {
+		case "trace_queue_size", "log_queue_size", "trace_dropped_total", "log_dropped_total", "trace_export_failed_total", "metric_export_failed_total":
+			if event == "telemetry.snapshot" && a.Value.Kind() == slog.KindInt64 && a.Value.Int64() >= 0 {
+				out[a.Key] = a.Value.Int64()
+			}
 		case "duration_ms":
 			if a.Value.Kind() == slog.KindFloat64 && a.Value.Float64() >= 0 && !math.IsInf(a.Value.Float64(), 0) {
 				out[a.Key] = a.Value.Float64()
@@ -121,8 +130,12 @@ func (h *handler) Handle(ctx context.Context, r slog.Record) (err error) {
 		}
 		raw, _ = json.Marshal(out)
 	}
+	raw = append(raw, '\n')
+	if h.sink.emit != nil {
+		func() { defer func() { _ = recover() }(); h.sink.emit(raw) }()
+	}
 	h.sink.mu.Lock()
 	defer h.sink.mu.Unlock()
-	_, _ = h.sink.out.Write(append(raw, '\n'))
+	_, _ = h.sink.out.Write(raw)
 	return nil
 }

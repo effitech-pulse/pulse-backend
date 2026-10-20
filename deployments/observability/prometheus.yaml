@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: pulse-otlp
+    static_configs:
+      - targets: [otel-collector:8889]
+  - job_name: pulse-collector
+    static_configs:
+      - targets: [otel-collector:8888]
+  - job_name: pulse-loki
+    static_configs:
+      - targets: [loki:3100]
