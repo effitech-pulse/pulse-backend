@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	_ "embed"
+	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -286,12 +287,9 @@ func (s *FileChecks) PrepareFileInput(ctx context.Context, wellID int64, key str
 	if err != nil {
 		return domain.PreparedFileInput{}, err
 	}
-	points, ignored, err := s.normalizeRows(ctx, well, rows, spec, captured)
-	if err != nil {
-		return domain.PreparedFileInput{}, err
-	}
 	canonical := &fileBoundedWriter{max: s.limits.CanonicalBytes}
-	if err = writeTelemetryCSV(canonical, domain.TelemetryResult{Points: points}); err != nil {
+	rowCount, ignored, err := s.normalizeRows(ctx, well, rows, spec, captured, canonical)
+	if err != nil {
 		return domain.PreparedFileInput{}, err
 	}
 	implementation := s.implementation
@@ -303,7 +301,7 @@ func (s *FileChecks) PrepareFileInput(ctx context.Context, wellID int64, key str
 	if _, err = rand.Read(token); err != nil {
 		return domain.PreparedFileInput{}, err
 	}
-	v := domain.PreparedFileInput{FileInputSummary: domain.FileInputSummary{ID: hex.EncodeToString(token), PulseWellID: wellID, ActorAccountID: a.ID, Actor: domain.FileActorSnapshot{Name: a.Name, Role: a.Role, Revision: a.Revision}, RequestKey: key, SourceKind: "uploaded_file", CreatedAt: captured, CapturedAt: captured, RawSHA256: domain.FileSHA256(content), CanonicalSHA256: domain.FileSHA256(canonical.Bytes()), RequestCommitmentSHA256: commitment, ParseSpec: spec, ParseRecipeSHA256: domain.FileSHA256(recipeJSON), ParseRecipe: recipe, ExecutionPin: s.pin.Clone(), RawBytes: int64(len(content)), CanonicalBytes: int64(canonical.Len()), Rows: len(points), Columns: len(rows.Columns), IgnoredColumns: ignored}, Raw: content, Canonical: canonical.Bytes(), Limits: s.limits}
+	v := domain.PreparedFileInput{FileInputSummary: domain.FileInputSummary{ID: hex.EncodeToString(token), PulseWellID: wellID, ActorAccountID: a.ID, Actor: domain.FileActorSnapshot{Name: a.Name, Role: a.Role, Revision: a.Revision}, RequestKey: key, SourceKind: "uploaded_file", CreatedAt: captured, CapturedAt: captured, RawSHA256: domain.FileSHA256(content), CanonicalSHA256: domain.FileSHA256(canonical.Bytes()), RequestCommitmentSHA256: commitment, ParseSpec: spec, ParseRecipeSHA256: domain.FileSHA256(recipeJSON), ParseRecipe: recipe, ExecutionPin: s.pin.Clone(), RawBytes: int64(len(content)), CanonicalBytes: int64(canonical.Len()), Rows: rowCount, Columns: len(rows.Columns), IgnoredColumns: ignored}, Raw: content, Canonical: canonical.Bytes(), Limits: s.limits}
 	v.IdentityJSON, err = domain.FileInputIdentityJSON(v.FileInputSummary)
 	if err != nil {
 		return v, err
@@ -323,109 +321,156 @@ func (b *fileBoundedWriter) Write(v []byte) (int, error) {
 	}
 	return b.Buffer.Write(v)
 }
-func (s *FileChecks) normalizeRows(ctx context.Context, well domain.Well, rows domain.FileInputRows, spec domain.FileParseSpec, asOf time.Time) ([]domain.Measurement, []string, error) {
+func (s *FileChecks) normalizeRows(ctx context.Context, well domain.Well, rows domain.FileInputRows, spec domain.FileParseSpec, asOf time.Time, output io.Writer) (int, []string, error) {
 	columns := map[string]int{}
 	for i, c := range rows.Columns {
 		if _, ok := columns[c]; ok {
-			return nil, nil, fileInvalid("duplicate_header")
+			return 0, nil, fileInvalid("duplicate_header")
 		}
 		columns[c] = i
 	}
 	ti, ok := columns[spec.TimeColumn]
 	if !ok {
-		return nil, nil, fileInvalid("time_column_missing")
+		return 0, nil, fileInvalid("time_column_missing")
 	}
 	wi := -1
 	if spec.WellColumn != nil {
 		wi, ok = columns[*spec.WellColumn]
 		if !ok {
-			return nil, nil, fileInvalid("well_column_missing")
+			return 0, nil, fileInvalid("well_column_missing")
 		}
 	}
 	used := map[string]bool{spec.TimeColumn: true}
 	if spec.WellColumn != nil {
 		used[*spec.WellColumn] = true
 	}
+	type mappedColumn struct {
+		index   int
+		mapping domain.Mapping
+	}
+	mapped := make([]mappedColumn, 0, len(spec.Mappings))
+	sensors := make([]mappedColumn, 0, len(spec.Mappings))
 	for _, m := range spec.Mappings {
-		if _, ok = columns[m.Field]; !ok {
-			return nil, nil, fileInvalid("mapped_column_missing")
+		index, exists := columns[m.Field]
+		if !exists {
+			return 0, nil, fileInvalid("mapped_column_missing")
 		}
 		used[m.Field] = true
+		column := mappedColumn{index: index, mapping: m}
+		mapped = append(mapped, column)
+		if !m.IsSet {
+			sensors = append(sensors, column)
+		}
 	}
 	// Валидируются ID всех строк до времени/числовых значений.
 	for _, row := range rows.Rows {
 		if err := ctx.Err(); err != nil {
-			return nil, nil, err
+			return 0, nil, err
 		}
 		if len(row) != len(rows.Columns) {
-			return nil, nil, fileInvalid("inconsistent_columns")
+			return 0, nil, fileInvalid("inconsistent_columns")
 		}
 		if wi >= 0 {
 			v := row[wi]
 			id, e := strconv.ParseInt(v, 10, 64)
 			if e != nil || id <= 0 || strconv.FormatInt(id, 10) != v {
-				return nil, nil, fileInvalid("invalid_well_id")
+				return 0, nil, fileInvalid("invalid_well_id")
 			}
 			expected := well.ID
 			switch spec.WellIdentity {
 			case "unitek":
 				if well.UnitekID == nil {
-					return nil, nil, fileInvalid("well_identity_missing")
+					return 0, nil, fileInvalid("well_identity_missing")
 				}
 				expected = *well.UnitekID
 			case "armits":
 				if well.ArmitsID == nil {
-					return nil, nil, fileInvalid("well_identity_missing")
+					return 0, nil, fileInvalid("well_identity_missing")
 				}
 				expected = *well.ArmitsID
 			}
 			if id != expected {
-				return nil, nil, fileInvalid("multiple_wells_not_supported")
+				return 0, nil, fileInvalid("multiple_wells_not_supported")
 			}
 		}
 	}
 	loc, _ := time.LoadLocation(spec.Timezone)
-	records := make([]map[string]any, 0, len(rows.Rows))
-	for _, row := range rows.Rows {
+	// Retain only O(rows) time/index metadata alongside the bounded reader rows.
+	// Do not materialize all-row generic records or Measurement maps/pointers.
+	type indexedRow struct {
+		timestamp time.Time
+		index     int
+	}
+	indexed := make([]indexedRow, 0, len(rows.Rows))
+	for index, row := range rows.Rows {
 		if err := ctx.Err(); err != nil {
-			return nil, nil, err
+			return 0, nil, err
 		}
-		ts, e := parseFileTimestamp(row[ti], spec.TimestampLayout, loc, rows.Date1904)
-		if e != nil {
-			return nil, nil, e
+		ts, err := parseFileTimestamp(row[ti], spec.TimestampLayout, loc, rows.Date1904)
+		if err != nil {
+			return 0, nil, err
 		}
-		record := map[string]any{"_well": strconv.FormatInt(well.ID, 10), "_time": ts}
-		for i, m := range spec.Mappings {
-			v := row[columns[m.Field]]
+		for _, column := range mapped {
+			v := row[column.index]
 			if v != "" {
 				n, ok := number(v)
 				if !ok {
-					return nil, nil, fileInvalid("non_numeric_measurement")
+					return 0, nil, fileInvalid("non_numeric_measurement")
 				}
-				if cleanValue(v, m) == nil && !fileIsMarker(n, m) {
-					return nil, nil, fileInvalid("non_finite_measurement")
+				if _, present := cleanTelemetryScalar(n, column.mapping); !present && !fileIsMarker(n, column.mapping) {
+					return 0, nil, fileInvalid("non_finite_measurement")
 				}
 			}
-			record[strconv.Itoa(i)] = v
 		}
-		records = append(records, record)
+		if ts.IsZero() || ts.After(asOf.Add(time.Hour)) || len(sensors) == 0 {
+			return 0, nil, fileInvalid("invalid_telemetry_row")
+		}
+		indexed = append(indexed, indexedRow{timestamp: ts.UTC(), index: index})
 	}
-	mappings := append([]domain.Mapping(nil), spec.Mappings...)
-	for i := range mappings {
-		mappings[i].Field = strconv.Itoa(i)
+	if len(indexed) == 0 {
+		return 0, nil, fileInvalid("invalid_telemetry_row")
 	}
-	points, rejected := MapTelemetryAt(records, domain.TelemetrySource{WellField: "_well", TimeField: "_time", Mappings: mappings}, asOf)
-	if rejected != 0 || len(points) == 0 {
-		return nil, nil, fileInvalid("invalid_telemetry_row")
-	}
-	sort.Slice(points, func(i, j int) bool { return points[i].Timestamp.Before(points[j].Timestamp) })
-	for i := 1; i < len(points); i++ {
-		if points[i].Timestamp.Equal(points[i-1].Timestamp) {
-			return nil, nil, fileInvalid("duplicate_timestamp")
+	sort.Slice(indexed, func(i, j int) bool { return indexed[i].timestamp.Before(indexed[j].timestamp) })
+	for i := 1; i < len(indexed); i++ {
+		if indexed[i].timestamp.Equal(indexed[i-1].timestamp) {
+			return 0, nil, fileInvalid("duplicate_timestamp")
 		}
 	}
-	if points[len(points)-1].Timestamp.Sub(points[0].Timestamp) > 366*24*time.Hour {
-		return nil, nil, fileInvalid("timestamp_span_limit")
+	if indexed[len(indexed)-1].timestamp.Sub(indexed[0].timestamp) > 366*24*time.Hour {
+		return 0, nil, fileInvalid("timestamp_span_limit")
+	}
+	sort.Slice(sensors, func(i, j int) bool { return sensors[i].mapping.Parameter < sensors[j].mapping.Parameter })
+	// A single reusable CSV row replaces the whole Measurement value graph.
+	csvRow := make([]string, len(sensors)+1)
+	csvRow[0] = "timestamp"
+	for i, column := range sensors {
+		csvRow[i+1] = column.mapping.Parameter
+	}
+	writer := csv.NewWriter(output)
+	if err := writer.Write(csvRow); err != nil {
+		return 0, nil, err
+	}
+	for _, ref := range indexed {
+		if err := ctx.Err(); err != nil {
+			return 0, nil, err
+		}
+		csvRow[0] = ref.timestamp.Format(time.RFC3339Nano)
+		row := rows.Rows[ref.index]
+		for i, column := range sensors {
+			csvRow[i+1] = ""
+			if n, ok := number(row[column.index]); ok {
+				if n, present := cleanTelemetryScalar(n, column.mapping); present {
+					csvRow[i+1] = strconv.FormatFloat(n, 'g', -1, 64)
+				}
+			}
+		}
+		if err := writer.Write(csvRow); err != nil {
+			return 0, nil, err
+		}
+	}
+	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return 0, nil, err
 	}
 	ignored := []string{}
 	for _, c := range rows.Columns {
@@ -433,7 +478,7 @@ func (s *FileChecks) normalizeRows(ctx context.Context, well domain.Well, rows d
 			ignored = append(ignored, c)
 		}
 	}
-	return points, ignored, nil
+	return len(indexed), ignored, nil
 }
 func fileIsMarker(n float64, m domain.Mapping) bool {
 	for _, v := range strings.FieldsFunc(m.Missing, func(r rune) bool { return r == ';' || r == ',' || r == ' ' }) {

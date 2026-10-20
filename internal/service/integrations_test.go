@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/effitech-pulse/pulse-backend/internal/domain"
+	"math"
 	"testing"
 	"time"
+
+	"github.com/effitech-pulse/pulse-backend/internal/domain"
 )
 
 func TestMapTelemetryPreservesZeroAndExactID(t *testing.T) {
@@ -75,5 +77,37 @@ func TestUnlinkedPulseWellDoesNotRequireExternalArchive(t *testing.T) {
 	bounds, err := service.BoundsApp(context.Background(), domain.Well{ID: 2})
 	if err != nil || bounds.Start == nil {
 		t.Fatal(bounds, err)
+	}
+}
+
+func TestCleanValueScalarSemantics(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		input   any
+		mapping domain.Mapping
+		want    float64
+		present bool
+	}{
+		{"zero", "0", domain.Mapping{Parameter: "F_out", Scale: 1}, 0, true},
+		{"negative_zero", "-0", domain.Mapping{Parameter: "F_out", Scale: 1}, 0, true},
+		{"decimal_comma", " 1,5 ", domain.Mapping{Scale: 2, Offset: 1}, 4, true},
+		{"scientific", json.Number("5e1"), domain.Mapping{Scale: .5, Offset: -2}, 23, true},
+		{"isolation_marker_before_scale", 9999.0, domain.Mapping{Parameter: "R_izol", Scale: 2, Offset: 5}, 0, false},
+		{"reactive_marker", 999.9, domain.Mapping{Parameter: "energy_Input_energy_reactive_total_kW", Scale: 2}, 0, false},
+		{"custom_marker", "-999", domain.Mapping{Scale: 2, Offset: 1, Missing: " -888; -999, -777 "}, 0, false},
+		{"marker_tolerance", 1e-7, domain.Mapping{Scale: 1, Missing: "0"}, 0, false},
+		{"valid_beyond_marker_tolerance", 2e-6, domain.Mapping{Scale: 1, Missing: "0"}, 2e-6, true},
+		{"blank", " ", domain.Mapping{Scale: 1}, 0, false},
+		{"null", nil, domain.Mapping{Scale: 1}, 0, false},
+		{"nan", math.NaN(), domain.Mapping{Scale: 1}, 0, false},
+		{"inf", math.Inf(1), domain.Mapping{Scale: 1}, 0, false},
+		{"scale_overflow", 1e308, domain.Mapping{Scale: 2}, 0, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := cleanValue(tc.input, tc.mapping)
+			if (got != nil) != tc.present || (got != nil && (*got != tc.want || math.Signbit(*got) != math.Signbit(tc.want))) {
+				t.Fatal("scalar cleaning changed", got, tc.want, tc.present)
+			}
+		})
 	}
 }

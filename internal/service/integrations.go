@@ -385,22 +385,34 @@ func cleanValue(v any, m domain.Mapping) *float64 {
 	if !ok {
 		return nil
 	}
-	if m.Parameter == "R_izol" && math.Abs(n-9999) <= 1e-6 {
+	n, ok = cleanTelemetryScalar(n, m)
+	if !ok {
 		return nil
+	}
+	return &n
+}
+
+// cleanTelemetryScalar чистит маркеры до scale/offset без boxed values и указателей.
+func cleanTelemetryScalar(n float64, m domain.Mapping) (float64, bool) {
+	if math.IsNaN(n) || math.IsInf(n, 0) {
+		return 0, false
+	}
+	if m.Parameter == "R_izol" && math.Abs(n-9999) <= 1e-6 {
+		return 0, false
 	}
 	if strings.HasPrefix(m.Parameter, "energy_Input_energy_reactive_total_") && (math.Abs(n-9999) <= 1e-6 || math.Abs(n-999.9) <= 1e-6) {
-		return nil
+		return 0, false
 	}
-	for _, marker := range strings.FieldsFunc(m.Missing, func(r rune) bool { return r == ',' || r == ';' || r == ' ' }) {
+	for marker := range strings.FieldsFuncSeq(m.Missing, func(r rune) bool { return r == ',' || r == ';' || r == ' ' }) {
 		if x, e := strconv.ParseFloat(marker, 64); e == nil && math.Abs(x-n) <= 1e-6 {
-			return nil
+			return 0, false
 		}
 	}
 	n = n*m.Scale + m.Offset
 	if math.IsNaN(n) || math.IsInf(n, 0) {
-		return nil
+		return 0, false
 	}
-	return &n
+	return n, true
 }
 
 func telemetryWellID(value any) string {

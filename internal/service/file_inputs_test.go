@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,6 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/xuri/excelize/v2"
 
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/fileinput"
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/parameterfile"
@@ -521,5 +524,139 @@ func TestFileInputPreparedParserManifestRemainsServerAuthoritative(t *testing.T)
 	v.FingerprintSHA256 = domain.FileSHA256(v.IdentityJSON)
 	if _, e = s.AcceptFileInput(ctx, v); e == nil {
 		t.Fatal("caller replaced authoritative parser identity")
+	}
+}
+
+// Golden bytes are captured on accepted a05ef77 before the memory correction.
+// Exact source/recipe hashes deliberately are not golden: source identity changes.
+func TestFileInputCanonicalBaselineParity(t *testing.T) {
+	const rawSchema = `{"tags":[{"alias":"4x010D F_out","displayname":"Частота","server_parameter":{"is_set":false,"coef_k":1,"coef_b":0}},{"alias":"R_izol","server_parameter":{"is_set":false,"coef_k":2,"coef_b":5}},{"alias":"energy_Input_energy_reactive_total_kW","server_parameter":{"is_set":false,"coef_k":2,"coef_b":0}},{"alias":"Vibration_X","server_parameter":{"is_set":false,"coef_k":2,"coef_b":1}},{"alias":"Ia","server_parameter":{"is_set":false,"coef_k":1,"coef_b":0}},{"alias":"set_Annular_pressure","server_parameter":{"is_set":true,"coef_k":1,"coef_b":0}}]}`
+	const columns = "timestamp,F_out,Ia,R_izol,Vibration_X,energy_Input_energy_reactive_total_kW\n"
+	for _, tc := range []struct {
+		name, format, layout, zone string
+		rows                       [][]string
+		want                       string
+	}{
+		{"csv_rfc3339", "csv", "rfc3339", "UTC", [][]string{
+			{"2026-01-02T00:00:00.123456789+03:00", "9007199254740993", "-0", "9999", "999.9", "-999", "0", "100", "ignored"},
+			{"2026-01-01T00:00:00Z", "9007199254740993", "5.5e1", "2", "1.25e2", "1.5", "-0", "0", "ignored"},
+			{"2026-01-01T03:00:00+01:00", "9007199254740993", "", "", "0", "-2.5", "0.5", "", "ignored"},
+			{"2026-01-01T01:00:00Z", "9007199254740993", "", "", "", "", "", "", "ignored"},
+		}, columns + "2026-01-01T00:00:00Z,55,0,9,4,250\n2026-01-01T01:00:00Z,,,,,\n2026-01-01T02:00:00Z,,0.5,,-4,0\n2026-01-01T21:00:00.123456789Z,0,0,,,\n"},
+		{"csv_date_only_dst", "csv", "2006-01-02", "America/New_York", [][]string{
+			{"2025-11-02", "9007199254740993", "0", "9999", "9999", "-999", "0", "1", "ignored"},
+			{"2025-03-10", "9007199254740993", "5", "2", "3", "4", "0", "1", "ignored"},
+		}, columns + "2025-03-10T04:00:00Z,5,0,9,9,6\n2025-11-02T04:00:00Z,0,0,,,\n"},
+		{"xlsx_date1904", "xlsx", "excel_serial", "UTC", [][]string{
+			{"1.5", "9007199254740993", "0", "9999", "999.9", "-999", "0", "1", "ignored"},
+			{"0", "9007199254740993", "5", "2", "3", "4", "0", "1", "ignored"},
+		}, columns + "1904-01-01T00:00:00Z,5,0,9,9,6\n1904-01-02T12:00:00Z,0,0,,,\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			schema, err := parameterfile.ParseTelemetrySchema([]byte(rawSchema))
+			if err != nil {
+				t.Fatal(err)
+			}
+			a := domain.Account{ID: 1, Active: true, Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}}
+			s, err := newFileChecksFixture(t, &fileStore{}, &fileAccounts{a}, &fileScope{domain.Well{ID: 9007199254740993, Active: true, FundType: "operational"}}, fileinput.Reader{}, fileScorer{}, schema, testFilePin(), domain.DefaultFileInputLimits())
+			if err != nil {
+				t.Fatal(err)
+			}
+			wellColumn := "well"
+			spec := domain.FileParseSpec{Version: "file_input_v1", Format: tc.format, HeaderRow: 1, TimeColumn: "time", TimestampLayout: tc.layout, Timezone: tc.zone, WellColumn: &wellColumn, WellIdentity: "pulse", Mappings: []domain.Mapping{{Field: "f", Parameter: "Частота"}, {Field: "r", Parameter: "R_izol", Offset: 5}, {Field: "energy", Parameter: "energy_Input_energy_reactive_total_kW"}, {Field: "v", Parameter: "Vibration_X", Offset: 1, Missing: "-999"}, {Field: "i", Parameter: "Ia"}, {Field: "set", Parameter: "set_Annular_pressure"}}}
+			header := []string{"time", "well", "f", "r", "energy", "v", "i", "set", "unused"}
+			var raw []byte
+			if tc.format == "csv" {
+				spec.Delimiter = ","
+				var b strings.Builder
+				b.WriteString(strings.Join(header, ",") + "\n")
+				for _, row := range tc.rows {
+					b.WriteString(strings.Join(row, ",") + "\n")
+				}
+				raw = []byte(b.String())
+			} else {
+				spec.Sheet = "Sheet1"
+				f := excelize.NewFile()
+				defer f.Close()
+				date1904 := true
+				if err = f.SetWorkbookProps(&excelize.WorkbookPropsOptions{Date1904: &date1904}); err != nil {
+					t.Fatal(err)
+				}
+				for ri, row := range append([][]string{header}, tc.rows...) {
+					for ci, value := range row {
+						cell, e := excelize.CoordinatesToCellName(ci+1, ri+1)
+						if e != nil {
+							t.Fatal(e)
+						}
+						if e = f.SetCellStr("Sheet1", cell, value); e != nil {
+							t.Fatal(e)
+						}
+					}
+				}
+				b, e := f.WriteToBuffer()
+				if e != nil {
+					t.Fatal(e)
+				}
+				raw = b.Bytes()
+			}
+			ctx := domain.WithPrincipal(context.Background(), domain.AccountPrincipal(a))
+			v, err := s.PrepareFileInput(ctx, 9007199254740993, "canonical-parity-001", spec, bytes.NewReader(raw))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(v.Canonical) != tc.want {
+				t.Fatalf("canonical bytes differ:\ngot  %q\nwant %q", v.Canonical, tc.want)
+			}
+			if v.Rows != len(tc.rows) || v.Columns != 9 || len(v.IgnoredColumns) != 1 || v.IgnoredColumns[0] != "unused" || v.ParseSpec.Mappings[0].Parameter != "energy_Input_energy_reactive_total_kW" {
+				t.Fatal("metadata/order/alias drift", v.FileInputSummary)
+			}
+			if v.ParseRecipe.Date1904 != (tc.format == "xlsx") {
+				t.Fatal("date system drift")
+			}
+			t.Logf("canonical=%q rows=%d columns=%d ignored=%q recipe=%s fingerprint=%s", v.Canonical, v.Rows, v.Columns, v.IgnoredColumns, v.ParseRecipeSHA256, v.FingerprintSHA256)
+		})
+	}
+}
+
+func TestFileInputCompactNormalizationErrors(t *testing.T) {
+	for _, tc := range []struct {
+		name, raw, reason string
+		set               bool
+		max               int64
+	}{
+		{"foreign_id_first", "time,id,f\ninvalid,2,bad\n2026-01-01T00:00:00Z,3,1\n", "multiple_wells_not_supported", false, 0},
+		{"invalid_id_first", "time,id,f\ninvalid,2,bad\n2026-01-01T00:00:00Z,2.0,1\n", "invalid_well_id", false, 0},
+		{"duplicate_time", "time,id,f\n2026-01-01T00:00:00Z,2,1\n2026-01-01T01:00:00+01:00,2,2\n", "duplicate_timestamp", false, 0},
+		{"future", "time,id,f\n9999-01-01T00:00:00Z,2,1\n", "invalid_telemetry_row", false, 0},
+		{"zero_time", "time,id,f\n0001-01-01T00:00:00Z,2,1\n", "invalid_telemetry_row", false, 0},
+		{"span", "time,id,f\n2024-01-01T00:00:00Z,2,1\n2025-01-02T00:00:00Z,2,2\n", "timestamp_span_limit", false, 0},
+		{"overflow", "time,id,f\n2026-01-01T00:00:00Z,2,1e308\n", "non_finite_measurement", false, 0},
+		{"bad_number", "time,id,f\n2026-01-01T00:00:00Z,2,NaN\n", "non_numeric_measurement", false, 0},
+		{"literal_null", "time,id,f\n2026-01-01T00:00:00Z,2,null\n", "non_numeric_measurement", false, 0},
+		{"all_setpoints", "time,id,f\n2026-01-01T00:00:00Z,2,1\n", "invalid_telemetry_row", true, 0},
+		{"empty", "time,id,f\n", "empty_file", false, 0},
+		{"canonical_bound", "time,id,f\n2026-01-01T00:00:00Z,2,1\n", "canonical_limit", false, 16},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			schema := parserTestSchema(t)
+			schema.Channels[0].Scale = 2
+			schema.Channels[0].IsSet = tc.set
+			limits := domain.DefaultFileInputLimits()
+			if tc.max != 0 {
+				limits.CanonicalBytes = tc.max
+			}
+			a := domain.Account{ID: 1, Active: true, Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}}
+			s, e := newFileChecksFixture(t, &fileStore{}, &fileAccounts{a}, &fileScope{domain.Well{ID: 2, Active: true, FundType: "operational"}}, fileinput.Reader{}, fileScorer{}, schema, testFilePin(), limits)
+			if e != nil {
+				t.Fatal(e)
+			}
+			id := "id"
+			spec := domain.FileParseSpec{Version: "file_input_v1", Format: "csv", Delimiter: ",", HeaderRow: 1, TimeColumn: "time", TimestampLayout: "rfc3339", Timezone: "UTC", WellColumn: &id, WellIdentity: "pulse", Mappings: []domain.Mapping{{Field: "f", Parameter: "F_out"}}}
+			_, e = s.PrepareFileInput(domain.WithPrincipal(context.Background(), domain.AccountPrincipal(a)), 2, "compact-errors-001", spec, strings.NewReader(tc.raw))
+			var de *domain.Error
+			if !errors.As(e, &de) || de.Kind != domain.Invalid || e.Error() != tc.reason {
+				t.Fatalf("got %v want Invalid/%s", e, tc.reason)
+			}
+		})
 	}
 }
