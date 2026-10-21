@@ -18,7 +18,7 @@ docker compose --env-file .env.prep -f deployments/compose.prep.yaml -f deployme
 
 ## Свидетельства приёмки
 
-Статус выполнения и результаты ведутся в [журнале O1/F1](o1-f1-execution-2026-10-20.md). Фактическая проверка 20.10.2026: runtime12/12 PASS; browser7/7 и дополнительные2/2 роли/мобильное меню PASS, ошибок страницы0. Все четыре образа собраны, LogConfig local10m/3 подтверждён. Docker HealthCheck frontend/ML/Data healthy; backend не имеет Docker HealthCheck и проверен HTTP `/health`200. Источник полных команд/ограничений — журнал.
+Статус выполнения и результаты ведутся в [журнале O1/F1](project-handbook/references/o1-f1-execution.md). Фактическая проверка 20.10.2026: runtime12/12 PASS; browser7/7 и дополнительные2/2 роли/мобильное меню PASS, ошибок страницы0. Все четыре образа собраны, LogConfig local10m/3 подтверждён. Docker HealthCheck frontend/ML/Data healthy; backend не имеет Docker HealthCheck и проверен HTTP `/health`200. Источник полных команд/ограничений — журнал.
 
 - Проверить syntax Nginx, четыре текущих image IDs и LogConfig, Health/локальные роли.
 - На реальных HTTP/gRPC вызовах проверить X-Request-ID, traceparent, связь JSON-записей и сохранение существующих ответов. Проверять фактические PG/ML/Data ветки; тестовый in-memory exporter отдельно доказывает lifecycle spans.

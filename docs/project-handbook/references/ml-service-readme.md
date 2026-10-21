@@ -42,9 +42,49 @@ ML_DATA_ROOT/
 
 ## Контракт
 
-Схема и generated SDK находятся в отдельном [pulse-contracts](https://github.com/effitech-pulse/pulse-contracts). ML-сервис использует metadata `effitech-pulse-contracts==0.1.1` и импортирует `pulse.ml.v1`. Локальных `.proto` и generated копий здесь нет; protoc в runtime не нужен. PREP CI берёт contracts source `07213c430318affd140f55dea391cdc36220d93f`, model source `f5c2a3de031ff4794194a219f048c9bf8c7c4f45`; старые package version/tag сами по себе не идентифицируют новые поля. Remote push/cloud job не выполнялись.
+Схема и generated SDK находятся в отдельном [pulse-contracts](https://github.com/effitech-pulse/pulse-contracts). ML-сервис использует metadata `effitech-pulse-contracts==0.1.2` (Q0 local candidate, UNRELEASED) и импортирует `pulse.ml.v1`. Локальных `.proto` и generated копий здесь нет; protoc в runtime не нужен. Текущие GitHub/GitLab CI-конфигурации закрепляют accepted local contracts source `272f23027e4a3ba636305b931f6ab83e5fca8166`, model source `f5c2a3de031ff4794194a219f048c9bf8c7c4f45`; старые package version/tag сами по себе не идентифицируют новые поля. SDK0.1.2 остаётся UNRELEASED: локальные install/build используют принятую source/wheel identity. Доступность этого commit на private remotes остаётся OPEN; remote push/cloud job не выполнялись и публичная публикация не предполагается.
 
 `Score` выполняется синхронно. Backend устанавливает deadline и хранит результат прогона. Metadata `x-ml-api-key` проверяется во всех RPC **при непустом ключе ML-процесса**. Upload — поток чанков до 1 MiB, предел файла 50 MiB; минимум 30 суток истории. Два месяца — рекомендация. Целиком недоступные признаки заменяются training median, иначе 0; прочие NaN — 0. `value_source` раскрывает computed/training_median/zero_fallback. Текущий Upload использует legacy raw `>` и K по всему файлу, не гарантирует эквивалентность Score; displayed risk не подтверждён как вероятность будущего отказа. Полный перечень RPC — в README контрактов.
+
+## Q0: строгая проверка сохранённого synthetic input
+
+`UploadPinned` — отдельный streaming RPC SDK0.1.2; первый chunk содержит только
+`PinnedUploadHeader{pin,input}`, остальные — только canonical content (≤1 MiB/chunk,
+≤50 MiB total). Старый Upload сохраняет прежнее поведение. Сервер проверяет API key,
+mandatory identity, exact canonical SHA/length и перед features сравнивает actual
+bundle, decision rule, schema, recipe, source/resources и runtime с полным pin.
+Несовпадение/утрата bundle даёт FAILED_PRECONDITION; invalid header/hash/CSV —
+INVALID_ARGUMENT; пределы/result cap — RESOURCE_EXHAUSTED. Downgrade на Upload нет.
+
+`ML_BUNDLE_REGISTRY` указывает на отдельный operator-owned registry, отличный от
+mutable `ML_DATA_ROOT/models`. Ни browser, ни RPC не импортируют pickle. Доверенный
+оператор может использовать `python -m pulse_ml.bundle_registry import --source
+<trusted-local-bundle> --registry <separate-root>`: importer проверяет basename/file
+inventory, копирует файлы без symlinks/hardlinks, fsync и atomic no-replace публикует
+`<registry>/<64hex>/`. Существующий digest не заменяется; GC не выполняется.
+Hash удостоверяет целостность, а доверие к executable pickle остаётся обязанностью
+оператора. На каждой попытке, включая warm cache (max1, отдельно от legacy), все
+файлы/optional absence проверяются заново; loader читает private verified snapshot.
+
+Trusted local helper `describe_execution_pin(name, digest, registry_root=Path(...))`
+в `pulse_ml.pinned_upload` возвращает JSON-compatible typed pin из actual loaded
+policy/schema/config/source/runtime без вычисления features/predict и без путей.
+Код/установленные зависимости должны быть read-only, без hot reload; после смены
+wheel/runtime нужно получить новый pin. Это helper, публичного describe RPC нет.
+Strict CSV принимает header timestamp + sorted known canonical measurements/debit,
+UTC RFC3339Nano с Z, sorted unique timestamps, finite numeric или empty missing;
+не выполняет alias guessing/resample/source reads. Bounds: 100000 rows,64 targets,
+64KiB field,30–366days; результат≤2MiB с явным отказом без truncation. Hygiene до
+агрегации сохраняет marker/valid zero semantics, raw `>`/K и norm/insufficient.
+
+Тестовый экспорт `tests/q0_synthetic.py:export_fixture(root)` создаёт только fixed
+serializable fake без fit и producer/ESP hourly fixture; `PYTHONPATH=tests` нужен
+новому test process для десериализации fake. Воспроизводится actual feature path,
+а quality остаётся `not_assessed`, context/provenance partial. Сохранённый input
+не является durable job/worker. Real-private enable закрыт до owner policy для
+TTL/encryption/operator access/backup/quota; реальные bundles не импортировались.
+Новый contracts candidate используется только из принятого frozen wheel/source;
+public package/tag/download не предполагаются. Docker named contexts сохраняются.
 
 ## Работа исполнителя
 
@@ -107,13 +147,13 @@ ML listener доступен только через loopback или защищ�
 
 ## Состояние документации — 19.10.2026
 
-Датированный аудит (исходник `pulse-backend/docs/documentation-audit-2026-10-19.md`; в пакет не включён) сохраняет исходные находки; журнал очереди A (исходник `pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`; в пакет не включён) — изменения, приёмку и результаты проверок. [Матрица проверок](verification-matrix.md) различает обязательный gate, настроенный CI, локальный PASS и допустимый SKIP. [Автономный handbook](../README.md) содержит снимок межмодульных документов и политику обновления источников.
+Исходные находки и журнал очереди A сохранены в локальном workspace: `../tasks/pulse-backend/docs/documentation-audit-2026-10-19.md` и `../tasks/pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`. [Матрица проверок](verification-matrix.md) различает обязательный gate, настроенный CI, локальный PASS и допустимый SKIP. [Автономный handbook](../README.md) содержит снимок межмодульных документов и политику обновления источников.
 
 Межмодульные ссылки рассчитаны на соседние checkout split workspace и не добавляют runtime-зависимость модуля. В standalone checkout используйте локальные README/AGENTS; межмодульный комплект доступен после получения pulse-backend. Очередь A документационная; продуктовая очередь B и промышленная приёмка модели ею не выполнены.
 
 ## PREP evidence и граница приёмки
 
-Native macOS clean wheels:78tests/0skip и pip check; fresh Linux ML image:78tests; bundle-only Upload и пользовательский bulk проверены в isolated runtime без research cache/PG. Подробные команды, source identity, pending финальные review/browser/commits и ограничения — [PREP ledger](readiness-ledger.md). Новая научная оценка отложена пользователем до подключения независимых данных; качество/7–14 суток не переоценены.
+Native macOS clean wheels:78tests/0skip и pip check; fresh Linux ML image:78tests; bundle-only Upload и пользовательский bulk проверены в isolated runtime без research cache/PG. Совместимость RPC и модельных комплектов описана в [постоянной спецификации](model-rpc-compatibility.md). Подробные команды и свидетельства PREP сохранены в локальном workspace: `../tasks/pulse-backend/docs/ready-for-development-2026-10-19.md`. Новая научная оценка отложена пользователем до подключения независимых данных; качество/7–14 суток не переоценены.
 
 ## O1: локальная наблюдаемость транспорта
 

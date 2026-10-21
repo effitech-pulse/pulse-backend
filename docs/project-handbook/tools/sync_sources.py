@@ -133,9 +133,17 @@ def main() -> int:
     date.fromisoformat(snapshot_date)
     entries = registry["entries"]
     targets = set()
+    retained = set()
     for entry in entries:
         source_parts = Path(entry["source"]).parts
-        if not source_parts or source_parts[0] not in REPOSITORIES or any(
+        kind = entry.get("source_kind", "repository")
+        if kind not in {"repository", "archived_task"}:
+            parser.error("Unknown registry source kind: " + str(kind))
+        def allowed_prefix(parts: tuple[str, ...]) -> bool:
+            if kind == "archived_task":
+                return len(parts) >= 3 and parts[0] == "tasks" and parts[1] in REPOSITORIES
+            return len(parts) >= 2 and parts[0] in REPOSITORIES
+        if not allowed_prefix(source_parts) or any(
             part in SKIP_NAMES or part.startswith(".env") or part in PRIVATE_PARTS
             for part in source_parts
         ):
@@ -151,22 +159,40 @@ def main() -> int:
         targets.add(target)
         source = local_path(workspace, entry["source"])
         resolved_parts = source.relative_to(workspace).parts
-        if resolved_parts[0] not in REPOSITORIES or any(
+        if not allowed_prefix(resolved_parts) or any(
             part in SKIP_NAMES or part.startswith(".env") or part in PRIVATE_PARTS
             for part in resolved_parts
         ):
             parser.error("Non-public resolved registry source: " + entry["source"])
-        if not source.is_file():
-            parser.error("Missing public source: " + entry["source"])
+        try:
+            source.stat()
+        except FileNotFoundError:
+            if kind != "archived_task":
+                parser.error("Missing public source: " + entry["source"])
+            if not target.is_file() or any(
+                not isinstance(entry.get(key), str) or not re.fullmatch(r"[0-9a-fA-F]{64}", entry[key])
+                for key in ("source_sha256", "snapshot_sha256")
+            ) or digest(target.read_bytes()) != entry["snapshot_sha256"]:
+                parser.error("Invalid retained archive snapshot: " + entry["snapshot"])
+            retained.add(entry["snapshot"])
+        else:
+            if not source.is_file():
+                parser.error("Public source is not a file: " + entry["source"])
     destinations = {local_path(workspace, e["source"]): local_path(ROOT, e["snapshot"])
                     for e in entries}
-    errors = []
-    updated = []
+    # Полный preflight чтения и локализации до первой записи пакета.
+    prepared = []
     for entry in entries:
+        if entry["snapshot"] in retained:
+            continue
         source = local_path(workspace, entry["source"])
         target = local_path(ROOT, entry["snapshot"])
         raw = source.read_bytes()
         data = rewrite_markdown(raw, source, target, workspace, destinations, snapshot_date) if entry["mode"] == "markdown" else raw
+        prepared.append((entry, target, raw, data))
+    errors = []
+    updated = []
+    for entry, target, raw, data in prepared:
         actual = target.read_bytes() if target.exists() else None
         if args.sync:
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -217,7 +243,8 @@ def main() -> int:
         print("\n".join(errors))
         return 1
     print(f"OK: {len(entries)} source/snapshot mappings; {len(rows)} public source files; "
-          + (f"synced {len(updated)} copies (run build.py then validate.py)" if args.sync else "workspace matches snapshots/inventory"))
+          + (f"synced {len(updated)} copies (run build.py then validate.py)" if args.sync else "available originals match snapshots/inventory")
+          + f"; {len(retained)} archived snapshots retained; original sources unavailable")
     return 0
 
 

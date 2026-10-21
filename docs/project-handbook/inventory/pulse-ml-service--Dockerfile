@@ -12,6 +12,8 @@ COPY pyproject.toml /packages/ml/pyproject.toml
 COPY pulse_ml /packages/ml/pulse_ml
 COPY runtime-constraints.txt /packages/runtime-constraints.txt
 RUN pip install -c /packages/runtime-constraints.txt /packages/model /packages/contracts /packages/ml && pip check
+RUN python -c "from importlib.metadata import version; from pulse.ml.v1.ml_pb2_grpc import MLServiceStub; from pulse_ml.pinned_upload import describe_execution_pin; assert version('effitech-pulse-contracts') == '0.1.2'; assert callable(describe_execution_pin)" \
+    && python -c "import grpc; from pulse.ml.v1.ml_pb2_grpc import MLServiceStub; channel = grpc.insecure_channel('127.0.0.1:1'); assert callable(MLServiceStub(channel).UploadPinned); channel.close()"
 ENV ML_GRPC_BIND=0.0.0.0:50051 ML_DATA_ROOT=/data
 WORKDIR /app
 EXPOSE 50051

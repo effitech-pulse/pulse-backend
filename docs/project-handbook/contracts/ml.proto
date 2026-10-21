@@ -15,6 +15,8 @@ service MLService {
   rpc History(HistoryRequest) returns (HistoryResponse);
   rpc Metrics(google.protobuf.Empty) returns (MetricsResponse);
   rpc Upload(stream UploadChunk) returns (UploadResponse);
+  // Строгий pin до вычисления; UNIMPLEMENTED старого peer запрещает fallback на Upload.
+  rpc UploadPinned(stream PinnedUploadChunk) returns (UploadResponse);
   rpc ModelHealth(ModelHealthRequest) returns (ModelHealthResponse);
 }
 message HealthResponse {
@@ -98,6 +100,45 @@ message UploadChunk {
   string filename = 1;
   bytes content = 2;
 }
+// Полная ожидаемая identity; version = upload_pin_v1, hashes = sha256:<64 lowercase hex>.
+// Все поля обязательны для сервера; decision_rule сохраняет optional high и high_enabled=false.
+// Имена/пути файлов, actor и business job metadata в pin не передаются.
+message ExecutionPin {
+  string version = 1;
+  string model_name = 2;
+  string bundle_sha256 = 3;
+  string context_version = 4;
+  DecisionRule decision_rule = 5;
+  string feature_recipe_sha256 = 6;
+  string feature_schema_sha256 = 7;
+  string source_manifest_sha256 = 8;
+  string runtime_manifest_sha256 = 9;
+}
+// Identity неизменяемых canonical bytes; source_kind = uploaded_file.
+message PinnedInputIdentity {
+  string input_snapshot_id = 1;
+  string canonical_sha256 = 2;
+  string fingerprint_sha256 = 3;
+  int64 canonical_bytes = 4;
+  string source_kind = 5;
+}
+// Первый chunk содержит только этот полный header; pin и input обязательны.
+message PinnedUploadHeader {
+  ExecutionPin pin = 1;
+  PinnedInputIdentity input = 2;
+}
+// Только первый chunk — header, далее только content <= 1 MiB; total <= 50 MiB.
+// Сервер обязан проверить порядок/наличие header, полный pin и hash/размер canonical bytes
+// до features/inference. SDK сам не валидирует поток и не гарантирует mandatory поля.
+// Missing/repeated/out-of-order header, empty pin, input hash mismatch: INVALID_ARGUMENT.
+// Unavailable/corrupt/mismatched pin или unsupported recipe: FAILED_PRECONDITION.
+// Превышение лимита chunk/total: RESOURCE_EXHAUSTED. Причины ошибок — без private данных.
+message PinnedUploadChunk {
+  oneof payload {
+    PinnedUploadHeader header = 1;
+    bytes content = 2;
+  }
+}
 message TimelinePoint {
   string window_end = 1;
   double risk = 2;
@@ -179,6 +220,7 @@ message Provenance {
   optional string model_version = 5;
   optional string model_saved_at = 6;
   optional string context_version = 7;
+  // Upload: hash переданного raw file; UploadPinned: hash canonical bytes.
   optional string input_sha256 = 8;
   optional string input_snapshot_id = 9;
   optional string as_of = 10;

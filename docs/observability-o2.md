@@ -1,6 +1,6 @@
 # O2: локальная наблюдаемость
 
-Статус: реализация и runtime-проверки выполнены; итог приёмки и публикации — в execution ledger. [Требования](o2-q0-execution-2026-10-20.md), [архитектура и бюджеты](o2-architecture-2026-10-20.md), [редактируемая C4](o2-observability.drawio). Этот runbook описывает согласованный способ проверки; текущие фактические результаты — в [runtime-отчёте](o2-runtime-2026-10-20.md).
+Статус: реализация и runtime-проверки выполнены; итог приёмки и публикации — в execution ledger. [Требования](project-handbook/references/o2-q0-execution.md), [архитектура и бюджеты](o2-architecture-2026-10-20.md), [редактируемая C4](o2-observability.drawio). Этот runbook описывает согласованный способ проверки; текущие фактические результаты — в [runtime-отчёте](project-handbook/references/o2-runtime.md).
 
 O2 добавляет Collector, Loki, Tempo, Prometheus и Grafana к изолированному `pulse-prep`. Корреляция и безопасный JSON stdout сохраняют [O1-контракт](observability-o1.md). Трейсы и метрики идут по OTLP/gRPC; логи — только через ограниченные файлы. Метрики описывают работу сервисов, а не качество модели или действия сотрудников.
 

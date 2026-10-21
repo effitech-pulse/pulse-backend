@@ -10,6 +10,10 @@ export const antdTheme: ThemeConfig = {
     colorBorderSecondary: t.border,
     colorBgLayout: t.canvas,
     borderRadius: t.radius,
+    controlHeight: 40,
+    fontSize: 14,
+    fontWeightStrong: 500,
+    lineHeight: 20 / 14,
     fontFamily: "Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
   },
   components: {
@@ -22,6 +26,9 @@ export const antdTheme: ThemeConfig = {
       itemBorderRadius: t.radius,
       itemMarginInline: 8,
     },
-    Card: { headerFontSize: 14 },
+    Card: { headerFontSize: 13, bodyPadding: 20 },
+    Input: { controlHeight: 44 },
+    Select: { controlHeight: 44 },
+    Tabs: { horizontalItemGutter: 32 },
   },
 };

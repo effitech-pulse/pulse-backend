@@ -1,5 +1,15 @@
 # Пульс скважины · Backend
 
+## Актуальный портал · 21.10.2026
+
+Рабочая локальная сборка: `http://127.0.0.1:8088/`, API8018, существующая
+изолированная БД pulse-prep. Для frontend-релиза используйте overlay
+`deployments/compose.portal.yaml` после compose.prep.yaml и compose.o1-f1.yaml.
+Он не перезапускает backend/ML/Data. Старые pulse-local app-контейнеры8080 удалены;
+БД и сохранённые результаты сохранены. Источник выборки в продукте — Pulse Connector.
+Приёмка и команды: перенос портала (локальный архив задач: `../tasks/pulse-frontend/docs/portal-refresh-2026-10-21.md`).
+
+
 HTTP API системы диагностики УЭЦН. Backend ведёт реестр скважин и отказов, отдаёт данные интерфейсу, запускает ML-прогоны и сохраняет обратную связь технологов.
 
 **Стек:** Go · Gin · PostgreSQL (pgx + Squirrel) · gRPC/protobuf. Вычисления модели и обучение выполняются в Python-проектах `pulse-ml-service` и `pulse-model`.
@@ -128,13 +138,13 @@ test/                 Интеграционные и архитектурные
 
 ## Состояние документации — 19.10.2026
 
-[Датированный аудит](docs/documentation-audit-2026-10-19.md) сохраняет исходные находки; [журнал очереди A](docs/documentation-queue-a-execution-2026-10-19.md) — изменения, приёмку и результаты проверок. [Матрица проверок](docs/verification-matrix.md) различает обязательный gate, настроенный CI, локальный PASS и допустимый SKIP. [Автономный handbook](docs/project-handbook/README.md) содержит снимок межмодульных документов и политику обновления источников.
+Датированный аудит (локальный архив задач: `../tasks/pulse-backend/docs/documentation-audit-2026-10-19.md`) сохраняет исходные находки; журнал очереди A (локальный архив задач: `../tasks/pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`) — изменения, приёмку и результаты проверок. [Матрица проверок](docs/verification-matrix.md) различает обязательный gate, настроенный CI, локальный PASS и допустимый SKIP. [Автономный handbook](docs/project-handbook/README.md) содержит снимок межмодульных документов и политику обновления источников.
 
 Межмодульные ссылки рассчитаны на соседние checkout split workspace и не добавляют runtime-зависимость модуля. В standalone checkout используйте локальные README/AGENTS; межмодульный комплект доступен после получения pulse-backend. Очередь A документационная; продуктовая очередь B и промышленная приёмка модели ею не выполнены.
 
 ## PREP — текущая техническая готовность
 
-[Scope и ledger PREP](docs/ready-for-development-2026-10-19.md) фиксирует техническую приёмку PREP-01–07 и отделяет её от научной приёмки и финальной handbook публикации. Пользовательский refresh оценивает сохранённый cohort через app telemetry→ML Upload, хранит полный snapshot с nullable исходами и partial provenance; research Score остаётся отдельным профилем. Membership100 не равен числу scored: archived/inactive/insufficient/error не становятся нулевым риском.
+[Scope и ledger PREP](docs/project-handbook/references/readiness-ledger.md) фиксирует техническую приёмку PREP-01–07 и отделяет её от научной приёмки и финальной handbook публикации. Пользовательский refresh оценивает сохранённый cohort через app telemetry→ML Upload, хранит полный snapshot с nullable исходами и partial provenance; research Score остаётся отдельным профилем. Membership100 не равен числу scored: archived/inactive/insufficient/error не становятся нулевым риском.
 
 Compose-файлы теперь задают local auth и cohort; существующий `pulse-local` на8080 автоматически не мигрировался и в PREP не перезапускался. Browser-проверка на rebuilt image:22/22,fail0/pageErrors0; финальный after11run33done:100members/100scored,restricted0; прежние snapshots30/32 сохранены. Проверки выполнялись в [изолированном runtime](docs/readiness-runtime.md) на8088/8018 с копией app-БД. Научная оценка отложена пользователем до подключения новых данных; обучение/promotion и промышленная готовность не заявлены.
 
@@ -144,8 +154,8 @@ Compose-файлы теперь задают local auth и cohort; сущест�
 
 ## O2 — реализация и runtime проверены, 20.10.2026
 
-Optional Collector/Loki/Tempo/Prometheus/Grafana описаны в [O2 runbook](docs/observability-o2.md); фактические проверки — в [runtime evidence](docs/o2-runtime-2026-10-20.md), требования и статус — в [execution ledger](docs/o2-q0-execution-2026-10-20.md). Source и runtime Senior-проверки пройдены, W1/P2 закрыто; финальный rollback сохранил13phase результатов по прежним ID/SHA и recovered ML-failure ID. O2 принята в согласованной области локального пилота после финального docs review и автономной проверки пакета; production capacity не заявляется.
+Optional Collector/Loki/Tempo/Prometheus/Grafana описаны в [O2 runbook](docs/observability-o2.md); фактические проверки — в [runtime evidence](docs/project-handbook/references/o2-runtime.md), требования и статус — в [execution ledger](docs/project-handbook/references/o2-q0-execution.md). Source и runtime Senior-проверки пройдены, W1/P2 закрыто; финальный rollback сохранил13phase результатов по прежним ID/SHA и recovered ML-failure ID. O2 принята в согласованной области локального пилота после финального docs review и автономной проверки пакета; production capacity не заявляется.
 
 Пилот использует изолированные UI/API 8088/8018 и PREP PostgreSQL **55439**. Порт **55432** предназначен для отдельной lane integration test DB; это разные БД. Исходный 8080/live DB не затрагиваются. Grafana публикуется только на `127.0.0.1:3300` с native authentication; отдельная сеть `grafana-ui` — явно разрешённое пользователем исключение локального пилота с возможным исходящим трафиком, не egress deny. Collector/Loki/Tempo/Prometheus остаются во внутренних сетях; бизнес-сети не меняются.
 
-Запуск ограничен supervisor/budget и требует оператора; stdout fallback сохраняется. RAM counters/очереди/file offsets не обещают lossless/exactly-once, центральные diagnostics не заменяют business audit. Далее — Q0→Q1/F2 по [roadmap](docs/functional-roadmap-2026-10-20.md). Паспорт/Excel/помощник остаются [отдельным рассматриваемым предложением](docs/well-operations-assistant-proposal-2026-10-20.md), scientific acceptance — user-deferred/not_assessed.
+Запуск ограничен supervisor/budget и требует оператора; stdout fallback сохраняется. RAM counters/очереди/file offsets не обещают lossless/exactly-once, центральные diagnostics не заменяют business audit. Далее — Q0→Q1/F2 по [roadmap](docs/project-handbook/references/functional-roadmap.md). Паспорт/Excel/помощник остаются [отдельным рассматриваемым предложением](docs/project-handbook/references/well-operations-proposal.md), scientific acceptance — user-deferred/not_assessed.

@@ -2,7 +2,7 @@
 
 Профиль [compose.prep.yaml](../deployments/compose.prep.yaml) проверяет пользовательский путь с персональным входом, отдельной PostgreSQL и синтетической телеметрией. Он не подключён к рабочим сетям PostgreSQL/ClickHouse. ML получает только каталог models: manifest/cache/исследовательская БД ему не передаются. Успешный Health проверяется отдельно от Upload и фондового расчёта.
 
-Требования и результаты приёмки ведутся в [PREP ledger](ready-for-development-2026-10-19.md); архитектура и ограничения — в [контракте](readiness-architecture-2026-10-19.md). Самостоятельное подключение будущего ML-модуля не требует подменять эти ограничения новыми метриками.
+Требования и результаты приёмки ведутся в [PREP ledger](project-handbook/references/readiness-ledger.md); архитектура и ограничения — в [контракте](readiness-architecture-2026-10-19.md). Самостоятельное подключение будущего ML-модуля не требует подменять эти ограничения новыми метриками.
 
 ## Подготовка
 
@@ -87,6 +87,6 @@ docker compose --env-file .env.prep -f deployments/compose.prep.yaml stop
 
 Изолированный стенд прошёл API→Data→ML smoke и финальный run33:100members/100scored,0ошибок; ограниченный аккаунт видит0. Тестовые archive/inactive состояния восстановлены через API с актуальными revisions. Сохранённые snapshots30/32 после этого и нового расчёта совпали; отдельная проверка run30 после ML restart также прошла. Миграция11 применена и повторена; прежние значения и digest snapshots сохранены без ретроспективного заполнения profile.
 
-`make check`, сборка4CLI и `make integration` с настоящей отдельной PostgreSQL/race прошли. LinuxML78/Data32, nativeML78 без skips и frontend30 прошли; финальный browser gate22/22 без pageErrors. Senior закрыл подтверждённые замечания backend, ML validator и frontend; source/CI gate принят. Полный отчёт требований — [PREP ledger](ready-for-development-2026-10-19.md).
+`make check`, сборка4CLI и `make integration` с настоящей отдельной PostgreSQL/race прошли. LinuxML78/Data32, nativeML78 без skips и frontend30 прошли; финальный browser gate22/22 без pageErrors. Senior закрыл подтверждённые замечания backend, ML validator и frontend; source/CI gate принят. Полный отчёт требований — [PREP ledger](project-handbook/references/readiness-ledger.md).
 
 Независимая научная приёмка отложена пользователем: внешний архив/physical oilfield mapping/cost criteria будут подключены позднее по [протоколу](../../pulse-model/docs/independent-acceptance.md). Новые метрики качества, обучение и продвижение модели не выполнялись. Immutable output snapshot не заменяет immutable input bytes: provenance остаётся partial. Эти результаты относятся к изолированному loopback PREP, исходный pulse-local8080 не перезапускался.

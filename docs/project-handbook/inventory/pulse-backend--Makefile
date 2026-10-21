@@ -19,7 +19,8 @@ vet:
 fmt:
 	gofmt -w cmd internal api test
 check: test vet
-	@test -z "$$(gofmt -l cmd internal api test)" || (echo "Run make fmt" >&2; exit 1)
+	@unformatted="$$(gofmt -l cmd internal api test)" || exit $$?; \
+	test -z "$$unformatted" || (echo "Run make fmt" >&2; exit 1)
 test-db-up:
 	docker compose -f deployments/compose.test.yaml up -d --wait
 test-db-down:

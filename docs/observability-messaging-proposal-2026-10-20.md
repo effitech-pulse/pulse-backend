@@ -1,6 +1,6 @@
 # Pulse: наблюдаемость и долговечные задания — предложение 20.10.2026
 
-Статус: **план на согласование, не разрешение реализации/развёртывания**. Владелец архитектуры — architect-analyst, общего [плана работ](functional-roadmap-2026-10-20.md) — tech-lead. PREP/DOC приняты, не запускаются повторно. Здесь не меняются source/configs/БД/контейнеры/Figma и не выбирается новая модель. ML/внешние научные данные отложены пользователем (`not_assessed`); остальные integration-функции этим не отложены.
+Статус: **план на согласование, не разрешение реализации/развёртывания**. Владелец архитектуры — architect-analyst, общего [плана работ](project-handbook/references/functional-roadmap.md) — tech-lead. PREP/DOC приняты, не запускаются повторно. Здесь не меняются source/configs/БД/контейнеры/Figma и не выбирается новая модель. ML/внешние научные данные отложены пользователем (`not_assessed`); остальные integration-функции этим не отложены.
 
 **Рекомендация:** O1 — единые JSON-логи и correlation/context параллельно F1 карточке; O2 — один bounded OTel stack и сквозной trace реального check; Q1 — один RabbitMQ + Go worker для **file-check**, только после immutable input/bundle contract; Q2 — затем durable bulk с fencing/checkpoints. Предметный журнал F3 остаётся отдельной read-моделью committed facts, F4 read-state не требует брокера. Нельзя делать F1 зависимым от всего infrastructure проекта или незаметно менять старый HTTP200 на202.
 

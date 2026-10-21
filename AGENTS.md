@@ -1,6 +1,6 @@
 # pulse-backend — инструкции агенту
 
-Актуализировано 19.10.2026. Операционный HTTP API — Go ≥1.25, Gin 1.12, pgx/Squirrel и gRPC SDK pulse-contracts. Структура: cmd, internal, api, configs, build/package, deployments, docs, test. Перед изменением читай [CONTRIBUTING](CONTRIBUTING.md), [архитектуру](docs/architecture.md); запуск/настройки — [README](README.md). Статус приложения/целей — [handbook](docs/project-handbook/chapters/02-status.md); audit и execution log в docs сохраняют связь требований/проверок.
+Актуализировано 19.10.2026. Операционный HTTP API — Go ≥1.25, Gin 1.12, pgx/Squirrel и gRPC SDK pulse-contracts. Структура: cmd, internal, api, configs, build/package, deployments, docs, test. Перед изменением читай [CONTRIBUTING](CONTRIBUTING.md), [архитектуру](docs/architecture.md); запуск/настройки — [README](README.md). Статус приложения/целей — [handbook](docs/project-handbook/chapters/02-status.md); audit и execution log во внешнем архиве задач сохраняют связь требований/проверок.
 
 ## Границы и совместимость
 
@@ -25,3 +25,7 @@ Local/legacy являются разными профилями; подтвер�
 Команды выполняются из корня этого checkout. [README](README.md) — локальная точка входа; соседние pulse-репозитории нужны только для соответствующей интеграции. В общем workspace сохраняй существующие ссылки data/.venv и чужие изменения. Для командной работы используй `.codex/TEAM.md` родительского workspace, если он доступен; standalone checkout от него не зависит.
 
 Новая фаза: краткий план → одобрение пользователя → изменения и проверки → DoD; уже данное одобрение учитывается. Отчёт содержит файлы, проверки/результаты, допустимые SKIP и открытые вопросы. Секреты, живые данные и веса в Git не включаются. Исторические исходники вне этого checkout не изменяются.
+
+## Хранение задач
+
+Планы, execution/review records и временные свидетельства задач хранятся вне checkout в `../tasks/pulse-backend/` с прежней вложенностью. Постоянные продуктовые документы остаются в `docs/`. Standalone build/test и продуктовые инструкции не требуют наличия `../tasks`; поставленные исторические снимки доступны в handbook. Новые task-материалы не размещай в продуктовых `docs/` и `.superpowers`.

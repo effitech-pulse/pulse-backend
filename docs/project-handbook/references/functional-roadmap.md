@@ -1,4 +1,4 @@
-> Снимок документа 20.10.2026. Источник: `pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 20.10.2026. Источник: `tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Pulse: общий план функционала, наблюдаемости и надёжных заданий
 
@@ -10,7 +10,7 @@
 
 Сохраняем React/Ant Design, Go API/service/PostgreSQL и Python ML/Data. [DOC-01–07/PREP-01–07](readiness-ledger.md) завершены; [compatibility manifest](../inventory/readiness-compatibility.json) фиксирует runtime семи репозиториев. Fixed cohort 100/server scope/local login, typed policies, bundle-only Upload и immutable output не повторяем. Научная оценка/новые данные отложены пользователем; partial provenance не называется полным replay. TLS/SSO/промышленная HA/SLA не приняты.
 
-Продуктовые основания: [сценарии](../chapters/11-workflows.md), [события](../chapters/13-events.md), очередь B (исходник `pulse-backend/docs/documentation-audit-2026-10-19.md`; в пакет не включён). Технические решения и подробные failure cases — предложение архитектора (исходник `pulse-backend/docs/observability-messaging-proposal-2026-10-20.md`; в пакет не включён); это проект следующей фазы, не выполненные изменения.
+Продуктовые основания: [сценарии](../chapters/11-workflows.md), [события](../chapters/13-events.md), очередь B (исходник `tasks/pulse-backend/docs/documentation-audit-2026-10-19.md`; в пакет не включён). Технические решения и подробные failure cases — предложение архитектора (исходник `pulse-backend/docs/observability-messaging-proposal-2026-10-20.md`; в пакет не включён); это проект следующей фазы, не выполненные изменения.
 
 ## Подтверждённая техническая база и предлагаемый стек
 

@@ -8,13 +8,13 @@
 
 | Репозиторий | HEAD | Изменённые/новые записи Git | Репозиторий |
 |---|---|---|---|
-| pulse-model | `f5c2a3de031f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
-| pulse-data | `942e0adb58c9` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `10df91a9e053` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
-| pulse-contracts | `07213c430318` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `8b21da52ad95` | 49 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
-| pulse-frontend | `c937bd6067c7` | 3 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
-| pulse-landing | `e1cd27c973bf` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
+| pulse-model | `bf5326d65578` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
+| pulse-data | `e38a978a1c25` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
+| pulse-ml-service | `84cb3dfde631` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-contracts | `f871f8109a53` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
+| pulse-backend | `f5ec7aa9fbfc` | 50 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-frontend | `dae98f86318d` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
+| pulse-landing | `e555b333003f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 
 ## Каталоги исполнения
 

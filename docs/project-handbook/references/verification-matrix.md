@@ -28,7 +28,7 @@
 | ML probe DOC-03, повторная проверка 19.10.2026 | PASS: 31 targeted/native RPC/CLI tests независимо senior; 4 malformed-key CLI случая дополнительно проверены координатором | Printable ASCII без trim; корректный ключ с пробелами проходит настоящий gRPC. R-DOC03 CLOSED; установленный probe hash совпал, scoped review APPROVE. Profiles не переключались; loopback RPC не доказывают Docker image build |
 | Native runtime DOC-06, повторная проверка нового service wheel 19.10.2026 | PASS по отчёту исполнителя: clean venv **57 passed / 1 production-artifact test deselected**, shared suite **58 passed**; 9 pins/pip check/isolation, wheels/source hashes сохранены | Новый service wheel после printable-key/no-echo fix. Wheel SHA256 214b4bc37550e42d8e00d6f064282bc488ec73a1d80eae1c7cd2192246ccb122; source tree e14bc4481ed486c62816af0df9959841e5296b9af700292d5b2a2216879bc96c. Final source/wheel/freeze hash verdict senior APPROVE; 11/11 handoff source hashes дополнительно сверены tech-lead. macOS/arm64 CPython3.13; Score/Upload/PG и Linux/Docker здесь не подтверждены |
 | Документационные tools DOC-07, 19.10.2026 | PASS: 14 fixture regressions, включая source/parent/target alias на dummy private paths и no-partial-writes; независимый core review APPROVE, R-DOC07-01 CLOSED; финальная generated-приёмка APPROVE после DOC-03/06 | Источники/новый файл/копия drift, explicit snapshot date, missing/stale checksums, ZIP bytes/file-set/traversal, extracted package без workspace. Общее финальное review очереди A завершено и принято; это историческое свидетельство, не новый PREP publication gate |
-| Прочие прогоны очереди A | Актуальные результаты и ограничения записываются в журнал исполнения (исходник `pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`; в пакет не включён) | Отсутствие свежего результата означает «не проверено в этом проходе», а не PASS |
+| Прочие прогоны очереди A | Актуальные результаты и ограничения записываются в журнал исполнения (локальный архив задач: `../tasks/pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`) | Отсутствие свежего результата означает «не проверено в этом проходе», а не PASS |
 
 Исторические свидетельства из [главы качества handbook](../chapters/16-quality.md) остаются датированными записями прежнего прохода. Они не подтверждают новый diff или весь набор семи модулей автоматически.
 
@@ -38,7 +38,7 @@
 
 Обязательная проверка с ошибкой или пропущенной зависимостью остаётся открытой. Допустимый SKIP относится к конкретному опциональному сценарию и не расширяется на весь gate. Нельзя подменять отсутствие результатов зелёной общей надписью. Перед изменением protobuf/SDK/миграций нужны соответствующие контрактные и integration проверки; очередь A таких изменений не выполняет.
 
-Обновление этой матрицы требуется при изменении Makefile, package scripts, CI, runtime profile или условия SKIP. DOC-07 связывает её с README и автономным handbook. Согласованный аудит (исходник `pulse-backend/docs/documentation-audit-2026-10-19.md`; в пакет не включён) сохраняет исходные находки, журнал — результаты их устранения.
+Обновление этой матрицы требуется при изменении Makefile, package scripts, CI, runtime profile или условия SKIP. DOC-07 связывает её с README и автономным handbook. Согласованный аудит (локальный архив задач: `../tasks/pulse-backend/docs/documentation-audit-2026-10-19.md`) сохраняет исходные находки, журнал — результаты их устранения.
 
 ## PREP — текущие свидетельства, отдельные от очереди A
 

@@ -2,7 +2,7 @@
 
 # Совместимость моделей, RPC и происхождение результата
 
-Исходная спецификация DOC-04 принята19.10.2026 в очереди A (исходник `pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`; в пакет не включён). Этот документ актуализирован по реализации PREP; исходные находки и статус прежнего исполнения сохраняет аудит (исходник `pulse-backend/docs/documentation-audit-2026-10-19.md`; в пакет не включён). Runtime-изменения PREP прошли отдельное P1 Senior-ревью; общий технический статус и оставшиеся gates — [PREP ledger](readiness-ledger.md). Научная приёмка/продвижение causal-кандидата не выполнялись.
+Спецификация DOC-04 принята 19.10.2026; документ актуализирован по реализации PREP. Runtime-изменения PREP прошли отдельное P1 Senior-ревью. Журналы исполнения, исходные находки и оставшиеся gates сохранены в локальном workspace: `../../tasks/pulse-backend/docs/documentation-queue-a-execution-2026-10-19.md`, `../../tasks/pulse-backend/docs/documentation-audit-2026-10-19.md` и `../../tasks/pulse-backend/docs/ready-for-development-2026-10-19.md`. Научная приёмка/продвижение causal-кандидата не выполнялись.
 
 ## Термины и источники
 

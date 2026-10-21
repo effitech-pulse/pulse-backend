@@ -34,8 +34,11 @@ class SourceSyncTest(unittest.TestCase):
             (self.workspace / repo).mkdir(parents=True, exist_ok=True)
         for entry in registry["entries"]:
             target = self.workspace / entry["source"]
+            original = original_workspace / entry["source"]
+            if not original.is_file() and entry.get("source_kind") == "archived_task":
+                continue
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(original_workspace / entry["source"], target)
+            shutil.copyfile(original, target)
         spec = importlib.util.spec_from_file_location("fixture_sync", self.package / "tools/sync_sources.py")
         self.module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.module)
@@ -56,6 +59,146 @@ class SourceSyncTest(unittest.TestCase):
                 patch.object(self.module.subprocess, "check_output", side_effect=git_result), \
                 redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             return self.module.main()
+
+    def archived_fixture(self) -> tuple[Path, Path]:
+        source = self.workspace / "tasks/pulse-backend/docs/fixture.md"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text("# Archived fixture\n")
+        registry_path = self.package / "inventory/snapshot-sources.json"
+        registry = json.loads(registry_path.read_text())
+        registry["entries"].append({"source": "tasks/pulse-backend/docs/fixture.md",
+            "source_kind": "archived_task", "snapshot": "references/fixture.md",
+            "mode": "markdown", "owner": "fixture"})
+        registry_path.write_text(json.dumps(registry))
+        self.assertEqual(self.invoke("--sync"), 0)
+        return source, self.package / "references/fixture.md"
+
+    def test_available_archive_drift_requires_sync(self) -> None:
+        source, snapshot = self.archived_fixture()
+        before = snapshot.read_bytes()
+        source.write_text("# Changed archive\n")
+        self.assertEqual(self.invoke("--check"), 1)
+        self.assertEqual(self.invoke("--sync"), 0)
+        self.assertNotEqual(before, snapshot.read_bytes())
+        self.assertEqual(self.invoke("--check"), 0)
+
+    def test_absent_archive_preserves_snapshot_hashes_and_date(self) -> None:
+        source, snapshot = self.archived_fixture()
+        before = snapshot.read_bytes()
+        registry_path = self.package / "inventory/snapshot-sources.json"
+        registry = json.loads(registry_path.read_text())
+        entry = dict(registry["entries"][-1])
+        shutil.rmtree(self.workspace / "tasks")
+        self.assertEqual(self.invoke("--check"), 0)
+        registry["snapshot_date"] = "2030-01-02"
+        registry_path.write_text(json.dumps(registry))
+        self.assertEqual(self.invoke("--sync"), 0)
+        self.assertEqual(snapshot.read_bytes(), before)
+        self.assertEqual(json.loads(registry_path.read_text())["entries"][-1], entry)
+        self.assertEqual(self.invoke("--check"), 0)
+        self.build()
+        self.assertEqual(self.validate().returncode, 0)
+
+    def test_absent_archive_invalid_fallback_never_partially_writes(self) -> None:
+        source, snapshot = self.archived_fixture()
+        source.unlink()
+        registry_path = self.package / "inventory/snapshot-sources.json"
+        valid = json.loads(registry_path.read_text())
+        snapshot_bytes = snapshot.read_bytes()
+        required = self.workspace / "pulse-contracts/buf.yaml"
+        required.write_bytes(required.read_bytes() + b"\n# changed\n")
+        for corruption in ("snapshot", "missing", "source_sha256", "snapshot_sha256"):
+            with self.subTest(corruption=corruption):
+                registry = json.loads(json.dumps(valid))
+                snapshot.write_bytes(snapshot_bytes)
+                if corruption == "snapshot":
+                    snapshot.write_bytes(b"corrupt")
+                elif corruption == "missing":
+                    snapshot.unlink()
+                else:
+                    registry["entries"][-1][corruption] = "invalid"
+                registry_path.write_text(json.dumps(registry))
+                before = self.package_digests()
+                for mode in ("--check", "--sync"):
+                    with self.assertRaises((SystemExit, ValueError)):
+                        self.invoke(mode)
+                    self.assertEqual(before, self.package_digests())
+
+    def test_missing_required_source_cannot_fallback(self) -> None:
+        (self.workspace / "pulse-contracts/buf.yaml").unlink()
+        before = self.package_digests()
+        for mode in ("--check", "--sync"):
+            with self.assertRaises(SystemExit):
+                self.invoke(mode)
+        self.assertEqual(before, self.package_digests())
+
+    def test_archive_paths_and_unknown_kind_rejected_before_writes(self) -> None:
+        registry_path = self.package / "inventory/snapshot-sources.json"
+        valid = json.loads(registry_path.read_text())
+        for source, kind in (("/tmp/absent", "archived_task"),
+                ("tasks/pulse-backend/../missing.md", "archived_task"),
+                ("tasks/unknown/docs/missing.md", "archived_task"),
+                ("tasks/workspace-data/missing.md", "archived_task"),
+                ("tasks/pulse-backend/.env", "archived_task"),
+                ("tasks/pulse-backend/.superpowers/missing.md", "archived_task"),
+                ("pulse-contracts/buf.yaml", "archived_task"),
+                ("pulse-contracts/buf.yaml", "unknown")):
+            with self.subTest(source=source, kind=kind):
+                registry = json.loads(json.dumps(valid))
+                registry["entries"][-1].update(source=source, source_kind=kind)
+                registry_path.write_text(json.dumps(registry))
+                before = self.package_digests()
+                with self.assertRaises((SystemExit, ValueError)):
+                    self.invoke("--sync")
+                self.assertEqual(before, self.package_digests())
+
+    def test_archive_symlink_components_never_allow_fallback(self) -> None:
+        source, snapshot = self.archived_fixture()
+        tasks = self.workspace / "tasks"
+        original_tasks = self.base / "original-tasks"
+        shutil.copytree(tasks, original_tasks)
+        secret = self.base / "private"
+        secret.mkdir()
+        (secret / "fixture.md").write_text("SYNTHETIC_SECRET_SENTINEL_FOR_TEST_ONLY")
+        for component in ("tasks", "tasks/pulse-backend", "tasks/pulse-backend/docs",
+                          "tasks/pulse-backend/docs/fixture.md"):
+            with self.subTest(component=component):
+                shutil.rmtree(tasks)
+                shutil.copytree(original_tasks, tasks)
+                path = self.workspace / component
+                if path.is_dir():
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+                path.symlink_to(secret, target_is_directory=True)
+                before = self.package_digests()
+                for mode in ("--check", "--sync"):
+                    with self.assertRaisesRegex(ValueError, "Symlink registry path rejected"):
+                        self.invoke(mode)
+                    self.assertEqual(before, self.package_digests())
+                path.unlink()
+                if not tasks.exists():
+                    tasks.mkdir()
+        self.assertNotIn("SYNTHETIC_SECRET_SENTINEL", snapshot.read_text())
+
+    def test_archive_directory_is_not_an_absent_original(self) -> None:
+        source, _ = self.archived_fixture()
+        source.unlink()
+        source.mkdir()
+        before = self.package_digests()
+        for mode in ("--check", "--sync"):
+            with self.assertRaises(SystemExit):
+                self.invoke(mode)
+        self.assertEqual(before, self.package_digests())
+
+    def test_product_links_localize_to_absent_archive_snapshot(self) -> None:
+        source, snapshot = self.archived_fixture()
+        source.unlink()
+        product = self.workspace / "pulse-backend/docs/verification-matrix.md"
+        product.write_text("[Archived](../../tasks/pulse-backend/docs/fixture.md)\n")
+        self.assertEqual(self.invoke("--sync"), 0)
+        self.assertIn("[Archived](fixture.md)",
+            (self.package / "references/verification-matrix.md").read_text())
 
     def test_changed_source_is_detected_and_sync_restores_consistency(self) -> None:
         source = self.workspace / "pulse-contracts/buf.yaml"

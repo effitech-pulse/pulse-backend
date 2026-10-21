@@ -32,8 +32,8 @@
       "source": "pulse-contracts/proto/pulse/ml/v1/ml.proto",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "e81a6b46bc5bd8c5d318962a4b32e598473bd679fb375fdb92407f0ce720da3e",
-      "snapshot_sha256": "e81a6b46bc5bd8c5d318962a4b32e598473bd679fb375fdb92407f0ce720da3e"
+      "source_sha256": "999689594e8a256ea20f55cc5961ef8b4fc93d2c7a276b13cb2865ce3b855327",
+      "snapshot_sha256": "999689594e8a256ea20f55cc5961ef8b4fc93d2c7a276b13cb2865ce3b855327"
     },
     {
       "snapshot": "contracts/openapi.json",
@@ -64,8 +64,8 @@
       "source": "pulse-frontend/src/theme/antdTheme.ts",
       "owner": "designer",
       "mode": "copy",
-      "source_sha256": "6510f97ef92c9c05d284560eef17d30215fa1a9426c6f68793cbc50e95497132",
-      "snapshot_sha256": "6510f97ef92c9c05d284560eef17d30215fa1a9426c6f68793cbc50e95497132"
+      "source_sha256": "6b07e149ba7053f901e9f0b3cac68da477a0342371c597537bab473aef365cb9",
+      "snapshot_sha256": "6b07e149ba7053f901e9f0b3cac68da477a0342371c597537bab473aef365cb9"
     },
     {
       "snapshot": "design/brand-kit/GUIDELINES.md",
@@ -424,16 +424,16 @@
       "source": "pulse-backend/Makefile",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "7abdc305000794be3ec248ca3c07269bd070670276c774b2ea216ea81f08da39",
-      "snapshot_sha256": "7abdc305000794be3ec248ca3c07269bd070670276c774b2ea216ea81f08da39"
+      "source_sha256": "316aa04ba4bdd25606ff2cbc6a90923f0b38ec2048275e3b5d0f86c76d236cbc",
+      "snapshot_sha256": "316aa04ba4bdd25606ff2cbc6a90923f0b38ec2048275e3b5d0f86c76d236cbc"
     },
     {
       "snapshot": "inventory/pulse-backend--go.mod",
       "source": "pulse-backend/go.mod",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "ccc13769b1f8b5b1e8441803b10f6ba180133e3449292e2645bc869347ff7aec",
-      "snapshot_sha256": "ccc13769b1f8b5b1e8441803b10f6ba180133e3449292e2645bc869347ff7aec"
+      "source_sha256": "03e64c444f09777b74fd1d37115e236b506412439fd8982d558c4f6b859458c2",
+      "snapshot_sha256": "03e64c444f09777b74fd1d37115e236b506412439fd8982d558c4f6b859458c2"
     },
     {
       "snapshot": "inventory/pulse-contracts--Makefile",
@@ -456,8 +456,8 @@
       "source": "pulse-contracts/pyproject.toml",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "e7da492bf97e2cec34561593ba0c0f8086ad2b886e77ee9a3fc51a4c6a363c4b",
-      "snapshot_sha256": "e7da492bf97e2cec34561593ba0c0f8086ad2b886e77ee9a3fc51a4c6a363c4b"
+      "source_sha256": "76e6b44c10b48016c7d13715075fe0ecbb9e0cb988ada45848498326e5e0cdfb",
+      "snapshot_sha256": "76e6b44c10b48016c7d13715075fe0ecbb9e0cb988ada45848498326e5e0cdfb"
     },
     {
       "snapshot": "inventory/pulse-data--Dockerfile",
@@ -504,16 +504,16 @@
       "source": "pulse-ml-service/Dockerfile",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "eb32d80789179225e3d631c0b9ea10ebb1277cfce15de4c7741102e538f766b3",
-      "snapshot_sha256": "eb32d80789179225e3d631c0b9ea10ebb1277cfce15de4c7741102e538f766b3"
+      "source_sha256": "42aae21a4b345ffc0bf353a151ef3506286a451cb2a4606ef6ebf09a899e3288",
+      "snapshot_sha256": "42aae21a4b345ffc0bf353a151ef3506286a451cb2a4606ef6ebf09a899e3288"
     },
     {
       "snapshot": "inventory/pulse-ml-service--pyproject.toml",
       "source": "pulse-ml-service/pyproject.toml",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "b4afcf4c6b66741c4670f8fa0d0f123a38d3f5a428b42e7b2b5b5f5387e6f042",
-      "snapshot_sha256": "b4afcf4c6b66741c4670f8fa0d0f123a38d3f5a428b42e7b2b5b5f5387e6f042"
+      "source_sha256": "4cb33ab8347458870d2a8a20e2b433a95a673f9dd26d260f74dc2a7a6d93551a",
+      "snapshot_sha256": "4cb33ab8347458870d2a8a20e2b433a95a673f9dd26d260f74dc2a7a6d93551a"
     },
     {
       "snapshot": "inventory/pulse-model--Makefile",
@@ -576,24 +576,24 @@
       "source": "pulse-frontend/DESIGN.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "44061d0b8fbaa67e3d6eb118da6fb27c402b5674d793886b956dd261f6b13ac3",
-      "snapshot_sha256": "55c8c2c4491f9f5faccb30ea20ac641a9266d93a45bfcd625ea3604d19874026"
+      "source_sha256": "7f55dc5c57ec3dca60109d5cda19863d3c67ba9efaed21440a5bbbbb7d3e3eeb",
+      "snapshot_sha256": "2fcf4f102b2ccef380406f457e2c4c2f5c80ba430126f4c758f3905b2bb77ba5"
     },
     {
       "snapshot": "references/frontend-handoff.md",
       "source": "pulse-frontend/design/HANDOFF.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "3fdccafa8beacb269d48abd0c0d844e0bc801fcf536ab038e93d1e47d28d61f4",
-      "snapshot_sha256": "b9fe48ef1eb626a3b6b37c343e2a564a2080772068595482971587bbc93eed56"
+      "source_sha256": "b2d461acbe18214bed4c72b19cc6d668edf96076ab9aab9874f368fdf7a350d3",
+      "snapshot_sha256": "b10ecd02273f872361173db9d4c66b246e161f4b8647da19ec5f329daf6cb044"
     },
     {
       "snapshot": "references/frontend-readme.md",
       "source": "pulse-frontend/README.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "122b3c9d52430cb7f9becb2cba49566ab60b90dc2263156187e998efc15cc84f",
-      "snapshot_sha256": "afbc67708bda3e3332816f9d3ff34e824ac76e414527e75c67fce114d766e391"
+      "source_sha256": "1c0efd057e976acf49fe5363be4e65f530e1a91613d84435affd7b375c8dc93c",
+      "snapshot_sha256": "c690c1922f67658d4be286b779ee7faba5f602ba5343eb85eff9065d8a642fa1"
     },
     {
       "snapshot": "references/independent-acceptance.md",
@@ -608,39 +608,40 @@
       "source": "pulse-ml-service/README.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "1317d7fa0dedad5e46fb7befe71df9ff76b1fd04607785e472f4d9efe8015cf1",
-      "snapshot_sha256": "f5aa223eb15669897584a370de2b9f86271c67d0d6b93d2f6bdcb853ac5a0ee2"
+      "source_sha256": "12469c98e867b383f366d7e3402f163e204a9cbc135f58018570b2aea06d474d",
+      "snapshot_sha256": "4601e503d1a8985e13d4502f19d3d2740e1e72a6811c30885c76b24913f1caf5"
     },
     {
       "snapshot": "references/model-rpc-compatibility.md",
       "source": "pulse-ml-service/docs/model-rpc-compatibility.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "6d38990a582aeab04c3d51856c3f0c3b3c91d3f01435c8aeebebf0c249c0aea7",
-      "snapshot_sha256": "1a4590076d704575b5979876e585faeccbd3bd1c0c7a2c8e2d2ac8768d7a54f6"
+      "source_sha256": "ad9912497281520dba7bac755754bd4827e380e6d6c461d1aa06c3742df72416",
+      "snapshot_sha256": "ce357cda4311e699b8ac50aa28ce65dc29d97505c5ef54962e59581183abe673"
     },
     {
       "snapshot": "references/readiness-architecture.md",
       "source": "pulse-backend/docs/readiness-architecture-2026-10-19.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "60516e7ca50a98f43f4292e8a0e122b299fdc95bb617ab868ca39dd1e1950b01",
+      "source_sha256": "b5ce501782c6a1b3b4b5a22f95333c49efb295e20a26b7cbbb9846726f3e1386",
       "snapshot_sha256": "df99cddd3f966bdcae3b145faca37296bdb02acfd022eae114b8fddd7d806b29"
     },
     {
       "snapshot": "references/readiness-ledger.md",
-      "source": "pulse-backend/docs/ready-for-development-2026-10-19.md",
+      "source": "tasks/pulse-backend/docs/ready-for-development-2026-10-19.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "edab7c9436481b9dd4aed9e7aa549213dc07c0edcc0ceaee4764944abceb35ee",
-      "snapshot_sha256": "846602e51a6b62d5f8cae6c12a45f83fcdd2b92e57394674dfca8f6b0b9ad572"
+      "source_sha256": "d5b6d6e9f573db2c2334e8ca9117f57eb586461d9e776ccab09d83295ab78f29",
+      "snapshot_sha256": "26940db333a20dbb7ae8d3d5b2125b043b2906631575257b8d143bc5ba9e49af",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/readiness-runtime.md",
       "source": "pulse-backend/docs/readiness-runtime.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "99f5b1e132fd790ca5ce51e8dddd45c066552c0639ffe71557183738073724f9",
+      "source_sha256": "be311ed1d9e161fb2db3740e9995f8a7ea9547405bd9824a969fc07eda1a44c9",
       "snapshot_sha256": "809d70c0db47bb94e904719289ef02b4c6c92c4648eea6a1947ec2202309d28e"
     },
     {
@@ -656,8 +657,8 @@
       "source": "pulse-backend/docs/verification-matrix.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "6c11408b1589f15ee4ff4f46254874f4a1b17147a8a952a82c410b4db4c9613f",
-      "snapshot_sha256": "20e8a797f87c68d6566bd1b0c54cc0937a57cbfcdc48a078c576b3b2b5c75f2c"
+      "source_sha256": "2b45c8ebc381e599d0bac080a9c447b30cd21a293abdead89e1d0c8889a4fcec",
+      "snapshot_sha256": "6389ed84a3e685b82404dc80e6c0902ab26d4ab387d1d3284a8feb2303defff6"
     },
     {
       "snapshot": "schemas/clickhouse/init.sql",
@@ -765,11 +766,12 @@
     },
     {
       "snapshot": "references/o1-f1-execution.md",
-      "source": "pulse-backend/docs/o1-f1-execution-2026-10-20.md",
+      "source": "tasks/pulse-backend/docs/o1-f1-execution-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "41f57fd3d6a0f189f44fd19490d8d5ae4bb596c193cba45b65886f8742cb3757",
-      "snapshot_sha256": "b6fbd0538b6784eb9679c3b56c9f7fa5c900a29510c45a45ff1fd235e3550182"
+      "source_sha256": "97d72d1c85995773f03134c463f67e1f13879c9b306c024ab5606b7a69679f00",
+      "snapshot_sha256": "1f4e1ae5780ec667fec683ef688aa6760abed66a11758b8aaaa4b4dda8347272",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/observability-o1.md",
@@ -784,7 +786,7 @@
       "source": "pulse-backend/docs/o1-f1-runtime.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "7c2b5b8fa5f274e0a5dceb3a6b97234104f7d11f426dc744f454a9800002d2f3",
+      "source_sha256": "8baa733118109a4e2de68f5121bc3d6ff811085a29aafa2bd9a57aea704d2606",
       "snapshot_sha256": "18c43172c7ae8ef8712d642b19e86467fbcb53ae2afab5c3a176f3151bbb322c"
     },
     {
@@ -792,23 +794,24 @@
       "source": "pulse-backend/docs/observability-o2.md",
       "owner": "tech-lead + coordinator",
       "mode": "markdown",
-      "source_sha256": "f96093b47f0c0012a68250be05734b3a3925e2b95d6f41dcd9a75454301098ca",
+      "source_sha256": "93a4ee1b351ec5a96380e48823da740206d3a216b1b76e49be6228105721d79e",
       "snapshot_sha256": "2d32c385563b2b25488f90172498a4d59e8d720e18ff6c7e220c904054d64ecf"
     },
     {
       "snapshot": "references/o2-runtime.md",
-      "source": "pulse-backend/docs/o2-runtime-2026-10-20.md",
+      "source": "tasks/pulse-backend/docs/o2-runtime-2026-10-20.md",
       "owner": "tech-lead + coordinator",
       "mode": "markdown",
-      "source_sha256": "205d5b9c0336d90ad1ee8d6441898745151666a49c7bfd9114241b56ab700b86",
-      "snapshot_sha256": "1e776d5786f1133c37210f8d67c6d5ba8d9ef8f391acfe8033791e6dbd328a80"
+      "source_sha256": "82091dd479bc020ce40ec9366f2bc62400dd17924acc6c571f5752cc2e79794e",
+      "snapshot_sha256": "24d59fc227f0335babeb999fc73896183fbf998ef10c36507ee2509af8b34c68",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/o2-architecture.md",
       "source": "pulse-backend/docs/o2-architecture-2026-10-20.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "37bfc47fd0e11667bce11855a5d79b63bb2ef4dd404ed8aebc2f04ed1357f14f",
+      "source_sha256": "ae7a0c45de3e7d76cbb1ba26b6fd15f6c48629e265b4ebb1a7dccfd310277011",
       "snapshot_sha256": "b5c457c8bceec38b9b49e5634a6d7e6037f5c89cbf7afa0202f3f6a05fd68fc6"
     },
     {
@@ -821,42 +824,45 @@
     },
     {
       "snapshot": "references/o2-q0-execution.md",
-      "source": "pulse-backend/docs/o2-q0-execution-2026-10-20.md",
+      "source": "tasks/pulse-backend/docs/o2-q0-execution-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "c5bcfe63cc26bc2091b71c73a68dc1bbe50f3773ccb555b27399756c3a4ecba5",
-      "snapshot_sha256": "13c3196a27a7b994bc5b296ea77a908a579478e90c3a0dad3b35001eefa64e95"
+      "source_sha256": "f4d38d108466485fe3532fd185ad7674b44c24100d40cf29e5c2a5b8ae8d50ad",
+      "snapshot_sha256": "da0115b1e7764b1927b9022dd6f05249f76e8776b63dbae2cfb262276f682ca5",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/functional-roadmap.md",
-      "source": "pulse-backend/docs/functional-roadmap-2026-10-20.md",
+      "source": "tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "b868984e79215135203e511683e1fd630ca07305869968bd43d7097114d4cf4c",
-      "snapshot_sha256": "37e1435e6cb6a4d7590e7d0913ffccbac1864bdbb51bb52477d8adfed8b246c8"
+      "source_sha256": "9a30023496d6cb608a5bad09d52b59dc4cb156533ea33bc68f986e67ad7b90c5",
+      "snapshot_sha256": "e517a575484bc02f12b5f968a23400a0808fa7ec64e77b995474c696ae417a1e",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/q0-architecture.md",
       "source": "pulse-backend/docs/q0-architecture-2026-10-20.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "8ac5339be10249ad59e1713687a547874935e6b0c7f989cc04858159e789f66b",
-      "snapshot_sha256": "6ede8a9a6998c464df7c5b183e029c7191f376e96adcb7b89cdaf3ee2a01ee5f"
+      "source_sha256": "e7998de69624a539d3fd533a989078f16e6593b22d4bf93c45d591c9323c6fb3",
+      "snapshot_sha256": "a93f991e5d7cdf55a0220014dfd9684f637fe76a23fcef86bd0608fed16356de"
     },
     {
       "snapshot": "references/well-operations-proposal.md",
-      "source": "pulse-backend/docs/well-operations-assistant-proposal-2026-10-20.md",
+      "source": "tasks/pulse-backend/docs/well-operations-assistant-proposal-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "3617ec76ebefcdd3d3291a9a1dbb2b9128a91ee30a014ebd9d0c274289f19674",
-      "snapshot_sha256": "202d7d5c089cf3eaa587842180de1d605d8c0cf0363dfc05dc06a91997151d25"
+      "source_sha256": "eea96b24548b9c6442553a20b5be07f3f52d96528dc586f429119ab28d198fba",
+      "snapshot_sha256": "2cafaf2f37377b6c4445d74bac7dc7aabdc5a40ada443deaf5ff18dd75674dc3",
+      "source_kind": "archived_task"
     },
     {
       "snapshot": "references/well-operations-data-review.md",
       "source": "pulse-backend/docs/well-operations-data-review-2026-10-20.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "442d7543c28a45b0aedbbbdcc87ff6049fa593a89dee08c4b1d519d6805bc48f",
+      "source_sha256": "81a5195f968b9ed7202dd9487c6f07f0f837fc1cb48f680999e13719fbbf91f5",
       "snapshot_sha256": "e97310633188ac6c9838a02caa57b76dad495082bb18b91162abe245ebbcccab"
     },
     {
