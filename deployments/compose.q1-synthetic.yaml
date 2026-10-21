@@ -1,0 +1,28 @@
+# Separate operator-created synthetic stack. Never add this to local/portal profiles.
+services:
+  rabbitmq:
+    image: docker.io/library/rabbitmq:4.3.6@sha256:3e5cc23235b0eb850f604e8ace10d9a9b6d05be3e36730e53522ee9ead707a9e
+    hostname: pulse-q1-synthetic
+    environment:
+      RABBITMQ_NODENAME: rabbit@pulse-q1-synthetic
+      RABBITMQ_DEFAULT_USER: ${Q1_BOOTSTRAP_USER:?explicit synthetic bootstrap user required}
+      RABBITMQ_DEFAULT_PASS: ${Q1_BOOTSTRAP_PASSWORD:?explicit synthetic bootstrap password required}
+      RABBITMQ_DEFAULT_VHOST: pulse-q1-${Q1_RUN_ID:?explicit synthetic run required}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '+S 2:2'
+    ports:
+      - '127.0.0.1:${Q1_AMQP_PORT:?exclusive loopback port required}:5672'
+    volumes:
+      - q1-broker:/var/lib/rabbitmq
+      - ./q1-synthetic/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    mem_limit: 512m
+    stop_grace_period: 15s
+    networks: [q1]
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+networks:
+  q1: {}
+volumes:
+  q1-broker: {}

@@ -29,7 +29,7 @@ func (s *Reviews) WithScope(scope FundScope) *Reviews { s.scope = scope; return 
 
 func NewReviews(store ReviewStore) *Reviews { return &Reviews{store: store} }
 func (s *Reviews) target(ctx context.Context, kind, id string, well *int64) (domain.ReviewTarget, error) {
-	if kind != "check" && kind != "alert" {
+	if kind != "check" && kind != "alert" && kind != "file_check" {
 		return domain.ReviewTarget{}, domain.NewError(domain.Invalid, "Неизвестный тип результата")
 	}
 	target, err := s.store.ReviewTarget(ctx, kind, id)
@@ -47,7 +47,7 @@ func (s *Reviews) target(ctx context.Context, kind, id string, well *int64) (dom
 	if well != nil && (target.WellID == nil || *well != *target.WellID) {
 		return target, domain.NewError(domain.Missing, "Проверка не найдена у этой скважины")
 	}
-	if p, ok := domain.CurrentPrincipal(ctx); ok && p.Role != "admin" {
+	if p, ok := domain.CurrentPrincipal(ctx); kind != "file_check" && ok && p.Role != "admin" {
 		if target.WellID == nil || s.catalog == nil {
 			return target, domain.NewError(domain.Missing, "Результат не найден")
 		}

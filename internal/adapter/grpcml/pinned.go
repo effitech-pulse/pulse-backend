@@ -60,7 +60,17 @@ func (e *safeRPCStatus) Error() string              { return e.code.String() }
 func (e *safeRPCStatus) GRPCStatus() *status.Status { return status.New(e.code, "") }
 
 // UploadPinned запрещает fallback к legacy Upload, включая UNIMPLEMENTED.
-func (c *GRPCClient) UploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (out domain.UploadResult, err error) {
+func (c *GRPCClient) UploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (domain.UploadResult, error) {
+	return c.uploadPinned(ctx, pin, input, canonical, pinnedRPCError)
+}
+
+// UploadFileJobPinned сохраняет точный safe execution_busy только для Q1 worker.
+// Это внутренний Go seam; protobuf/SDK и Q0 UploadPinned не меняются.
+func (c *GRPCClient) UploadFileJobPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (domain.UploadResult, error) {
+	return c.uploadPinned(ctx, pin, input, canonical, fileJobPinnedRPCError)
+}
+
+func (c *GRPCClient) uploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader, mapRPCError func(error) error) (out domain.UploadResult, err error) {
 	if err = pin.Validate(); err != nil {
 		return out, err
 	}
@@ -71,15 +81,15 @@ func (c *GRPCClient) UploadPinned(ctx context.Context, pin domain.ExecutionPin, 
 	defer func() { finish(err) }()
 	stream, err := c.stub.UploadPinned(ctx, grpc.MaxCallRecvMsgSize(2<<20))
 	if err != nil {
-		return out, pinnedRPCError(err)
+		return out, mapRPCError(err)
 	}
 	send := func(chunk *pb.PinnedUploadChunk) error {
 		if e := stream.Send(chunk); e != nil {
 			_, final := stream.CloseAndRecv()
 			if final != nil {
-				return pinnedRPCError(final)
+				return mapRPCError(final)
 			}
-			return pinnedRPCError(e)
+			return mapRPCError(e)
 		}
 		return nil
 	}
@@ -120,7 +130,7 @@ func (c *GRPCClient) UploadPinned(ctx context.Context, pin domain.ExecutionPin, 
 	}
 	result, err := stream.CloseAndRecv()
 	if err != nil {
-		return out, pinnedRPCError(err)
+		return out, mapRPCError(err)
 	}
 	return uploadFromProto(result), nil
 }

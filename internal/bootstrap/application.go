@@ -79,6 +79,16 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 	server.Checks = service.NewChecks(store, server.Integrations).WithScope(scope)
 	server.Reviews = service.NewReviews(store).WithCatalog(store).WithScope(scope)
 	server.Presentation = service.NewPresentation(store).WithSource(archive).WithScope(scope)
+	if c.FileCheckMode == "synthetic" {
+		var trusted *postgres.Repository
+		server.FileJobs, _, trusted, err = buildFileJobs(ctx, c, store, scope, client)
+		if err != nil {
+			_ = client.Close()
+			pool.Close()
+			return nil, err
+		}
+		server.Reviews = service.NewReviews(trusted).WithCatalog(trusted).WithScope(scope)
+	}
 	if scope != nil {
 		ml.WithCohort(scope, server.Integrations, store)
 	}

@@ -14,6 +14,13 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
+	FileCheckMode           string
+	FileCheckManifest       string
+	FileCheckManifestSHA256 string
+	FileCheckRunID          string
+	FileJobAMQPURL          string
+	FileJobProducerAMQPURL  string
+
 	AppScope       string
 	CohortVersion  string
 	Addr           string
@@ -56,18 +63,35 @@ func envInt(key string, fallback int) (int, error) {
 func Load() (Config, error) {
 	_ = godotenv.Load(".env")
 	c := Config{
-		AppScope:       env("APP_SCOPE", "cohort"),
-		CohortVersion:  env("COHORT_VERSION", ""),
-		Addr:           env("HTTP_ADDR", "127.0.0.1:8000"),
-		DatabaseURL:    strings.Replace(env("DATABASE_URL", "postgresql://esp:esp@localhost:5433/esp_app"), "postgresql+psycopg2://", "postgresql://", 1),
-		APIKey:         env("API_KEY", ""),
-		AuthMode:       env("AUTH_MODE", "legacy"),
-		Prefix:         strings.TrimRight(env("API_V1_PREFIX", "/api/v1"), "/"),
-		ParameterPath:  env("PARAM_DICT_PATH", "parameters_dict.json"),
-		MLTarget:       env("ML_SERVICE_TARGET", "127.0.0.1:50051"),
-		MLKey:          env("ML_SERVICE_API_KEY", ""),
-		MetabaseURL:    strings.TrimRight(env("METABASE_SITE_URL", ""), "/"),
-		MetabaseSecret: env("METABASE_EMBED_SECRET", ""),
+		FileCheckMode:           env("FILE_CHECK_MODE", "off"),
+		FileCheckManifest:       env("FILE_CHECK_MANIFEST", ""),
+		FileCheckManifestSHA256: env("FILE_CHECK_MANIFEST_SHA256", ""),
+		FileCheckRunID:          env("FILE_CHECK_RUN_ID", ""),
+		FileJobProducerAMQPURL:  env("FILE_JOB_PRODUCER_AMQP_URL", ""),
+		FileJobAMQPURL:          env("FILE_JOB_AMQP_URL", ""),
+		AppScope:                env("APP_SCOPE", "cohort"),
+		CohortVersion:           env("COHORT_VERSION", ""),
+		Addr:                    env("HTTP_ADDR", "127.0.0.1:8000"),
+		DatabaseURL:             strings.Replace(env("DATABASE_URL", "postgresql://esp:esp@localhost:5433/esp_app"), "postgresql+psycopg2://", "postgresql://", 1),
+		APIKey:                  env("API_KEY", ""),
+		AuthMode:                env("AUTH_MODE", "legacy"),
+		Prefix:                  strings.TrimRight(env("API_V1_PREFIX", "/api/v1"), "/"),
+		ParameterPath:           env("PARAM_DICT_PATH", "parameters_dict.json"),
+		MLTarget:                env("ML_SERVICE_TARGET", "127.0.0.1:50051"),
+		MLKey:                   env("ML_SERVICE_API_KEY", ""),
+		MetabaseURL:             strings.TrimRight(env("METABASE_SITE_URL", ""), "/"),
+		MetabaseSecret:          env("METABASE_EMBED_SECRET", ""),
+	}
+
+	allowReal, realErr := strconv.ParseBool(env("FILE_CHECK_ALLOW_REAL", "false"))
+	if realErr != nil || allowReal {
+		return c, fmt.Errorf("FILE_CHECK_ALLOW_REAL must be false")
+	}
+	if c.FileCheckMode != "off" && c.FileCheckMode != "synthetic" {
+		return c, fmt.Errorf("FILE_CHECK_MODE must be off or synthetic")
+	}
+	if c.FileCheckMode == "synthetic" && (c.AuthMode != "local" || c.AppScope != "cohort" || c.FileCheckManifest == "" || c.FileCheckManifestSHA256 == "" || c.FileCheckRunID == "") {
+		return c, fmt.Errorf("synthetic file checks require local cohort and explicit manifest/hash/run")
 	}
 
 	if c.AppScope != "cohort" && c.AppScope != "research" {

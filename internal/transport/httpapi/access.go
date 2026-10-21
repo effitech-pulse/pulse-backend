@@ -141,6 +141,8 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 	allowed := false
 	if c.Request.Method == "GET" {
 		switch relative {
+		case "/file-check-capabilities", "/wells/:well_id/file-check-jobs", "/wells/:well_id/file-check-jobs/:job_id", "/wells/:well_id/file-check-jobs/:job_id/result", "/wells/:well_id/file-check-jobs/:job_id/review":
+			allowed = p.Role == "technologist"
 		case "/ml/runs", "/ml/runs/:run_id/snapshot":
 			allowed = s.ML != nil && s.ML.IsCohort()
 		case "/incidents/stats", "/wells", "/wells/export", "/ngdu", "/departments", "/parameters", "/ml/wells", "/ml/wells/:well_id/explain", "/ml/wells/:well_id/history", "/ml/alerts/:alert_id/review", "/presentation/summary":
@@ -150,6 +152,10 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 		}
 	} else if p.Role == "technologist" {
 		switch relative {
+		case "/wells/:well_id/file-check-jobs", "/wells/:well_id/file-check-jobs/:job_id/cancel":
+			allowed = c.Request.Method == "POST"
+		case "/wells/:well_id/file-check-jobs/:job_id/review":
+			allowed = c.Request.Method == "PUT"
 		case "/wells/:well_id/checks", "/wells/:well_id/telemetry/score", "/wells/:well_id/incidents":
 			allowed = c.Request.Method == "POST"
 		case "/wells/:well_id/checks/:check_id/review", "/ml/alerts/:alert_id/review":

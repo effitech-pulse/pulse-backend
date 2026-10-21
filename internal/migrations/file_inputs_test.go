@@ -60,7 +60,7 @@ func TestFileInputUpgradeElevenPreservesLegacyReads(t *testing.T) {
 		t.Fatal("legacy row changed", verdict, id, e)
 	}
 	var version int
-	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != 12 {
+	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != CurrentVersion {
 		t.Fatal(version, e)
 	}
 	var immutable int

@@ -625,12 +625,6 @@ func (s *FileChecks) ComputeStoredInput(ctx context.Context, id string) (domain.
 	} else if !fileMissing(e) {
 		return domain.StoredFileResult{}, e
 	}
-	select {
-	case s.execute <- struct{}{}:
-		defer func() { <-s.execute }()
-	default:
-		return domain.StoredFileResult{}, domain.NewError(domain.Limited, "execution_busy")
-	}
 	v, e := s.store.StoredFileInput(ctx, id)
 	if e != nil {
 		return domain.StoredFileResult{}, e
@@ -638,11 +632,22 @@ func (s *FileChecks) ComputeStoredInput(ctx context.Context, id string) (domain.
 	if v.FingerprintSHA256 != summary.FingerprintSHA256 {
 		return domain.StoredFileResult{}, domain.NewError(domain.Unavailable, "input_corrupt")
 	}
-	if e = domain.ValidateFileInput(v); e != nil {
-		return domain.StoredFileResult{}, e
-	}
 	ctx, _, _, e = s.authorize(ctx, v.PulseWellID)
 	if e != nil {
+		return domain.StoredFileResult{}, e
+	}
+	return s.computePreparedInput(ctx, v)
+}
+
+// computePreparedInput принимает только persisted input из проверенного lease/store.
+func (s *FileChecks) computePreparedInput(ctx context.Context, v domain.PreparedFileInput) (domain.StoredFileResult, error) {
+	select {
+	case s.execute <- struct{}{}:
+		defer func() { <-s.execute }()
+	default:
+		return domain.StoredFileResult{}, domain.NewError(domain.Limited, "execution_busy")
+	}
+	if e := domain.ValidateFileInput(v); e != nil {
 		return domain.StoredFileResult{}, e
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
@@ -658,8 +663,8 @@ func (s *FileChecks) ComputeStoredInput(ctx context.Context, id string) (domain.
 	if len(raw) > s.limits.ResultBytes {
 		return domain.StoredFileResult{}, domain.NewError(domain.Limited, "result_too_large")
 	}
-	out := domain.StoredFileResult{InputID: id, FingerprintSHA256: v.FingerprintSHA256, ExecutionPin: v.ExecutionPin, ComputedAt: time.Now().UTC(), Result: result}
-	return out, domain.ValidateFileResult(summary, out)
+	out := domain.StoredFileResult{InputID: v.ID, FingerprintSHA256: v.FingerprintSHA256, ExecutionPin: v.ExecutionPin, ComputedAt: time.Now().UTC(), Result: result}
+	return out, domain.ValidateFileResult(v.FileInputSummary, out)
 }
 func (s *FileChecks) CommitStoredResult(ctx context.Context, result domain.StoredFileResult) (domain.StoredFileResult, error) {
 	ctx, v, e := s.owned(ctx, result.InputID)

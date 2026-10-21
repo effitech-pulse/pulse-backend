@@ -7,12 +7,30 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/effitech-pulse/pulse-backend/internal/domain"
 )
 
 func (r *Repository) ReviewTarget(ctx context.Context, kind, id string) (domain.ReviewTarget, error) {
 	target := domain.ReviewTarget{Kind: kind, ID: id}
+	if kind == "file_check" {
+		tx, e := r.pool.Begin(ctx)
+		if e != nil {
+			return target, e
+		}
+		defer tx.Rollback(ctx)
+		row, e := one[jobRecord](ctx, tx, jobQuery().Where(sq.Eq{"id": id}))
+		if e != nil {
+			return target, e
+		}
+		if _, e = r.privateReviewJobTx(ctx, tx, row.WellID, id); e != nil {
+			return target, e
+		}
+		target.WellID = &row.WellID
+		target.FileJobID = &row.ID
+		return target, tx.Commit(ctx)
+	}
 	if kind == "check" {
 		row, err := one[domain.ManualCheck](ctx, r.pool, checkQuery().Where(sq.Eq{"id": id}))
 		if err != nil {
@@ -56,11 +74,23 @@ func readReviewState(ctx context.Context, db db, target domain.ReviewTarget, loc
 	return row.State, err
 }
 func (r *Repository) Review(ctx context.Context, target domain.ReviewTarget, before int64) (domain.Review, error) {
-	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	options := pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly}
+	if target.Kind == "file_check" {
+		options = pgx.TxOptions{}
+	}
+	tx, err := r.pool.BeginTx(ctx, options)
 	if err != nil {
 		return domain.Review{}, err
 	}
 	defer tx.Rollback(ctx)
+	if target.Kind == "file_check" {
+		if target.WellID == nil || target.FileJobID == nil || *target.FileJobID != target.ID {
+			return domain.Review{}, missingFileJob()
+		}
+		if _, err = r.privateReviewJobTx(ctx, tx, *target.WellID, target.ID); err != nil {
+			return domain.Review{}, err
+		}
+	}
 	state, err := readReviewState(ctx, tx, target, false)
 	if err != nil {
 		return domain.Review{}, err
@@ -90,11 +120,19 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 		return domain.Review{}, err
 	}
 	defer tx.Rollback(ctx)
+	if target.Kind == "file_check" {
+		if target.WellID == nil || target.FileJobID == nil || *target.FileJobID != target.ID || target.CheckID != nil || target.AlertID != nil {
+			return domain.Review{}, missingFileJob()
+		}
+		if _, err = r.privateReviewJobTx(ctx, tx, *target.WellID, target.ID); err != nil {
+			return domain.Review{}, err
+		}
+	}
 	initial, err := json.Marshal(target.Initial)
 	if err != nil {
 		return domain.Review{}, err
 	}
-	_, err = execute(ctx, tx, sqlBuilder.Insert("case_review").Columns("kind", "target_id", "check_id", "alert_id", "well_id", "state", "revision").Values(target.Kind, target.ID, target.CheckID, target.AlertID, target.WellID, initial, 0).Suffix("ON CONFLICT (kind,target_id) DO NOTHING"))
+	_, err = execute(ctx, tx, sqlBuilder.Insert("case_review").Columns("kind", "target_id", "check_id", "alert_id", "well_id", "state", "revision", "file_job_id").Values(target.Kind, target.ID, target.CheckID, target.AlertID, target.WellID, initial, 0, target.FileJobID).Suffix("ON CONFLICT (kind,target_id) DO NOTHING"))
 	if err != nil {
 		return domain.Review{}, err
 	}
@@ -152,4 +190,24 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 		return domain.Review{}, err
 	}
 	return r.Review(ctx, target, 0)
+}
+
+func (r *Repository) privateReviewJobTx(ctx context.Context, tx pgx.Tx, well int64, id string) (jobRecord, error) {
+	row, e := r.publicFileJobTx(ctx, tx, well, id)
+	if e != nil {
+		return row, e
+	}
+	if row.State != domain.FileJobSucceeded || row.CheckID == nil {
+		return row, missingFileJob()
+	}
+	result, e := list[struct {
+		ID string `json:"input_id"`
+	}](ctx, tx, sqlBuilder.Select("input_id").From("file_check_result").Where(sq.Eq{"input_id": id}))
+	if e != nil {
+		return row, e
+	}
+	if len(result) != 1 {
+		return row, missingFileJob()
+	}
+	return row, nil
 }

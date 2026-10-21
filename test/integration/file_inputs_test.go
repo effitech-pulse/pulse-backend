@@ -456,7 +456,7 @@ func TestFileInputFreshAndRepeatMigration(t *testing.T) {
 		t.Fatal(e)
 	}
 	var version int
-	if e := pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != 12 {
+	if e := pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != migrations.CurrentVersion {
 		t.Fatal(version, e)
 	}
 }

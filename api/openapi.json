@@ -4543,6 +4543,636 @@
           }
         }
       }
+    },
+    "/api/v1/file-check-capabilities": {
+      "get": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Current session synthetic file capability",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileCheckCapabilities"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/file-check-jobs": {
+      "post": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Atomically accept input, job and outbox",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Durably accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "request_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{16,80}$"
+                  },
+                  "parse_spec": {
+                    "type": "string",
+                    "maxLength": 65536,
+                    "description": "Exactly one JSON FileJobParseSpec; no server schema, actor, pin or limits"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "One allowlisted CSV/XLSX, max20MiB"
+                  }
+                },
+                "required": [
+                  "request_id",
+                  "parse_spec",
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Owner metadata history, fixed25, private cursor",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/file-check-jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Owner job metadata; never computes",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/result": {
+      "get": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Saved immutable file check; no ML or broker needed",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Cancel by expected revision; running yields cancel_requested",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "revision"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/review": {
+      "get": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Saved private file review, bounded50 events",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "file-check-jobs"
+        ],
+        "summary": "Review with existing revision/idempotency semantics",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/FileJob401"
+          },
+          "403": {
+            "$ref": "#/components/responses/FileJob403"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileJob404"
+          },
+          "409": {
+            "$ref": "#/components/responses/FileJob409"
+          },
+          "413": {
+            "$ref": "#/components/responses/FileJob413"
+          },
+          "422": {
+            "$ref": "#/components/responses/FileJob422"
+          },
+          "429": {
+            "$ref": "#/components/responses/FileJob429"
+          },
+          "503": {
+            "$ref": "#/components/responses/FileJob503"
+          },
+          "410": {
+            "$ref": "#/components/responses/FileJob410"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7677,6 +8307,439 @@
           "trigger"
         ],
         "description": "Cohort history includes identified running/error attempts before snapshot. Uncomputed counts/provenance are null; error is safe public text. Historical NULL identity is not assigned to a cohort."
+      },
+      "FileJobStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "well_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending_dispatch",
+              "queued",
+              "running",
+              "retry_wait",
+              "cancel_requested",
+              "quarantined",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "expired",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "next_attempt_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "max_attempts": {
+            "type": "integer",
+            "const": 3
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status_url": {
+            "type": "string"
+          },
+          "result_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancel_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "check_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": [
+                  "csv",
+                  "xlsx"
+                ]
+              },
+              "raw_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "canonical_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "raw_sha256": {
+                "type": "string"
+              },
+              "canonical_sha256": {
+                "type": "string"
+              },
+              "fingerprint_sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "format",
+              "raw_bytes",
+              "canonical_bytes",
+              "rows",
+              "raw_sha256",
+              "canonical_sha256",
+              "fingerprint_sha256"
+            ]
+          },
+          "execution": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "model_name": {
+                "type": "string"
+              },
+              "bundle_sha256": {
+                "type": "string"
+              },
+              "context_version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "model_name",
+              "bundle_sha256",
+              "context_version"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "well_id",
+          "state",
+          "revision",
+          "created_at",
+          "updated_at",
+          "deadline_at",
+          "started_at",
+          "finished_at",
+          "next_attempt_at",
+          "attempt",
+          "max_attempts",
+          "error_code",
+          "status_url",
+          "result_url",
+          "cancel_url",
+          "check_id",
+          "input",
+          "execution"
+        ]
+      },
+      "FileJobPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 25,
+            "items": {
+              "$ref": "#/components/schemas/FileJobStatus"
+            }
+          },
+          "next_before": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_before"
+        ]
+      },
+      "FileSavedCheck": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "well_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "input_sha256": {
+            "type": "string"
+          },
+          "points_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resolution": {
+            "type": "string",
+            "const": "file"
+          },
+          "result": {
+            "$ref": "#/components/schemas/TelemetryCheckResult"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "source_kind": {
+            "type": "string",
+            "const": "uploaded_file"
+          }
+        },
+        "required": [
+          "id",
+          "well_id",
+          "start",
+          "end",
+          "created_at",
+          "input_sha256",
+          "points_count",
+          "resolution",
+          "result",
+          "job_id",
+          "source_kind"
+        ]
+      },
+      "FileJobResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "check": {
+            "$ref": "#/components/schemas/FileSavedCheck"
+          }
+        },
+        "required": [
+          "job_id",
+          "check"
+        ]
+      },
+      "FileJobError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ]
+      },
+      "FileCheckCapabilities": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "const": false
+              },
+              "mode": {
+                "const": "off"
+              }
+            },
+            "required": [
+              "enabled",
+              "mode"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "mode": {
+                "const": "synthetic"
+              },
+              "formats": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "csv",
+                    "xlsx"
+                  ]
+                }
+              },
+              "max_raw_bytes": {
+                "const": 20971520
+              },
+              "max_rows": {
+                "const": 100000
+              },
+              "max_wells": {
+                "const": 1
+              }
+            },
+            "required": [
+              "enabled",
+              "mode",
+              "formats",
+              "max_raw_bytes",
+              "max_rows",
+              "max_wells"
+            ]
+          }
+        ]
+      },
+      "FileJobParseSpec": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": "file_input_v1"
+          },
+          "format": {
+            "enum": [
+              "csv",
+              "xlsx"
+            ]
+          },
+          "delimiter": {
+            "type": "string"
+          },
+          "sheet": {
+            "type": "string"
+          },
+          "header_row": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "time_column": {
+            "type": "string"
+          },
+          "timestamp_layout": {
+            "enum": [
+              "rfc3339",
+              "2006-01-02 15:04:05",
+              "2006-01-02",
+              "02.01.2006 15:04:05",
+              "excel_serial"
+            ]
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "well_column": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "well_identity": {
+            "type": "string"
+          },
+          "mappings": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "format",
+          "header_row",
+          "time_column",
+          "timestamp_layout",
+          "timezone",
+          "mappings"
+        ]
       }
     },
     "securitySchemes": {
@@ -7685,6 +8748,103 @@
         "in": "cookie",
         "name": "pulse_session",
         "description": "HttpOnly SameSite=Strict; только AUTH_MODE=local. Роли и scope назначаются в Pulse."
+      },
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "pulse_session"
+      }
+    },
+    "responses": {
+      "FileJob401": {
+        "description": "Session required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob403": {
+        "description": "Role or Origin denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob404": {
+        "description": "Unavailable private reference",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob409": {
+        "description": "Commitment/revision/terminal conflict or result not ready",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob413": {
+        "description": "Raw20MiB or multipart21MiB exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob422": {
+        "description": "Invalid input or not an allowed synthetic fixture",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob429": {
+        "description": "Bounded admission exceeded; Retry-After:10",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob503": {
+        "description": "Feature off or admission dependency unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
+      },
+      "FileJob410": {
+        "description": "Cancelled or expired result",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FileJobError"
+            }
+          }
+        }
       }
     }
   },

@@ -19,6 +19,7 @@ type ReviewTarget struct {
 	Kind         string
 	ID           string
 	WellID       *int64
+	FileJobID    *string
 	CheckID      *string
 	AlertID      *int64
 	LegacyStatus string

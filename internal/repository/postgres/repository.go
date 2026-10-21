@@ -21,7 +21,10 @@ type db interface {
 	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
 }
 
-type Repository struct{ pool *pgxpool.Pool }
+type Repository struct {
+	pool          *pgxpool.Pool
+	fileJobPolicy *domain.FileJobPolicy
+}
 
 func New(pool *pgxpool.Pool) *Repository {
 	return &Repository{pool: pool}
