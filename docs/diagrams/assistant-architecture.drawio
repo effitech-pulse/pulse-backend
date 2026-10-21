@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="C1 Current" id="C1_Current">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1400" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Технолог / наблюдатель&#10;[Person]" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;shape=umlActor;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="30" y="170" width="160" height="140" />
+        </mxCell>
+        <mxCell id="3" value="Pulse&#10;[Software System]&#10;Навигация, реестр XLSX, ML диагностика" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="360" y="150" width="310" height="150" />
+        </mxCell>
+        <mxCell id="4" value="Промысловые архивы&#10;[External System]&#10;IRZ / ARMITS" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;fillColor=#666666;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="850" y="150" width="230" height="130" />
+        </mxCell>
+        <mxCell id="e0" value="HTTPS / рабочий UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="HTTP(S) / сбор архивов" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="3" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="C1 Target" id="C1_Target">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1400" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Технолог / наблюдатель&#10;[Person]" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;shape=umlActor;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="30" y="170" width="160" height="140" />
+        </mxCell>
+        <mxCell id="3" value="Pulse + помощник&#10;[Software System]&#10;Навигация / реестр / онбординг" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="360" y="150" width="310" height="150" />
+        </mxCell>
+        <mxCell id="4" value="Inference model&#10;[External/independent deployment]&#10;Опционально local/self-hosted&#10;Только typed intent candidate" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;fillColor=#666666;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="850" y="150" width="260" height="160" />
+        </mxCell>
+        <mxCell id="e0" value="HTTPS / вопрос или форма" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="Внутренний HTTP(S) / без прямых tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="3" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="archives" value="Промысловые архивы&#10;[External System]&#10;IRZ / ARMITS — существующий сбор" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#666666;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="850" y="450" width="260" height="140" />
+        </mxCell>
+        <mxCell id="archives_edge" value="HTTP(S) / существующий сбор" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="3" target="archives">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="C2 Current" id="C2_Current">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1400" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Браузер: недоверенный контекст" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#777777;dashed=1;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="20" y="30" width="300" height="480" />
+        </mxCell>
+        <mxCell id="3" value="SPA&#10;[Container: React]&#10;Навигация и экспорт" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="180" width="230" height="130" />
+        </mxCell>
+        <mxCell id="4" value="Контур Pulse: серверная авторизация" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#777777;dashed=1;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="390" y="30" width="800" height="650" />
+        </mxCell>
+        <mxCell id="5" value="Backend&#10;[Container: Go / Gin]&#10;Catalog / XLSX / scope" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="450" y="180" width="260" height="140" />
+        </mxCell>
+        <mxCell id="6" value="PostgreSQL&#10;[Container: database]&#10;well / справочники / auth" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;shape=cylinder3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="860" y="180" width="250" height="150" />
+        </mxCell>
+        <mxCell id="7" value="ML&#10;[Container: Python]&#10;Model library внутри процесса" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="450" y="480" width="260" height="130" />
+        </mxCell>
+        <mxCell id="8" value="Data&#10;[Container: Python]&#10;Сбор архивов" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="850" y="480" width="250" height="130" />
+        </mxCell>
+        <mxCell id="e0" value="HTTPS / JSON, XLSX&#10;список и файл читаются отдельно" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="3" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="SQL / pgx" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="5" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" value="gRPC / existing ML" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="5" target="7">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" value="Загрузка данных / SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="8" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="C2 Target" id="C2_Target">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1400" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Браузер: недоверенный контекст" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#777777;dashed=1;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="20" y="30" width="300" height="480" />
+        </mxCell>
+        <mxCell id="3" value="SPA&#10;[Container: React]&#10;Панель + guide registry&#10;Typed draft / preview" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="180" width="230" height="160" />
+        </mxCell>
+        <mxCell id="4" value="Контур Pulse: auth и execution" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#777777;dashed=1;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="390" y="30" width="800" height="650" />
+        </mxCell>
+        <mxCell id="5" value="Backend&#10;[Container: Go / Gin]&#10;Typed assistant module&#10;Catalog / scope / XLSX&#10;Bounded TTL prepared results" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="450" y="180" width="280" height="180" />
+        </mxCell>
+        <mxCell id="6" value="PostgreSQL&#10;[Container: database]&#10;Существующая схема" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;shape=cylinder3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="860" y="180" width="250" height="150" />
+        </mxCell>
+        <mxCell id="7" value="Опциональный model deployment&#10;Другая граница доверия" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#777777;dashed=1;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="710" width="760" height="200" />
+        </mxCell>
+        <mxCell id="8" value="Inference endpoint&#10;[Container: self-hosted или approved provider]&#10;Кандидат намерения, без исполнения" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;fillColor=#666666;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="470" y="760" width="650" height="100" />
+        </mxCell>
+        <mxCell id="9" value="ML / Data&#10;[Existing containers]&#10;Не вызываются при реестре" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#1168bd;fontColor=#ffffff;strokeColor=#0b4884;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="820" y="480" width="290" height="130" />
+        </mxCell>
+        <mxCell id="e0" value="HTTPS / capabilities, resolve, results&#10;preview + download один result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="3" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="SQL / существующий Catalog" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="5" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" value="HTTP(S) / ограниченный контекст&#10;timeout → deterministic fallback" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="5" target="8">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
