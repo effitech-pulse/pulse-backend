@@ -1,5 +1,7 @@
 # Архитектура и взаимодействие приложений
 
+
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot/schema12 → strict typed `UploadPinned`, с отдельным verified registry. [Q0 architecture](../references/q0-architecture.md), [C4](../diagrams/q0-artifact-pinning.drawio) и [RUN-2 proof](../references/q0-runtime.md) различают implemented primitives, synthetic13PASS и будущую Q1 композицию. Public async routes/job/outbox/worker отсутствуют; legacy sync flow ниже сохранён. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; actual PREP schema12 activation не заявляется.
 ## Представления C4
 
 Для проверенного локального O2-пилота доступны [архитектура/budgets](../references/o2-architecture.md) и [редактируемая O2 C4](../diagrams/o2-observability.drawio). Optional diagnostics не меняет бизнес-владение PostgreSQL/ML и не является брокером jobs; финальная runtime-приёмка отмечается в [evidence](../references/o2-runtime.md). Базовые PREP/O1 схемы ниже сохраняют историческую область. Grafana-only UI bridge — прямо согласованное локальное egress исключение, не политика production.

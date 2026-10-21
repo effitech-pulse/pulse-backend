@@ -1,5 +1,7 @@
 # Тестирование и критерии приёмки
 
+
+Q0 RUN-2 ·21.10.2026: **13/13 synthetic runtime PASS** на одном pre-invocation-hashed binary afae2c4: resource8/replay1/fault4. W3 OS449609728B, W4 OS360005632B при budget1GiB; W5 race1success+1quota, metadata30success/0errors/payload-select0, overlaps[2,2], p9512.946ms. [Полный proof](../references/q0-runtime.md) сохраняет source/pin/RSS/PG/WAL/cleanup и исторические STOP/RERUN1FAIL. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; холодная установка UNTESTED, CI/release OPEN, scientific user-deferred/not_assessed.
 ## O2 · implementation/runtime verified, публикационный gate
 
 [Execution](../references/o2-q0-execution.md) связывает O2-1…4 с [runtime evidence](../references/o2-runtime.md). Source Go/Python/stack Senior reviews пройдены; runtime VERIFIED: W1/P2 CLOSED,150samples/151.256s/425.25MiB peak и86.75MiB headroom без swap/max/oom/restarts, три UI round-trips PASS; final rollback13phase ID/SHA+recovered failure ID PASS. Финальные docs review/publication PASS; O2 принята как локальный пилот. Реальные trace/log paths, отдельные пять20s outages, actual expiry guard и retained checks относятся к координаторскому evidence. Handbook не повторяет эти тесты и не объявляет source PASS доказательством runtime/capacity. PREP PG55439 и lane test PG55432 разделены; business identity/hash проверяются отдельно от telemetry counters. Scientific not_assessed сохранён.

@@ -10,9 +10,9 @@
 |---|---|---|---|
 | pulse-model | `bf5326d65578` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
 | pulse-data | `e38a978a1c25` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `84cb3dfde631` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-ml-service | `b1d625e475fe` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
 | pulse-contracts | `f871f8109a53` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `f5ec7aa9fbfc` | 50 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-backend | `3eaa19f407bd` | 58 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
 | pulse-frontend | `dae98f86318d` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e555b333003f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 

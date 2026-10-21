@@ -1,5 +1,7 @@
 # O2: локальная наблюдаемость
 
+
+Q0 metrics compatibility: **только метрики** нормализуют `MLService/UploadPinned` → `MLService/Upload`. Legacy и strict counters/duration агрегируются, поэтому отдельные strict error rate/latency из этих series не выводятся. Trace/span name и `rpc.method` сохраняют фактический `UploadPinned`. Прежние bounds≤63 named operations + other=64,118 named tuples +10 fallback=128, privacy/exemplars/exporter queues и O2 pins/budgets сохранены. [Q0 identity и границы](q0-architecture-2026-10-20.md).
 Статус: реализация и runtime-проверки выполнены; итог приёмки и публикации — в execution ledger. [Требования](project-handbook/references/o2-q0-execution.md), [архитектура и бюджеты](o2-architecture-2026-10-20.md), [редактируемая C4](o2-observability.drawio). Этот runbook описывает согласованный способ проверки; текущие фактические результаты — в [runtime-отчёте](project-handbook/references/o2-runtime.md).
 
 O2 добавляет Collector, Loki, Tempo, Prometheus и Grafana к изолированному `pulse-prep`. Корреляция и безопасный JSON stdout сохраняют [O1-контракт](observability-o1.md). Трейсы и метрики идут по OTLP/gRPC; логи — только через ограниченные файлы. Метрики описывают работу сервисов, а не качество модели или действия сотрудников.

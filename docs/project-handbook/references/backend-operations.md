@@ -1,22 +1,24 @@
-> Снимок документа 20.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 21.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Эксплуатация
 
+
+Q0 synthetic process/resource проверки описаны в [runbook/proof](q0-runtime.md); их запускают на отдельной disposable PostgreSQL, не на PREP. Schema12 — версия исходников, не свидетельство миграции actual PREP. Новые accepts требуют parser v2; DDL читает historical v1/v2, без backfill. Для rollback оставляют additive tables и immutable registry, отключая новых callers; сохранённые входы не пересчитывают через mutable legacy Upload. Public job/worker/recovery пока не реализованы; real-private TTL/encryption/access/backup policies остаются gate.
 ## Миграции
 
 ```sh
 make migrate
 ```
 
-- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии11.
-- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11. Таблицы и прежние данные сохраняются.
+- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии12 (Q0 saved-input primitives).
+- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12. Таблицы и прежние данные сохраняются.
 - Другая ревизия или отсутствующий Alembic marker: команда завершается ошибкой. Сначала приведите БД к поддерживаемой ревизии прежним мигратором.
 
 Приложение не выполняет миграции при HTTP-старте. Перед изменением нужен backup и проверка на отдельной восстановленной БД. Версия11 не backfill-ит profile/cohort_version старых ml_run: NULL означает исторически неизвестную identity. Не удаляйте nullable-поля/таблицы ради rollback приложения. Исходники прежнего монолита — только локальный archive.
 
 ## Docker
 
-Контракты передаются как отдельный build context. Package version v0.1.1 не различает PREP SDK и прежний release. Используйте source commit contracts `07213c430318affd140f55dea391cdc36220d93f` и проверенные соседние checkout:
+Контракты передаются как отдельный build context. Текущий Q0 source использует candidate v0.1.2 UNRELEASED, contracts `272f23027e4a3ba636305b931f6ab83e5fca8166`. Для воспроизведения PREP требуется прежний contracts `07213c430318affd140f55dea391cdc36220d93f` и соответствующий PREP consumer source: package0.1.1 само по себе их не различает. Не смешивайте эти профили; используйте проверенные соседние checkout:
 
 ```sh
 # Из pulse-backend, с соседним pulse-contracts:

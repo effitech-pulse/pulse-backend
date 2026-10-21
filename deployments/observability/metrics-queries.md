@@ -1,5 +1,7 @@
 # Pinned Collector 0.163.1 queries
 
+
+Q0 metric-only alias: `MLService/UploadPinned` → `MLService/Upload`. Legacy and strict counts/durations share the same series; these metrics cannot isolate strict latency or error rate. Trace/span names and `rpc.method` remain `UploadPinned`. Bounds remain≤63 named operations + other=64 and118 named tuples +10 fallback=128; privacy, disabled exemplars, queues and O2 pins/budgets are unchanged.
 Internal scrape is `otel-collector:8888`, OTLP app metrics is `:8889`.
 No application instance/version/trace IDs are metric labels. Native exporter
 queue HELP text still says “batches”; with configured `sizer: bytes` the actual

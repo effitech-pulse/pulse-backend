@@ -1,5 +1,7 @@
 # Конфигурация и зависимости окружения
 
+
+Q0 strict path использует operator-owned `ML_BUNDLE_REGISTRY` отдельно от mutable named models и immutable expected pin. Package0.1.2 UNRELEASED недостаточно: нужны reviewed source/wheel и actual installed runtime identity. Новая acceptance recipe включает synthetic limits20MiB raw/100000rows/128columns/64targets/50MiB canonical и exact parser identity. Это версия внутреннего module, не новая production HTTP configuration; source schema12 не означает actual PREP migration. [Architecture](../references/q0-architecture.md), [runbook](../references/q0-runtime.md).
 Полная датированная [конфигурация backend](../references/backend-configuration.md) перечисляет все ключи публичного примера с defaults/профилями/моментом валидации. [Native/runtime инструкция ML](../references/runtime-installation.md) отделяет проверенный CPython 3.13/macOS профиль от metadata ≥3.11, Docker/CI и будущего release. Ключевые сведения ниже — обзор, а не свидетельство запуска всех профилей.
 
 ## Требования

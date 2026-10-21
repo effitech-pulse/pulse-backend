@@ -1,5 +1,7 @@
 # Связь требований макетов кода и проверок
 
+
+Q0 связь: [architecture](../references/q0-architecture.md)/[diagram](../diagrams/q0-artifact-pinning.drawio) → source C272f230/Me5cc61b/B2024896 + combined execution afae2c4 (P-SR04) → [RUN-2 runtime proof](../references/q0-runtime.md). P-SR01–03 CLOSED; source/runtime/reproducer ACCEPTED назначенным Senior; final docs/publication acceptance PASS. Proof содержит13PASS и frozen identities/reproducer; historical STOP/FAIL сохранены. Q1/F2 — следующая отдельная фаза, public async/job/outbox ещё отсутствуют.
 ## O2 · implementation/runtime verified; публикационный gate, 20.10.2026
 
 | Требование / владелец | Связь и состояние |

@@ -1,5 +1,7 @@
 # Пульс скважины · Backend
 
+
+Q0: внутренние stored-file primitives и strict `UploadPinned` прошли synthetic RUN-2: **13/13 PASS** на одном frozen binary; source/runtime/reproducer приняты, final docs/publication gate PASS. [Архитектура](docs/q0-architecture-2026-10-20.md), [результаты и воспроизводимые команды](docs/q0-runtime-2026-10-21.md). Public saved-file/async routes, job/outbox/worker — следующий scope Q1/F2; real-private enable и scientific acceptance остаются закрыты/отложены соответственно.
 ## Актуальный портал · 21.10.2026
 
 Рабочая локальная сборка: `http://127.0.0.1:8088/`, API8018, существующая
@@ -60,7 +62,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию 12 (additive Q0 saved-input primitives; production routes пока не подключены). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию 12 (additive Q0 saved-input primitives; production routes пока не подключены; actual PREP schema12 этим не активирована). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 

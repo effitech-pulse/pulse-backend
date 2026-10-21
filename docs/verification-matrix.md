@@ -1,5 +1,7 @@
 # Проверки Pulse и обязательные gates — DOC-05
 
+
+Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime-2026-10-21.md) фиксирует source/binary/pin identity и **13/13 synthetic runtime PASS**: resource8, replay1, strict faults4. Test names: `TestQ0StoredFileResourceCaps`, `TestQ0StoredFileProcessReplay`, `TestQ0StoredFileProcessFaults` в `internal/transport/httpapi/file_inputs_process_test.go`; generator/launcher — `test/q0_process/`. Без `Q0_PROCESS_RUN=1`, отдельной PG, accepted Python/pin или Darwin measurement profile process SKIP/отсутствие evidence не является acceptance. Source/runtime/reproducer ACCEPTED; final docs/publication gate pending; cold install UNTESTED, remote SDK/CI OPEN, scientific user-deferred/not_assessed. Прежние STOP/RERUN1 FAIL сохранены отдельно от актуального RUN-2.
 Срез 19.10.2026. Владелец матрицы — tech-lead; владельцы команд — сопровождающие соответствующих модулей. Команды выполняются из корня указанного репозитория. Эта матрица различает требуемую проверку, настроенный CI и фактически полученное свидетельство. Наличие workflow не означает, что он уже исполнялся на текущем diff.
 
 ## Обязательные проверки

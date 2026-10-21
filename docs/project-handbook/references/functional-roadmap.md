@@ -1,6 +1,8 @@
-> Снимок документа 20.10.2026. Источник: `tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 21.10.2026. Источник: `tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Pulse: общий план функционала, наблюдаемости и надёжных заданий
+
+Актуализация 21.10.2026: Q0 whole synthetic internal acceptance закрыта координатором после source/runtime/reproducer/docs APPROVED назначенным Senior. RUN-2: 13/13 PASS; постоянный proof — [Q0 runtime](q0-runtime.md). Пользователь явно выбрал следующим Q1/F2 — надёжную сохранённую проверку файлов; план и архитектура (исходник `tasks/pulse-backend/q1-f2-2026-10-21/task.md`; в пакет не включён). Исторические исходные статусы ниже сохранены.
 
 **O2 · реализация и runtime проверены, 20.10.2026:** source Go/Python/optional stack прошёл Senior review. Реальные traces/logs/metrics, пять отдельных 20s outages и сохранение business результатов проверены координатором; W1/P2 памяти Grafana закрыто независимым Senior, финальный rollback проверен. Финальный docs review и автономный публикационный gate PASS; O2 принята как локальный пилот. Статус и доказательства — [O2 execution](o2-q0-execution.md), [runtime](o2-runtime.md), запуск — [runbook](observability-o2.md). Локальная Grafana-only bridge сеть явно разрешена пользователем с возможным egress, не как network deny. После закрытия O2 продолжаем **Q0→Q1/F2**, затем прежние зависимости; новое [паспорт/Excel/помощник предложение](well-operations-proposal.md) не означает назначения реализации. Нижние исходные предложения и O1 facts сохраняют исторический контекст.
 

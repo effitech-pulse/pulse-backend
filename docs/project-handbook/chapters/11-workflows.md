@@ -1,5 +1,7 @@
 # Рабочие сценарии и жизненный цикл скважины
 
+
+Q0 synthetic workflow проверен отдельно: real session→stored input→PG→separate ML, два kill-after-commit/restart барьера, удаление source CSV и explicit replay возвращают тот же immutable result без новых features. Это proof внутренних primitives, а не доступный пользователю durable workflow: saved-file/async routes/job/outbox/worker/automatic recovery — Q1/F2. [Proof/runbook](../references/q0-runtime.md), [архитектура](../references/q0-architecture.md). Norm/insufficient/error остаются разными outcomes; source/runtime/reproducer ACCEPTED; final docs/publication PASS.
 ## Риски и телеметрия
 
 Технолог выбирает скважину по ID Pulse, видит оценку модели и основание яруса, затем изучает телеметрию за соответствующий период. Сравнение периодов должно сохранять реальные временные метки и одинаковый выбранный набор каналов. Недостаток канала/истории показывается явно.

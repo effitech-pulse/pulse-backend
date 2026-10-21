@@ -1,4 +1,4 @@
-> Снимок документа 20.10.2026. Источник: `pulse-ml-service/docs/model-rpc-compatibility.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 21.10.2026. Источник: `pulse-ml-service/docs/model-rpc-compatibility.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Совместимость моделей, RPC и происхождение результата
 
@@ -44,6 +44,14 @@ Envelope содержит snapshot_id/computed_at, bundle identity, context vers
 Backend сохраняет полный output snapshot в PG JSONB атомарно с алертами/finish. Чтение выбранного run после refresh/ML restart возвращает сохранённый ответ без нового ML. Это проверка неизменности выхода, не replay входа. Ошибка/рестарт не публикует неполный snapshot как done; версия11 фиксирует profile/cohort_version при BeginCohort до потенциальной ошибки Members. Повторная запись не создаёт вторую несовместимую идентичность.
 
 Новый consumer со старым server читает отсутствие envelope как unknown. Старые consumers читают прежние поля нового сервера. Исторические runs/manual checks остаются доступными без retrofill текущими model/as_of/cohort. Pre11 attempt profile остаётся NULL; отсутствие identity не выводится из started_at/model_name.
+
+## Q0: отдельный strict UploadPinned · 21.10.2026
+
+Текущий local SDK candidate0.1.2 **UNRELEASED**, contracts source `272f23027e4a3ba636305b931f6ab83e5fca8166`, добавляет отдельный client-streaming `UploadPinned`; legacy PREP wire/source и матрица решений выше сохраняются. Первый chunk содержит typed pin/input, последующие — только canonical content≤1MiB/chunk и≤50MiB/file. UploadPinned input SHA относится к canonical bytes; legacy Upload input SHA остаётся hash переданного raw file. Старый peer `UNIMPLEMENTED` не разрешает downgrade на Upload.
+
+ML `pinned_upload` разрешает bundle digest в отдельном operator-owned immutable registry; verified loader читает private verified snapshot, повторно проверяя файлы/optional absence даже при warm cache. До features сравниваются bundle/context/decision rule, actual feature recipe/schema/source resources/runtime и canonical hash/length. Отсутствие/повреждение/несовпадение pin или unsupported recipe fail-closed; causal Upload по-прежнему unsupported. `describe_execution_pin` — trusted local helper без inference, публичного describe RPC нет. Source/runtime должны быть frozen: hot reload не поддерживается, смена установленного окружения требует нового pin.
+
+Backend Q0 сохраняет immutable raw/canonical input и parser v2 recipe/schema/config identity в schema12, отдельно immutable result. [RUN-2 synthetic proof](q0-runtime.md) подтвердил13/13 cases, два kill-after-commit/restart/replay барьера и strict faults до features; partial scientific provenance не превращается в complete replay для research/исторических PREP outputs. Public saved-file/async routes/job/outbox/worker отсутствуют; actual PREP schema12 не активирована. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; remote fetch/release/cloud CI OPEN, cold install UNTESTED, real-private policies OPEN, scientific user-deferred/not_assessed. Полный [strict transport/registry contract](ml-service-readme.md#q0-строгая-проверка-сохранённого-synthetic-input) описывает bounds/trust и допустимые ошибки.
 
 ## Что остаётся целевым
 

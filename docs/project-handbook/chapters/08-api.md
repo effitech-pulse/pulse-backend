@@ -1,5 +1,7 @@
 # HTTP API и gRPC контракты
 
+
+Q0 SDK0.1.2 (**local UNRELEASED**) добавляет отдельный stream-unary `UploadPinned`: header pin/input, затем canonical chunks; registry/policy/recipe/runtime проверяются до features, без legacy fallback. Это внутренний service/RPC seam: production saved-file/async HTTP routes пока отсутствуют. Старые HTTP Upload/period-check ниже сохраняют прежний контракт и не превращаются в202. [RPC semantics](../references/model-rpc-compatibility.md), [Q0 proof](../references/q0-runtime.md); release/remote availability/cloud CI OPEN.
 ## Источники контракта
 
 [Полный OpenAPI JSON](../contracts/openapi.json) — копия `pulse-backend/api/openapi.json` текущего рабочего дерева. [ml.proto](../contracts/ml.proto) — копия единственного protobuf-контракта из pulse-contracts. Каталог операций ниже сформирован из OpenAPI; реализацию и серверные права определяют также `transport/httpapi/routes.go`, `access.go` и сервисы.

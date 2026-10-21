@@ -1,5 +1,7 @@
 # Решения и план развития
 
+
+Q0 принятое source-решение: typed immutable input + actual parser v2 identity + strict pre-inference pin в отдельном UploadPinned. Exact9 parser dependencies и embedded source bytes включаются в recipe, missing BuildInfo fail-closed; OS tzdb/compiler attestation не обещаются. Memory correction убрала overlapping bulk map graphs только saved path, сохранив legacy semantics. [Архитектура](../references/q0-architecture.md), [RUN-2 measurements](../references/q0-runtime.md); final docs/publication gate PASS; Q1 job/outbox — отдельная фаза.
 ## Актуальное продолжение · 20.10.2026
 
 [Roadmap](../references/functional-roadmap.md): O1/F1 приняты; O2 — implementation/runtime VERIFIED, W1/final rollback CLOSED; final docs/publication gate PASS, O2 принята как локальный пилот, затем Q0→Q1/F2 и прежние зависимости. [O2 execution](../references/o2-q0-execution.md) и [архитектура](../references/o2-architecture.md) отделяют проверяемый local pilot от production. [Q0 architecture](../references/q0-architecture.md) описывает immutable input/pinning prerequisite, не installed broker/durable consumer.

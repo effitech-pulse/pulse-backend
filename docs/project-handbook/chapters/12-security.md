@@ -1,5 +1,7 @@
 # Аутентификация RBAC и защита данных
 
+
+Q0 saved path получает actor только из current session/account, заново проверяет role/scope/lifecycle на prepare/accept/open/result/retry/compute; saved snapshot не capability. Public payload JSON скрыт, list/metadata payload-free. [RUN-2](../references/q0-runtime.md) проверил эти synthetic controls и fail-closed faults до features. Real-private enable закрыт до owner TTL/max lifetime, encryption PG/WAL/temp/backups, access/audit, quotas/retention/backup policy; synthetic PASS не разрешает реальные файлы.
 ## Два режима запуска
 
 | Режим | Идентификация | Назначение |

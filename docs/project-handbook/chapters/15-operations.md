@@ -1,5 +1,7 @@
 # Сборка запуск и сопровождение
 
+
+Q0 process/resource runbook — [RUN-2 proof](../references/q0-runtime.md). Harness использует disposable PG16/unique schemas, отдельный GOWORK и accepted installed Python, не PREP/shared .venv. Фактический RUN-2 на55479 завершён: own processes/schemas/temp0, container absent, lease RELEASED; existing PREP/old testPG сохранены. Schema12 мигрируется явно только после backup/разрешённого rollout. Q0 rollback сохраняет additive tables/registry и immutable inputs; public worker/recovery пока отсутствуют.
 ## O2 · optional supervised pilot, implementation/runtime verified
 
 Используйте [O2 runbook](../references/observability-o2.md) и [runtime evidence](../references/o2-runtime.md): prep→O1→O2 overlays, отдельные `:o2` images, private password file, supervisor/budget и отдельный контролируемый rollback приложений на `:o1-f1`. PREP UI/API8088/8018/PG55439 отделены от integration PG55432 и исходного8080/live DB. Grafana доступна на loopback3300 с native auth; пользователь прямо разрешил Grafana-only UI bridge с возможным egress. Это не network deny или unattended deployment.

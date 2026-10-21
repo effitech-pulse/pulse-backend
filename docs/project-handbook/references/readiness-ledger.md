@@ -1,4 +1,4 @@
-> Снимок документа 20.10.2026. Источник: `tasks/pulse-backend/docs/ready-for-development-2026-10-19.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 21.10.2026. Источник: `tasks/pulse-backend/docs/ready-for-development-2026-10-19.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # PREP: готовность Pulse к следующему функционалу
 

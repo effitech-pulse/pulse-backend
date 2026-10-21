@@ -1,5 +1,7 @@
 # Архитектура backend
 
+
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют принятую synthetic source/runtime/reproducer область (13PASS) и pending final docs/publication gate. Public saved-file/async routes, job/outbox/worker и automatic recovery относятся к Q1; текущие sync routes сохранены. Schema12 не объявляется активированной на actual PREP.
 ## Границы ответственности
 
 Frontend обращается к HTTP API на Gin. Backend хранит операционные данные в PostgreSQL и вызывает Python ML по gRPC. Обучение, признаки и модель остаются в `pulse-model`; backend не устанавливает этот пакет.
@@ -39,11 +41,11 @@ SQL строится Squirrel и выполняется pgx. Динамичес�
 
 ## Контракты
 
-`pulse-contracts` — отдельный Git-репозиторий, Go-модуль и Python-пакет. Только он хранит `.proto` и generated SDK. Backend требует Go `v0.1.1`, ML-сервис — Python `0.1.1`. Их сборки не запускают protoc и не копируют схему.
+`pulse-contracts` — отдельный Git-репозиторий, Go-модуль и Python-пакет. Только он хранит `.proto` и generated SDK. Текущие исходники backend/ML используют Go `v0.1.2` / Python `0.1.2`, локальный **UNRELEASED** Q0 candidate contracts `272f23027e4a3ba636305b931f6ab83e5fca8166`. PREP0.1.1 остаётся отдельным историческим source binding. Их сборки не запускают protoc и не копируют схему.
 
 Схема проверяется Buf (lint и breaking checks), SDK создают официальные генераторы. gRPC-адаптер Go преобразует generated-типы в domain напрямую, сохраняя optional и int64 без JSON. Python использует официальный protobuf json_format на границе словарей движка.
 
-Локальная разработка использует `go.work` и editable Python install. Независимая сборка подключает тег `v0.1.1` из приватного [pulse-contracts](https://github.com/effitech-pulse/pulse-contracts); нужны read-доступ и Git credentials. Выпуск и политика совместимости описаны в README контрактов.
+Локальная разработка использует отдельный `go.work` и проверенный contracts checkout; Q0 process proof использует изолированные установленные Python wheels. Package version не заменяет exact source/wheel identity. Remote availability/fetch, release и cloud CI для0.1.2 остаются OPEN; выпуск описан в README приватного [pulse-contracts](https://github.com/effitech-pulse/pulse-contracts).
 
 ## Диаграммы C4
 
