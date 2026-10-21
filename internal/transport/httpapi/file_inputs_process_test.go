@@ -930,7 +930,7 @@ func q0ResourceChild(t *testing.T, pool *pgxpool.Pool, mode string) {
 		out["input"] = summary
 		if mode == "W3" {
 			path := filepath.Join(root, "prepared-w3.json")
-			q0JSON(t, path, v)
+			q0WritePreparedFixture(t, path, v)
 		}
 	}
 	q0JSON(t, filepath.Join(root, "evidence", mode+"-outcome.json"), out)
@@ -1220,7 +1220,10 @@ func q0Quota(t *testing.T, pool *pgxpool.Pool, checks *service.FileChecks, ctx c
 			t.Fatal(e)
 		}
 	} else {
-		q0Read(t, filepath.Join(root, "prepared-w3.json"), &prepared)
+		prepared, e = q0LoadPreparedFixture(filepath.Join(root, "prepared-w3.json"))
+		if e != nil {
+			t.Fatal("GATE OPEN: invalid W3 prepared fixture: ", e)
+		}
 	}
 	accounts := []domain.Account{}
 	for _, login := range []string{"technologist", "sibling", "quota"} {
@@ -1331,9 +1334,9 @@ func TestQ0StoredFileResourceCaps(t *testing.T) {
 	for _, mode := range []string{"W2", "W2columns", "W3raw", "W3rows", "W3", "W4", "W5", "W5count"} {
 		t.Run(mode, func(t *testing.T) {
 			if mode == "W5" {
-				if _, e := os.Stat(filepath.Join(root, "prepared-w3.json")); e != nil {
-					q0JSON(t, filepath.Join(root, "evidence", mode+"-outcome.json"), map[string]any{"status": "OPEN", "gate": "W3_server_prepared_fixture_missing"})
-					t.Error("GATE OPEN: W5 requires accepted W3 prepared fixture")
+				if _, e := q0LoadPreparedFixture(filepath.Join(root, "prepared-w3.json")); e != nil {
+					q0JSON(t, filepath.Join(root, "evidence", mode+"-outcome.json"), map[string]any{"status": "OPEN", "gate": "W3_server_prepared_fixture_invalid", "reason": e.Error()})
+					t.Error("GATE OPEN: W5 requires intact accepted W3 prepared fixture: ", e)
 					return
 				}
 			}
@@ -1563,5 +1566,264 @@ func TestQ0W5ForcedFailureControl(t *testing.T) {
 		}
 	default:
 		t.Skip("explicit private negative control only")
+	}
+}
+
+// q0PreparedFixture is private, test-only process handoff. Public domain JSON
+// intentionally excludes payloads and limits and must never be used for W3→W5.
+type q0PreparedFixture struct {
+	Version   string                  `json:"version"`
+	Prepared  domain.FileInputSummary `json:"prepared"`
+	Raw       []byte                  `json:"raw"`
+	Canonical []byte                  `json:"canonical"`
+	Limits    domain.FileInputLimits  `json:"limits"`
+}
+
+func q0WritePreparedFixture(t testing.TB, path string, prepared domain.PreparedFileInput) {
+	t.Helper()
+	if err := domain.ValidateFileInput(prepared); err != nil {
+		t.Fatal("invalid prepared fixture: ", err)
+	}
+	q0JSON(t, path, q0PreparedFixture{"q0_prepared_fixture_v1", prepared.FileInputSummary, prepared.Raw, prepared.Canonical, prepared.Limits})
+}
+
+// Validate before any W5 baseline, admission or measured resource child starts.
+// Return no partial input on errors so corruption cannot enter quota measurement.
+func q0LoadPreparedFixture(path string) (domain.PreparedFileInput, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return domain.PreparedFileInput{}, err
+	}
+	var fixture q0PreparedFixture
+	if err = json.Unmarshal(raw, &fixture); err != nil {
+		return domain.PreparedFileInput{}, fmt.Errorf("decode prepared fixture: %w", err)
+	}
+	if fixture.Version != "q0_prepared_fixture_v1" {
+		return domain.PreparedFileInput{}, errors.New("invalid_prepared_fixture_version")
+	}
+	prepared := domain.PreparedFileInput{FileInputSummary: fixture.Prepared, Raw: fixture.Raw, Canonical: fixture.Canonical, Limits: fixture.Limits}
+	if err = domain.ValidateFileInput(prepared); err != nil {
+		return domain.PreparedFileInput{}, fmt.Errorf("validate prepared fixture: %w", err)
+	}
+	return prepared, nil
+}
+
+// These doubles supply only authorization and replay lookup; preparation uses the
+// actual reader, schema decoder, parser identity and normalization service.
+type q0FixtureDependencies struct {
+	service.FileInputStore
+	service.FundScope
+}
+
+func (q0FixtureDependencies) Account(context.Context, int64) (domain.Account, error) {
+	return domain.Account{ID: 1, Active: true, Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}}, nil
+}
+func (q0FixtureDependencies) RequireWell(context.Context, int64) (domain.Well, error) {
+	return domain.Well{ID: q0Well, Active: true, FundType: "operational"}, nil
+}
+func (q0FixtureDependencies) FileInputRequest(context.Context, int64, string) (domain.FileInputSummary, error) {
+	return domain.FileInputSummary{}, domain.NewError(domain.Missing, "missing")
+}
+
+func q0SmallPreparedFixture(t *testing.T) domain.PreparedFileInput {
+	t.Helper()
+	schema, err := parameterfile.ParseTelemetrySchema([]byte(`{"tags":[{"alias":"F_out","server_parameter":{"is_set":false,"coef_k":1,"coef_b":0}}]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := domain.FileSHA256([]byte("synthetic fixture"))
+	pin := domain.ExecutionPin{Version: "upload_pin_v1", ModelName: "fixture", BundleSHA256: h, ContextVersion: "legacy_v1", DecisionRule: &domain.DecisionRule{ContextVersion: "legacy_v1", PolicyID: "fixture", RuleSHA256: h, Watch: &domain.ThresholdRule{Scale: "raw", Comparison: ">"}}, FeatureRecipeSHA256: h, FeatureSchemaSHA256: h, RuntimeManifestSHA256: h, SourceManifestSHA256: h}
+	deps := q0FixtureDependencies{}
+	checks, err := service.NewFileChecksWithBuildInfo(deps, deps, deps, fileinput.Reader{}, sessionFileScorer{}, schema, pin, domain.DefaultFileInputLimits(), sessionFixtureBuildInfo(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	account, _ := deps.Account(context.Background(), 1)
+	ctx := domain.WithPrincipal(context.Background(), domain.AccountPrincipal(account))
+	spec := domain.FileParseSpec{Version: "file_input_v1", Format: "csv", Delimiter: ",", HeaderRow: 1, TimeColumn: "time", TimestampLayout: "rfc3339", Timezone: "UTC", Mappings: []domain.Mapping{{Field: "f", Parameter: "F_out", Scale: 1}}}
+	prepared, err := checks.PrepareFileInput(ctx, q0Well, "q0_fixture_roundtrip", spec, strings.NewReader("time,f\n2026-01-01T00:00:00Z,0\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return prepared
+}
+
+func TestQ0PreparedFixtureRoundTrip(t *testing.T) {
+	prepared := q0SmallPreparedFixture(t)
+	path := filepath.Join(t.TempDir(), "prepared-w3.json")
+	q0WritePreparedFixture(t, path, prepared)
+	got, err := q0LoadPreparedFixture(path)
+	if err != nil {
+		t.Fatal("private fixture lost prepared payload or limits:", err)
+	}
+	if !bytes.Equal(got.Raw, prepared.Raw) || !bytes.Equal(got.Canonical, prepared.Canonical) || got.Limits != prepared.Limits {
+		t.Fatal("private fixture changed bytes or limits")
+	}
+	if got.RawBytes != int64(len(got.Raw)) || got.CanonicalBytes != int64(len(got.Canonical)) || got.RawSHA256 != domain.FileSHA256(got.Raw) || got.CanonicalSHA256 != domain.FileSHA256(got.Canonical) {
+		t.Fatal("private fixture changed hashes or lengths")
+	}
+	before, _ := json.Marshal(prepared.FileInputSummary)
+	after, _ := json.Marshal(got.FileInputSummary)
+	if !bytes.Equal(before, after) {
+		t.Fatal("private fixture changed original prepared metadata")
+	}
+	info, err := os.Stat(path)
+	if err != nil || info.Mode().Perm() != 0600 {
+		t.Fatal("private fixture permissions", info, err)
+	}
+	// Exercise the actual W5 consumer after persistence, including identity checks.
+	q0Rekey(t, got, domain.Account{ID: 2, Name: "quota", Role: "technologist", Revision: 1}, 6)
+}
+
+func TestQ0PreparedFixturePrivacy(t *testing.T) {
+	prepared := q0SmallPreparedFixture(t)
+	public, err := json.Marshal(prepared)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fields map[string]json.RawMessage
+	if err = json.Unmarshal(public, &fields); err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range []string{"Raw", "Canonical", "Limits", "raw", "canonical", "limits"} {
+		if _, ok := fields[field]; ok {
+			t.Fatal("public JSON exposed private field", field)
+		}
+	}
+	var exposed domain.PreparedFileInput
+	if err = json.Unmarshal(public, &exposed); err != nil {
+		t.Fatal(err)
+	}
+	if len(exposed.Raw) != 0 || len(exposed.Canonical) != 0 || exposed.Limits != (domain.FileInputLimits{}) || exposed.ID != prepared.ID {
+		t.Fatal("public JSON privacy or metadata control failed")
+	}
+	path := filepath.Join(t.TempDir(), "prepared-w3.json")
+	q0WritePreparedFixture(t, path, prepared)
+	private, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var control struct {
+		Prepared  domain.FileInputSummary `json:"prepared"`
+		Raw       []byte                  `json:"raw"`
+		Canonical []byte                  `json:"canonical"`
+		Limits    domain.FileInputLimits  `json:"limits"`
+	}
+	if err = json.Unmarshal(private, &control); err != nil {
+		t.Fatal(err)
+	}
+	if control.Prepared.ID != prepared.ID || !bytes.Equal(control.Raw, prepared.Raw) || !bytes.Equal(control.Canonical, prepared.Canonical) || control.Limits != prepared.Limits {
+		t.Fatal("private envelope positive control failed")
+	}
+}
+
+func TestQ0PreparedFixtureRejectsInvalid(t *testing.T) {
+	prepared := q0SmallPreparedFixture(t)
+	path := filepath.Join(t.TempDir(), "prepared-w3.json")
+	if _, err := q0LoadPreparedFixture(path); err == nil {
+		t.Fatal("missing fixture accepted")
+	}
+	q0WritePreparedFixture(t, path, prepared)
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var original map[string]json.RawMessage
+	if err = json.Unmarshal(raw, &original); err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range []string{"version", "prepared", "raw", "canonical", "limits"} {
+		t.Run("missing_"+field, func(t *testing.T) {
+			fields := make(map[string]json.RawMessage)
+			for k, v := range original {
+				fields[k] = v
+			}
+			delete(fields, field)
+			q0JSON(t, path, fields)
+			if _, err := q0LoadPreparedFixture(path); err == nil {
+				t.Fatal("incomplete fixture accepted")
+			}
+		})
+	}
+	for _, tc := range []struct {
+		name, field string
+		value       any
+	}{
+		{"corrupt_raw", "raw", []byte("changed")},
+		{"corrupt_canonical", "canonical", bytes.Repeat([]byte("x"), len(prepared.Canonical))},
+		{"wrong_limits", "limits", domain.FileInputLimits{}},
+		{"wrong_version", "version", "unknown"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fields := make(map[string]json.RawMessage)
+			for k, v := range original {
+				fields[k] = v
+			}
+			fields[tc.field], _ = json.Marshal(tc.value)
+			q0JSON(t, path, fields)
+			if _, err := q0LoadPreparedFixture(path); err == nil {
+				t.Fatal("corrupt fixture accepted")
+			}
+		})
+	}
+	for _, raw := range [][]byte{[]byte("{"), []byte("null"), []byte("{}"), mustQ0PublicJSON(t, prepared)} {
+		if err = os.WriteFile(path, raw, 0600); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := q0LoadPreparedFixture(path); err == nil {
+			t.Fatal("invalid or public-only fixture accepted")
+		}
+	}
+}
+
+func mustQ0PublicJSON(t *testing.T, prepared domain.PreparedFileInput) []byte {
+	t.Helper()
+	raw, err := json.Marshal(prepared)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return raw
+}
+
+func TestQ0PreparedFixturePreflightBeforeMeasurement(t *testing.T) {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, mode := range []string{"missing", "corrupt"} {
+		t.Run(mode, func(t *testing.T) {
+			root := t.TempDir()
+			if err := os.Mkdir(filepath.Join(root, "evidence"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if mode == "corrupt" {
+				if err := os.WriteFile(filepath.Join(root, "prepared-w3.json"), []byte("{}"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			// No database or measured child is permitted: the invalid DSN would
+			// fail if preflight were moved below q0Schema or q0Start.
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, exe, "-test.run=^TestQ0StoredFileResourceCaps$/^W5$", "-test.v")
+			cmd.Env = append(os.Environ(), "Q0_PROCESS_RUN=1", "Q0_ROOT="+root, "TEST_DATABASE_URL=invalid-preflight-must-not-connect")
+			out, err := cmd.CombinedOutput()
+			var exit *exec.ExitError
+			if !errors.As(err, &exit) || exit.ExitCode() != 1 || ctx.Err() != nil {
+				t.Fatalf("expected bounded preflight rejection: %v %s", err, out)
+			}
+			var outcome struct {
+				Status string `json:"status"`
+				Gate   string `json:"gate"`
+			}
+			q0Read(t, filepath.Join(root, "evidence", "W5-outcome.json"), &outcome)
+			if outcome.Status != "OPEN" || outcome.Gate != "W3_server_prepared_fixture_invalid" {
+				t.Fatal("missing or corrupt fixture entered measurement", outcome)
+			}
+			entries, err := os.ReadDir(filepath.Join(root, "evidence"))
+			if err != nil || len(entries) != 1 {
+				t.Fatal("preflight produced measured process evidence", entries, err)
+			}
+		})
 	}
 }
