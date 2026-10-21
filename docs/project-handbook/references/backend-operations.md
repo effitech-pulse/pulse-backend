@@ -1,17 +1,17 @@
-> Снимок документа 21.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Эксплуатация
 
 
-Q0 synthetic process/resource проверки описаны в [runbook/proof](q0-runtime.md); их запускают на отдельной disposable PostgreSQL, не на PREP. Schema12 — версия исходников, не свидетельство миграции actual PREP. Новые accepts требуют parser v2; DDL читает historical v1/v2, без backfill. Для rollback оставляют additive tables и immutable registry, отключая новых callers; сохранённые входы не пересчитывают через mutable legacy Upload. Public job/worker/recovery пока не реализованы; real-private TTL/encryption/access/backup policies остаются gate.
+Q0 synthetic process/resource проверки описаны в [runbook/proof](q0-runtime.md); их запускают на отдельной disposable PostgreSQL, не на PREP. Schema12 — версия исходников, не свидетельство миграции actual PREP. Новые accepts требуют parser v2; DDL читает historical v1/v2, без backfill. Для rollback оставляют additive tables и immutable registry, отключая новых callers; сохранённые входы не пересчитывают через mutable legacy Upload. Это историческая Q0 область. Q1 job/worker/recovery реализованы в отдельном default-off synthetic профиле; [датированный proof](q1-runtime.md) фиксирует actual outcomes и ограничения. Real-private TTL/encryption/access/backup policies остаются gate.
 ## Миграции
 
 ```sh
 make migrate
 ```
 
-- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии12 (Q0 saved-input primitives).
-- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12. Таблицы и прежние данные сохраняются.
+- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии13 (Q1 jobs/outbox/inbox поверх Q0 saved-input primitives12).
+- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12, jobs/outbox/inbox/guard/leases13. Migration13 не создаёт synthetic guard и не включает feature; actual PREP не мигрирован этой проверкой. Таблицы и прежние данные сохраняются.
 - Другая ревизия или отсутствующий Alembic marker: команда завершается ошибкой. Сначала приведите БД к поддерживаемой ревизии прежним мигратором.
 
 Приложение не выполняет миграции при HTTP-старте. Перед изменением нужен backup и проверка на отдельной восстановленной БД. Версия11 не backfill-ит profile/cohort_version старых ml_run: NULL означает исторически неизвестную identity. Не удаляйте nullable-поля/таблицы ради rollback приложения. Исходники прежнего монолита — только локальный archive.
@@ -28,7 +28,7 @@ docker build --build-context contracts=../pulse-contracts \
 
 Backend не хранит копию SDK. В runtime-образ попадают только Go-бинарники; credentials доступа к приватному репозиторию не передаются в образ. В CI checkout контракта выполняется перед сборкой через read-only deploy key.
 
-Образ содержит `/app/api`, `/app/migrate`, `/app/adminuser`, `/app/cohort`. Настройте адреса БД и ML, доступные из контейнера, затем:
+Образ содержит `/app/api`, `/app/migrate`, `/app/adminuser`, `/app/cohort`. Q1 `bin/worker` собирается нативной командой `make build`; текущий Dockerfile worker не упаковывает, готовый worker image этой документацией не заявляется. Настройте адреса БД и ML, доступные из контейнера, затем:
 
 ```sh
 docker run --rm --env-file .env --entrypoint /app/migrate pulse-backend
@@ -142,3 +142,37 @@ docker compose -f deployments/compose.local.yaml stop
 С версии11 попытка получает profile/cohort_version на BeginCohort до чтения members; ранний failed/running run не исчезает из истории. Внешний failure reason обезличен. Legacy pre11 записи остаются unknown; текущий cohort им задним числом не присваивается. Статус технолога — изменяемый read-side overlay; immutable decision snapshot/digest при его изменении не переписывается.
 
 Сохранённый snapshot читается после ML restart без нового вычисления. Typed provenance имеет статус partial: bundle/runtime/source/policy/output identity и hash входа не заменяют сохранённые immutable входные bytes. Нельзя обещать полный replay/as-of или промышленное качество. Источники решения SHAP/окна и computed/training_median/zero_fallback не скрываются.
+
+## Q1 synthetic worker / recovery
+
+Сначала выбрать exclusive test schema/loopback ports и создать fixture manifest,
+matching complete cohort и file_job_pilot_guard в отдельном harness. Выполнить
+schema migration явно; API/worker сами не мигрируют и не seed-ят guard. Проверить
+manifest/hash/schema/pin startup, затем запустить API и один `bin/worker`.
+Capability/действия требуют настоящую local session; выключенная feature даёт503.
+См. [Q1 protocol](q1-file-jobs.md) и [configuration](backend-configuration.md).
+
+Broker pin `rabbitmq:4.3.6@sha256:3e5cc23235b0eb850f604e8ace10d9a9b6d05be3e36730e53522ee9ead707a9e`
+проверен как arm64 synthetic image; перед иной платформой проверьте manifest/digest.
+Версию amqp091-go1.15.0 не заменять floating dependency. Main/DLQ queues quorum,
+каждая≤64messages/64KiB, mainTTL20min/DLQ1h, message≤1KiB. max_message_size1024,
+channel16,connection8,heartbeat10s. Worker manual ack/prefetch1; retry delay в PG.
+
+Broker outage после202 сохраняет pending_dispatch. Запустить dispatcher после
+восстановления; unknown confirm безопасно повторяет EventID. Worker crash
+восстанавливает reconciler по истечению45s lease с новым fence и конечным attempt
+budget. Не использовать ручной INSERT result, reset counts, latest model fallback
+или републикацию payload. Quarantine — явная остановка, не бесконечная очередь.
+Malformed неизвестные references discard-ятся; известные проверяются/карантинятся
+через persisted mapping, без raw error/body в broker, logs или PG action.
+
+SIGTERM останавливает новые claims, отменяет RPC и ждёт bounded operations. Для
+app rollback остановить API admission, worker/dispatcher/reconciler, сохранить
+PG и Rabbit volumes; старый binary обслуживает legacy records. Pending jobs
+возобновляются новым worker с тем же manifest/policy. `compose down -v`, очистка
+inputs и schema downgrade не являются rollback этим сценарием.
+
+Resource stop для synthetic proof: GoRSS1GiB,MLRSS2GiB,temp128MiB,brokerRSS512MiB,
+PG relation+TOAST1GiB/WALdelta2GiB,free disk<2GiB; broker dedicated volume target512MiB.
+Снять evidence/остановить admission при превышении. Это measured pilot limits,
+не production SLA и не обещание OS hard cap. Секреты/raw data в evidence не писать.

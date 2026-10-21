@@ -1,5 +1,5 @@
 {
-  "edition": "2026-10-20 / O2 accepted local pilot; Q0 and operations planned",
+  "edition": "2026-10-22 / Q0 accepted; Q1/F2 implemented synthetic-only, post-fix stale proof open",
   "workspace_root": "repository-split, supplied explicitly via --workspace",
   "policy": "SOURCE_POLICY.md",
   "entries": [
@@ -40,8 +40,8 @@
       "source": "pulse-backend/api/openapi.json",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "594f10a93bb52d0468ef1740fa898c5015a2fc5d0bdcb02929b7b17aee9dcf92",
-      "snapshot_sha256": "594f10a93bb52d0468ef1740fa898c5015a2fc5d0bdcb02929b7b17aee9dcf92"
+      "source_sha256": "84fbc9db8fce89dac4024987c18eb83220d4c4f72519f24f2db88f7a109b2186",
+      "snapshot_sha256": "84fbc9db8fce89dac4024987c18eb83220d4c4f72519f24f2db88f7a109b2186"
     },
     {
       "snapshot": "contracts/runtime-constraints.txt",
@@ -424,16 +424,16 @@
       "source": "pulse-backend/Makefile",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "316aa04ba4bdd25606ff2cbc6a90923f0b38ec2048275e3b5d0f86c76d236cbc",
-      "snapshot_sha256": "316aa04ba4bdd25606ff2cbc6a90923f0b38ec2048275e3b5d0f86c76d236cbc"
+      "source_sha256": "1aa6e9876df44727f22b550e410517198328e41b45febafa02b294a71f3d7ed7",
+      "snapshot_sha256": "1aa6e9876df44727f22b550e410517198328e41b45febafa02b294a71f3d7ed7"
     },
     {
       "snapshot": "inventory/pulse-backend--go.mod",
       "source": "pulse-backend/go.mod",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "03e64c444f09777b74fd1d37115e236b506412439fd8982d558c4f6b859458c2",
-      "snapshot_sha256": "03e64c444f09777b74fd1d37115e236b506412439fd8982d558c4f6b859458c2"
+      "source_sha256": "7338438bbda00391c7e5bae8a5c758cc27853a9e8789c9b1283697e52c261c9b",
+      "snapshot_sha256": "7338438bbda00391c7e5bae8a5c758cc27853a9e8789c9b1283697e52c261c9b"
     },
     {
       "snapshot": "inventory/pulse-contracts--Makefile",
@@ -552,16 +552,16 @@
       "source": "pulse-backend/docs/configuration.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "c797ea3c99ebfd24573c135f2a03e0d44be61ca48a10f2c89c2df0037bf2c897",
-      "snapshot_sha256": "c2e33e5529d522c0c1eff5a6be73ab0acb5e2ae56c0e6e25551bd19248f5c7a3"
+      "source_sha256": "29c755f5348a4872eab79ca274b3ded27fbbad99c0c5102a5dfc2f3c8af00923",
+      "snapshot_sha256": "2bcd55f3f9cff0200f1b00c2657094a2e04f41b43db6dc50fd4798ded00a3fdd"
     },
     {
       "snapshot": "references/backend-operations.md",
       "source": "pulse-backend/docs/operations.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "eaf3c03c7f0110b885a3f27708f45137b2bdfb9a63502ea8a1eeab3b0e15ce5e",
-      "snapshot_sha256": "cd729fc708bdcbac05221603f82971e6d9216c7ef882cdf832f26356cc0b4acd"
+      "source_sha256": "97b30f725a174c27d5f3585fe60424b525d770af6b0995c66b55f5c926464573",
+      "snapshot_sha256": "d3c8bf39a8d449bcb36866257409dab972ff1921a00b847a63f3e802cf46828e"
     },
     {
       "snapshot": "references/causal-baseline.md",
@@ -569,31 +569,31 @@
       "owner": "architect-analyst",
       "mode": "markdown",
       "source_sha256": "e11603823077b0fc00f989a23e6ccfd3734312219cabd1aa82cf7b1243027fbe",
-      "snapshot_sha256": "098bcf751167e1d6fb015eab4d011b762019a881da1732cfcc6f65d874e92740"
+      "snapshot_sha256": "b1cd73c99624b5750d01d3c9544be82a6e420ec334fd1b454dff8dbabc0bcd92"
     },
     {
       "snapshot": "references/frontend-design.md",
       "source": "pulse-frontend/DESIGN.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "7f55dc5c57ec3dca60109d5cda19863d3c67ba9efaed21440a5bbbbb7d3e3eeb",
-      "snapshot_sha256": "07d188388c9173af9c64d8871b6c37e22b27893f9440295586ad11e7752313d4"
+      "source_sha256": "6467453386388193d37d8d74a316535596fcf5ca93a713f205532e2805446f2e",
+      "snapshot_sha256": "0fd416d4d29b5f87ef985862a4304424864c51d14a63d198680804aa27d3718b"
     },
     {
       "snapshot": "references/frontend-handoff.md",
       "source": "pulse-frontend/design/HANDOFF.md",
       "owner": "designer",
       "mode": "markdown",
-      "source_sha256": "b2d461acbe18214bed4c72b19cc6d668edf96076ab9aab9874f368fdf7a350d3",
-      "snapshot_sha256": "26e3e02354fad3e254ece286d097596afd8268c979a8d4bc5d12298330707742"
+      "source_sha256": "656a1f748bd89842b37c1cd9f5780d1442773ec3010db9acfc7177e34f2fe0d4",
+      "snapshot_sha256": "bfe2d6d85d5eebc77873c3aa006f974d1170fc93a34b92eef19b7c957d590493"
     },
     {
       "snapshot": "references/frontend-readme.md",
       "source": "pulse-frontend/README.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "1c0efd057e976acf49fe5363be4e65f530e1a91613d84435affd7b375c8dc93c",
-      "snapshot_sha256": "cb22416386605e67f2a80e1245e5a72da0ae4162f41d1167e10debcd27863b44"
+      "source_sha256": "18903059ce368c34dcf77084dbb1797f55b3ea9f046a7772999c7cf99ff759e7",
+      "snapshot_sha256": "a513ed9919bb6e50ffe8ceae6697da93cc1993aa0c9ec1340f1b01963eb28ed0"
     },
     {
       "snapshot": "references/independent-acceptance.md",
@@ -601,7 +601,7 @@
       "owner": "architect-analyst",
       "mode": "markdown",
       "source_sha256": "065b6c3f6b11069cf8fe29091626c70c60d78370d8071450ddcd562c4047735e",
-      "snapshot_sha256": "0969d456275acd2b4d22ab2fae2e41d838116258c4854f10d83d2e364fde44d5"
+      "snapshot_sha256": "b048f6318950abafbb2879ecc644aa25be812bd44b463289104490755d8f3b49"
     },
     {
       "snapshot": "references/ml-service-readme.md",
@@ -609,15 +609,15 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "12469c98e867b383f366d7e3402f163e204a9cbc135f58018570b2aea06d474d",
-      "snapshot_sha256": "9be9aed449125164649922b1a5733ec754d4a156b5e7efc82017fa1811843b7a"
+      "snapshot_sha256": "c6571658e97bc0d85d09811bf0b4ccdda79d553c876cc5f99de6b26b0853719b"
     },
     {
       "snapshot": "references/model-rpc-compatibility.md",
       "source": "pulse-ml-service/docs/model-rpc-compatibility.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "228bf1ad92676f8013974de61895fe98308da3dcda04fd49348a5816d38042cc",
-      "snapshot_sha256": "4efd9d2c243fd0e657f78a0e5d648e6b241bf3f9c55030337d0fcbbdb9d30347"
+      "source_sha256": "a1f7188bd2e309b41301bc184aebc1b8bf231a522bd9d9f0e612fb27d3c5580a",
+      "snapshot_sha256": "c4a7e79a435976f2d6ac952c2b8b41df58ce14b265961d029f41776df7f369ad"
     },
     {
       "snapshot": "references/readiness-architecture.md",
@@ -625,7 +625,7 @@
       "owner": "architect-analyst",
       "mode": "markdown",
       "source_sha256": "b5ce501782c6a1b3b4b5a22f95333c49efb295e20a26b7cbbb9846726f3e1386",
-      "snapshot_sha256": "5e2a5b12a57f1a26650c65fb3841667cd6968f27b9b04d74fde97977590c756b"
+      "snapshot_sha256": "84ed1663a0919cf56afa79502263a24f1c91ee22b5410964449ca2ec62516ca5"
     },
     {
       "snapshot": "references/readiness-ledger.md",
@@ -633,7 +633,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "d5b6d6e9f573db2c2334e8ca9117f57eb586461d9e776ccab09d83295ab78f29",
-      "snapshot_sha256": "f9481d8bd6915381603c2663984053a361ef338d3ed6a54c64289eb2752937cd",
+      "snapshot_sha256": "62ee8d3d1a0ae115b0673480b32a917bc43d7235bc5817723e25e38c08792a72",
       "source_kind": "archived_task"
     },
     {
@@ -642,7 +642,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "be311ed1d9e161fb2db3740e9995f8a7ea9547405bd9824a969fc07eda1a44c9",
-      "snapshot_sha256": "37450015125094ceafbbdcf4175d5689f56c37e269b4af486d98f16d1eae1e59"
+      "snapshot_sha256": "3859c677b03dbee331722a1812c33e7991733c34a64b42e4070856f5bcca9dbd"
     },
     {
       "snapshot": "references/runtime-installation.md",
@@ -650,15 +650,15 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "9ef84093aee699f66409d030fa287cc415edfd2e7d1caa0d08ba9c8f09969a65",
-      "snapshot_sha256": "9062f7387ba79901281284468b571ab5f74ed7fc6cd0ddfb70297cefd5eb3741"
+      "snapshot_sha256": "bd9f5d0f5007063aff9120c04b6664e398b98c6c7d4204c16b2ae8cf41b75374"
     },
     {
       "snapshot": "references/verification-matrix.md",
       "source": "pulse-backend/docs/verification-matrix.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "df72cf6795a94eccf8cf37065a644fdbd3ee30b89f782f7a921da6d84b50e9df",
-      "snapshot_sha256": "307ef387a7528defeb7dc565dee5e48d38261c9c664df24f5dcb466112797921"
+      "source_sha256": "9cfb8328f34e5139468487c0ff882002ecf5c2d26369d4d11f02e4a3a9737ec7",
+      "snapshot_sha256": "b0d9bee161397a099820eed6f8408883cbfad23ee35ad88dcb5ecc2676b55011"
     },
     {
       "snapshot": "schemas/clickhouse/init.sql",
@@ -770,7 +770,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "97d72d1c85995773f03134c463f67e1f13879c9b306c024ab5606b7a69679f00",
-      "snapshot_sha256": "3500912dbfcf41fcdb8c314abd3f7f8e305a40516bdd79ccee212b5504ecf2e5",
+      "snapshot_sha256": "8a2acd13fea4b8f8f75fe79234062fbf8c02ee086f54ab8cce7078b217eef4ce",
       "source_kind": "archived_task"
     },
     {
@@ -779,7 +779,7 @@
       "owner": "backend-middle",
       "mode": "markdown",
       "source_sha256": "3c04e979d673aa2975a51b9b292ff2ec9d05d5ca622fa586f39b027612670a9c",
-      "snapshot_sha256": "17e0213a049441176b9108bac1a69a3d9f8a44a02ae9812b3b2ca8f06a1a886f"
+      "snapshot_sha256": "35094234031874b27244da18a302be4ff86d793fce6928633869be8d59f70c84"
     },
     {
       "snapshot": "references/o1-f1-runtime.md",
@@ -787,7 +787,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "8baa733118109a4e2de68f5121bc3d6ff811085a29aafa2bd9a57aea704d2606",
-      "snapshot_sha256": "09cbabe8faf5f800e2716c2354e3965f64fdbf2dd4054713e97efebe6aaa78ae"
+      "snapshot_sha256": "b4409a5c96ccd0475ece410e49e5c78d677536e182f866206f3373730c1faf3d"
     },
     {
       "snapshot": "references/observability-o2.md",
@@ -795,7 +795,7 @@
       "owner": "tech-lead + coordinator",
       "mode": "markdown",
       "source_sha256": "6f3a584bd343ae22d0efc82d0de98d712a559f41d2e267692740d9ad94f4ac17",
-      "snapshot_sha256": "16bba9f12eb22170cfa87e588e8aa0139576a65eab0c7cf2398626595110ff8c"
+      "snapshot_sha256": "21a59e75115dfa72740e02901cb4b6796b8a50cd41d09dbad713e4171d6633bb"
     },
     {
       "snapshot": "references/o2-runtime.md",
@@ -803,7 +803,7 @@
       "owner": "tech-lead + coordinator",
       "mode": "markdown",
       "source_sha256": "82091dd479bc020ce40ec9366f2bc62400dd17924acc6c571f5752cc2e79794e",
-      "snapshot_sha256": "5a51f4ebd8918bc957c857f2a0a5283fe815f256708be4d756a7de13c74345bd",
+      "snapshot_sha256": "9a31015dc8ec14d297ee259a2bcaf9b6f1de6093477f65b07fe1bbd0670e2aa8",
       "source_kind": "archived_task"
     },
     {
@@ -812,7 +812,7 @@
       "owner": "architect-analyst",
       "mode": "markdown",
       "source_sha256": "ae7a0c45de3e7d76cbb1ba26b6fd15f6c48629e265b4ebb1a7dccfd310277011",
-      "snapshot_sha256": "f68cb0b6ad698c084876beeb8b506a60a6326eabafef32b5e455eb96ca2cc28b"
+      "snapshot_sha256": "b55a6e9c1d6c3891eca6f0d944803a4a5257c055c6b66614af764ea6c6f8c980"
     },
     {
       "snapshot": "diagrams/o2-observability.drawio",
@@ -828,7 +828,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "f4d38d108466485fe3532fd185ad7674b44c24100d40cf29e5c2a5b8ae8d50ad",
-      "snapshot_sha256": "e5d8d6fa4dde58fed36f9931dda3134d4176485514e1c98d7e2c8543f40402dc",
+      "snapshot_sha256": "4222038e057729fa37a66e83d29dbd1faeb5533726014c3aaf22e756e8260109",
       "source_kind": "archived_task"
     },
     {
@@ -836,8 +836,8 @@
       "source": "tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "6e51d673362eae8964c8c3888163b4a4ffbfe276c6ced8a60c46364fa61a2c2a",
-      "snapshot_sha256": "9c70789041cf41a0c9b069170f9998f8d288e7b6c6237d8a135df240dde7e158",
+      "source_sha256": "712cbfcd8634e99c333750d6ef2c6b0485572027a3ffd375d7e08b1e356996da",
+      "snapshot_sha256": "c7bce3e4046f8f88a04a45829de8126aeb564768c12575840a5be0fa46df8ba3",
       "source_kind": "archived_task"
     },
     {
@@ -845,8 +845,8 @@
       "source": "pulse-backend/docs/q0-architecture-2026-10-20.md",
       "owner": "architect-analyst",
       "mode": "markdown",
-      "source_sha256": "2990a2719d1283b4d4f809e3fcde071056a52d61558c0942dca09f1696e5eccf",
-      "snapshot_sha256": "9d3418f49a598d414f3ea5d8b933d5b914b3e2d94790d46b83576d0db0958677"
+      "source_sha256": "316d44408d9dd353a928ff0a7d0dae8e92304217d8927f721ce756f04a8d4451",
+      "snapshot_sha256": "80bbd35a3743657cff8d7843074879a973e57706cbc203406b674c749242bbb2"
     },
     {
       "snapshot": "references/well-operations-proposal.md",
@@ -854,7 +854,7 @@
       "owner": "tech-lead",
       "mode": "markdown",
       "source_sha256": "eea96b24548b9c6442553a20b5be07f3f52d96528dc586f429119ab28d198fba",
-      "snapshot_sha256": "83e2fadb83211489be24ce00d152414662cb246aa055775af8b0bc1b896d392c",
+      "snapshot_sha256": "8dbfb6f0737d3695661b47d8a4cfc15a08c6ca09cb0a8e131d64fea37cdefd42",
       "source_kind": "archived_task"
     },
     {
@@ -863,7 +863,7 @@
       "owner": "architect-analyst",
       "mode": "markdown",
       "source_sha256": "81a5195f968b9ed7202dd9487c6f07f0f837fc1cb48f680999e13719fbbf91f5",
-      "snapshot_sha256": "b148c842c9243d7e9f567708381f09c3420d5bddb0913a296f303c2580821303"
+      "snapshot_sha256": "d35ea43a08359eee4f58094ec72399fa9dd00d16faaf266a80e3a57639812643"
     },
     {
       "snapshot": "diagrams/well-operations-proposed.drawio",
@@ -879,15 +879,15 @@
       "owner": "backend-middle",
       "mode": "markdown",
       "source_sha256": "ddcd900a41648cc3e9df4979e03a8d72316afc656d1ce3bf3b703f6a3a3d3982",
-      "snapshot_sha256": "91248754e7f973e51a1b04b9f05122201ce0968d0f4704f11ba8ac83912be8cb"
+      "snapshot_sha256": "89b08b8c8d6ae107c4c51348741fee308590adc3005ae07a3418af0256eb217f"
     },
     {
       "snapshot": "references/q0-runtime.md",
       "source": "pulse-backend/docs/q0-runtime-2026-10-21.md",
       "owner": "documentation-analyst",
       "mode": "markdown",
-      "source_sha256": "a7b87425ea49a28f06988ea690a7a1157e2ae68db853baa52fd592175c9150eb",
-      "snapshot_sha256": "6fa3fc0484a72927f3fbc448f3ba6e026479730000bdb1675679107cfd392025"
+      "source_sha256": "c735d09a83a36daa1184814778f44ce9bf51ad62693569b58d6cb9049a87ef07",
+      "snapshot_sha256": "3de69f6bd02944979835ca112fa8024d539fb30d19658d5a919890017584a6b1"
     },
     {
       "snapshot": "references/q0-reproducer.md",
@@ -895,15 +895,15 @@
       "owner": "documentation-analyst",
       "mode": "markdown",
       "source_sha256": "45917420bcd7f1468d6eb3ce28d5fa0b750e89c569b91e4eec44663ba3529e6e",
-      "snapshot_sha256": "1e5f6630b3cbec2b972f4b22e2952a728a9ffdb25b7ef56c5cd6ceff33fd6a59"
+      "snapshot_sha256": "5ea633a8be062e9a8ea13c897d5cfa8a8d08596cb9a5d30fa8dfb36c1d9254a0"
     },
     {
       "snapshot": "diagrams/q0-artifact-pinning.drawio",
       "source": "pulse-backend/docs/q0-artifact-pinning.drawio",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "452caa0e17a09fbe6c5fb32334d01db95ea83f52bcb6ff8f78e99f35bf17e8ee",
-      "snapshot_sha256": "452caa0e17a09fbe6c5fb32334d01db95ea83f52bcb6ff8f78e99f35bf17e8ee"
+      "source_sha256": "830bc1e5cf2e611b5e684832447edeb736b3c4ba83a1efb994b6944a18c4de36",
+      "snapshot_sha256": "830bc1e5cf2e611b5e684832447edeb736b3c4ba83a1efb994b6944a18c4de36"
     },
     {
       "snapshot": "schemas/postgres/file_inputs.sql",
@@ -912,7 +912,39 @@
       "mode": "copy",
       "source_sha256": "53ccdddf9ba01f5e3e34d97991849921af147f570b5305f0adccf86915fd83fe",
       "snapshot_sha256": "53ccdddf9ba01f5e3e34d97991849921af147f570b5305f0adccf86915fd83fe"
+    },
+    {
+      "snapshot": "references/q1-file-jobs.md",
+      "source": "pulse-backend/docs/q1-file-jobs.md",
+      "owner": "documentation-analyst",
+      "mode": "markdown",
+      "source_sha256": "8f35e5e86346e8f1ce80ed6b062ebb2bb77ca846b16cc4352459e2597cd6ebe0",
+      "snapshot_sha256": "65e6a876f7fb7bfd7a7b8f7866736acfd7724693696d1008f0754b4643cf3c9d"
+    },
+    {
+      "snapshot": "references/q1-runtime.md",
+      "source": "pulse-backend/docs/q1-runtime-2026-10-21.md",
+      "owner": "documentation-analyst",
+      "mode": "markdown",
+      "source_sha256": "4337992a91257fcf52376930425e9b23179f885158b093588b11e4d2b0593175",
+      "snapshot_sha256": "21d67532ebf310f88ddab427c8c61766c7877f35dcf0e620aa6bf44d58c7bd16"
+    },
+    {
+      "snapshot": "diagrams/q1-file-jobs.drawio",
+      "source": "pulse-backend/docs/q1-file-jobs.drawio",
+      "owner": "architect-planner",
+      "mode": "copy",
+      "source_sha256": "b06ea2006cdb2519e7a6e88a1f880b79b69a5991c80e59114acc57eefe622ff7",
+      "snapshot_sha256": "b06ea2006cdb2519e7a6e88a1f880b79b69a5991c80e59114acc57eefe622ff7"
+    },
+    {
+      "snapshot": "schemas/postgres/file_jobs.sql",
+      "source": "pulse-backend/internal/migrations/file_jobs.sql",
+      "owner": "architect-planner",
+      "mode": "copy",
+      "source_sha256": "70a1d19396ef56d17ac28c1c70f0f4dcfb9cbdc2521292cb487dfbf0d4e017cb",
+      "snapshot_sha256": "70a1d19396ef56d17ac28c1c70f0f4dcfb9cbdc2521292cb487dfbf0d4e017cb"
     }
   ],
-  "snapshot_date": "2026-10-21"
+  "snapshot_date": "2026-10-22"
 }

@@ -1,7 +1,7 @@
 # Пульс скважины · Backend
 
 
-Q0: внутренние stored-file primitives и strict `UploadPinned` прошли synthetic RUN-2: **13/13 PASS** на одном frozen binary; source/runtime/reproducer приняты, final docs/publication gate PASS. [Архитектура](docs/q0-architecture-2026-10-20.md), [результаты и воспроизводимые команды](docs/q0-runtime-2026-10-21.md). Public saved-file/async routes, job/outbox/worker — следующий scope Q1/F2; real-private enable и scientific acceptance остаются закрыты/отложены соответственно.
+Q0: внутренние stored-file primitives и strict `UploadPinned` прошли synthetic RUN-2: **13/13 PASS** на одном frozen binary; source/runtime/reproducer приняты, final docs/publication gate PASS. [Архитектура](docs/q0-architecture-2026-10-20.md), [результаты и воспроизводимые команды](docs/q0-runtime-2026-10-21.md). Это историческая принятая Q0-область. Q1/F2 source реализует отдельные opt-in saved-file routes, PostgreSQL outbox/inbox и Go worker; [Q1 proof/runbook](docs/q1-runtime-2026-10-21.md) отделяет source approval от runtime/browser gates. `FILE_CHECK_MODE=off` по умолчанию, `FILE_CHECK_ALLOW_REAL=false` обязательно; actual PREP не переключён. Real-private enable и scientific acceptance остаются закрыты/отложены соответственно.
 ## Актуальный портал · 21.10.2026
 
 Рабочая локальная сборка: `http://127.0.0.1:8088/`, API8018, существующая
@@ -62,7 +62,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию 12 (additive Q0 saved-input primitives; production routes пока не подключены; actual PREP schema12 этим не активирована). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию 13 (additive Q1 jobs/outbox/inbox поверх Q0 schema12; явное применение проверено только в выделенных synthetic test schemas, actual PREP schema13 этим не активирована). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -94,7 +94,7 @@ curl http://127.0.0.1:8000/health
 
 ```sh
 make check       # unit-тесты, границы слоёв, race detector, vet, форматирование
-make build       # bin/api, bin/migrate, bin/adminuser и bin/cohort
+make build       # bin/api, bin/migrate, bin/adminuser, bin/cohort и bin/worker
 ```
 
 Интеграционные тесты:
@@ -110,7 +110,7 @@ make test-db-down
 ## Структура
 
 ```text
-cmd/                  Точки входа api, migrate, adminuser и cohort
+cmd/                  Точки входа api, migrate, adminuser, cohort и worker
 internal/
   bootstrap/          Сборка зависимостей и жизненный цикл
   config/             Настройки окружения
@@ -161,3 +161,10 @@ Optional Collector/Loki/Tempo/Prometheus/Grafana описаны в [O2 runbook](
 Пилот использует изолированные UI/API 8088/8018 и PREP PostgreSQL **55439**. Порт **55432** предназначен для отдельной lane integration test DB; это разные БД. Исходный 8080/live DB не затрагиваются. Grafana публикуется только на `127.0.0.1:3300` с native authentication; отдельная сеть `grafana-ui` — явно разрешённое пользователем исключение локального пилота с возможным исходящим трафиком, не egress deny. Collector/Loki/Tempo/Prometheus остаются во внутренних сетях; бизнес-сети не меняются.
 
 Запуск ограничен supervisor/budget и требует оператора; stdout fallback сохраняется. RAM counters/очереди/file offsets не обещают lossless/exactly-once, центральные diagnostics не заменяют business audit. Далее — Q0→Q1/F2 по [roadmap](docs/project-handbook/references/functional-roadmap.md). Паспорт/Excel/помощник остаются [отдельным рассматриваемым предложением](docs/project-handbook/references/well-operations-proposal.md), scientific acceptance — user-deferred/not_assessed.
+
+Q1 сохранённые file jobs реализованы отдельным default-off synthetic профилем:
+[протокол и HTTP](docs/q1-file-jobs.md), [настройка](docs/configuration.md),
+[recovery/rollback](docs/operations.md), [датированный runtime proof](docs/q1-runtime-2026-10-21.md). `make build` собирает также `bin/worker`.
+Настройка не переключает существующий `/ml/upload` или рабочий Compose;
+real-file enable запрещён startup validation. Synthetic proof не является
+научной приёмкой модели или production deployment.

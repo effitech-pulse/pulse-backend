@@ -1,7 +1,17 @@
 # HTTP API и gRPC контракты
 
+Q1 добавляет opt-in `/file-check-capabilities` и
+`/wells/{well_id}/file-check-jobs`: POST202 после durable acceptance, list/status,
+result, review GET/PUT и cancel POST; paths под обычным `/api/v1`.
+Owner-only чтение требует current session/role/well/cohort/guard, другой admin
+не получает чужой check. Well ID в новых DTO — decimal string; legacy DTO прежние.
+`q1_` — routing hint для отдельного reader, не право. Review kind `file_check`
+отделён от period `check`; result/review GET не вызывают ML.
+[Wire/ошибки/лимиты](../references/q1-file-jobs.md),
+[runtime boundaries](../references/q1-runtime.md).
 
-Q0 SDK0.1.2 (**local UNRELEASED**) добавляет отдельный stream-unary `UploadPinned`: header pin/input, затем canonical chunks; registry/policy/recipe/runtime проверяются до features, без legacy fallback. Это внутренний service/RPC seam: production saved-file/async HTTP routes пока отсутствуют. Старые HTTP Upload/period-check ниже сохраняют прежний контракт и не превращаются в202. [RPC semantics](../references/model-rpc-compatibility.md), [Q0 proof](../references/q0-runtime.md); release/remote availability/cloud CI OPEN.
+
+Q0 SDK0.1.2 (**local UNRELEASED**) добавляет отдельный stream-unary `UploadPinned`: header pin/input, затем canonical chunks; registry/policy/recipe/runtime проверяются до features, без legacy fallback. Это внутренний service/RPC seam: в Q0 saved-file/async HTTP routes отсутствовали; current Q1 routes default off и описаны выше. Старые HTTP Upload/period-check ниже сохраняют прежний контракт и не превращаются в202. [RPC semantics](../references/model-rpc-compatibility.md), [Q0 proof](../references/q0-runtime.md); release/remote availability/cloud CI OPEN.
 ## Источники контракта
 
 [Полный OpenAPI JSON](../contracts/openapi.json) — копия `pulse-backend/api/openapi.json` текущего рабочего дерева. [ml.proto](../contracts/ml.proto) — копия единственного protobuf-контракта из pulse-contracts. Каталог операций ниже сформирован из OpenAPI; реализацию и серверные права определяют также `transport/httpapi/routes.go`, `access.go` и сервисы.

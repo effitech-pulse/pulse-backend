@@ -1,4 +1,4 @@
-> Снимок документа 21.10.2026. Источник: `pulse-frontend/design/HANDOFF.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-frontend/design/HANDOFF.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Дизайн и передача рабочего интерфейса Pulse
 
@@ -68,3 +68,32 @@
 Запись прохода **18.10.2026**: production TypeScript/Vite build, 11 тестов импорта/экспорта/фильтров; browser QA оболочки, обзора, Light/Dark и текущей очереди через Docker. Это сохранённое свидетельство того прохода, не новый запуск всех проверок в рамках DOC-02. Исторический профиль8080 выведен из эксплуатации21.10.2026; актуальный портал: `http://127.0.0.1:8088/`. Автопрогон выключен.
 
 Для следующего UI-изменения designer согласует с architect-analyst контракт и границы, затем фиксирует проверку рабочих сценариев, тем, разрешений и всех состояний. Полная сверка Figma, доступность, публичный onboarding, рассылки и эксплуатационная статистика остаются отдельными критериями. Очередь A изменяет документацию и не запускает эти продуктовые фазы.
+
+## Q1/F2 — сохранённый synthetic file flow, 21.10.2026
+
+Функциональная адаптация существующей композиции согласована. Новые F2 live variants
+остаются OPEN; их наличие/синхронизация с Figma не заявляются.
+
+Реализация: `FileJobUpload` использует исходный File, явные parsing/mapping поля и
+ограниченный локальный preview. `fileJobsApi` обращается только к dedicated endpoints,
+сохраняет well ID строкой и небезопасные JSON int64 без округления. StableFileSubmission
+удерживает один request_id для неизменной операции при double click/потере 202.
+`FileJobPanel` различает accepted/pending/queued/running/retry_wait/cancel_requested и
+terminal states; status GET не вычисляет ML. Poll 2с→5с после минуты, network backoff≤30с,
+pause hidden, refresh focus/online. Отмена — отдельный POST, не AbortController.
+
+`ManualChecks` разделяет q1/period reader до запросов; file history и period history не
+смешивают данные/курсоры. `SavedFileCheckResult` сохраняет null/0/false/value_source,
+insufficient и provenance/decision rule в typed ответе. Review переиспользует текущую
+форму на dedicated path; 409 сохраняет комментарий и поля, явная загрузка серверной
+версии меняет revision для следующего осознанного сохранения.
+
+AuthProvider размонтирует subtree при новом session epoch; file-запросы получают abort
+signal и проверяют epoch перед применением ответа. Login/logout/401/изменение actor,
+роли/scope очищают private cache и память. Private 403/404 закрывает private subtree до
+нового входа; разрешённые period checks остаются доступны. Sidebar допускает технолога
+на file page; feature off оставляет legacy sync admin-only.
+
+Source/unit/build и browser evidence фиксируются отдельно. Успешная сборка не является
+визуальной приёмкой, synthetic backend proof или проверкой всех состояний. Подробные
+рабочие артефакты QA находятся вне product checkout в каталоге задач workspace.

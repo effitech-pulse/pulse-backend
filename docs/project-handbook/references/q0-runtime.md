@@ -1,14 +1,14 @@
-> Снимок документа 21.10.2026. Источник: `pulse-backend/docs/q0-runtime-2026-10-21.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/q0-runtime-2026-10-21.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Q0: synthetic runtime proof и воспроизведение · 21.10.2026
 
 **Implementation/runtime VERIFIED: RUN-2, 13/13 PASS.** Source/runtime/reproducer ACCEPTED по назначенному Senior; Q0 synthetic technical proof VERIFIED. Назначенный Senior одобрил docs/publication; координатор принял Q0 в synthetic internal scope 21.10.2026. Этот документ фиксирует проверенное поведение внутренних stored-file primitives; [архитектура](q0-architecture.md) задаёт identity, bounds и совместимость.
 
-Public saved-file/async HTTP routes, job/outbox/worker и automatic recovery пока не реализованы. Старые sync Upload/period-check сохраняют свои контракты. Schema12 проверена в disposable synthetic schemas; включение на actual PREP не заявляется. SDK0.1.2 — local UNRELEASED candidate; remote fetch/release/cloud CI OPEN. Scientific acceptance — user-deferred/not_assessed. Real-private enable закрыт до согласования TTL/max lifetime, encryption, operator access/audit, quotas/disk/WAL, retention и backup/restore.
+В принятой Q0-редакции public saved-file/async HTTP routes, job/outbox/worker и automatic recovery не реализованы. На 21.10 Q1 source реализует их отдельным default-off synthetic профилем; [текущий Q1 proof](q1-runtime.md) имеет собственные source/runtime/browser gates. Старые sync Upload/period-check сохраняют свои контракты. Schema12 проверена в disposable synthetic schemas; включение на actual PREP не заявляется. SDK0.1.2 — local UNRELEASED candidate; remote fetch/release/cloud CI OPEN. Scientific acceptance — user-deferred/not_assessed. Real-private enable закрыт до согласования TTL/max lifetime, encryption, operator access/audit, quotas/disk/WAL, retention и backup/restore.
 
 ## Принятая документация и автономный комплект
 
-Назначенный Senior одобрил source/runtime/reproducer и документацию; координатор закрыл внутреннюю synthetic приёмку Q0 21.10.2026. [Handbook](../README.md) обновлён: 113 mappings / 637 public sources, 33 HTML sections, 501 local links / 176 OpenAPI refs / 26 draw.io pages / 152 checksums. Выполнены sync, build, validate и source-check; 24 unit-теста инструмента синхронизации и проверка отдельно распакованного ZIP прошли. Статус относится к локальному автономному комплекту; cold install, SDK release/remote CI, real-private enable, production и scientific acceptance сохраняют ограничения выше.
+Назначенный Senior одобрил source/runtime/reproducer и документацию; координатор закрыл внутреннюю synthetic приёмку Q0 21.10.2026. Историческая принятая Q0-редакция [handbook](../README.md): 113 mappings / 637 public sources, 33 HTML sections, 501 local links / 176 OpenAPI refs / 26 draw.io pages / 152 checksums. Выполнены sync, build, validate и source-check; 24 unit-теста инструмента синхронизации и проверка отдельно распакованного ZIP прошли. Статус относится к локальному автономному комплекту; cold install, SDK release/remote CI, real-private enable, production и scientific acceptance сохраняют ограничения выше.
 
 ## Зафиксированные identities
 

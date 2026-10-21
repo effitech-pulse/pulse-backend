@@ -1,19 +1,19 @@
 # Инвентаризация исходников и версий
 
-Редакция O2 индексирует **public working tree**, включая допустимые untracked public planning/concept документы других владельцев. SHA/наличие input не означает принятую реализацию, авторство публикации или inclusion в commit. Mapped snapshots с владельцами перечислены отдельно в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1 refs ниже исторические; текущий O2 implementation/runtime proof не объявлен committed/remote по обновлению inventory. Финальный sync выполнен после стабилизации source/evidence; external source check и автономная проверка пакета PASS.
+Редакция22.10.2026 индексирует **public working tree** семи репозиториев после принятого Q0 и реализации Q1/F2. SHA и наличие файла фиксируют bytes; статус приёмки отдельно указан в [разделе2](02-status.md) и [Q1 runtime proof](../references/q1-runtime.md). Mapped snapshots с владельцами перечислены в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1/O2 refs ниже исторические. Текущие sync/source check и автономная проверка пакета PASS:117 mappings,680 source records,35 HTML-разделов,28 draw.io pages; это целостность публикации, не whole-Q1 runtime acceptance.
 
 Файловая инвентаризация: [CSV с SHA256](../inventory/source-files.csv), [репозитории и HEAD](../inventory/source-manifest.json). В перечень включены исходники и публичные конфигурации; исключены данные, окружения, Git metadata, бинарники, секреты и этот комплект документации.
 
-Исторические PREP runtime payload семи репозиториев сохранены локальными коммитами и связаны [compatibility manifest](../inventory/readiness-compatibility.json). Четыре новые reviewed O1/F1 payload refs backend/frontend/ML/Data сохранены отдельно в [execution ledger](../references/o1-f1-execution.md); PREP refs ими не заменены. HEAD в генерируемой таблице — база снимка исходников; только backend получает последующий docs-only commit публикации. Dirty entries фиксируются перед публикацией и не означают, что код PREP ещё ожидает сохранения. Обновление чисел/HEAD выполняет final sync; push и remote availability этим не подтверждаются.
+Исторические PREP runtime payload семи репозиториев сохранены локальными коммитами и связаны [compatibility manifest](../inventory/readiness-compatibility.json). Четыре новые reviewed O1/F1 payload refs backend/frontend/ML/Data сохранены отдельно в [execution ledger](../references/o1-f1-execution.md); PREP refs ими не заменены. HEAD в генерируемой таблице — база снимка исходников; последующий commit публикации содержит сам комплект. Dirty entries фиксируются в момент sync и могут включать проверенную реализацию и документы, ещё не сохранённые локальным commit; точные bytes перечислены в CSV. Обновление чисел/HEAD выполняет final sync; push и remote availability этим не подтверждаются.
 
 | Репозиторий | HEAD | Изменённые/новые записи Git | Репозиторий |
 |---|---|---|---|
 | pulse-model | `bf5326d65578` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
 | pulse-data | `e38a978a1c25` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `b1d625e475fe` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-ml-service | `47a9eeccea3f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
 | pulse-contracts | `f871f8109a53` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `3eaa19f407bd` | 58 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
-| pulse-frontend | `dae98f86318d` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
+| pulse-backend | `968142c1eebc` | 68 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-frontend | `771187e27051` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e555b333003f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 
 ## Каталоги исполнения
@@ -46,7 +46,7 @@
 ### pulse-backend
 
 - `scripts/`
-- `cmd/`: `adminuser/`, `api/`, `cohort/`, `migrate/`
+- `cmd/`: `adminuser/`, `api/`, `cohort/`, `migrate/`, `worker/`
 - `internal/`: `adapter/`, `bootstrap/`, `config/`, `domain/`, `migrations/`, `observability/`, `repository/`, `service/`, `transport/`
 - `test/`: `architecture/`, `integration/`
 - `deployments/`: `local/`

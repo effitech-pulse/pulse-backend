@@ -17,7 +17,7 @@
     },
     {
       "name": "pulse-ml-service",
-      "head": "b1d625e475fe852e0bf655ceb1549ecc25dfa5d1",
+      "head": "47a9eeccea3fd983090c6cd013e8c2df36396ea9",
       "branch": "codex/o2-q0",
       "dirty_entries": 0,
       "repository_url": "https://github.com/effitech-pulse/pulse-ml-service"
@@ -31,14 +31,14 @@
     },
     {
       "name": "pulse-backend",
-      "head": "3eaa19f407bdf1faeb52305057a7edfec66c6b0d",
+      "head": "968142c1eebc721d1f21e18554f0dd3c4bbd9736",
       "branch": "codex/o2-q0",
-      "dirty_entries": 58,
+      "dirty_entries": 68,
       "repository_url": "https://github.com/effitech-pulse/pulse-backend"
     },
     {
       "name": "pulse-frontend",
-      "head": "dae98f86318d267f559e195414ef0b5de35614ed",
+      "head": "771187e27051018e32d7a518bd24fc4893928447",
       "branch": "codex/o2-q0",
       "dirty_entries": 0,
       "repository_url": "https://github.com/effitech-pulse/pulse-frontend"
@@ -53,6 +53,6 @@
   ],
   "http_operations": 78,
   "figma_catalog_rows": 150,
-  "source_file_count": 637,
+  "source_file_count": 680,
   "snapshot_registry": "snapshot-sources.json"
 }

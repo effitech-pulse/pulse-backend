@@ -1,4 +1,4 @@
-> Снимок документа 21.10.2026. Источник: `tasks/pulse-backend/docs/well-operations-assistant-proposal-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `tasks/pulse-backend/docs/well-operations-assistant-proposal-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Паспорт установки, эксплуатация и помощник — предложение, 20.10.2026
 

@@ -1,7 +1,15 @@
 # Связь требований макетов кода и проверок
 
+Q1/F2: implemented FileJobs/private projection/review kind `file_check` →
+[протокол](../references/q1-file-jobs.md)/[C4](../diagrams/q1-file-jobs.drawio) →
+[exact source/binary/runtime proof](../references/q1-runtime.md).
+DB/SW + narrow execution_busy source APPROVED тем же Senior; actual runtime/browser
+и финальная публикация требуют своих свидетельств. Historical Q0-редакция
+113mappings/637public sources относится только к Q0; текущие Q1 publication counts
+формирует final authored→generated sync, без переноса прежних чисел.
 
-Q0 связь: [architecture](../references/q0-architecture.md)/[diagram](../diagrams/q0-artifact-pinning.drawio) → source C272f230/Me5cc61b/B2024896 + combined execution afae2c4 (P-SR04) → [RUN-2 runtime proof](../references/q0-runtime.md). P-SR01–03 CLOSED; source/runtime/reproducer ACCEPTED назначенным Senior; final docs/publication acceptance PASS. Proof содержит13PASS и frozen identities/reproducer; historical STOP/FAIL сохранены. Q1/F2 — следующая отдельная фаза, public async/job/outbox ещё отсутствуют.
+
+Q0 связь: [architecture](../references/q0-architecture.md)/[diagram](../diagrams/q0-artifact-pinning.drawio) → source C272f230/Me5cc61b/B2024896 + combined execution afae2c4 (P-SR04) → [RUN-2 runtime proof](../references/q0-runtime.md). P-SR01–03 CLOSED; source/runtime/reproducer ACCEPTED назначенным Senior; final docs/publication acceptance PASS. Proof содержит13PASS и frozen identities/reproducer; historical STOP/FAIL сохранены. В историческом Q0 public async/job/outbox отсутствовали; current Q1 описан выше.
 ## O2 · implementation/runtime verified; публикационный gate, 20.10.2026
 
 | Требование / владелец | Связь и состояние |
@@ -35,7 +43,7 @@ Q0 связь: [architecture](../references/q0-architecture.md)/[diagram](../dia
 | Статистика | Figma 44:176 | IncidentStats, Dashboard; опциональный Metabase | Частично; полная эксплуатационная статистика не завершена |
 | Единый Pulse Connector /100 | Последнее решение пользователя | Текущий fund_type operational/presentation | PREP cohort/capture/guards/Upload/output реализованы; naming/прочие UX задачи не подменяют технический статус |
 | SSO | Целевая архитектура | auth_identity, service identity adapter | Основа есть; OIDC не подключён |
-| RabbitMQ/Kafka/Kubernetes | Архитектурные варианты | Нет подключённой подсистемы | План, не текущий runtime |
+| RabbitMQ / Kafka / Kubernetes | Q1 isolated RabbitMQ реализован; Kafka/Kubernetes — варианты | Default-off synthetic file jobs; штатный PREP не переключён | Q1 proof отдельно; production/HA не приняты |
 
 Номера Figma — идентификаторы узлов в общем файле, прямые ссылки перечислены в каталоге. Таблица связывает области кода; она не заменяет проверку полного пользовательского сценария и визуальную приёмку каждого состояния.
 

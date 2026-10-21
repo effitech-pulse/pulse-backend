@@ -1,4 +1,4 @@
-> Снимок документа 21.10.2026. Источник: `tasks/pulse-backend/docs/o1-f1-execution-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `tasks/pulse-backend/docs/o1-f1-execution-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Исполнение O1 ∥ F1 — 20.10.2026
 

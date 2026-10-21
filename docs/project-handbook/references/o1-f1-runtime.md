@@ -1,4 +1,4 @@
-> Снимок документа 21.10.2026. Источник: `pulse-backend/docs/o1-f1-runtime.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/o1-f1-runtime.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Изолированная проверка O1 и F1
 

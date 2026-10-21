@@ -1,10 +1,10 @@
 {
-  "edition": "Технический срез рабочего дерева; реализация и план разделены",
-  "sections": 19,
+  "edition": "2026-10-22: Q0 accepted; Q1/F2 synthetic-only implementation, proof status in runtime chapter",
+  "sections": 21,
   "figma_entries": 150,
-  "http_operations": 78,
-  "source_records": 637,
-  "editable_diagram_pages": 7,
+  "http_operations": 87,
+  "source_records": 680,
+  "editable_diagram_pages": 28,
   "contains_production_data": false,
   "contains_model_weights": false,
   "contains_credentials": false,
@@ -14,5 +14,7 @@
   ],
   "rebuild": "python3 tools/build.py",
   "validate": "python3 tools/validate.py",
-  "sources_check": "python3 tools/sync_sources.py --workspace <repository-split> --check"
+  "sources_check": "python3 tools/sync_sources.py --workspace <repository-split> --check",
+  "main_chapters": 19,
+  "html_sections": 35
 }

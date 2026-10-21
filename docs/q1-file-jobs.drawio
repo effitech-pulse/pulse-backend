@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-10-21T00:00:00.000Z" agent="Pulse architect-planner" version="24.7.17" type="device">
+  <diagram id="current-q0" name="Baseline · accepted Q0">
+    <mxGraphModel dx="1300" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="CURRENT · Q0 internal source, existing sync API; Q1 not deployed" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=20;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" value="Browser · React18 / Ant Design&#10;Existing sync upload / period checks&#10;Current session on personal routes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="150" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="Go API · existing HTTP/service&#10;Legacy Upload + period check&#10;Q0 FileChecks internal/proof seam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="480" y="150" width="330" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL16 · schema12&#10;Immutable raw + canonical + pin&#10;Private Q0 result; legacy ManualCheck/review&#10;No jobs/outbox/inbox" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="480" y="430" width="330" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="ml" value="Python ML · existing gRPC&#10;Upload / strict UploadPinned&#10;Trusted synthetic registry by digest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="150" width="290" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="harness" value="Q0 test harness&#10;Explicit session/owner / bounded input&#10;Restart/replay proof, no durable worker" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="430" width="280" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="pin" value="Immutable bundle registry&#10;Q0 trusted pin/recipe/runtime" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="440" width="290" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="SOURCE OF CURRENT FACTS: accepted Q0 closure backend eb28ef81; Q1 source adds isolated default-off synthetic capability. Runtime acceptance is recorded separately; this drawing does not enable deployment." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="710" width="1140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="HTTP /api/v1; existing response200" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="browser" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="Typed SDK; strict UploadPinned internal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="api" target="ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="Session/owner checks, immutable snapshots" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Test-only FileChecks seam" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;dashed=1;" edge="1" parent="1" source="harness" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="Expected digest; no latest fallback" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="ml" target="pin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="target-q1" name="Q1 · isolated synthetic source">
+    <mxGraphModel dx="1300" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Q1 SOURCE · isolated synthetic-only; default off, real-private disabled" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=20;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" value="Browser · React18 / Ant Design&#10;Explicit submit/status/list/result/cancel&#10;No broker/PG/ML access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="Go API · FileJobs module&#10;Current session admission/owner reads&#10;Input + job + outbox single commit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="400" y="130" width="330" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL16 · implemented schema13 (isolated test)&#10;Q0 immutable input / result&#10;Jobs + leases/fences + runtime slot&#10;Outbox/inbox + saved-check projection/review&#10;Current account/well rights in tx" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="400" y="550" width="350" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="worker" value="Go cmd/worker · implemented, default off&#10;Dispatcher / consumer / reconciler&#10;DB job actor; no browser session&#10;Finite retry/lease/cancel/finalize" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="340" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="rabbit" value="RabbitMQ4.3.6 · private1node&#10;amqp091-go1.15.0&#10;Durable reference-only work queue&#10;Confirms / manual ack / bounded DLQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="380" y="330" width="350" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ml" value="Existing Python ML + immutable registry&#10;Strict typed UploadPinned, pinned input&#10;No Python broker client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="900" y="120" width="330" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="guard" value="Trusted synthetic fixture manifest&#10;Dedicated schema guard + accounts/well&#10;Allowlisted file hashes/spec/pin&#10;Real policies still separate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="550" width="285" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="GUARANTEE: at-least-once delivery / compute may repeat; one accepted result+check through PG fence and atomic finalization. Default-off synthetic topology is not production/HA/scientific acceptance. App rollback retains PG/broker volumes; old binary sees legacy period/check/alert records only." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="70" y="785" width="1160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" value="New POST202 after commit; metadata GETs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="browser" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Atomic acceptance; owner/current scope" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="Server-owned guard, no client synthetic flag" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;dashed=1;" edge="1" parent="1" source="guard" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="Claim / current auth / lease / fenced final commit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="worker" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" value="Outbox publish + confirm; delivery + ack" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="worker" target="rabbit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" value="Existing strict UploadPinned; no latest" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;" edge="1" parent="1" source="worker" target="ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" value="Guard/hash/cohort identity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=12;dashed=1;" edge="1" parent="1" source="guard" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

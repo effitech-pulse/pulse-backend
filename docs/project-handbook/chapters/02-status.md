@@ -1,7 +1,14 @@
 # Текущее состояние и согласованные изменения
 
+Q1/F2 ·21.10.2026: source DB/SW и narrow execution_busy delta APPROVED Senior.
+Отдельный default-off synthetic file-job путь реализован; `FILE_CHECK_ALLOW_REAL=false`
+обязателен, actual PREP schema13 не активирована. [Протокол](../references/q1-file-jobs.md)
+и [runtime proof](../references/q1-runtime.md) разделяют API-only resource PASS,
+старые physical4PASS/1staleFAIL и последующий rebuild/rerun/browser gates.
+Whole-Q1/F2 acceptance не выводится из source или controlled browser PASS.
 
-Q0 ·21.10.2026: C/M/B+memory и P-SR04 source приняты; **RUN-2 synthetic implementation/runtime VERIFIED,13/13 PASS**. [Runtime proof](../references/q0-runtime.md) связывает frozen execution afae2c4 с resource8/replay1/fault4; source/runtime/reproducer ACCEPTED; final docs/publication PASS. Public saved-file/async routes, job/outbox/worker относятся к Q1/F2; actual PREP schema12 не активирована. SDK0.1.2localUNRELEASED/remoteCI OPEN; real-private policies OPEN; scientific user-deferred/not_assessed.
+
+Q0 ·21.10.2026: C/M/B+memory и P-SR04 source приняты; **RUN-2 synthetic implementation/runtime VERIFIED,13/13 PASS**. [Runtime proof](../references/q0-runtime.md) связывает frozen execution afae2c4 с resource8/replay1/fault4; source/runtime/reproducer ACCEPTED; final docs/publication PASS. Исторический Q0 не включал public saved-file routes/job/outbox/worker; текущий default-off Q1 описан выше. Actual PREP schema12/13 не активирована этим proof. SDK0.1.2localUNRELEASED/remoteCI OPEN; real-private policies OPEN; scientific user-deferred/not_assessed.
 ## Дополнение O2 · реализация и runtime проверены, 20.10.2026
 
 Optional observability source Go/Python/stack прошёл Senior review; **implementation/runtime VERIFIED**, W1/P2 CLOSED, три UI cycles и final rollback PASS. Финальные docs review/publication PASS; O2 принята в согласованной области локального пилота. [O2 execution](../references/o2-q0-execution.md), [runtime evidence](../references/o2-runtime.md), [runbook](../references/observability-o2.md) фиксируют actual paths/outages и оставшиеся gates; это отдельное evidence, не пересмотр PREP/O1/F1 ниже. Изолированный PREP использует PostgreSQL55439, lane integration — PostgreSQL55432. Loopback3300 Grafana имеет native auth и отдельно разрешённый пользователем bridge с возможным egress; Collector/Loki/Tempo/Prometheus остаются во внутренних сетях; бизнес-сети не меняются. Lossless/exactly-once/production capacity не заявляются. После O2 идёт Q0→Q1/F2 по прежним зависимостям; [Q0 architecture](../references/q0-architecture.md) отражает принятый internal source; [паспорт/Excel/помощник](../references/well-operations-proposal.md) остаётся отдельным предложением. Scientific not_assessed/user-deferred.

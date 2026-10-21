@@ -1,14 +1,26 @@
 # Проверки Pulse и обязательные gates — DOC-05
 
+## Q1/F2 · source и bounded runtime evidence, 21.10.2026
 
-Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime-2026-10-21.md) фиксирует source/binary/pin identity и **13/13 synthetic runtime PASS**: resource8, replay1, strict faults4. Test names: `TestQ0StoredFileResourceCaps`, `TestQ0StoredFileProcessReplay`, `TestQ0StoredFileProcessFaults` в `internal/transport/httpapi/file_inputs_process_test.go`; generator/launcher — `test/q0_process/`. Без `Q0_PROCESS_RUN=1`, отдельной PG, accepted Python/pin или Darwin measurement profile process SKIP/отсутствие evidence не является acceptance. Source/runtime/reproducer ACCEPTED; final docs/publication gate pending; cold install UNTESTED, remote SDK/CI OPEN, scientific user-deferred/not_assessed. Прежние STOP/RERUN1 FAIL сохранены отдельно от актуального RUN-2.
+[Q1 proof/runbook](q1-runtime-2026-10-21.md) фиксирует exact source/binary identities,
+обязательные commands, API-only resource proof и отдельную physical fault matrix.
+Source DB/SW и narrow execution_busy fix APPROVED тем же Senior. Full check /
+isolated integration / build PASS до busy delta; scoped adapter/service race и vet
+после delta PASS; post-busy paired binaries rebuilt/build PASS. Финальные full check/integration gates после delta — отдельная запись
+в proof. Старый physical stale-zombie FAIL сохраняется; source fix сам по себе его
+не закрывает. Frontend source/controlled browser approval не заменяет actual API QA.
+Никакой whole-Q1/F2, real-private, production/SLA или scientific acceptance из этих
+частичных результатов не выводится.
+
+
+Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime-2026-10-21.md) фиксирует source/binary/pin identity и **13/13 synthetic runtime PASS**: resource8, replay1, strict faults4. Test names: `TestQ0StoredFileResourceCaps`, `TestQ0StoredFileProcessReplay`, `TestQ0StoredFileProcessFaults` в `internal/transport/httpapi/file_inputs_process_test.go`; generator/launcher — `test/q0_process/`. Без `Q0_PROCESS_RUN=1`, отдельной PG, accepted Python/pin или Darwin measurement profile process SKIP/отсутствие evidence не является acceptance. Историческая Q0 source/runtime/reproducer и final docs/publication ACCEPTED; cold install UNTESTED, remote SDK/CI OPEN, scientific user-deferred/not_assessed. Прежние STOP/RERUN1 FAIL сохранены отдельно от актуального RUN-2.
 Срез 19.10.2026. Владелец матрицы — tech-lead; владельцы команд — сопровождающие соответствующих модулей. Команды выполняются из корня указанного репозитория. Эта матрица различает требуемую проверку, настроенный CI и фактически полученное свидетельство. Наличие workflow не означает, что он уже исполнялся на текущем diff.
 
 ## Обязательные проверки
 
 | Модуль и окружение | Проверка перед приёмкой | Настроенный CI | Ручная часть и SKIP |
 |---|---|---|---|
-| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.1, отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
+| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.2 local UNRELEASED (исторический PREP0.1.1 отдельно), отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort/worker | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
 | Frontend: Node 22 (для тестов минимум 22.18), package-lock | `npm ci`; `npm test`; `npm run build` (TypeScript + Vite) | GitHub и GitLab: install → **npm test → build**; ошибка теста останавливает job, ignore-failure не задан | Для этих тестов модель/БД не нужны: отсутствие модели не основание для SKIP. Визуальная сверка с Figma, клавиатура, обе темы и браузерные сценарии проверяются отдельно |
 | Data: Python3.13 в CI, model exact source SHA из PREP manifest; workspace `.venv` общий | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: установка pinned model, test, build/twine check. Отдельного GitLab workflow в текущем репозитории нет | Офлайн-регрессия парсера не требует UNITEK/ARMITS credentials. Живой сбор — отдельная разрешённая проверка; не смешивать его пропуск с пропуском офлайн-тестов |
 | Model: Python 3.13 в CI, test/deep-learning extras для объявленного набора | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: pytest с JUnit, build/twine check. GitLab: pytest и wheel | Если необязательный extra отсутствует, конкретный SKIP и причина фиксируются. Успех unit suite не подтверждает ML-качество; причинная оценка eval_honest.py и закрытый test — отдельная ML-приёмка. Обучение не запускается ради этого документа |

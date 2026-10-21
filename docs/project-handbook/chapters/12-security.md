@@ -1,5 +1,15 @@
 # Аутентификация RBAC и защита данных
 
+Q1 synthetic admission и все private reads/reviews проверяют current owner account,
+роль technologist/admin, well/cohort и server-owned manifest/PG guard. Другой admin
+не читает чужой file check; viewer сохраняет legacy period reads. Worker доверяет
+persisted intent/PG auth, не browser cookie/actor из broker. Транзакционные locks,
+lease token hash и fence защищают execution/finalization; поздний stale result
+не принимается. `FILE_CHECK_MODE=off` default, `FILE_CHECK_ALLOW_REAL=true` — startup
+error. [Протокол](../references/q1-file-jobs.md), [proof](../references/q1-runtime.md).
+Обычная ролевая таблица ниже относится к legacy/period объектам, не расширяет
+owner-only private files. Secrets/payload/tokens в status/broker/logs отсутствуют.
+
 
 Q0 saved path получает actor только из current session/account, заново проверяет role/scope/lifecycle на prepare/accept/open/result/retry/compute; saved snapshot не capability. Public payload JSON скрыт, list/metadata payload-free. [RUN-2](../references/q0-runtime.md) проверил эти synthetic controls и fail-closed faults до features. Real-private enable закрыт до owner TTL/max lifetime, encryption PG/WAL/temp/backups, access/audit, quotas/retention/backup policy; synthetic PASS не разрешает реальные файлы.
 ## Два режима запуска

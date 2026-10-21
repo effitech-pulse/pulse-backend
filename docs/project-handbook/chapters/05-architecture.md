@@ -1,7 +1,16 @@
 # Архитектура и взаимодействие приложений
 
+Q1 source реализует input+quota+job+outbox одной PG tx и result+terminal job+inbox
+одной fenced tx. Go worker получает trusted persisted intent/current rights,
+не browser Principal; RabbitMQ переносит opaque references. Private FileSavedCheck
+`q1_<jobID>` не является ManualCheck; отдельный review kind `file_check`.
+[Протокол](../references/q1-file-jobs.md), [C4](../diagrams/q1-file-jobs.drawio),
+[actual proof](../references/q1-runtime.md). At-least-once delivery/compute допускает
+повторы, accepted effect один. Это implemented default-off synthetic source,
+не развертывание на PREP/production.
 
-Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot/schema12 → strict typed `UploadPinned`, с отдельным verified registry. [Q0 architecture](../references/q0-architecture.md), [C4](../diagrams/q0-artifact-pinning.drawio) и [RUN-2 proof](../references/q0-runtime.md) различают implemented primitives, synthetic13PASS и будущую Q1 композицию. Public async routes/job/outbox/worker отсутствуют; legacy sync flow ниже сохранён. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; actual PREP schema12 activation не заявляется.
+
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot/schema12 → strict typed `UploadPinned`, с отдельным verified registry. [Q0 architecture](../references/q0-architecture.md), [C4](../diagrams/q0-artifact-pinning.drawio) и [RUN-2 proof](../references/q0-runtime.md) различают implemented primitives, synthetic13PASS и будущую Q1 композицию. В историческом Q0 async routes/job/outbox/worker отсутствовали; текущий Q1 описан выше, legacy sync flow ниже сохранён. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; actual PREP schema12 activation не заявляется.
 ## Представления C4
 
 Для проверенного локального O2-пилота доступны [архитектура/budgets](../references/o2-architecture.md) и [редактируемая O2 C4](../diagrams/o2-observability.drawio). Optional diagnostics не меняет бизнес-владение PostgreSQL/ML и не является брокером jobs; финальная runtime-приёмка отмечается в [evidence](../references/o2-runtime.md). Базовые PREP/O1 схемы ниже сохраняют историческую область. Grafana-only UI bridge — прямо согласованное локальное egress исключение, не политика production.

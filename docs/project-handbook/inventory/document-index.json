@@ -93,5 +93,15 @@
     "id": "19-traceability",
     "title": "Связь требований макетов кода и проверок",
     "path": "chapters/19-traceability.md"
+  },
+  {
+    "id": "q1-file-jobs",
+    "title": "Q1/F2 — сохранённые файловые задания",
+    "path": "references/q1-file-jobs.md"
+  },
+  {
+    "id": "q1-runtime",
+    "title": "Q1/F2 — проверка восстановления и пределы",
+    "path": "references/q1-runtime.md"
   }
 ]

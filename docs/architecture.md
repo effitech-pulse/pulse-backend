@@ -1,7 +1,27 @@
 # Архитектура backend
 
+## Q1 · реализованный synthetic source, 21.10.2026
 
-Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют принятую synthetic source/runtime/reproducer область (13PASS) и pending final docs/publication gate. Public saved-file/async routes, job/outbox/worker и automatic recovery относятся к Q1; текущие sync routes сохранены. Schema12 не объявляется активированной на actual PREP.
+`FileJobs` принимает input+quota+job+outbox одной PG transaction. `cmd/worker`
+совмещает dispatcher, consumer и reconciler; RabbitMQ переносит только opaque
+references, без payload/actor/lease token. Worker получает доверенное persisted
+намерение из PG, повторно проверяет current account/well/cohort/guard, lease и fence
+перед чтением входа и при finalization; browser Principal ему не создаётся.
+Result+terminal job+inbox фиксируются атомарно. Compute может повторяться при
+at-least-once delivery; принимается один result/check effect, exactly-once compute
+не обещается.
+
+Saved result — отдельная private `FileSavedCheck` projection `q1_<jobID>` поверх Q0
+result; `manual_check` и фондовый риск/ярус не изменяются. Review использует отдельный
+kind `file_check` и dedicated routes, включая current rights внутри review tx.
+Другой admin не получает private данные владельца. `FILE_CHECK_MODE=off` default;
+synthetic требует server-owned manifest/guard/accounts/well/pin; real enable
+отвергается startup validation. Это описание кода и изолированного proof,
+не переключение PREP/production. Статусы source/runtime/browser разделены в
+[датированном свидетельстве](q1-runtime-2026-10-21.md).
+
+
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют историческую принятую Q0 область (13PASS, docs/publication PASS). Q1 добавил отдельный default-off synthetic модуль: [протокол](q1-file-jobs.md), [C4](q1-file-jobs.drawio), [runtime proof](q1-runtime-2026-10-21.md). Текущая source schema13 проверена в выделенных test schemas; actual PREP этим не мигрирован. Sync routes сохранены.
 ## Границы ответственности
 
 Frontend обращается к HTTP API на Gin. Backend хранит операционные данные в PostgreSQL и вызывает Python ML по gRPC. Обучение, признаки и модель остаются в `pulse-model`; backend не устанавливает этот пакет.

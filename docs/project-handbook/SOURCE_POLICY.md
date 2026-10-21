@@ -1,6 +1,6 @@
 # Источники документации и публикация
 
-Редакция DOC-07, 19.10.2026. Владелец комплекта — tech-lead. Этот автономный handbook является датированным снимком рабочего дерева семи pulse-репозиториев. Актуальный код/контракты принадлежат исходным модулям; целевые решения отделяются от фактического поведения. Наличие контрольных сумм подтверждает целостность снимка, а не истинность научных выводов или работу production runtime.
+Редакция22.10.2026, после Q0 и реализации Q1/F2. Владелец комплекта — tech-lead. Этот автономный handbook является датированным снимком рабочего дерева семи pulse-репозиториев. Актуальный код/контракты принадлежат исходным модулям; целевые решения отделяются от фактического поведения. Наличие контрольных сумм подтверждает целостность снимка, а не истинность научных выводов или работу production runtime.
 
 ## Владение и обновление
 
@@ -15,7 +15,8 @@
 | Семантика модели/RPC | pulse-ml-service/docs/model-rpc-compatibility.md | architect-analyst: feature context/decision rule/provenance; предложения не объявляются реализованными |
 | Научные ограничения | pulse-model/docs/causal_baseline.md и EXPERIMENTS.md | architect-analyst + tech-lead: новый датированный эксперимент; генератор и старые group-CV не подменяют temporal-приёмку |
 | O2 диагностика/пилот | pulse-backend/docs/observability-o2.md, o2-runtime-2026-10-20.md; o2-architecture-2026-10-20.md и o2-observability.drawio | Координатор владеет runbook/runtime evidence; architect-analyst — pins/budgets/C4; tech-lead — execution/главы/публикация. Source review, runtime proof и финальная приёмка отмечаются отдельно |
-| Последующие Q0 и паспорт/Excel/помощник | pulse-backend/docs/q0-architecture-2026-10-20.md, well-operations-assistant-proposal-2026-10-20.md, well-operations-data-review-2026-10-20.md | tech-lead + architect-analyst: accepted requirements/architecture/OPEN; наличие снимка не означает реализацию, загрузку частных файлов или смену порядка очередей |
+| Q0 и предложение паспорт/Excel/помощник | pulse-backend/docs/q0-architecture-2026-10-20.md, q0-runtime-2026-10-21.md, well-operations-assistant-proposal-2026-10-20.md, well-operations-data-review-2026-10-20.md | Q0 synthetic internal acceptance принята; паспорт/Excel/помощник остаётся предложением. tech-lead + architect-analyst поддерживают отдельные факты и открытые gates |
+| Q1/F2 synthetic jobs | pulse-backend/docs/q1-file-jobs.md, q1-runtime-2026-10-21.md, q1-file-jobs.drawio, internal/migrations/file_jobs.sql | architect-planner владеет протоколом/схемой/C4; documentation-analyst и координатор — runtime facts/границы. Source review, actual fault/browser proof и whole acceptance отмечаются отдельно; default-off и real-file disabled сохраняются |
 | Рабочие инструкции модулей | README/AGENTS каждого репозитория | tech-lead: граница модуля, команды, утверждённое решение или статус |
 | Основные главы 01–19, схемы сценариев | Markdown/diagrams внутри этого handbook | tech-lead; архитектурные схемы сверяет architect-analyst; правятся содержательно после изменения источников |
 
@@ -68,7 +69,7 @@ Source inventory содержит публичные текстовые исхо
 
 ## Архивные task-источники
 
-В реестре `source_kind: archived_task` обозначает шесть опубликованных исторических документов с originals в необязательном `tasks/pulse-backend/docs/` вне checkout. Остальные103 записи имеют обязательный вид `repository` по умолчанию. Архив задач не включается в публичный source inventory.
+В реестре `source_kind: archived_task` обозначает шесть опубликованных исторических документов с originals в необязательном `tasks/pulse-backend/docs/` вне checkout. Записи без этого поля имеют обязательный вид `repository` по умолчанию. Архив задач не включается в публичный source inventory.
 
 Доступный original проходит обычные check/sync и обновление обеих SHA. При его отсутствии check/sync сохраняют bytes снимка и обе SHA: обязательны существующий snapshot, валидные source/snapshot SHA256 metadata и совпадение фактической SHA снимка. Неполный или повреждённый fallback блокирует весь sync до записи. Это подтверждает целостность сохранённого снимка, но не соответствие недоступному original. Изменение snapshot_date не перерисовывает retained snapshot.
 

@@ -1,8 +1,11 @@
-> Снимок документа 21.10.2026. Источник: `pulse-backend/docs/configuration.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/configuration.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Конфигурация
 
-Проверено по исходникам 19.10.2026: config.Load (исходник `pulse-backend/internal/config/config.go`; в пакет не включён), bootstrap (исходник `pulse-backend/internal/bootstrap/application.go`; в пакет не включён) и пример окружения (исходник `pulse-backend/configs/app.env.example`; в пакет не включён). Backend читает `.env` в рабочем каталоге; уже заданные переменные процесса имеют приоритет. Таблица перечисляет все ключи примера. Default означает отсутствие переменной, а не пустую строку: явно заданное пустое значение не заменяется default и для чисел/boolean обычно даёт ошибку.
+Q1 synthetic source и его actual runtime gates: [proof/runbook](q1-runtime.md).
+Ни таблица конфигурации, ни наличие OpenAPI routes не активируют профиль на PREP.
+
+Базовая таблица сверена 19.10.2026; Q1-параметры ниже сверены 21.10.2026: config.Load (исходник `pulse-backend/internal/config/config.go`; в пакет не включён), bootstrap (исходник `pulse-backend/internal/bootstrap/application.go`; в пакет не включён) и пример окружения (исходник `pulse-backend/configs/app.env.example`; в пакет не включён). Backend читает `.env` в рабочем каталоге; уже заданные переменные процесса имеют приоритет. Таблица перечисляет все ключи примера. Default означает отсутствие переменной, а не пустую строку: явно заданное пустое значение не заменяется default и для чисел/boolean обычно даёт ошибку.
 
 | Параметр | Default / пример или локальный Compose | Профиль, проверка и область доверия |
 |---|---|---|
@@ -42,3 +45,29 @@ HTTP `API_KEY`, внутренний `ML_SERVICE_API_KEY`, ключ шифров
 ## Граница cohort
 
 Версия фиксирует ровно100 зарегистрированных Pulse ID независимо от active/archive. Изменение lifecycle не меняет membership. Видимый набор пересекается с principal scope; чужие ID, статистика, сохранённые runs и Excel не обходят границу. Глобальные записи НГДУ/цехов в cohort-профиле запрещены403 даже admin: справочник может быть общим с research. Настройка профиля не удаляет исторические данные.
+
+## Изолированный Q1 synthetic профиль
+
+`FILE_CHECK_MODE=off` по умолчанию; `FILE_CHECK_ALLOW_REAL=false` обязательно,
+значение true останавливает startup. Для synthetic нужны AUTH_MODE=local,
+APP_SCOPE=cohort и полная текущая100-well cohort. Явные FILE_CHECK_MANIFEST,
+FILE_CHECK_MANIFEST_SHA256 (`sha256:` точных bytes), FILE_CHECK_RUN_ID должны
+соответствовать server-owned JSON и readonly PG guard/current_schema.
+Обычная migration guard не создаёт. Профиль не включает продуктовый Compose.
+
+Manifest≤1MiB: `run_id,test_schema,account_ids,schema_path,schema_sha256,policy`.
+Policy — typed `domain.FileJobPolicy`: RunID,CohortVersion,CohortManifestSHA256,
+AllowedInputs,ActiveGlobal≤8,ActivePerAccount≤2. ManifestSHA256 в hashed JSON пустой;
+loader подставляет внешний hash, TestSchema и AllowedAccountIDs из top-level.
+AllowedInputs содержит WellID,RawSHA256,Format,ClientSpecJSON,ClientSpecSHA256,
+ExecutionPin. ClientSpecJSON получают через `service.FileJobClientSpecJSON`:
+Q0 нормализация spec до разрешения mapping, очищенный schema hash, sorted mappings.
+SchemaPath — доверенный локальный params snapshot, проверенный по SchemaSHA256.
+
+`bin/worker` использует FILE_JOB_PRODUCER_AMQP_URL и FILE_JOB_AMQP_URL для двух
+отдельных scoped connections producer/consumer. API broker URI не нужен.
+Credentials не передаются browser и не выводятся в logs. Synthetic broker:
+compose.q1-synthetic.yaml (исходник `pulse-backend/deployments/compose.q1-synthetic.yaml`; в пакет не включён), exact
+RabbitMQ4.3.6/digest, собственные vhost/network/volume и loopback port.
+Bootstrap user задаётся оператором, затем runtime использует отдельные scoped
+users. Никакой management UI, default shared credential или production enable.

@@ -1,5 +1,13 @@
 # Тестирование и критерии приёмки
 
+Q1 source DB/SW и narrow busy fix APPROVED тем же Senior; frontend source/controlled
+QA APPROVED отдельно. До busy delta full check/integration/build PASS; после delta
+scoped transport/service race, vet и post-busy build PASS. API-only ресурсный proof:2accepted/3rejects,
+1155reads/0errors, list p95=33.509ms, OS API RSS451444736B. Это короткий synthetic
+admission/read workload без ML/broker publish; production SLA и whole-matrix PASS
+не заявлены. [Q1 proof](../references/q1-runtime.md) сохраняет исходный physical
+stale-zombie FAIL и требует fresh rebuilt rerun + actual browser QA отдельно.
+
 
 Q0 RUN-2 ·21.10.2026: **13/13 synthetic runtime PASS** на одном pre-invocation-hashed binary afae2c4: resource8/replay1/fault4. W3 OS449609728B, W4 OS360005632B при budget1GiB; W5 race1success+1quota, metadata30success/0errors/payload-select0, overlaps[2,2], p9512.946ms. [Полный proof](../references/q0-runtime.md) сохраняет source/pin/RSS/PG/WAL/cleanup и исторические STOP/RERUN1FAIL. Source/runtime/reproducer ACCEPTED; final docs/publication gate PASS; холодная установка UNTESTED, CI/release OPEN, scientific user-deferred/not_assessed.
 ## O2 · implementation/runtime verified, публикационный gate

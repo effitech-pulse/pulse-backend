@@ -1,4 +1,4 @@
-> Снимок документа 21.10.2026. Источник: `pulse-model/docs/causal_baseline.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 22.10.2026. Источник: `pulse-model/docs/causal_baseline.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Причинный бейзлайн после переноса рабочего места
 

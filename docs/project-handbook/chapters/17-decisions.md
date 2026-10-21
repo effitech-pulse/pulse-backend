@@ -1,5 +1,13 @@
 # Решения и план развития
 
+Q1 реализовал выбранный узкий вариант: PostgreSQL authority/input+job+outbox,
+Go cmd/worker и RabbitMQ4.3.6/amqp091-go1.15.0, private saved-check поверх Q0
+result, current rights и fences; схема13 additive. Broker остаётся отдельным
+изолированным synthetic профилем с default-off feature. Compute at-least-once,
+один accepted result/check; production/HA/Kubernetes и real-private policies
+остаются отдельными решениями. [Протокол](../references/q1-file-jobs.md),
+[датированный proof](../references/q1-runtime.md). Следующие F3/Q2/F4 этим не запущены.
+
 
 Q0 принятое source-решение: typed immutable input + actual parser v2 identity + strict pre-inference pin в отдельном UploadPinned. Exact9 parser dependencies и embedded source bytes включаются в recipe, missing BuildInfo fail-closed; OS tzdb/compiler attestation не обещаются. Memory correction убрала overlapping bulk map graphs только saved path, сохранив legacy semantics. [Архитектура](../references/q0-architecture.md), [RUN-2 measurements](../references/q0-runtime.md); final docs/publication gate PASS; Q1 job/outbox — отдельная фаза.
 ## Актуальное продолжение · 20.10.2026
@@ -33,13 +41,13 @@ Q0 принятое source-решение: typed immutable input + actual parser
 | Model не зависит от Data | Генератор/добыча данных не управляют прогнозом |
 | Причинная приёмка | Старые group-CV и красивый график генератора не подтверждают целевое качество |
 
-## RabbitMQ и Kafka — архитектурные варианты
+## RabbitMQ Q1 и отдельные варианты развития
 
-На текущем масштабе RabbitMQ рассматривается для заданий проверки/импорта, уведомлений и контролируемых повторов. Задание должно иметь стабильный ID, статус, попытки, timeout и идемпотентный обработчик; ack только после успешного сохранения. Outbox решает атомарную связь предметной транзакции с публикацией. Это изменение кода, а не только добавление broker container. [RabbitMQ work queues](https://www.rabbitmq.com/tutorials/tutorial-two-python).
+В Q1 RabbitMQ выбран и реализован для изолированных synthetic file jobs. Импорт/уведомления и другие назначения остаются вариантами развития. Задание должно иметь стабильный ID, статус, попытки, timeout и идемпотентный обработчик; ack только после успешного сохранения. Outbox решает атомарную связь предметной транзакции с публикацией. Это изменение кода, а не только добавление broker container. [RabbitMQ work queues](https://www.rabbitmq.com/tutorials/tutorial-two-python).
 
 Kafka рассматривается при отдельном телеметрическом журнале, повторном чтении и независимых потребителях. Возможный ключ — ID Pulse скважины; версия схемы, event-time и порядок внутри partition задаются контрактом. Kafka не отменяет дубликаты, поздние события, окна модели и компенсации между БД/брокером. [Apache Kafka](https://kafka.apache.org/intro/).
 
-RabbitMQ Streams также допускает повторное чтение; выбор не сводится к абсолютному «RabbitMQ не умеет потоки». [RabbitMQ Streams](https://www.rabbitmq.com/docs/streams). Нагрузка 100 скважин сама по себе не требует двух брокеров. Выбор/бенчмарк, retention и эксплуатационная ответственность ещё не утверждены; брокеры в текущем Docker отсутствуют.
+RabbitMQ Streams также допускает повторное чтение; выбор не сводится к абсолютному «RabbitMQ не умеет потоки». [RabbitMQ Streams](https://www.rabbitmq.com/docs/streams). Нагрузка 100 скважин сама по себе не требует двух брокеров. Общий production benchmark/retention/ответственность остаются открыты; Q1 RabbitMQ работает только в отдельном synthetic proof, штатный PREP/portal Compose брокер не включает.
 
 ## Kubernetes — план размещения
 

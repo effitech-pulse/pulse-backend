@@ -1,7 +1,16 @@
 # Рабочие сценарии и жизненный цикл скважины
 
+Q1/F2 source добавил отдельный synthetic-only сценарий: явные файл/parse spec →
+202 с job ID → polling или повторное открытие сохранённого job/result/review.
+Закрытие browser/logout не отменяет persisted job; они очищают private UI state.
+Cancel requested отличается от cancelled, insufficient от нормы, прогресс/ETA
+не выдумываются. История files/private `q1_` отделена от well-scoped period checks.
+Source и controlled UI проверки приняты; actual browser gates фиксируются только
+в [Q1 proof](../references/q1-runtime.md), без переноса controlled PASS.
+Feature default off; реальные файлы не разрешены.
 
-Q0 synthetic workflow проверен отдельно: real session→stored input→PG→separate ML, два kill-after-commit/restart барьера, удаление source CSV и explicit replay возвращают тот же immutable result без новых features. Это proof внутренних primitives, а не доступный пользователю durable workflow: saved-file/async routes/job/outbox/worker/automatic recovery — Q1/F2. [Proof/runbook](../references/q0-runtime.md), [архитектура](../references/q0-architecture.md). Norm/insufficient/error остаются разными outcomes; source/runtime/reproducer ACCEPTED; final docs/publication PASS.
+
+Q0 synthetic workflow проверен отдельно: real session→stored input→PG→separate ML, два kill-after-commit/restart барьера, удаление source CSV и explicit replay возвращают тот же immutable result без новых features. Это proof внутренних primitives, а не доступный пользователю durable workflow: в Q0 saved-file/async routes/job/outbox/worker/automatic recovery отсутствовали; current Q1 source описан выше. [Proof/runbook](../references/q0-runtime.md), [архитектура](../references/q0-architecture.md). Norm/insufficient/error остаются разными outcomes; source/runtime/reproducer ACCEPTED; final docs/publication PASS.
 ## Риски и телеметрия
 
 Технолог выбирает скважину по ID Pulse, видит оценку модели и основание яруса, затем изучает телеметрию за соответствующий период. Сравнение периодов должно сохранять реальные временные метки и одинаковый выбранный набор каналов. Недостаток канала/истории показывается явно.
