@@ -1,0 +1,5 @@
+# Current portal UI on the existing isolated 8088 runtime.
+# Apply after compose.prep.yaml and compose.o1-f1.yaml; backend/data/ML stay pinned.
+services:
+  frontend:
+    image: pulse-frontend:portal-rest-20261021
