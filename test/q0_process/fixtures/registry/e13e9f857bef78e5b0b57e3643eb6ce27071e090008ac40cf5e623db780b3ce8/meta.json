@@ -1,0 +1,1 @@
+{"model_file": "model.pkl", "engine": "fixed_fake", "classes": [0, 1], "config": {"context_version": "legacy_v0"}, "saved_at": "2026-01-01T00:00:00Z"}

@@ -1,0 +1,16 @@
+{
+  "contracts": {
+    "filename": "effitech_pulse_contracts-0.1.2-py3-none-any.whl",
+    "sha256": "09ba4f0974c5db723aa3a3fdab26901bb4d5fbfdbfee18b4f63a664ea202cb79"
+  },
+  "ml": {
+    "filename": "effitech_ml_service-0.1.0-py3-none-any.whl",
+    "sha256": "079c42153b611d53d5bf2669730bc6e8c605405ef0b780e71118ccab1eac8760"
+  },
+  "model": {
+    "distribution": "effitech-esp-model==0.1.0",
+    "source_ref": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45",
+    "wheel_sha256": null,
+    "limitation": "No accepted model wheel SHA established in retained preflight; installed code/RECORD identity is retained separately. Cold install not proven."
+  }
+}

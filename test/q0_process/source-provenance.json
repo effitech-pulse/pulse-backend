@@ -1,0 +1,35 @@
+{
+  "generator": {
+    "origin": "Q0-P retained q0-p-v1 synthetic generator",
+    "original_sha256": "618927efcea21187b8d81c465d71a5444931122e641f4e7cabb236dd034ab82d",
+    "changes": [
+      "Configurable new output namespace, no accepted-inputs/private paths",
+      "Fixed original per-entry ZIP metadata and level6",
+      "CPython/zlib guard and full manifest fail-closed comparison",
+      "Small W1-only unit mode; never acceptance"
+    ]
+  },
+  "helpers": {
+    "ml_launcher.py": {
+      "sha256": "802dfb09f03e9c035f89e6aea973fae317dc3c7e6dc8245f2984bf8c4fb92553",
+      "retention": "Byte-identical accepted test helper"
+    },
+    "q0_synthetic.py": {
+      "sha256": "e317aac7bc3643ee94ea71c3ec2e1a067fad822ac817ab965b98175feb9c0d24",
+      "retention": "Byte-identical accepted test helper"
+    }
+  },
+  "source_refs": {
+    "backend_execution": "afae2c4db4189cc3361a3cbd09deee4e3d1eb55b",
+    "contracts": "272f23027e4a3ba636305b931f6ab83e5fca8166",
+    "ml": "e5cc61b3c282eb6abb446c81e1e800e7b7ad2c8a",
+    "model": "f5c2a3de031ff4794194a219f048c9bf8c7c4f45"
+  },
+  "registry": {
+    "provenance": "Q0-M trusted test-only q0_synthetic.export_fixture; never production model",
+    "pickle_bytes": 45,
+    "pickle_global": "q0_synthetic.FixedModel",
+    "bundle_sha256": "sha256:e13e9f857bef78e5b0b57e3643eb6ce27071e090008ac40cf5e623db780b3ce8",
+    "pickle_inspected_without_execution": true
+  }
+}

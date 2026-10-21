@@ -1,0 +1,165 @@
+{
+  "source_manifest": [
+    {
+      "name": "pulse_ml",
+      "sha256": "sha256:a8cb8cab79e4f9b5aaa79667be3d98b0912c142cef4a51be0868d6fbee7266c5"
+    },
+    {
+      "name": "esp",
+      "sha256": "sha256:6a032b67da3bbb4a37c2853019ef3428839af7cf78a92f07b6b1e2f6fddf89fd"
+    },
+    {
+      "name": "contracts",
+      "sha256": "sha256:94822493b11a64068183e41b24caa0b485f93a1543f99472e2cc259f7f2b6f24"
+    }
+  ],
+  "source_manifest_sha256": "sha256:4fb1355605f6a633a39dd6ed74424c4b9a7710c31510449009a7fc34c4948db6",
+  "runtime_manifest": [
+    {
+      "name": "python",
+      "version": "3.13.5"
+    },
+    {
+      "name": "platform",
+      "version": "Darwin/arm64"
+    },
+    {
+      "name": "effitech-esp-model:source_sha256",
+      "version": "sha256:1319adc1959c72e4c30b7f31873b8e49f20ce1ab047abdaa2691aeae965ddf68"
+    },
+    {
+      "name": "effitech-esp-model",
+      "version": "0.1.0"
+    },
+    {
+      "name": "effitech-esp-model:record_sha256",
+      "version": "sha256:65f2e4979b6f27594a4ed775acfbd856f36982c6221e82be3ef205a109de77be"
+    },
+    {
+      "name": "effitech-ml-service:source_sha256",
+      "version": "sha256:6d3264b3dba73c02a9e87b9705aff15511bfd7f1585463fddbeb3807522aac7f"
+    },
+    {
+      "name": "effitech-ml-service",
+      "version": "0.1.0"
+    },
+    {
+      "name": "effitech-ml-service:record_sha256",
+      "version": "sha256:7cb41155629a6642420132485c5fc65e3105240bcc1d9dfbc7ade9fad00f02b2"
+    },
+    {
+      "name": "effitech-pulse-contracts:source_sha256",
+      "version": "sha256:5c07069d646c322402329f08fb9af1c8b7ae6f89f74e2d706e2bd11b02005e2b"
+    },
+    {
+      "name": "effitech-pulse-contracts",
+      "version": "0.1.2"
+    },
+    {
+      "name": "effitech-pulse-contracts:record_sha256",
+      "version": "sha256:e0565cbe3e3f0004b71fefd5cffeda61391428b6d92e3ba9938ace05fe746c6b"
+    },
+    {
+      "name": "pandas:source_sha256",
+      "version": "sha256:9269af81edda89877caefa11dd2286382a2f553208f9609dfc2ae3714e5e7a1b"
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3"
+    },
+    {
+      "name": "pandas:record_sha256",
+      "version": "sha256:ce794575e2fd7d765c919e79b3c22601b0caebbdf9dc860c3659a1ec3dd46388"
+    },
+    {
+      "name": "numpy:source_sha256",
+      "version": "sha256:ad5c0a9979db9a272b54626629791e397a9f32158d30c152c33103d34b00b72f"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.1"
+    },
+    {
+      "name": "numpy:record_sha256",
+      "version": "sha256:72407687865545eaadf70fea4a9f47e1c627b5f13ba2bfdc93bba495b0eb9650"
+    },
+    {
+      "name": "catboost:source_sha256",
+      "version": "sha256:98b061252a25cc88f649403658cf3e1552c7e9ae72053475dc6598d269d43337"
+    },
+    {
+      "name": "catboost",
+      "version": "1.2.10"
+    },
+    {
+      "name": "catboost:record_sha256",
+      "version": "sha256:dfd8b2c19f85de787f007ccb2981bf367c911caa312d87337dcfa4849db08e0b"
+    },
+    {
+      "name": "scikit-learn:source_sha256",
+      "version": "sha256:cff3336233c223dcf9569fe5b9a41d976eda1c2a6a1601027b84e7dcaad89717"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.9.0"
+    },
+    {
+      "name": "scikit-learn:record_sha256",
+      "version": "sha256:67fce8923fbac92214d2edacfb9c45466cb1d87cf84478fcd32808bd9d851509"
+    },
+    {
+      "name": "protobuf:source_sha256",
+      "version": "sha256:11c06b18829b6ee6d6eba3d772f87b6d2c292d724821a22e6f7a10e6a7778b7c"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.6"
+    },
+    {
+      "name": "protobuf:record_sha256",
+      "version": "sha256:0fa36c86da8d24bd2fc68ad0f152187a24458fffbd827bb38cdc3404fa7eb8b4"
+    },
+    {
+      "name": "grpcio:source_sha256",
+      "version": "sha256:be51180b8d3e44569252d368ae06a80e5dce628c7bc7925521a1395ff289b2e9"
+    },
+    {
+      "name": "grpcio",
+      "version": "1.78.0"
+    },
+    {
+      "name": "grpcio:record_sha256",
+      "version": "sha256:2fb48f593c83b88ca7132df4c105888bb61fe21de5f23d77557c00fda5cf7445"
+    },
+    {
+      "name": "joblib:source_sha256",
+      "version": "sha256:ab3415910ddc4f8dbabdd356958c83aecf17ec8a98d390d5966ae422af6d2d33"
+    },
+    {
+      "name": "joblib",
+      "version": "1.5.3"
+    },
+    {
+      "name": "joblib:record_sha256",
+      "version": "sha256:5dc2fa9bc67b076ae62031fcfcd789535525919f30fd0edf2e355b38058e4545"
+    },
+    {
+      "name": "scipy:source_sha256",
+      "version": "sha256:4ba62e77bfdf21e72700eeab9bd1aba7549db154f63da95b3efee96b0c09c908"
+    },
+    {
+      "name": "scipy",
+      "version": "1.18.0"
+    },
+    {
+      "name": "scipy:record_sha256",
+      "version": "sha256:406ff9142c5a3003c8df4a2da2bfda6de96718f59a01901e21e1c95f86ba51a3"
+    }
+  ],
+  "runtime_manifest_sha256": "sha256:24012967768e4dc98536eb85a8878f017a33409c46daa53f87f617ffa66bc0f9",
+  "python": "CPython 3.13.5",
+  "platform": "Darwin/arm64",
+  "generator_zlib_compile": "1.2.12",
+  "generator_zlib_runtime": "1.2.12",
+  "generation_original_python_zlib": "Unknown historically; full byte parity is the acceptance gate, not a historical version claim."
+}

@@ -1,0 +1,61 @@
+{
+  "generator": {
+    "MiB": 1048576,
+    "seed": 20261020,
+    "version": "q0-p-v1"
+  },
+  "w1-insufficient.csv": {
+    "columns": 11,
+    "raw_bytes": 50069,
+    "raw_sha256": "sha256:82f136ca54cef49968ad4aa98935bdf9c1b16f02f1f12499c69ca7cb5545a544",
+    "rows": 745
+  },
+  "w1.csv": {
+    "columns": 11,
+    "raw_bytes": 51551,
+    "raw_sha256": "sha256:cca0ce8f6e59758b73e6fc19a1d66c627299406379e160ba30c8defcd9de5c88",
+    "rows": 745
+  },
+  "w2-128.xlsx": {
+    "columns": 128,
+    "expanded_bytes": 10705559,
+    "expansion_ratio": 2.0639008561897696,
+    "raw_bytes": 5187051,
+    "raw_sha256": "sha256:dd7925588c68288a1f50bd3055ce1de758a6659d9670a599159fbf75d9b7bb01",
+    "rows": 745,
+    "worksheet_bytes": 10704345
+  },
+  "w2-129.xlsx": {
+    "columns": 129,
+    "expanded_bytes": 10792673,
+    "expansion_ratio": 2.062638809018857,
+    "raw_bytes": 5232459,
+    "raw_sha256": "sha256:33222cb381ff8f5653369fdd9423eeadcd556fade463ef30ce06b0967bbaf5cf",
+    "rows": 745,
+    "worksheet_bytes": 10791459
+  },
+  "w3-over-raw.csv": {
+    "columns": 66,
+    "raw_bytes": 20971521,
+    "raw_sha256": "sha256:e003641b1c7277cd7b2d2c4d4a44e15dc6acc45afeaa3678393a1b6ca282dd04",
+    "rows": 100000
+  },
+  "w3-over-rows.csv": {
+    "columns": 66,
+    "raw_bytes": 15000994,
+    "raw_sha256": "sha256:5831b6fc0937ec48c49400af934950b5a7511b62e40fd430432790228224fcf9",
+    "rows": 100001
+  },
+  "w3.csv": {
+    "columns": 66,
+    "raw_bytes": 20971520,
+    "raw_sha256": "sha256:6da5ce0b2df21e2454d157d42015e324e91054de62619439f26cf4fe71beacb4",
+    "rows": 100000
+  },
+  "w4.csv": {
+    "columns": 66,
+    "raw_bytes": 15000844,
+    "raw_sha256": "sha256:5331cfc486c0c31d0f6727c5164f4116f75a7bf514ea82440cd3fbd7539bbe51",
+    "rows": 100000
+  }
+}
