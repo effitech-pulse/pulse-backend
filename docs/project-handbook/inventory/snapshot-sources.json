@@ -1,5 +1,5 @@
 {
-  "edition": "2026-10-22 / Q0 accepted; Q1/F2 implemented synthetic-only, post-fix stale proof open",
+  "edition": "2026-10-22 / Q0 accepted; Q1/F2 source and required synthetic runtime verified, default off",
   "workspace_root": "repository-split, supplied explicitly via --workspace",
   "policy": "SOURCE_POLICY.md",
   "entries": [
@@ -657,8 +657,8 @@
       "source": "pulse-backend/docs/verification-matrix.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "9cfb8328f34e5139468487c0ff882002ecf5c2d26369d4d11f02e4a3a9737ec7",
-      "snapshot_sha256": "b0d9bee161397a099820eed6f8408883cbfad23ee35ad88dcb5ecc2676b55011"
+      "source_sha256": "6e7096b467955c801d48d6124048bffd13f0398e5029cb479fd9c882578f6943",
+      "snapshot_sha256": "afdf8a41a7f921af1d599aee293f940c09e09b1744592f76e9719e08a2a63cb9"
     },
     {
       "snapshot": "schemas/clickhouse/init.sql",
@@ -836,8 +836,8 @@
       "source": "tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "712cbfcd8634e99c333750d6ef2c6b0485572027a3ffd375d7e08b1e356996da",
-      "snapshot_sha256": "c7bce3e4046f8f88a04a45829de8126aeb564768c12575840a5be0fa46df8ba3",
+      "source_sha256": "ca3a660d591bc2fb11b5e15c915ceebece21972a80667216cf7a8f166ae7f4b9",
+      "snapshot_sha256": "fb367a0bdc023b9695d5ae510286feafd7ba275b871758a4a564c233f2d09b81",
       "source_kind": "archived_task"
     },
     {
@@ -926,8 +926,8 @@
       "source": "pulse-backend/docs/q1-runtime-2026-10-21.md",
       "owner": "documentation-analyst",
       "mode": "markdown",
-      "source_sha256": "4337992a91257fcf52376930425e9b23179f885158b093588b11e4d2b0593175",
-      "snapshot_sha256": "21d67532ebf310f88ddab427c8c61766c7877f35dcf0e620aa6bf44d58c7bd16"
+      "source_sha256": "a1fd988de6844671d5b4c173ca3067dbc795e2c762ea7316f03b073d134fde5b",
+      "snapshot_sha256": "f75eeb834f7a1e41b03ebd8463024cdb3783c7063036335b4a4a5bb116aa1f19"
     },
     {
       "snapshot": "diagrams/q1-file-jobs.drawio",

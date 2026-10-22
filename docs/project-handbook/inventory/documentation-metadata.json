@@ -1,5 +1,5 @@
 {
-  "edition": "2026-10-22: Q0 accepted; Q1/F2 synthetic-only implementation, proof status in runtime chapter",
+  "edition": "2026-10-22: Q1/F2 source and required synthetic runtime verified; default off, real-file disabled",
   "sections": 21,
   "figma_entries": 150,
   "http_operations": 87,

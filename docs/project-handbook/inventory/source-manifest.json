@@ -31,9 +31,9 @@
     },
     {
       "name": "pulse-backend",
-      "head": "968142c1eebc721d1f21e18554f0dd3c4bbd9736",
+      "head": "2aec9c5011518cf72b58441e5d392baa48beecd5",
       "branch": "codex/o2-q0",
-      "dirty_entries": 68,
+      "dirty_entries": 11,
       "repository_url": "https://github.com/effitech-pulse/pulse-backend"
     },
     {

@@ -1,16 +1,19 @@
 # Проверки Pulse и обязательные gates — DOC-05
 
-## Q1/F2 · source и bounded runtime evidence, 21.10.2026
+## Q1/F2 · source и bounded runtime evidence, 21–22.10.2026
 
 [Q1 proof/runbook](q1-runtime-2026-10-21.md) фиксирует exact source/binary identities,
 обязательные commands, API-only resource proof и отдельную physical fault matrix.
-Source DB/SW и narrow execution_busy fix APPROVED тем же Senior. Full check /
-isolated integration / build PASS до busy delta; scoped adapter/service race и vet
-после delta PASS; post-busy paired binaries rebuilt/build PASS. Финальные full check/integration gates после delta — отдельная запись
-в proof. Старый physical stale-zombie FAIL сохраняется; source fix сам по себе его
-не закрывает. Frontend source/controlled browser approval не заменяет actual API QA.
-Никакой whole-Q1/F2, real-private, production/SLA или scientific acceptance из этих
-частичных результатов не выводится.
+Source и обязательные runtime gates VERIFIED в synthetic-only области. Source
+DB/SW и narrow execution_busy fix APPROVED тем же Senior; post-busy full check /
+isolated integration / build, scoped adapter/service race и vet PASS.
+Старый physical stale-zombie FAIL сохранён; отдельно actual post-fix22.10 PASS
+проверен тем же Senior, Q1-RUNTIME-01 CLOSED:3attempts/один accepted result,
+late-worker state unchanged5.36s. Actual frontend scope принят назначенным
+frontend-reviewer и отделён от controlled QA; UI worker restart/full25/прочие
+ограничения этим новым backend probe не закрываются. Финальная приёмка
+координатором и новая closure-публикация отдельно; real-private, production/SLA
+и scientific acceptance не заявлены.
 
 
 Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime-2026-10-21.md) фиксирует source/binary/pin identity и **13/13 synthetic runtime PASS**: resource8, replay1, strict faults4. Test names: `TestQ0StoredFileResourceCaps`, `TestQ0StoredFileProcessReplay`, `TestQ0StoredFileProcessFaults` в `internal/transport/httpapi/file_inputs_process_test.go`; generator/launcher — `test/q0_process/`. Без `Q0_PROCESS_RUN=1`, отдельной PG, accepted Python/pin или Darwin measurement profile process SKIP/отсутствие evidence не является acceptance. Историческая Q0 source/runtime/reproducer и final docs/publication ACCEPTED; cold install UNTESTED, remote SDK/CI OPEN, scientific user-deferred/not_assessed. Прежние STOP/RERUN1 FAIL сохранены отдельно от актуального RUN-2.

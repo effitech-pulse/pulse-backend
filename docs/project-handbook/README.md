@@ -14,9 +14,11 @@ opt-in HTTP jobs, PostgreSQL outbox/inbox и Go worker с private saved-check/re
 schema13 не активирована. [Q1 protocol](references/q1-file-jobs.md),
 [C4](diagrams/q1-file-jobs.drawio) и [runtime proof](references/q1-runtime.md)
 разделяют source APPROVED, API-only resource/четыре recovery PASS, принятый actual
-browser scope и full check/integration/build PASS. Post-fix stale rerun остаётся
-OPEN/NOT EXECUTED; whole-Q1/F2 не объявлена принятой. Публикационный gate
-подтверждается отдельно сборкой и автономной валидацией ниже. Real-private/production/scientific gates остаются открытыми.
+browser scope и full check/integration/build PASS. Отдельный post-fix stale probe
+22.10 прошёл actual verification; Q1-RUNTIME-01 CLOSED тем же Senior. Source и
+обязательные runtime gates VERIFIED в synthetic-only области. Финальная приёмка
+координатором и публикация новой closure-редакции выполняются отдельно; прежний
+публикационный gate относится к artifact bytes ниже. Real-private/production/scientific gates остаются открытыми.
 
 ### PREP и O1/F1 · историческая принятая область20.10.2026
 
@@ -30,8 +32,9 @@ Backend выполняет пользовательский bulk через те
 
 Сборка22.10.2026:117 mapped snapshots,680 public source records,35 HTML-разделов,
 28 draw.io pages. Sync/build/validate/source check и standalone ZIP validation PASS.
-Эти проверки подтверждают автономность комплекта; открытый post-fix stale runtime
-gate и whole-Q1/F2 status остаются в [Q1 proof](references/q1-runtime.md).
+Эти проверки подтверждают автономность прежней редакции комплекта; новое
+post-fix stale свидетельство22.10 и границы synthetic runtime verification
+находятся в [Q1 proof](references/q1-runtime.md). Новая closure-публикация проверяется отдельно.
 
 ## Содержание
 

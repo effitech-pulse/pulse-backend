@@ -1,11 +1,13 @@
 # Текущее состояние и согласованные изменения
 
-Q1/F2 ·21.10.2026: source DB/SW и narrow execution_busy delta APPROVED Senior.
-Отдельный default-off synthetic file-job путь реализован; `FILE_CHECK_ALLOW_REAL=false`
+Q1/F2 ·22.10.2026: source и обязательные runtime gates VERIFIED в synthetic-only
+области; Q1-RUNTIME-01 CLOSED тем же Senior после actual post-fix stale PASS.
+Отдельный default-off file-job путь реализован; `FILE_CHECK_ALLOW_REAL=false`
 обязателен, actual PREP schema13 не активирована. [Протокол](../references/q1-file-jobs.md)
 и [runtime proof](../references/q1-runtime.md) разделяют API-only resource PASS,
-старые physical4PASS/1staleFAIL и последующий rebuild/rerun/browser gates.
-Whole-Q1/F2 acceptance не выводится из source или controlled browser PASS.
+исторические physical4PASS/1staleFAIL, новый probe22.10 и принятый actual browser
+scope. Финальная приёмка координатором и публикация closure-редакции выполняются
+отдельно; реальные файлы/production/scientific этим proof не разрешаются.
 
 
 Q0 ·21.10.2026: C/M/B+memory и P-SR04 source приняты; **RUN-2 synthetic implementation/runtime VERIFIED,13/13 PASS**. [Runtime proof](../references/q0-runtime.md) связывает frozen execution afae2c4 с resource8/replay1/fault4; source/runtime/reproducer ACCEPTED; final docs/publication PASS. Исторический Q0 не включал public saved-file routes/job/outbox/worker; текущий default-off Q1 описан выше. Actual PREP schema12/13 не активирована этим proof. SDK0.1.2localUNRELEASED/remoteCI OPEN; real-private policies OPEN; scientific user-deferred/not_assessed.
