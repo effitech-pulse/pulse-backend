@@ -17,13 +17,15 @@ func (s *Server) routes() *gin.Engine {
 	router.HandleMethodNotAllowed = true
 	router.MaxMultipartMemory = 2 * 1024 * 1024
 	_ = router.SetTrustedProxies(nil)
-	router.Use(s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
+	router.Use(s.eventsHeaders(), s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
 		s.corsMiddleware(), s.authorizeMiddleware())
 	router.GET("/health", s.wrap(s.health))
 	router.GET("/openapi.json", func(c *gin.Context) {
 		c.Data(http.StatusOK, "application/json", openAPI)
 	})
 	api := router.Group(s.Config.Prefix)
+	api.GET("/events", s.eventWrap(s.listEvents))
+	api.GET("/events/:event_id", s.eventWrap(s.getEvent))
 	api.POST("/ml/cohort-jobs", s.wrap(s.submitCohortJob))
 	api.GET("/ml/cohort-jobs/:job_id", s.wrap(s.getCohortJob))
 	api.POST("/ml/cohort-jobs/:job_id/cancel", s.wrap(s.cancelCohortJob))

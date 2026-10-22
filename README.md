@@ -180,3 +180,6 @@ Q1 сохранённые file jobs реализованы отдельным de
 Настройка не переключает существующий `/ml/upload` или рабочий Compose;
 real-file enable запрещён startup validation. Synthetic proof не является
 научной приёмкой модели или production deployment.
+
+Предметная история сохранённых ordinary событий: `GET /api/v1/events` и exact
+`GET /api/v1/events/{event_id}`. [Контракт, права и ограничения](docs/events.md).
