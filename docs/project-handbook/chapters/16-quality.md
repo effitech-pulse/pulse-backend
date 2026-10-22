@@ -1,5 +1,33 @@
 # Тестирование и критерии приёмки
 
+Q2-C1 ·22.10.2026: source APPROVED, все8findings CLOSED; latest check17.843s/
+integration194.411s monotonic (387.485s wall)/build6.063s PASS. Actual max/restart/
+mixed/rollback PASS232.61s (runner235.769s), accepted checkpoint recompute0.
+Physical270.70s и capacity1.51s actual tests также PASS; sampled resources и teardown
+подтверждены, internal synthetic runtime VERIFIED. Проверки публикации комплекта учитываются отдельно; scientific/real/production не приняты. [Q2 proof/runbook](../references/q2-runtime.md)
+содержит exact opt-in command и required environment для materialized
+`TestCohortJobActualHTTPWorkerRestart`. Без `Q2_PROCESS_PROOF=1` actual-process тест
+делает SKIP, который не доказывает inference/recovery. [Протокол](../references/q2-cohort-jobs.md)
+и [C4](../diagrams/q2-cohort-jobs.drawio) описывают source behavior; научный статус
+not_assessed сохраняется.
+
+Gate требует complete100 freeze до202, checkpoint resume, dedicated physical PG
+session loss во время checkpoint/final TX, отсутствие stale accepted effects,
+atomic all100 publication, current full100 authority и restricted Execution privacy.
+Отдельно проверяются Q1/legacy capacity races, old ML tail/exact busy, finite
+retry/queue budgets, cap+1 rejects, source bytes deletion recovery и drain rollback.
+All100/mixed100 happy process scenarios не заменяют fault/resource матрицу.
+Измерения RSS/PG/WAL/temp/queue/disk и source/API/worker/wheel/pin bindings приводятся
+только по actual evidence; Q1 числа и unit PASS не являются Q2 capacity proof.
+Editable XML/links/OpenAPI refs и автономная handbook publication проверяются
+отдельно. G2 APPROVED ранее; неизменённые G2/Q1 этим текстом повторно не принимаются.
+
+Observed Q2 proof: RSS API239.25MiB/worker43.59/Q2ML160.02/Q1tail103.44, simultaneous
+combined247.77MiB; PGschema7.87MiB/WAL73.48MiB/tempdelta0. Canary56files no leak;
+owned test resources удалены, working8containers unchanged. Rabbit bytepeak
+unavailable при actual16KiB/16message caps; ML TMPDIR empty, backend temp source
+invariant без global/tmp measurement. Это internal synthetic acceptance, не SLA.
+
 Q1 source и обязательные runtime gates VERIFIED в synthetic-only области22.10;
 DB/SW и narrow busy fix APPROVED тем же Senior, actual frontend scope принят
 назначенным frontend-reviewer отдельно. Post-busy full check/integration/build,

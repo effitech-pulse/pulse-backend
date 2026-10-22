@@ -114,7 +114,7 @@ message ExecutionPin {
   string source_manifest_sha256 = 8;
   string runtime_manifest_sha256 = 9;
 }
-// Identity неизменяемых canonical bytes; source_kind = uploaded_file.
+// Identity неизменяемых canonical bytes; source_kind = uploaded_file или cohort_snapshot.
 message PinnedInputIdentity {
   string input_snapshot_id = 1;
   string canonical_sha256 = 2;

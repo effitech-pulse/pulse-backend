@@ -17,23 +17,23 @@
     },
     {
       "name": "pulse-ml-service",
-      "head": "47a9eeccea3fd983090c6cd013e8c2df36396ea9",
-      "branch": "codex/o2-q0",
+      "head": "f5e08f529117280055559fb7c96cc072a0d20bc9",
+      "branch": "codex/q2-cohort",
       "dirty_entries": 0,
       "repository_url": "https://github.com/effitech-pulse/pulse-ml-service"
     },
     {
       "name": "pulse-contracts",
-      "head": "f871f8109a53cdba964b5a95c68924019478d7ab",
-      "branch": "codex/o2-q0",
+      "head": "1d0b2b62d2cb73d18ab69738431089edf69621f8",
+      "branch": "codex/q2-cohort",
       "dirty_entries": 0,
       "repository_url": "https://github.com/effitech-pulse/pulse-contracts"
     },
     {
       "name": "pulse-backend",
-      "head": "2aec9c5011518cf72b58441e5d392baa48beecd5",
-      "branch": "codex/o2-q0",
-      "dirty_entries": 11,
+      "head": "677cf337393b500c9173333a249c337135ff33b1",
+      "branch": "codex/q2-cohort",
+      "dirty_entries": 30,
       "repository_url": "https://github.com/effitech-pulse/pulse-backend"
     },
     {
@@ -53,6 +53,6 @@
   ],
   "http_operations": 78,
   "figma_catalog_rows": 150,
-  "source_file_count": 680,
+  "source_file_count": 718,
   "snapshot_registry": "snapshot-sources.json"
 }

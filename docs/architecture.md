@@ -1,5 +1,35 @@
 # Архитектура backend
 
+## Q2-C1 · additive durable cohort source, 22.10.2026
+
+Отдельный default-off synthetic модуль сохраняет все100 inputs/markers, membership,
+lifecycle, UTC as_of и exact execution pin до202 одной PG transaction с run/job,
+reservations и outbox. `bin/cohort-worker` использует payload-free Rabbit events,
+durable checkpoints и отдельный strict `cohort_snapshot` pinned ML target.
+Per-member stage не меняет published risk: только fenced all100 final transaction
+записывает snapshot/alerts/run/job/inbox. Исторический output/JSON/digest не меняется.
+Current restricted/empty snapshot projection очищает глобальный Execution metadata.
+
+Claim держит physical PG session74019321; Next/renew/checkpoint/final transactions
+исполняются на этой же connection. Общий capacity gate74019323 добавляет узкую
+взаимоисключающую проверку Q1/legacy/Q2; Q1 same-key replay сохраняет bounded wait≤5s,
+Q2 admission/new claim и legacy используют TRY. Для уже owned Next/Renew/Checkpoint/
+Finish реализовано отдельное bounded WAIT уточнение на том же gate,
+Q2-DB-03 CLOSED тем же Senior. Next/Renew/Checkpoint total5s включают serializer и gate wait;
+Finish total10s, gate query≤min(remaining,5s). Остальные TRY paths сохранены. Terminal Q1 deliveries получают persisted disposition
+до capacity check. Q1 private semantics/Redrive и существующие HTTP paths сохраняются.
+
+API проверяет capture recipe SHA against actual API executable и полный trusted
+catalogue. Worker загружает descriptor policy metadata; accepted inputs читает из
+PG даже после удаления original fixture bytes. Actual worker SHA связывается отдельно.
+Schema14 на PostgreSQL16 применяется явно; guard/bootstrap и real enable не создаются
+миграцией. Source implementation, review, runtime и docs/publication статусы разделены
+в [Q2 proof/runbook](q2-runtime-2026-10-22.md): source APPROVED,8findings CLOSED;
+latest module gates и3actual cases PASS; physical stale/capacity/measured resources/
+teardown VERIFIED в internal synthetic-only scope. Проверки публикации комплекта учитываются отдельно; scientific/real/production не приняты.
+[Протокол](q2-cohort-jobs.md) и [editable C4](q2-cohort-jobs.drawio) содержат точные
+границы, limits/recovery/rollback. Collection и переключение портала не входят в C1.
+
 ## Q1 · реализованный synthetic source, 21.10.2026
 
 `FileJobs` принимает input+quota+job+outbox одной PG transaction. `cmd/worker`
@@ -21,7 +51,7 @@ synthetic требует server-owned manifest/guard/accounts/well/pin; real ena
 [датированном свидетельстве](q1-runtime-2026-10-21.md).
 
 
-Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют историческую принятую Q0 область (13PASS, docs/publication PASS). Q1 добавил отдельный default-off synthetic модуль: [протокол](q1-file-jobs.md), [C4](q1-file-jobs.drawio), [runtime proof](q1-runtime-2026-10-21.md). Текущая source schema13 проверена в выделенных test schemas; actual PREP этим не мигрирован. Sync routes сохранены.
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют историческую принятую Q0 область (13PASS, docs/publication PASS). Q1 добавил отдельный default-off synthetic модуль: [протокол](q1-file-jobs.md), [C4](q1-file-jobs.drawio), [runtime proof](q1-runtime-2026-10-21.md). Q1 schema13 проверена в выделенных test schemas; actual PREP этим не мигрирован. Текущая source schema14 добавляет Q2, описанный выше. Sync routes сохранены.
 ## Границы ответственности
 
 Frontend обращается к HTTP API на Gin. Backend хранит операционные данные в PostgreSQL и вызывает Python ML по gRPC. Обучение, признаки и модель остаются в `pulse-model`; backend не устанавливает этот пакет.
@@ -61,7 +91,7 @@ SQL строится Squirrel и выполняется pgx. Динамичес�
 
 ## Контракты
 
-`pulse-contracts` — отдельный Git-репозиторий, Go-модуль и Python-пакет. Только он хранит `.proto` и generated SDK. Текущие исходники backend/ML используют Go `v0.1.2` / Python `0.1.2`, локальный **UNRELEASED** Q0 candidate contracts `272f23027e4a3ba636305b931f6ab83e5fca8166`. PREP0.1.1 остаётся отдельным историческим source binding. Их сборки не запускают protoc и не копируют схему.
+`pulse-contracts` — отдельный Git-репозиторий, Go-модуль и Python-пакет. Только он хранит `.proto` и generated SDK. Текущие исходники backend/ML используют Go `v0.1.2` / Python `0.1.2`, локальный **UNRELEASED** candidate. Q2 G2 contracts source checkpoint — `1d0b2b62d2cb73d18ab69738431089edf69621f8`; capability/docs изменены без wire/generated delta. Исторический Q0 binding — `272f23027e4a3ba636305b931f6ab83e5fca8166`. PREP0.1.1 остаётся отдельным историческим source binding. Их сборки не запускают protoc и не копируют схему.
 
 Схема проверяется Buf (lint и breaking checks), SDK создают официальные генераторы. gRPC-адаптер Go преобразует generated-типы в domain напрямую, сохраняя optional и int64 без JSON. Python использует официальный protobuf json_format на границе словарей движка.
 

@@ -1,5 +1,16 @@
 # Пульс скважины · Backend
 
+Q2-C1 ·22.10.2026: реализован отдельный internal synthetic-only durable cohort путь
+с full100 freeze до202, persisted checkpoints и атомарной публикацией полного
+snapshot. `COHORT_JOB_MODE=off` default, `COHORT_JOB_ALLOW_REAL=false` обязательно.
+[Протокол/API](docs/q2-cohort-jobs.md), [редактируемый C4](docs/q2-cohort-jobs.drawio)
+и [runtime gates/runbook](docs/q2-runtime-2026-10-22.md) разделяют source freeze,
+review, actual process/resource и publication evidence. Source APPROVED тем же Senior,
+все8findings CLOSED; latest module gates и все3actual cases PASS. Технические runtime
+gates VERIFIED в internal synthetic-only scope: max/restart/mixed/rollback, physical
+stale, capacity rejection, measured resources и teardown. Проверки публикации комплекта учитываются отдельно; scientific not_assessed, real/production не приняты. Рабочий refresh/UI и collection
+не переключены; collection — отдельный следующий slice.
+
 
 Q0: внутренние stored-file primitives и strict `UploadPinned` прошли synthetic RUN-2: **13/13 PASS** на одном frozen binary; source/runtime/reproducer приняты, final docs/publication gate PASS. [Архитектура](docs/q0-architecture-2026-10-20.md), [результаты и воспроизводимые команды](docs/q0-runtime-2026-10-21.md). Это историческая принятая Q0-область. Q1/F2 source реализует отдельные opt-in saved-file routes, PostgreSQL outbox/inbox и Go worker; [Q1 proof/runbook](docs/q1-runtime-2026-10-21.md) отделяет source approval от runtime/browser gates. `FILE_CHECK_MODE=off` по умолчанию, `FILE_CHECK_ALLOW_REAL=false` обязательно; actual PREP не переключён. Real-private enable и scientific acceptance остаются закрыты/отложены соответственно.
 ## Актуальный портал · 21.10.2026
@@ -30,7 +41,7 @@ go work edit -replace=github.com/effitech-pulse/pulse-contracts@v0.1.2=./pulse-c
 cd pulse-backend
 ```
 
-Замену используем только в локальном workspace. `go.mod` фиксирует локальный Q0 candidate SDK `v0.1.2` (**UNRELEASED**), source commit `272f23027e4a3ba636305b931f6ab83e5fca8166`; public tag/checksum не предполагается; remote fetch/pipeline не проверены и требуют отдельной разрешённой публикации contracts. Локальная сборка использует этот exact reviewed source; исходники контрактов в backend не копируются. Docker build использует этот принятый checkout через named context `--build-context contracts=../pulse-contracts` (build only). Для Q0 применяйте отдельный GOWORK; общий workspace `go.work` не изменяется. Для PREP эта package version недостаточна: используйте проверенный source commit contracts `07213c430318affd140f55dea391cdc36220d93f`, а не прежний release tag. [Compatibility manifest](docs/readiness-compatibility.json) фиксирует все7reviewed runtime payload refs, зависимости и фактические Docker image IDs. Backend payload ref остаётся базой для последующего README/docs-only commit, hash которого не включается сам в себя.
+Замену используем только в локальном workspace. `go.mod` фиксирует локальный candidate SDK `v0.1.2` (**UNRELEASED**); Q2 G2 contracts source checkpoint — `1d0b2b62d2cb73d18ab69738431089edf69621f8` (capability/docs delta, wire/generated SDK не менялись). Исторический Q0 binding — `272f23027e4a3ba636305b931f6ab83e5fca8166`; public tag/checksum не предполагается; remote fetch/pipeline не проверены и требуют отдельной разрешённой публикации contracts. Локальная сборка использует этот exact reviewed source; исходники контрактов в backend не копируются. Docker build использует этот принятый checkout через named context `--build-context contracts=../pulse-contracts` (build only). Для Q0 применяйте отдельный GOWORK; общий workspace `go.work` не изменяется. Для PREP эта package version недостаточна: используйте проверенный source commit contracts `07213c430318affd140f55dea391cdc36220d93f`, а не прежний release tag. [Compatibility manifest](docs/readiness-compatibility.json) фиксирует все7reviewed runtime payload refs, зависимости и фактические Docker image IDs. Backend payload ref остаётся базой для последующего README/docs-only commit, hash которого не включается сам в себя.
 
 ### 2. Настройте окружение
 
@@ -62,7 +73,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию 13 (additive Q1 jobs/outbox/inbox поверх Q0 schema12; явное применение проверено только в выделенных synthetic test schemas, actual PREP schema13 этим не активирована). Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию14 (additive Q2 cohort jobs/immutable inputs/checkpoints поверх Q1 schema13 и Q0 schema12). PostgreSQL server —16;14 означает версию схемы приложения. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -83,6 +94,7 @@ curl http://127.0.0.1:8000/health
 | Отказы | `/api/v1/wells/{id}/incidents`, `/api/v1/incidents/stats` | История и статистика отказов |
 | Данные | `/api/v1/wells/{id}/predictions`, `complications`, `classification` | Прогнозы и осложнения |
 | ML | `/api/v1/ml/*` | Риск, SHAP, история, загрузка файла, прогоны, статусы тревог |
+| Q2 internal synthetic | `POST /api/v1/ml/cohort-jobs`, `GET /api/v1/ml/cohort-jobs/{job_id}`, `POST /api/v1/ml/cohort-jobs/{job_id}/cancel` | Durable submit, status по ID и revision cancel; [точный контракт](docs/q2-cohort-jobs.md#http) |
 | Наблюдаемость | `/health`, `/api/v1/audit`, `/api/v1/runs` | Проверка БД, аудит и события |
 | Аналитика | `/api/v1/analytics/*` | Подписанные Metabase URL |
 
@@ -94,7 +106,7 @@ curl http://127.0.0.1:8000/health
 
 ```sh
 make check       # unit-тесты, границы слоёв, race detector, vet, форматирование
-make build       # bin/api, bin/migrate, bin/adminuser, bin/cohort и bin/worker
+make build       # bin/api, bin/migrate, bin/adminuser, bin/cohort, bin/worker, bin/cohort-worker
 ```
 
 Интеграционные тесты:
@@ -110,7 +122,7 @@ make test-db-down
 ## Структура
 
 ```text
-cmd/                  Точки входа api, migrate, adminuser, cohort и worker
+cmd/                  Точки входа api, migrate, adminuser, cohort, worker, cohort-worker
 internal/
   bootstrap/          Сборка зависимостей и жизненный цикл
   config/             Настройки окружения

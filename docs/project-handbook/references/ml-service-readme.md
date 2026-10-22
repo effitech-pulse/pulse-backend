@@ -56,6 +56,15 @@ bundle, decision rule, schema, recipe, source/resources и runtime с полны
 Несовпадение/утрата bundle даёт FAILED_PRECONDITION; invalid header/hash/CSV —
 INVALID_ARGUMENT; пределы/result cap — RESOURCE_EXHAUSTED. Downgrade на Upload нет.
 
+Q2 расширяет semantic capability этого же RPC: `input.source_kind` принимает ровно
+`uploaded_file` и `cohort_snapshot`. Оба вида используют тот же strict canonical CSV,
+`ExecutionPin(upload_pin_v1)`, лимиты и проверки; `provenance.input_kind` сохраняет
+переданный source kind. Неизвестный kind даёт `INVALID_ARGUMENT` до features/predict.
+Wire/SDK/version не меняются; это аддитивное поведение сервера, которое старый сервер
+может отклонить. После установки Q2 wheel получите новый actual execution pin:
+сохранённый Q1 pin не переиспользуется, так как source/runtime identity изменилась.
+Это расширение не подтверждает качество модели или сквозную готовность cohort jobs.
+
 `ML_BUNDLE_REGISTRY` указывает на отдельный operator-owned registry, отличный от
 mutable `ML_DATA_ROOT/models`. Ни browser, ни RPC не импортируют pickle. Доверенный
 оператор может использовать `python -m pulse_ml.bundle_registry import --source

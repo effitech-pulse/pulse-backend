@@ -4,7 +4,21 @@
 
 **Начните с [HTML-версии с поиском](index.html)** или читайте разделы Markdown ниже. [Figma](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho) и [C4 в draw.io](diagrams/pulse-c4.drawio) связаны с описанием текущего кода. [Сценарии в draw.io](diagrams/pulse-flows.drawio) дополняют архитектуру.
 
-## Текущий Q1/F2 и исторические принятые редакции ·22.10.2026
+## Текущий Q2-C1 и исторические принятые редакции ·22.10.2026
+
+Q2-C1 source ·22.10.2026: реализован отдельный default-off synthetic-only durable
+cohort API/worker с complete100 immutable inputs и all100 final publication.
+`COHORT_JOB_MODE=off`, real enable запрещён. [Протокол](references/q2-cohort-jobs.md),
+[C4](diagrams/q2-cohort-jobs.drawio), [runtime gates](references/q2-runtime.md) и
+[schema14 DDL](schemas/postgres/cohort_jobs.sql) отделяют source review от actual process/resource и publication evidence. Source
+APPROVED тем же Senior,все8findings CLOSED; latest module gates PASS. Actual
+max/restart/mixed/rollback, physical stale и capacity reject —3PASS; measured resources
+и teardown VERIFIED в internal synthetic-only scope. Accepted checkpoint recompute0,
+bounded WAIT проверен. Проверки публикации комплекта учитываются отдельно; scientific,
+real и production не приняты. Worker recovery читает accepted PG bytes без
+original fixture files; capture SHA принадлежит API, worker SHA фиксируется отдельно.
+Scientific not_assessed; collection и переключение портала не входят в C1.
+Ниже сохранены исторические Q1/Q0/PREP свидетельства и их dated publication counts.
 
 Q0 internal stored-file/pinning source, synthetic RUN-2 **13/13 PASS** и финальная
 docs/publication приёмка приняты21.10; [Q0 proof](references/q0-runtime.md) сохраняет

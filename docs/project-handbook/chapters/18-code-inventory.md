@@ -1,6 +1,6 @@
 # Инвентаризация исходников и версий
 
-Редакция22.10.2026 индексирует **public working tree** семи репозиториев после принятого Q0 и реализации Q1/F2. SHA и наличие файла фиксируют bytes; статус приёмки отдельно указан в [разделе2](02-status.md) и [Q1 runtime proof](../references/q1-runtime.md). Mapped snapshots с владельцами перечислены в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1/O2 refs ниже исторические. Текущие sync/source check и автономная проверка пакета PASS:117 mappings,680 source records,35 HTML-разделов,28 draw.io pages; это целостность публикации, не whole-Q1 runtime acceptance.
+Редакция22.10.2026 индексирует **public working tree** семи репозиториев после принятого Q0, Q1/F2 и Q2-C1 в internal synthetic technical scope. SHA и наличие файла фиксируют bytes; статус приёмки отдельно указан в [разделе2](02-status.md) и [Q2-C1 runtime proof](../references/q2-runtime.md). Mapped snapshots с владельцами перечислены в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1/O2 refs ниже исторические. Текущие sync/source check и автономная проверка пакета PASS:121 mappings,718 source records,35 HTML-разделов,30 draw.io pages; это целостность публикации. Приёмка source/runtime Q2-C1 описана отдельно; scientific/real-private/production acceptance не заявляется.
 
 Файловая инвентаризация: [CSV с SHA256](../inventory/source-files.csv), [репозитории и HEAD](../inventory/source-manifest.json). В перечень включены исходники и публичные конфигурации; исключены данные, окружения, Git metadata, бинарники, секреты и этот комплект документации.
 
@@ -10,9 +10,9 @@
 |---|---|---|---|
 | pulse-model | `bf5326d65578` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-model) |
 | pulse-data | `e38a978a1c25` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
-| pulse-ml-service | `47a9eeccea3f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
-| pulse-contracts | `f871f8109a53` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `2aec9c501151` | 11 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-ml-service | `f5e08f529117` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
+| pulse-contracts | `1d0b2b62d2cb` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
+| pulse-backend | `677cf337393b` | 30 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
 | pulse-frontend | `771187e27051` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e555b333003f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 

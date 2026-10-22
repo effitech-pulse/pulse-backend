@@ -1,5 +1,5 @@
 {
-  "edition": "2026-10-22 / Q0 accepted; Q1/F2 source and required synthetic runtime verified, default off",
+  "edition": "2026-10-22: Q2-C1 durable synthetic cohort technical acceptance; default off",
   "workspace_root": "repository-split, supplied explicitly via --workspace",
   "policy": "SOURCE_POLICY.md",
   "entries": [
@@ -32,16 +32,16 @@
       "source": "pulse-contracts/proto/pulse/ml/v1/ml.proto",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "999689594e8a256ea20f55cc5961ef8b4fc93d2c7a276b13cb2865ce3b855327",
-      "snapshot_sha256": "999689594e8a256ea20f55cc5961ef8b4fc93d2c7a276b13cb2865ce3b855327"
+      "source_sha256": "88dba240b27debde91fecc54918e75df7dae27facd3aafc75e6c7558c6378879",
+      "snapshot_sha256": "88dba240b27debde91fecc54918e75df7dae27facd3aafc75e6c7558c6378879"
     },
     {
       "snapshot": "contracts/openapi.json",
       "source": "pulse-backend/api/openapi.json",
       "owner": "architect-analyst",
       "mode": "copy",
-      "source_sha256": "84fbc9db8fce89dac4024987c18eb83220d4c4f72519f24f2db88f7a109b2186",
-      "snapshot_sha256": "84fbc9db8fce89dac4024987c18eb83220d4c4f72519f24f2db88f7a109b2186"
+      "source_sha256": "c37d3ad884a4c6b53b9fd3efbf161ef4a2665f62d771dc19cd5c4645d7b5dcdd",
+      "snapshot_sha256": "c37d3ad884a4c6b53b9fd3efbf161ef4a2665f62d771dc19cd5c4645d7b5dcdd"
     },
     {
       "snapshot": "contracts/runtime-constraints.txt",
@@ -424,8 +424,8 @@
       "source": "pulse-backend/Makefile",
       "owner": "tech-lead",
       "mode": "copy",
-      "source_sha256": "1aa6e9876df44727f22b550e410517198328e41b45febafa02b294a71f3d7ed7",
-      "snapshot_sha256": "1aa6e9876df44727f22b550e410517198328e41b45febafa02b294a71f3d7ed7"
+      "source_sha256": "c23c0ae7bc57a85e32f524469253562f862b0eec92232df9cffe9d5092715e65",
+      "snapshot_sha256": "c23c0ae7bc57a85e32f524469253562f862b0eec92232df9cffe9d5092715e65"
     },
     {
       "snapshot": "inventory/pulse-backend--go.mod",
@@ -552,16 +552,16 @@
       "source": "pulse-backend/docs/configuration.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "29c755f5348a4872eab79ca274b3ded27fbbad99c0c5102a5dfc2f3c8af00923",
-      "snapshot_sha256": "2bcd55f3f9cff0200f1b00c2657094a2e04f41b43db6dc50fd4798ded00a3fdd"
+      "source_sha256": "047213b200bf5a59cb912205a6f888c5fddeede939d84ef936cdae212b67db3a",
+      "snapshot_sha256": "50772c31b367a0fe6975cc92e51a06f3cb71f1d8bc5509dc51cc193500fbdd36"
     },
     {
       "snapshot": "references/backend-operations.md",
       "source": "pulse-backend/docs/operations.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "97b30f725a174c27d5f3585fe60424b525d770af6b0995c66b55f5c926464573",
-      "snapshot_sha256": "d3c8bf39a8d449bcb36866257409dab972ff1921a00b847a63f3e802cf46828e"
+      "source_sha256": "9db2a9f4c73963a96824024eb671ddacadd265344cedf9d27d37abc29a556371",
+      "snapshot_sha256": "99f7bdb241782559e9c0132b67e1b262f3104263d30e43bfcfe3e1f13893bacf"
     },
     {
       "snapshot": "references/causal-baseline.md",
@@ -608,8 +608,8 @@
       "source": "pulse-ml-service/README.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "12469c98e867b383f366d7e3402f163e204a9cbc135f58018570b2aea06d474d",
-      "snapshot_sha256": "c6571658e97bc0d85d09811bf0b4ccdda79d553c876cc5f99de6b26b0853719b"
+      "source_sha256": "6c00b29978f106cb1930a8dc8aa58009ed78401bb8dc9445f767d60227ab74ac",
+      "snapshot_sha256": "32ad3e8cce1588714734a863b9bc848cccce332cf229f72711f056579ba988d9"
     },
     {
       "snapshot": "references/model-rpc-compatibility.md",
@@ -657,8 +657,8 @@
       "source": "pulse-backend/docs/verification-matrix.md",
       "owner": "tech-lead",
       "mode": "markdown",
-      "source_sha256": "6e7096b467955c801d48d6124048bffd13f0398e5029cb479fd9c882578f6943",
-      "snapshot_sha256": "afdf8a41a7f921af1d599aee293f940c09e09b1744592f76e9719e08a2a63cb9"
+      "source_sha256": "a3776142d50c0d235f661541b64819c836c4af26667ab84682cc5f113f87c407",
+      "snapshot_sha256": "c653b2ec231841d356ade9096e49d51ba3c194da7e379a04a25bd97eb4387e59"
     },
     {
       "snapshot": "schemas/clickhouse/init.sql",
@@ -944,6 +944,38 @@
       "mode": "copy",
       "source_sha256": "70a1d19396ef56d17ac28c1c70f0f4dcfb9cbdc2521292cb487dfbf0d4e017cb",
       "snapshot_sha256": "70a1d19396ef56d17ac28c1c70f0f4dcfb9cbdc2521292cb487dfbf0d4e017cb"
+    },
+    {
+      "snapshot": "references/q2-cohort-jobs.md",
+      "source": "pulse-backend/docs/q2-cohort-jobs.md",
+      "owner": "documentation-analyst",
+      "mode": "markdown",
+      "source_sha256": "93929c9ff61db51f6fc72d9612bfdd5ea2d1150f4195a414f5096bd37caf78b2",
+      "snapshot_sha256": "d66ad84a6c5873efc43764a8cfcad08fb0adbdb3705eb52d068e0a000dcc2d11"
+    },
+    {
+      "snapshot": "references/q2-runtime.md",
+      "source": "pulse-backend/docs/q2-runtime-2026-10-22.md",
+      "owner": "documentation-analyst",
+      "mode": "markdown",
+      "source_sha256": "fa0bc2e29b519a1e215095ba3376d7f68e971960e37a4a102956930a7e6088c9",
+      "snapshot_sha256": "3dc82e623cbde8153aa49d4aac7ebf7864872f41e186f2e8b35658d6d1193d09"
+    },
+    {
+      "snapshot": "diagrams/q2-cohort-jobs.drawio",
+      "source": "pulse-backend/docs/q2-cohort-jobs.drawio",
+      "owner": "architect-planner",
+      "mode": "copy",
+      "source_sha256": "95a7a33a4d42fcab1cb80d5db276372a21cd535e06d288eff80afd8d0cf5d895",
+      "snapshot_sha256": "95a7a33a4d42fcab1cb80d5db276372a21cd535e06d288eff80afd8d0cf5d895"
+    },
+    {
+      "snapshot": "schemas/postgres/cohort_jobs.sql",
+      "source": "pulse-backend/internal/migrations/cohort_jobs.sql",
+      "owner": "architect-planner",
+      "mode": "copy",
+      "source_sha256": "06561689e360fe35b18229eaeefa5aac4f96456697e03dd9bc2ca4c6b36e9936",
+      "snapshot_sha256": "06561689e360fe35b18229eaeefa5aac4f96456697e03dd9bc2ca4c6b36e9936"
     }
   ],
   "snapshot_date": "2026-10-22"

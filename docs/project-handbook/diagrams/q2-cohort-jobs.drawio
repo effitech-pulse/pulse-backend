@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Pulse documentation-analyst" version="24.7.17" type="device" compressed="false">
+  <diagram id="q2-c2" name="C2 — Q2 containers / source 22.10.2026">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Q2-C1 internal synthetic only • SOURCE APPROVED /8findings CLOSED&#10;All3actual cases + measured resources + teardown PASS • runtime VERIFIED; scientific not_assessed" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1680" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" value="Pulse backend — additive Q2 path / PostgreSQL server16, schema14" style="rounded=1;whiteSpace=wrap;html=0;fillColor=none;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=17;align=left;spacingLeft=15;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="350" y="150" width="1090" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" value="Operator / local-session admin&#10;Server allowlist + explicit current scope over all100" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="250" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="Go API / CohortJobs&#10;POST submit • GET status • POST cancel&#10;Freeze all100 before202; actual API capture SHA" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="390" y="220" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="PostgreSQL16 / schema14&#10;Atomic input+manifest+job+quota+outbox&#10;Lease/fence/authority/checkpoints/inbox&#10;One final snapshot+alerts+done commit" style="shape=cylinder3;whiteSpace=wrap;html=0;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="820" y="390" width="330" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="rabbit" value="Dedicated RabbitMQ4.3.6&#10;vhost pulse-q2-synthetic&#10;ready + quarantine&#10;Envelope only opaque job/event/generation" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="810" y="170" width="350" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="worker" value="bin/cohort-worker&#10;Dispatcher1s / reconcile5s / consumer1&#10;Dedicated physical PG claim session&#10;Owned Next/Renew/CP/Finish bounded WAIT&#10;Source correction APPROVED" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="390" y="600" width="300" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="strictml" value="Dedicated Q2 ML runtime&#10;UploadCohortPinned / cohort_snapshot&#10;Expected full pin + input hash&#10;Pinned physical execution≤1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="570" width="280" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="fixtures" value="Trusted descriptor + synthetic fixture bytes&#10;API validates actual capture binary and all inputs&#10;Worker loads policy metadata only" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="520" width="250" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="readers" value="Existing scoped cohort readers&#10;Last published snapshot until all100 final&#10;Restricted views clear global Execution" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="650" width="190" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="legacy" value="Existing Q1 worker / legacy runs&#10;Capacity gate74019323&#10;Q1 bounded≤5s; Q2 admission/new claim/legacy TRY&#10;Physical lock74019321" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="230" width="190" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="q1ml" value="Separate Q1 / legacy ML target&#10;Q1 strict uploaded_file unchanged&#10;Old physical tail counted separately" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="220" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="HTTPS/session + fixture_id + idempotency key" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="admin" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Trusted catalogue (no client paths)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="fixtures" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="All100 freeze + reservations; commit →202" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="Claim/read bytes/checkpoint/final TX on owned session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="worker" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="Persisted outbox + immutable inputs / policy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="pg" target="worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="Mandatory publish + confirms; manual ack after PG disposition" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="worker" target="rabbit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" value="At-least-once opaque ready event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="rabbit" target="worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" value="Strict pinned RPC; no fallback;10s" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="worker" target="strictml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" value="Published all100 snapshot; never staged risk" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="pg" target="readers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a10" value="Shared capacity exclusion; no Q1 engine rewrite" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#777777;" edge="1" parent="1" source="legacy" target="pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a11" value="Existing ML path" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#777777;" edge="1" parent="1" source="legacy" target="q1ml">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a12" value="Descriptor policy/permit metadata only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#777777;" edge="1" parent="1" source="fixtures" target="worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="footer" value="SOURCE APPROVED /8findings CLOSED; module gates and3actual cases PASS: max232.61s /physical270.70s /capacity1.51s.&#10;Observed API239.25MiB /worker43.59 /Q2ML160.02 /same-sample combinedML247.77; resource caveats in permanent proof.&#10;Default off; real/production/scientific not accepted. No UI/collection/GC/redrive switch. Publication checks apply separately to edition bytes." style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="1680" height="140" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="q2-c3" name="C3 — freeze / checkpoint / publication boundaries">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="btitle" value="Q2-C1 component boundaries • persisted authority and immutable inputs&#10;Staged per-member progress is distinct from all100 final publication" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1680" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="capture" value="API catalogue loader&#10;Actual API executable SHA&#10;Trusted descriptor+full pin&#10;Strict canonical7 measurements&#10;All100 source bytes validated" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="280" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="admit" value="CohortJobs / PG admission&#10;Full current100 allowlist/admin scope&#10;Lifecycle overlay + source/marker XOR&#10;Same key/commitment→same job" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="390" y="180" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="freeze" value="Immutable PG identity&#10;100 ordered members + input bytes&#10;UTC as_of / lifecycle / recipe&#10;Input manifest / pin / job hashes" style="shape=cylinder3;whiteSpace=wrap;html=0;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="780" y="180" width="310" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="outbox" value="Atomic acceptance transaction&#10;run + job + reservations + outbox&#10;No ML; no Rabbit needed for202" style="shape=cylinder3;whiteSpace=wrap;html=0;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="180" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="queue" value="Dispatcher / Rabbit&#10;Bounded generations + confirms&#10;Opaque envelope only" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="440" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="claim" value="Claim / dedicated PG session&#10;Physical lock + live lease/fence/token&#10;Already-owned Next/Renew/CP/Finish gate WAIT&#10;Next/Renew/CP total5s incl serializer+TX&#10;Finish total10s; gate≤min(remaining,5s)&#10;Post-wait rights/time/fence recheck" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="780" y="440" width="310" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="compute" value="CohortJobWorker + strict ML&#10;Missing members sequentially&#10;Persist compute start before RPC&#10;Verify cohort input/full pin/result&#10;Accepted checkpoint skipped on restart" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="390" y="440" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="cp" value="Staged immutable checkpoints&#10;One accepted effect per job/well&#10;Progress + scored/archived/inactive/&#10;insufficient/error counts&#10;No published fund risk yet" style="shape=cylinder3;whiteSpace=wrap;html=0;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="280" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="final" value="Fenced finalizer • one PG transaction&#10;Re-read100 exact persisted outcomes&#10;Validate identity, current rights, run/version&#10;Snapshot format2 + alerts + run done&#10;job succeeded + inbox + business action" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="390" y="790" width="700" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="public" value="Existing published snapshot&#10;Old snapshot until final commit&#10;PulseID+cohortversion review transfer/reset&#10;Non-scored Result=null&#10;Restricted reader Execution=nil" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="790" width="320" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="API capture identity before acceptance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="capture" target="admit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="Freeze all100, no partial prepare" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="admit" target="freeze">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" value="Same admission commit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="freeze" target="outbox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" value="Committed outbox" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="outbox" target="queue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" value="Delivery / persisted disposition" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="queue" target="claim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" value="Persisted bytes after deleted original files" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="freeze" target="claim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" value="Owned connection + bounded transaction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="claim" target="compute">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" value="Accepted checkpoint under current fence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="compute" target="cp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" value="Only complete matching100" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="cp" target="final">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b10" value="Atomic commit; replay does not duplicate effects" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="final" target="public">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b11" value="Live physical session + authority/fence/deadline" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;fontSize=12;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="claim" target="final">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="retry" value="Finite recovery&#10;3claims /3starts per member /102total&#10;Retry10/30s, lifetime30min&#10;No redrive API / no GC&#10;Cancel/revoke fences out stale effects" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="790" width="280" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="bfoot" value="Owned runtime WAIT implemented/APPROVED: only Next/Renew/CP/Finish; other TRY unchanged. All3actual/runtimeresource/teardown gates PASS internal synthetic only.&#10;Gate precedes row locks; post-wait authority/lease/state/time/fence/physical checks; gate released before RPC/AMQP. Oldfence0CP; genuine lease66.37s.&#10;No raised limits/fairness guarantee/late successful RPC claim. Historic failures retained. Default off; real/production/scientific not accepted." style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1050" width="1680" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

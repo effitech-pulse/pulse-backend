@@ -5173,6 +5173,257 @@
           }
         }
       }
+    },
+    "/api/v1/ml/cohort-jobs": {
+      "post": {
+        "tags": [
+          "cohort-jobs"
+        ],
+        "description": "Internal synthetic-only, default off. Requires current local admin session, server allowlist and explicit full100 scope. Cache-Control: no-store. Metadata reads use only PostgreSQL. JSON body max1024 bytes, unknown fields rejected. No list, retry or redrive endpoint.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Freeze100 and durably accept one cohort job",
+        "operationId": "submitCohortJob",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{16,80}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "fixture_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,80}$"
+                  }
+                },
+                "required": [
+                  "fixture_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Inputs, job/run, reservations and outbox committed; replay returns same identity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortJobStatus"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "schema": {
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body/key/revision"
+          },
+          "401": {
+            "description": "Local session required"
+          },
+          "403": {
+            "description": "Admin role/origin required"
+          },
+          "404": {
+            "description": "Job unavailable or denied"
+          },
+          "409": {
+            "description": "Commitment/revision conflict; terminal cancel includes actual job status"
+          },
+          "429": {
+            "description": "Capacity exceeded",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "const": "10"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/ml/cohort-jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "cohort-jobs"
+        ],
+        "description": "Internal synthetic-only, default off. Requires current local admin session, server allowlist and explicit full100 scope. Cache-Control: no-store. Metadata reads use only PostgreSQL. JSON body max1024 bytes, unknown fields rejected. No list, retry or redrive endpoint.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Read persisted cohort progress",
+        "operationId": "getCohortJob",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Persisted status, no ML/source/broker access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortJobStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body/key/revision"
+          },
+          "401": {
+            "description": "Local session required"
+          },
+          "403": {
+            "description": "Admin role/origin required"
+          },
+          "404": {
+            "description": "Job unavailable or denied"
+          },
+          "409": {
+            "description": "Commitment/revision conflict; terminal cancel includes actual job status"
+          },
+          "429": {
+            "description": "Capacity exceeded",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "const": "10"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/ml/cohort-jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "cohort-jobs"
+        ],
+        "description": "Internal synthetic-only, default off. Requires current local admin session, server allowlist and explicit full100 scope. Cache-Control: no-store. Metadata reads use only PostgreSQL. JSON body max1024 bytes, unknown fields rejected. No list, retry or redrive endpoint.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Cancel cohort job at expected revision",
+        "operationId": "cancelCohortJob",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "revision"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Actual cancelled or cancellation-requested state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortJobStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body/key/revision"
+          },
+          "401": {
+            "description": "Local session required"
+          },
+          "403": {
+            "description": "Admin role/origin required"
+          },
+          "404": {
+            "description": "Job unavailable or denied"
+          },
+          "409": {
+            "description": "Commitment/revision conflict; terminal cancel includes actual job status"
+          },
+          "429": {
+            "description": "Capacity exceeded",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "const": "10"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Disabled or unavailable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7960,6 +8211,10 @@
               "complete",
               "not_evaluated"
             ]
+          },
+          "execution": {
+            "$ref": "#/components/schemas/CohortExecutionIdentity",
+            "description": "Present only for complete100 visible Q2 snapshots; omitted for historical/restricted/empty projections."
           }
         },
         "required": [
@@ -8739,6 +8994,226 @@
           "timestamp_layout",
           "timezone",
           "mappings"
+        ]
+      },
+      "CohortJobStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Exact decimal int64"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending_dispatch",
+              "queued",
+              "running",
+              "retry_wait",
+              "cancel_requested",
+              "quarantined",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "expired",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "next_attempt_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "max_attempts": {
+            "const": 3
+          },
+          "completed_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total_count": {
+            "const": 100
+          },
+          "counts": {
+            "$ref": "#/components/schemas/CohortCoverage"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cohort_version": {
+            "type": "string"
+          },
+          "status_url": {
+            "type": "string"
+          },
+          "result_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancel_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "redrive_available": {
+            "const": false
+          }
+        },
+        "required": [
+          "id",
+          "run_id",
+          "state",
+          "revision",
+          "created_at",
+          "updated_at",
+          "deadline_at",
+          "started_at",
+          "finished_at",
+          "next_attempt_at",
+          "error_code",
+          "attempt",
+          "max_attempts",
+          "completed_count",
+          "total_count",
+          "counts",
+          "as_of",
+          "cohort_version",
+          "status_url",
+          "result_url",
+          "cancel_url",
+          "redrive_available"
+        ]
+      },
+      "CohortExecutionPin": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "model_name": {
+            "type": "string"
+          },
+          "bundle_sha256": {
+            "type": "string"
+          },
+          "context_version": {
+            "type": "string"
+          },
+          "feature_recipe_sha256": {
+            "type": "string"
+          },
+          "feature_schema_sha256": {
+            "type": "string"
+          },
+          "source_manifest_sha256": {
+            "type": "string"
+          },
+          "runtime_manifest_sha256": {
+            "type": "string"
+          },
+          "decision_rule": {
+            "$ref": "#/components/schemas/DecisionRule"
+          }
+        },
+        "required": [
+          "version",
+          "model_name",
+          "bundle_sha256",
+          "context_version",
+          "decision_rule",
+          "feature_recipe_sha256",
+          "feature_schema_sha256",
+          "source_manifest_sha256",
+          "runtime_manifest_sha256"
+        ]
+      },
+      "CohortExecutionIdentity": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "source_kind": {
+            "type": "string"
+          },
+          "cohort_manifest_sha256": {
+            "type": "string"
+          },
+          "input_manifest_sha256": {
+            "type": "string"
+          },
+          "execution_pin_sha256": {
+            "type": "string"
+          },
+          "replay_status": {
+            "type": "string"
+          },
+          "execution_pin": {
+            "$ref": "#/components/schemas/CohortExecutionPin"
+          }
+        },
+        "required": [
+          "version",
+          "source_kind",
+          "cohort_manifest_sha256",
+          "input_manifest_sha256",
+          "execution_pin_sha256",
+          "execution_pin",
+          "replay_status"
         ]
       }
     },

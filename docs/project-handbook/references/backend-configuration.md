@@ -5,7 +5,7 @@
 Q1 synthetic source и его actual runtime gates: [proof/runbook](q1-runtime.md).
 Ни таблица конфигурации, ни наличие OpenAPI routes не активируют профиль на PREP.
 
-Базовая таблица сверена 19.10.2026; Q1-параметры ниже сверены 21.10.2026: config.Load (исходник `pulse-backend/internal/config/config.go`; в пакет не включён), bootstrap (исходник `pulse-backend/internal/bootstrap/application.go`; в пакет не включён) и пример окружения (исходник `pulse-backend/configs/app.env.example`; в пакет не включён). Backend читает `.env` в рабочем каталоге; уже заданные переменные процесса имеют приоритет. Таблица перечисляет все ключи примера. Default означает отсутствие переменной, а не пустую строку: явно заданное пустое значение не заменяется default и для чисел/boolean обычно даёт ошибку.
+Базовая таблица сверена 19.10.2026; Q1-параметры ниже сверены 21.10.2026, Q2 —22.10.2026: config.Load (исходник `pulse-backend/internal/config/config.go`; в пакет не включён), bootstrap (исходник `pulse-backend/internal/bootstrap/application.go`; в пакет не включён) и пример окружения (исходник `pulse-backend/configs/app.env.example`; в пакет не включён). Backend читает `.env` в рабочем каталоге; уже заданные переменные процесса имеют приоритет. Таблицы перечисляют ключи примера. Default означает отсутствие переменной, а не пустую строку: явно заданное пустое значение не заменяется default и для чисел/boolean обычно даёт ошибку.
 
 | Параметр | Default / пример или локальный Compose | Профиль, проверка и область доверия |
 |---|---|---|
@@ -71,3 +71,59 @@ compose.q1-synthetic.yaml (исходник `pulse-backend/deployments/compose.q
 RabbitMQ4.3.6/digest, собственные vhost/network/volume и loopback port.
 Bootstrap user задаётся оператором, затем runtime использует отдельные scoped
 users. Никакой management UI, default shared credential или production enable.
+
+## Изолированный Q2-C1 synthetic профиль
+
+[Q2 protocol](q2-cohort-jobs.md) описывает internal API-only путь; [runtime evidence](q2-runtime.md)
+отдельно фиксирует фактические проверки. По умолчанию профиль выключен; Compose
+не включает cohort consumer. Нужны `AUTH_MODE=local`, `APP_SCOPE=cohort`, существующая
+полная100-well cohort и текущий admin с explicit scope на всех100, входящий в
+server-owned allowlist. API key/legacy auth эту authority не заменяет.
+
+| Переменная | Default | Synthetic проверка |
+|---|---|---|
+| `COHORT_JOB_MODE` | `off` | Только `off` или `synthetic` |
+| `COHORT_JOB_ALLOW_REAL` | `false` | ParseBool; true или malformed отвергаются даже при mode off |
+| `COHORT_JOB_MANIFEST` | Пусто | Trusted local descriptor file, обязателен в synthetic |
+| `COHORT_JOB_MANIFEST_SHA256` | Пусто | `sha256:` +64 lowercase hex, hash точных descriptor bytes |
+| `COHORT_JOB_RUN_ID` | Пусто | Непустой pilot identity, должен совпадать с descriptor и PG guard |
+| `COHORT_JOB_TEST_SCHEMA` | Пусто | Explicit isolated schema, regex `[a-z][a-z0-9_]{2,62}`, не public/pg_*/information_schema; current_schema совпадает |
+| `COHORT_JOB_ML_TARGET` | Пусто | Непустой dedicated gRPC target, отличается от `ML_SERVICE_TARGET`; Q2 worker RPC timeout10s |
+| `COHORT_JOB_AMQP_URL` | Пусто | Scoped consumer amqp/amqps URL с path `/pulse-q2-synthetic`, без query/fragment |
+| `COHORT_JOB_PRODUCER_AMQP_URL` | Пусто | Отдельное scoped producer connection, тот же isolated vhost |
+
+В Q2 URL не добавляют `?heartbeat=10`: любой query отвергается strict config.
+AMQP adapter сам задаёт heartbeat10s. Initial proof ошибку такого private URL
+сохраняет как failed setup, исправление URL не требует изменения product source.
+
+Descriptor≤512KiB имеет поля `run_id`, `test_schema`, `allowed_account_ids` (1–16),
+`cohort_version`, `cohort_manifest_sha256`, `fixtures` (1–2). Fixture содержит typed
+`manifest` и `inputs` с `well_id,path`; root-relative regular paths разрешаются
+от каталога descriptor, symlink/traversal отвергаются. Manifest включает fixture
+identity, UTC as_of, full execution pin, capture recipe и100 members с canonical
+hash либо no-compute reason. Точную структуру задаёт
+SyntheticCohortManifest (исходник `pulse-backend/internal/bootstrap/cohort_jobs.go`; в пакет не включён) и
+CohortFixtureManifest (исходник `pulse-backend/internal/domain/cohort_jobs.go`; в пакет не включён). Hash/commitments получают
+shared Go domain helpers, не собственной сериализацией JSON.
+
+API проверяет capture recipe `BackendBuildSHA256` против actual API executable,
+загружает≤2fixtures/48MiB и валидирует точный seven-channel C1 CSV;32channels — общий
+resource ceiling, не допустимое расширение header. Descriptor создают после build.
+Worker загружает только trusted descriptor/policy/fixture permits: original input
+files и API capture SHA против worker binary не проверяются повторно. Для recovery
+обязательны неизменённые accepted PG inputs, pin и соответствующая current policy;
+original input files после202 могут отсутствовать. Worker binary hash записывают
+отдельно в proof. Обе роли сверяют PG guard; миграция/API/worker guard не создают.
+
+`ML_SERVICE_API_KEY` согласуется с выделенным Q2 ML process. AMQP/DB/key остаются
+private environment; URL/credentials не передаются browser/logs. Приложение читает
+`COHORT_JOB_*`; `Q2_*` в [process test](q2-runtime.md#воспроизведение-из-standalone-checkout)
+относятся к test harness. Параметры не включают real data или production rollout.
+
+Принятое [owned-runtime gate уточнение](q2-cohort-jobs.md#принятое-уточнение-owned-runtime-gate)
+не вводит новых env или повышенных timeout: Next/Renew/Checkpoint total5s вместе
+с serializer/TX/gate wait, Finish total10s и gate query≤min(remaining,5s). WAIT только
+для четырёх операций уже owned claim connection; admission/legacy/new claim/cancel/
+outbox/reconcile TRY сохраняются. Correction SOURCE APPROVED, все8findings CLOSED;
+latest module gates и3actual cases PASS, internal synthetic runtime gates VERIFIED.
+Measured resources и teardown подтверждены в dated proof; проверки публикации комплекта учитываются отдельно, real/production/scientific не приняты.

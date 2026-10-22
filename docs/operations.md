@@ -8,15 +8,15 @@ Q0 synthetic process/resource проверки описаны в [runbook/proof]
 make migrate
 ```
 
-- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии13 (Q1 jobs/outbox/inbox поверх Q0 saved-input primitives12).
-- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12, jobs/outbox/inbox/guard/leases13. Migration13 не создаёт synthetic guard и не включает feature; actual PREP не мигрирован этой проверкой. Таблицы и прежние данные сохраняются.
+- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии14 (Q2 immutable cohort inputs/jobs/checkpoints поверх Q1 schema13 и Q0 schema12). PostgreSQL server16 и app schema14 — разные версии.
+- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12, jobs/outbox/inbox/guard/leases13, cohort jobs/inputs/checkpoints14. Migration13/14 не создают synthetic guard и не включают feature; actual PREP не мигрирован этими проверками. Таблицы и прежние данные сохраняются.
 - Другая ревизия или отсутствующий Alembic marker: команда завершается ошибкой. Сначала приведите БД к поддерживаемой ревизии прежним мигратором.
 
 Приложение не выполняет миграции при HTTP-старте. Перед изменением нужен backup и проверка на отдельной восстановленной БД. Версия11 не backfill-ит profile/cohort_version старых ml_run: NULL означает исторически неизвестную identity. Не удаляйте nullable-поля/таблицы ради rollback приложения. Исходники прежнего монолита — только локальный archive.
 
 ## Docker
 
-Контракты передаются как отдельный build context. Текущий Q0 source использует candidate v0.1.2 UNRELEASED, contracts `272f23027e4a3ba636305b931f6ab83e5fca8166`. Для воспроизведения PREP требуется прежний contracts `07213c430318affd140f55dea391cdc36220d93f` и соответствующий PREP consumer source: package0.1.1 само по себе их не различает. Не смешивайте эти профили; используйте проверенные соседние checkout:
+Контракты передаются как отдельный build context. Текущий source использует candidate v0.1.2 UNRELEASED; Q2 G2 contracts source checkpoint `1d0b2b62d2cb73d18ab69738431089edf69621f8` содержит capability/docs delta без изменения wire/generated SDK. Исторический Q0 binding — `272f23027e4a3ba636305b931f6ab83e5fca8166`. Для воспроизведения PREP требуется прежний contracts `07213c430318affd140f55dea391cdc36220d93f` и соответствующий PREP consumer source: package0.1.1 само по себе их не различает. Не смешивайте эти профили; используйте проверенные соседние checkout:
 
 ```sh
 # Из pulse-backend, с соседним pulse-contracts:
@@ -26,7 +26,7 @@ docker build --build-context contracts=../pulse-contracts \
 
 Backend не хранит копию SDK. В runtime-образ попадают только Go-бинарники; credentials доступа к приватному репозиторию не передаются в образ. В CI checkout контракта выполняется перед сборкой через read-only deploy key.
 
-Образ содержит `/app/api`, `/app/migrate`, `/app/adminuser`, `/app/cohort`. Q1 `bin/worker` собирается нативной командой `make build`; текущий Dockerfile worker не упаковывает, готовый worker image этой документацией не заявляется. Настройте адреса БД и ML, доступные из контейнера, затем:
+Образ содержит `/app/api`, `/app/migrate`, `/app/adminuser`, `/app/cohort`. Q1 `bin/worker` и Q2 `bin/cohort-worker` собираются нативной командой `make build`; текущий Dockerfile workers не упаковывает, готовый worker image этой документацией не заявляется. Настройте адреса БД и ML, доступные из контейнера, затем:
 
 ```sh
 docker run --rm --env-file .env --entrypoint /app/migrate pulse-backend
@@ -47,9 +47,9 @@ Review записывает историю и отображает состоя�
 Статус обработки, заключение технолога и вычисленный ML-ярус — разные поля.
 Источники: [reviews.go](../internal/service/reviews.go), [руководство](telemetry-integrations.md).
 
-SIGINT/SIGTERM прекращает приём запросов и дожидается принятых прогонов. После аварии PostgreSQL освобождает lock; следующий прогон помечает незавершённые записи как `error`.
+Для legacy runs SIGINT/SIGTERM прекращает приём запросов и дожидается принятых прогонов. После аварии PostgreSQL освобождает lock; следующий legacy прогон помечает его незавершённые записи как `error`. Q2-owned runs исключены из legacy cleanup/Fail и восстанавливаются собственным durable protocol.
 
-Timeout gRPC не прерывает уже выполняющуюся функцию pandas/CatBoost автоматически. Score не повторяется backend автоматически. Исполнитель ML пока один, с кэшем в памяти; долговечной очереди заданий нет.
+Timeout gRPC не прерывает уже выполняющуюся функцию pandas/CatBoost автоматически. Legacy Score не повторяется backend автоматически. Q1/Q2 имеют отдельные opt-in durable protocols ниже; Q2 использует выделенный ML target с одним pinned physical execution, конечными retry и persisted checkpoints.
 
 ## Диагностика
 
@@ -139,7 +139,7 @@ docker compose -f deployments/compose.local.yaml stop
 
 С версии11 попытка получает profile/cohort_version на BeginCohort до чтения members; ранний failed/running run не исчезает из истории. Внешний failure reason обезличен. Legacy pre11 записи остаются unknown; текущий cohort им задним числом не присваивается. Статус технолога — изменяемый read-side overlay; immutable decision snapshot/digest при его изменении не переписывается.
 
-Сохранённый snapshot читается после ML restart без нового вычисления. Typed provenance имеет статус partial: bundle/runtime/source/policy/output identity и hash входа не заменяют сохранённые immutable входные bytes. Нельзя обещать полный replay/as-of или промышленное качество. Источники решения SHAP/окна и computed/training_median/zero_fallback не скрываются.
+Исторический PREP snapshot читается после ML restart без нового вычисления. Его typed provenance имеет статус partial: bundle/runtime/source/policy/output identity и hash входа не заменяют сохранённые immutable входные bytes. Нельзя обещать полный replay/as-of или промышленное качество. Q2 отдельно сохраняет immutable inputs/pin и Execution identity; прежние snapshots от этого replayable не становятся. Источники решения SHAP/окна и computed/training_median/zero_fallback не скрываются.
 
 ## Q1 synthetic worker / recovery
 
@@ -174,3 +174,104 @@ Resource stop для synthetic proof: GoRSS1GiB,MLRSS2GiB,temp128MiB,brokerRSS51
 PG relation+TOAST1GiB/WALdelta2GiB,free disk<2GiB; broker dedicated volume target512MiB.
 Снять evidence/остановить admission при превышении. Это measured pilot limits,
 не production SLA и не обещание OS hard cap. Секреты/raw data в evidence не писать.
+
+## Q2-C1 synthetic worker / recovery
+
+Точный [Q2 protocol](q2-cohort-jobs.md), [configuration](configuration.md#изолированный-q2-c1-synthetic-профиль)
+и [dated runtime evidence](q2-runtime-2026-10-22.md) отделяют source behavior от actual
+runtime/resource gates. Q1 численные бюджеты выше не переносятся на cohort.
+
+1. Выберите отдельную disposable PostgreSQL16 DB/test schema, свободные loopback
+   ports, isolated Rabbit vhost `pulse-q2-synthetic` и dedicated Q2 ML listener.
+   Остановите конкурирующих callers на этом ML target. Соберите API и cohort-worker,
+   сохраните их фактические SHA256 и exact source/wheel/pin bindings.
+2. Явно примените migration14 только к выбранной тестовой БД. Создайте100 operational
+   synthetic wells, immutable cohort, allowlisted admin с full100 AccessScope и
+   matching `cohort_job_guard`. Migration/API/worker guard не seed-ят. Для штатного
+   proof это делает [opt-in process test](q2-runtime-2026-10-22.md#воспроизведение-из-standalone-checkout)
+   в своей временной схеме; отдельной public seed/redrive команды нет.
+3. Подготовьте private trusted descriptor и≤2fixtures/48MiB, точный C1 header из
+   семи измерений, full pin и capture recipe с SHA фактически собранного **API**.
+   Укажите `COHORT_JOB_*`, local/cohort и отдельный ML target. API проверяет все
+   источники при загрузке каталога; пути ограничены regular root-relative files.
+4. Запустите API, затем supervised `bin/cohort-worker`. Последний объединяет
+   dispatcher/reconciler/consumer и требует scoped producer+consumer AMQP connections.
+   Native worker image этой документацией не заявляется. Действующий Compose/портал
+   автоматически не переключается.
+5. Выполните submit через настоящую local session, сохраните safe job/run identity;
+   после202 проверьте status через GET и старый published snapshot до final.
+   Новые source bytes/as_of/pin принимаются только новым key/job.
+
+Mutating integration/review/process proof запускайте в эксклюзивном окне одной
+PostgreSQL database: разные temporary schemas не изолируют advisory74019321/74019323.
+Read-only resource sampler допустим отдельно; параллельный mutating test может
+получить capacity busy и испортить evidence. Source APPROVED,8findings CLOSED;
+latest module gates и3actual cases PASS. Internal synthetic runtime/resource gates
+и teardown VERIFIED; публикационный контроль комплекта учитывается отдельно, см. dated proof.
+
+Rabbit topology: direct durable exchange `pulse.cohort.v1`, routing `ready`, quorum
+queue `pulse.cohort.v1.ready`; DLX `pulse.cohort.v1.dlx`, routing `quarantine`, quorum
+queue `pulse.cohort.v1.quarantine`. Каждая≤16messages/16KiB, ready TTL30min,
+quarantine1h, ready delivery-limit5, envelope≤1024bytes, prefetch1. Existing
+RabbitMQ4.3.6/amqp091-go1.15.0 pins не повышаются этим профилем. Publish mandatory+
+confirm с конечными outbox attempts; PG остаётся authority при broker outage.
+Q2 scoped AMQP URLs задаются без query/fragment; `?heartbeat=10` отвергается,
+heartbeat10s установлен самим adapter. Не переносите Q1 URL query в Q2.
+
+При outage после202 сохраняется pending intent. Восстановите зависимости и тот же
+trusted descriptor/policy, затем новый worker продолжит missing checkpoints по
+immutable PG bytes. **Original fixture inputs после202 могут быть удалены/изменены**:
+worker их не читает. API restart для новых admissions снова требует валидный
+каталог и capture SHA; recovery существующего job не требует API recapture.
+Worker executable hash отличается от API capture SHA и записывается отдельно.
+
+Не сбрасывайте attempts/quota, не меняйте pin/input/hash и не вставляйте result
+вручную. Lease45s и current physical claim connection ограничивают ownership;
+Next/renew/checkpoint/final TX идут на этой же connection. Session loss абортирует
+её transaction; late worker не принимает эффект по истёкшему fence. Exact busy или
+transient ML failure получают persisted10/30s backoff в пределах3claims/3member/
+102total starts и30min lifetime. Unknown commit не объявляется success и не ack-ается
+без durable disposition. Нет automatic latest fallback или exactly-once compute.
+
+Для already-owned Next/Renew/Checkpoint/Finish принято bounded WAIT на том же
+74019323 вместо потери healthy claim из-за короткого TRY collision;
+исправление APPROVED, Q2-DB-03 CLOSED, latest module gates и max actual rerun PASS. Next/Renew/Checkpoint total5s включают local serializer,
+Begin/gate/checks/writes/commit. Finish total10s не изменён; его gate query≤5s либо
+remaining caller deadline. После ожидания перечитываются DB time, current rights,
+state/lease/fence/token/physical ownership. Cancel/revoke/expiry во время ожидания
+по-прежнему запрещают effect; context/SQL/session errors не подавляются.
+Admission/legacy/new claim/cancel/outbox/reconcile сохраняют TRY. Gate освобождается
+до compute/RPC/AMQP. Heartbeat10s/lease45s и caps не повышаются; при ожидании сверх
+bound исследуют holder/critical section. Не уменьшайте two-worker/100ms-poll workload
+ради PASS неизменённого actual rerun. Точная [owned-runtime policy](q2-cohort-jobs.md#принятое-уточнение-owned-runtime-gate)
+не обещает FIFO или успех при произвольной нагрузке.
+
+Quarantine — nonterminal reservation, redrive API отсутствует: доступны revision
+cancel либо expiry. Admission active≤1global/actor; retained≤8global/4actor и
+512/256MiB не освобождаются terminal status. **GC в C1 отсутствует**. Не удаляйте
+accepted inputs/checkpoints при обычной остановке или teardown рабочего synthetic
+стенда. Disposable process test удаляет только собственную временную схему после
+остановки child processes.
+
+При превышении measurement budgets остановите admission, сохраните safe evidence
+и bounded завершите работу: API/worker≤512MiB RSS each, Q2 ML≤1536MiB,
+Q1-tail+Q2 ML≤3072MiB; PG growth≤768MiB/schema, WAL≤1GiB/full100,
+PG temp_bytes delta0, backend temp files0, fixture/bundle disk≤128MiB.
+Бюджет — проверяемый gate, не OS hard limit; не увеличивайте его ради прохождения.
+
+Actual proof выдержал эти ceilings: sampled API239.25MiB/worker43.59/Q2ML160.02,
+same-sample combinedML247.77, PGschema7.87MiB/WAL73.48MiB/tempdelta0. Rabbit byte
+gauges были пустыми:16KiB/16messages — проверенные actual args, не measured0peak.
+ML TMPDIR пусты; backend temporary payload files отсутствуют по memory/PG source
+invariant, global/tmp measurement не выполнялся. Подробные raw bytes, sampling и
+owned teardown — в dated proof; production SLA из этих чисел не следует.
+
+Для rollback сначала выключите admission новым binary (`COHORT_JOB_MODE=off`),
+cancel/drain принятые jobs либо оставьте persisted intents с остановленным consumer.
+Сохраните PG inputs/checkpoints/results, trusted bundles/policy и schema14.
+**Старый binary допускается только после явного terminal/drain всех Q2 intents и
+остановки cohort workers**: он не знает common Q2 capacity guard. До drain rollback
+означает остановленный новый consumer с сохранённым PG. Не отправляйте accepted Q2
+через legacy и не выполняйте schema downgrade/volume deletion. Новый binary
+сохраняет narrow Q1/legacy guards даже при mode off; quarantine Q1 блокирует Q2,
+terminal/superseded Q1 delivery получает durable disposition без нового compute.

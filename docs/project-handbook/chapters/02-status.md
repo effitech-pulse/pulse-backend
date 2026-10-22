@@ -1,5 +1,23 @@
 # Текущее состояние и согласованные изменения
 
+Q2-C1 ·22.10.2026: source APPROVED тем же Senior,все8findings CLOSED; latest
+module gates PASS. Actual max/restart/mixed/rollback PASS232.61s:100scored,
+0recomputed accepted checkpoints, mixed95/1archived/1inactive/2insufficient/1error.
+Physical stale/capacity/measured resources/teardown также PASS; runtime gates
+VERIFIED в internal synthetic-only scope. Публикационный контроль комплекта учитывается отдельно. Новый internal synthetic-only
+API принимает full100 frozen inputs/markers+membership+as_of+pin до202, отдельный
+cohort-worker сохраняет checkpoints, all100 snapshot/alerts публикуются атомарно.
+Default `COHORT_JOB_MODE=off`, `COHORT_JOB_ALLOW_REAL=false` обязательно;
+PostgreSQL16 / app schema14 не означают миграцию actual PREP. Explicit admin scope
+должен покрывать всех100; restricted snapshot не содержит global Execution metadata.
+API capture SHA и worker executable SHA различны; worker resume использует PG bytes
+без исходных fixture files. [Протокол](../references/q2-cohort-jobs.md),
+[C4](../diagrams/q2-cohort-jobs.drawio), [DDL](../schemas/postgres/cohort_jobs.sql),
+[runtime evidence](../references/q2-runtime.md) разделяют подтверждённое и ожидаемое.
+Первоначальные failed actual attempts сохранены отдельно от final rerun;
+3actual PASS и bounded resource proof не означают scientific acceptance: not_assessed;
+collection, frontend switch, real enable и production не входят в эту область.
+
 Q1/F2 ·22.10.2026: source и обязательные runtime gates VERIFIED в synthetic-only
 области; Q1-RUNTIME-01 CLOSED тем же Senior после actual post-fix stale PASS.
 Отдельный default-off file-job путь реализован; `FILE_CHECK_ALLOW_REAL=false`

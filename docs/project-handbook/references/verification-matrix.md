@@ -2,6 +2,36 @@
 
 # Проверки Pulse и обязательные gates — DOC-05
 
+## Q2-C1 · source и actual runtime gates, 22.10.2026
+
+Отдельный default-off synthetic cohort путь описан в [протоколе](q2-cohort-jobs.md)
+и [постоянном proof/runbook](q2-runtime.md). Source APPROVED тем же Senior,
+все8findings CLOSED, включая nullable lifecycle и owned-runtime gate WAIT correction.
+Latest `make check`17.843s, integration194.411s monotonic (387.485s wall), build6.063s
+PASS на latest source; failed host-suspend integration сохранён отдельно.
+Все3actual cases PASS: max232.61s/physical270.70s/capacity1.51s;
+measured resources и teardown подтверждены. Technical runtime VERIFIED в
+internal synthetic-only scope; publication checks относятся к отдельной редакции.
+Unchanged G2/SW/harness approvals переиспользованы; новые broad core/Q1 reviews не
+заявляются. Все прежние URL/timezone/retry_wait failed attempts сохранены в proof.
+Scientific not_assessed, real enable запрещён.
+
+| Gate | Проверка и граница |
+|---|---|
+| Whole backend | `make check`; отдельный `TEST_DATABASE_URL` + `make integration`; `make build` (включая cohort-worker). Source/PG tests не заменяют actual Rabbit/ML process proof |
+| Admission/identity | Все100 frozen before202, same key replay/changed conflict, strict7-channel C1, bytes/hash/pin/as_of, cap+1 rollback, schema13→14 сохранность historical JSON/digests |
+| Ownership/atomicity | Real PG dedicated claim-session loss во время checkpoint/final TX, stale fence, unknown commit, один all100 snapshot+alerts+run/job/inbox, accepted checkpoints не переписываются |
+| Rights/privacy/coexistence | Current full100 allowlisted admin; lifecycle/scope revokes whole job, restricted/by-run Execution cleared, Q1 same-key/terminal compatibility, narrow Q1/legacy/Q2 capacity races |
+| Actual processes | `Q2_PROCESS_PROOF=1 go test ./test/integration -run '^TestCohortJobActualHTTPWorkerRestart$' -count=1 -v -timeout=8m`; [полная подготовка environment](q2-runtime.md#воспроизведение-из-standalone-checkout). Без opt-in — honest SKIP, не PASS |
+| Full runtime matrix | Max/restart/mixed/rollback PASS:100scored,accepted recompute0,mixed95/1/1/2/1,retained2jobs/196inputs/200checkpoints/2snapshots. Physical270.70s, genuine lease66.37396s/execution_busy=true/oldfence0CP, capacity1.51s с actual valid-control, resource/teardown proof PASS; Q1tail resource-only directRPC |
+| Resources | Observed sampled RSS API239.25MiB/worker43.59/Q2ML160.02/Q1tail103.44, same-sample combined247.77; PGschema7.87MiB/WAL73.48MiB/tempdelta0, fixture/bundle1173489B. Rabbit configured16messages/16KiB args проверены, bytepeak unavailable. ML TMPDIR empty; backend temp source invariant, global/tmp не измерялся. Все бюджеты и caveats в proof |
+| Docs/publication | Editable draw.io XML/links/OpenAPI route refs и standalone handbook validation; product docs не зависят от внешней task-папки. Publication evidence фиксируется после сборки |
+
+PostgreSQL server16 / app schema14, exact API capture SHA и отдельный worker SHA,
+source/wheel/pin identities связываются с каждым actual run. Q1 численные budgets и
+исторический PASS не являются Q2 capacity evidence. Caps не повышают ради PASS;
+GC/redrive API/real enable и scientific acceptance не входят в C1.
+
 ## Q1/F2 · source и bounded runtime evidence, 21–22.10.2026
 
 [Q1 proof/runbook](q1-runtime.md) фиксирует exact source/binary identities,
@@ -25,7 +55,7 @@ Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime.md) фи�
 
 | Модуль и окружение | Проверка перед приёмкой | Настроенный CI | Ручная часть и SKIP |
 |---|---|---|---|
-| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.2 local UNRELEASED (исторический PREP0.1.1 отдельно), отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort/worker | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
+| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.2 local UNRELEASED (исторический PREP0.1.1 отдельно), отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort/worker/cohort-worker | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
 | Frontend: Node 22 (для тестов минимум 22.18), package-lock | `npm ci`; `npm test`; `npm run build` (TypeScript + Vite) | GitHub и GitLab: install → **npm test → build**; ошибка теста останавливает job, ignore-failure не задан | Для этих тестов модель/БД не нужны: отсутствие модели не основание для SKIP. Визуальная сверка с Figma, клавиатура, обе темы и браузерные сценарии проверяются отдельно |
 | Data: Python3.13 в CI, model exact source SHA из PREP manifest; workspace `.venv` общий | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: установка pinned model, test, build/twine check. Отдельного GitLab workflow в текущем репозитории нет | Офлайн-регрессия парсера не требует UNITEK/ARMITS credentials. Живой сбор — отдельная разрешённая проверка; не смешивать его пропуск с пропуском офлайн-тестов |
 | Model: Python 3.13 в CI, test/deep-learning extras для объявленного набора | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: pytest с JUnit, build/twine check. GitLab: pytest и wheel | Если необязательный extra отсутствует, конкретный SKIP и причина фиксируются. Успех unit suite не подтверждает ML-качество; причинная оценка eval_honest.py и закрытый test — отдельная ML-приёмка. Обучение не запускается ради этого документа |
