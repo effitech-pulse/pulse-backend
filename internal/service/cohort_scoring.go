@@ -191,6 +191,13 @@ func (m *ML) CohortWells(ctx context.Context, run *int64) (domain.CohortSnapshot
 		}
 	}
 	out.Outcomes = rows
+	if len(rows) != 100 {
+		out.Execution = nil
+	} else if out.Execution != nil {
+		identity := *out.Execution
+		identity.ExecutionPin = identity.ExecutionPin.Clone()
+		out.Execution = &identity
+	}
 	if out.RunID != nil {
 		alerts, e := m.snapshots.CohortAlerts(ctx, *out.RunID)
 		if e != nil {

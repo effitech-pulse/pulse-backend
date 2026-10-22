@@ -89,6 +89,14 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		}
 		server.Reviews = service.NewReviews(trusted).WithCatalog(trusted).WithScope(scope)
 	}
+	if c.CohortJobMode == "synthetic" {
+		server.CohortJobs, _, err = buildCohortJobs(ctx, c, store)
+		if err != nil {
+			_ = client.Close()
+			pool.Close()
+			return nil, err
+		}
+	}
 	if scope != nil {
 		ml.WithCohort(scope, server.Integrations, store)
 	}

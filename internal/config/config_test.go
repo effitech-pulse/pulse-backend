@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestUserProfileDefaultsFailClosed(t *testing.T) {
 	t.Setenv("APP_SCOPE", "cohort")
@@ -49,5 +52,43 @@ func TestFileJobsSyntheticGuardDefaultOff(t *testing.T) {
 	t.Setenv("AUTH_MODE", "local")
 	if _, err = Load(); err == nil {
 		t.Fatal("synthetic without manifest accepted")
+	}
+}
+
+func TestCohortJobsFailClosedConfiguration(t *testing.T) {
+	t.Setenv("APP_SCOPE", "research")
+	t.Setenv("FILE_CHECK_MODE", "off")
+	for _, tc := range []struct{ key, value string }{
+		{"COHORT_JOB_MODE", "real"}, {"COHORT_JOB_ALLOW_REAL", "true"}, {"COHORT_JOB_ALLOW_REAL", "bad"}, {"COHORT_JOB_MODE", "synthetic"},
+	} {
+		t.Run(tc.key+tc.value, func(t *testing.T) {
+			t.Setenv("COHORT_JOB_MODE", "off")
+			t.Setenv("COHORT_JOB_ALLOW_REAL", "false")
+			t.Setenv(tc.key, tc.value)
+			if _, err := Load(); err == nil {
+				t.Fatal("unsafe cohort job configuration accepted")
+			}
+		})
+	}
+}
+
+func TestCohortJobsRequireIsolatedRuntime(t *testing.T) {
+	defaults := map[string]string{"APP_SCOPE": "cohort", "COHORT_VERSION": "test-v1", "AUTH_MODE": "local", "FILE_CHECK_MODE": "off", "COHORT_JOB_MODE": "synthetic", "COHORT_JOB_ALLOW_REAL": "false", "COHORT_JOB_MANIFEST": "/synthetic/manifest.json", "COHORT_JOB_MANIFEST_SHA256": "sha256:" + strings.Repeat("a", 64), "COHORT_JOB_RUN_ID": "q2-test", "COHORT_JOB_TEST_SCHEMA": "q2_test", "COHORT_JOB_ML_TARGET": "127.0.0.1:15052", "ML_SERVICE_TARGET": "127.0.0.1:15051", "COHORT_JOB_AMQP_URL": "amqp://localhost/pulse-q2-synthetic", "COHORT_JOB_PRODUCER_AMQP_URL": "amqp://localhost/pulse-q2-synthetic"}
+	for key, value := range defaults {
+		t.Setenv(key, value)
+	}
+	c, err := Load()
+	if err != nil || c.CohortJobMode != "synthetic" {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ key, value string }{
+		{"COHORT_JOB_ML_TARGET", "127.0.0.1:15051"}, {"COHORT_JOB_TEST_SCHEMA", "public"}, {"COHORT_JOB_TEST_SCHEMA", "pg_unsafe"}, {"COHORT_JOB_MANIFEST_SHA256", "unknown"}, {"COHORT_JOB_AMQP_URL", "amqp://localhost/pulse-file-check"}, {"COHORT_JOB_PRODUCER_AMQP_URL", ""}, {"COHORT_JOB_RUN_ID", ""}, {"AUTH_MODE", "legacy"}, {"APP_SCOPE", "research"},
+	} {
+		t.Run(tc.key+tc.value, func(t *testing.T) {
+			t.Setenv(tc.key, tc.value)
+			if _, err := Load(); err == nil {
+				t.Fatal("unisolated runtime accepted")
+			}
+		})
 	}
 }

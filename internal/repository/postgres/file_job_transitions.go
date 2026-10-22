@@ -163,6 +163,8 @@ func nextGeneration(ctx context.Context, tx pgx.Tx, j jobRecord, due, now time.T
 	return jobOutbox(ctx, tx, j.ID, j.Generation+1, due)
 }
 func (r *Repository) ClaimFileJob(ctx context.Context, m domain.FileJobMessage, worker string) (*domain.FileJobLease, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	if !fileJobOpaque(worker) {
 		return nil, domain.NewFileJobProblem(domain.Invalid, "invalid_worker_identity")
 	}
@@ -171,6 +173,9 @@ func (r *Repository) ClaimFileJob(ctx context.Context, m domain.FileJobMessage, 
 		return nil, e
 	}
 	defer tx.Rollback(ctx)
+	if e = fileJobCapacityGate(ctx, tx); e != nil {
+		return nil, e
+	}
 	event, e := one[outboxRecord](ctx, tx, outboxQuery().Where(sq.Eq{"event_id": m.EventID}))
 	if isMissing(e) {
 		return nil, tx.Commit(ctx)
@@ -216,6 +221,11 @@ func (r *Repository) ClaimFileJob(ctx context.Context, m domain.FileJobMessage, 
 			return nil, e
 		}
 		return nil, tx.Commit(ctx)
+	}
+	if busy, e := activeCohort(ctx, tx); e != nil {
+		return nil, e
+	} else if busy {
+		return nil, domain.NewFileJobProblem(domain.Limited, "file_job_capacity")
 	}
 	// A stale occupied slot must be reconciled before granting another physical lease.
 	if slot.JobID != nil {

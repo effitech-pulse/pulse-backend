@@ -129,3 +129,54 @@ func TestCohortInsufficientAndUnsupportedRemainNullable(t *testing.T) {
 		})
 	}
 }
+
+type cohortProjectionStore struct{ snapshot domain.CohortSnapshot }
+
+func (s *cohortProjectionStore) CohortSnapshot(context.Context, string, *int64) (domain.CohortSnapshot, error) {
+	return s.snapshot, nil
+}
+func (s *cohortProjectionStore) CohortAlerts(context.Context, int64) ([]domain.CohortAlert, error) {
+	return nil, nil
+}
+func (s *cohortProjectionStore) CohortRuns(context.Context, string, int) ([]domain.MLRun, error) {
+	return nil, nil
+}
+func TestCohortRestrictedProjectionClearsExecution(t *testing.T) {
+	fixture := &cohortFixture{cohort: domain.Cohort{Version: "v1"}}
+	snapshot := domain.CohortSnapshot{Execution: &domain.CohortExecutionIdentity{SourceKind: "cohort_snapshot"}}
+	for i := int64(1); i <= 100; i++ {
+		w := domain.Well{ID: i, FundType: "presentation", NGDU: i}
+		fixture.wells = append(fixture.wells, w)
+		snapshot.Outcomes = append(snapshot.Outcomes, domain.CohortOutcome{AppWellID: i, Metadata: w, Status: "inactive"})
+	}
+	scope, err := NewFundScope(context.Background(), fixture, "v1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := &cohortProjectionStore{snapshot: snapshot}
+	m := &ML{scope: scope, snapshots: store}
+	for _, tc := range []struct {
+		name  string
+		p     domain.Principal
+		count int
+	}{
+		{"full", domain.Principal{Role: "viewer", Scope: domain.AccessScope{Funds: []string{"presentation"}}}, 100},
+		{"restricted", domain.Principal{Role: "viewer", Scope: domain.AccessScope{Funds: []string{"presentation"}, NGDUs: ptr([]int64{1})}}, 1},
+		{"empty", domain.Principal{Role: "viewer", Scope: domain.AccessScope{Funds: []string{"operational"}}}, 0},
+	} {
+		for _, run := range []*int64{nil, ptr(int64(7))} {
+			t.Run(tc.name, func(t *testing.T) {
+				out, err := m.CohortWells(domain.WithPrincipal(context.Background(), tc.p), run)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(out.Outcomes) != tc.count || (tc.count == 100) != (out.Execution != nil) {
+					t.Fatalf("scope execution leak: count=%d execution=%+v", len(out.Outcomes), out.Execution)
+				}
+				if store.snapshot.Execution == nil {
+					t.Fatal("read mutated stored identity")
+				}
+			})
+		}
+	}
+}

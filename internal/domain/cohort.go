@@ -37,19 +37,20 @@ type CohortCoverage struct {
 	ErrorCount        int `json:"error_count"`
 }
 type CohortSnapshot struct {
-	Profile             string          `json:"profile"`
-	CohortVersion       string          `json:"cohort_version"`
-	SnapshotID          *string         `json:"snapshot_id"`
-	RunID               *int64          `json:"run_id"`
-	AsOf                *time.Time      `json:"as_of"`
-	Count               int             `json:"count"`
-	Running             bool            `json:"running"`
-	Outcomes            []CohortOutcome `json:"outcomes"`
-	Coverage            CohortCoverage  `json:"coverage"`
-	ProvenanceStatus    string          `json:"provenance_status"`
-	EvaluationStatus    string          `json:"evaluation_status"`
-	OutcomeCompleteness string          `json:"outcome_completeness"`
-	ManifestSHA256      string          `json:"-"`
+	Execution           *CohortExecutionIdentity `json:"execution,omitempty"`
+	Profile             string                   `json:"profile"`
+	CohortVersion       string                   `json:"cohort_version"`
+	SnapshotID          *string                  `json:"snapshot_id"`
+	RunID               *int64                   `json:"run_id"`
+	AsOf                *time.Time               `json:"as_of"`
+	Count               int                      `json:"count"`
+	Running             bool                     `json:"running"`
+	Outcomes            []CohortOutcome          `json:"outcomes"`
+	Coverage            CohortCoverage           `json:"coverage"`
+	ProvenanceStatus    string                   `json:"provenance_status"`
+	EvaluationStatus    string                   `json:"evaluation_status"`
+	OutcomeCompleteness string                   `json:"outcome_completeness"`
+	ManifestSHA256      string                   `json:"-"`
 }
 
 func (s *CohortSnapshot) Recount() {

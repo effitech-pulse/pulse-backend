@@ -25,6 +25,7 @@ import (
 var openAPI = api.Specification
 
 type Server struct {
+	CohortJobs   *service.CohortJobs
 	FileJobs     *service.FileJobs
 	Config       config.Config
 	Access       *service.Access

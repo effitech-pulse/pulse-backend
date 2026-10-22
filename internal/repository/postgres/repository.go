@@ -22,12 +22,14 @@ type db interface {
 }
 
 type Repository struct {
-	pool          *pgxpool.Pool
-	fileJobPolicy *domain.FileJobPolicy
+	pool            *pgxpool.Pool
+	fileJobPolicy   *domain.FileJobPolicy
+	cohortJobPolicy *domain.CohortJobPolicy
+	cohortClaims    *cohortClaimRegistry
 }
 
 func New(pool *pgxpool.Pool) *Repository {
-	return &Repository{pool: pool}
+	return &Repository{pool: pool, cohortClaims: &cohortClaimRegistry{claims: make(map[string]*cohortClaim)}}
 }
 
 func Open(ctx context.Context, c config.Config) (*pgxpool.Pool, error) {

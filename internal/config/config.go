@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +16,15 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
+	CohortJobMode            string
+	CohortJobManifest        string
+	CohortJobManifestSHA256  string
+	CohortJobRunID           string
+	CohortJobTestSchema      string
+	CohortJobMLTarget        string
+	CohortJobAMQPURL         string
+	CohortJobProducerAMQPURL string
+
 	FileCheckMode           string
 	FileCheckManifest       string
 	FileCheckManifestSHA256 string
@@ -63,24 +74,36 @@ func envInt(key string, fallback int) (int, error) {
 func Load() (Config, error) {
 	_ = godotenv.Load(".env")
 	c := Config{
-		FileCheckMode:           env("FILE_CHECK_MODE", "off"),
-		FileCheckManifest:       env("FILE_CHECK_MANIFEST", ""),
-		FileCheckManifestSHA256: env("FILE_CHECK_MANIFEST_SHA256", ""),
-		FileCheckRunID:          env("FILE_CHECK_RUN_ID", ""),
-		FileJobProducerAMQPURL:  env("FILE_JOB_PRODUCER_AMQP_URL", ""),
-		FileJobAMQPURL:          env("FILE_JOB_AMQP_URL", ""),
-		AppScope:                env("APP_SCOPE", "cohort"),
-		CohortVersion:           env("COHORT_VERSION", ""),
-		Addr:                    env("HTTP_ADDR", "127.0.0.1:8000"),
-		DatabaseURL:             strings.Replace(env("DATABASE_URL", "postgresql://esp:esp@localhost:5433/esp_app"), "postgresql+psycopg2://", "postgresql://", 1),
-		APIKey:                  env("API_KEY", ""),
-		AuthMode:                env("AUTH_MODE", "legacy"),
-		Prefix:                  strings.TrimRight(env("API_V1_PREFIX", "/api/v1"), "/"),
-		ParameterPath:           env("PARAM_DICT_PATH", "parameters_dict.json"),
-		MLTarget:                env("ML_SERVICE_TARGET", "127.0.0.1:50051"),
-		MLKey:                   env("ML_SERVICE_API_KEY", ""),
-		MetabaseURL:             strings.TrimRight(env("METABASE_SITE_URL", ""), "/"),
-		MetabaseSecret:          env("METABASE_EMBED_SECRET", ""),
+		CohortJobMode:            env("COHORT_JOB_MODE", "off"),
+		CohortJobManifest:        env("COHORT_JOB_MANIFEST", ""),
+		CohortJobManifestSHA256:  env("COHORT_JOB_MANIFEST_SHA256", ""),
+		CohortJobRunID:           env("COHORT_JOB_RUN_ID", ""),
+		CohortJobTestSchema:      env("COHORT_JOB_TEST_SCHEMA", ""),
+		CohortJobMLTarget:        env("COHORT_JOB_ML_TARGET", ""),
+		CohortJobAMQPURL:         env("COHORT_JOB_AMQP_URL", ""),
+		CohortJobProducerAMQPURL: env("COHORT_JOB_PRODUCER_AMQP_URL", ""),
+		FileCheckMode:            env("FILE_CHECK_MODE", "off"),
+		FileCheckManifest:        env("FILE_CHECK_MANIFEST", ""),
+		FileCheckManifestSHA256:  env("FILE_CHECK_MANIFEST_SHA256", ""),
+		FileCheckRunID:           env("FILE_CHECK_RUN_ID", ""),
+		FileJobProducerAMQPURL:   env("FILE_JOB_PRODUCER_AMQP_URL", ""),
+		FileJobAMQPURL:           env("FILE_JOB_AMQP_URL", ""),
+		AppScope:                 env("APP_SCOPE", "cohort"),
+		CohortVersion:            env("COHORT_VERSION", ""),
+		Addr:                     env("HTTP_ADDR", "127.0.0.1:8000"),
+		DatabaseURL:              strings.Replace(env("DATABASE_URL", "postgresql://esp:esp@localhost:5433/esp_app"), "postgresql+psycopg2://", "postgresql://", 1),
+		APIKey:                   env("API_KEY", ""),
+		AuthMode:                 env("AUTH_MODE", "legacy"),
+		Prefix:                   strings.TrimRight(env("API_V1_PREFIX", "/api/v1"), "/"),
+		ParameterPath:            env("PARAM_DICT_PATH", "parameters_dict.json"),
+		MLTarget:                 env("ML_SERVICE_TARGET", "127.0.0.1:50051"),
+		MLKey:                    env("ML_SERVICE_API_KEY", ""),
+		MetabaseURL:              strings.TrimRight(env("METABASE_SITE_URL", ""), "/"),
+		MetabaseSecret:           env("METABASE_EMBED_SECRET", ""),
+	}
+
+	if err := validateCohortJobConfig(c); err != nil {
+		return c, err
 	}
 
 	allowReal, realErr := strconv.ParseBool(env("FILE_CHECK_ALLOW_REAL", "false"))
@@ -151,4 +174,29 @@ func Load() (Config, error) {
 		c.Dashboards = []Dashboard{}
 	}
 	return c, nil
+}
+
+func validateCohortJobConfig(c Config) error {
+	allow, err := strconv.ParseBool(env("COHORT_JOB_ALLOW_REAL", "false"))
+	if err != nil || allow {
+		return fmt.Errorf("COHORT_JOB_ALLOW_REAL must be false")
+	}
+	if c.CohortJobMode != "off" && c.CohortJobMode != "synthetic" {
+		return fmt.Errorf("COHORT_JOB_MODE must be off or synthetic")
+	}
+	if c.CohortJobMode == "off" {
+		return nil
+	}
+	sha := regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
+	schema := regexp.MustCompile(`^[a-z][a-z0-9_]{2,62}$`)
+	if c.AuthMode != "local" || c.AppScope != "cohort" || c.CohortJobManifest == "" || !sha.MatchString(c.CohortJobManifestSHA256) || strings.TrimSpace(c.CohortJobRunID) == "" || !schema.MatchString(c.CohortJobTestSchema) || c.CohortJobTestSchema == "public" || strings.HasPrefix(c.CohortJobTestSchema, "pg_") || c.CohortJobTestSchema == "information_schema" || strings.TrimSpace(c.CohortJobMLTarget) == "" || strings.TrimSpace(c.CohortJobMLTarget) == strings.TrimSpace(c.MLTarget) {
+		return fmt.Errorf("synthetic cohort jobs require local cohort, explicit trusted manifest/hash/run/schema and separate ML target")
+	}
+	for _, raw := range []string{c.CohortJobAMQPURL, c.CohortJobProducerAMQPURL} {
+		u, e := url.Parse(raw)
+		if e != nil || (u.Scheme != "amqp" && u.Scheme != "amqps") || u.Host == "" || u.Path != "/pulse-q2-synthetic" || u.RawQuery != "" || u.Fragment != "" {
+			return fmt.Errorf("synthetic cohort jobs require isolated AMQP URLs")
+		}
+	}
+	return nil
 }

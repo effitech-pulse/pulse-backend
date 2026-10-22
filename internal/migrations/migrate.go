@@ -48,8 +48,11 @@ var fileInputsSchema string
 //go:embed file_jobs.sql
 var fileJobsSchema string
 
+//go:embed cohort_jobs.sql
+var cohortJobsSchema string
+
 // CurrentVersion соответствует последней additive migration.
-const CurrentVersion = 13
+const CurrentVersion = 14
 
 // Apply создаёт схему новой БД или принимает БД на проверенном Alembic head.
 func Apply(ctx context.Context, pool *pgxpool.Pool) error {
@@ -129,6 +132,9 @@ func Apply(ctx context.Context, pool *pgxpool.Pool) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, fileJobsSchema); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, cohortJobsSchema); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

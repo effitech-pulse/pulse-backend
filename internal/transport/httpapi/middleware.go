@@ -52,7 +52,7 @@ func (s *Server) corsMiddleware() gin.HandlerFunc {
 		}
 		if c.Request.Method == http.MethodOptions && origin != "" {
 			c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-			c.Header("Access-Control-Allow-Headers", "Content-Type,X-API-Key,X-Request-ID,traceparent")
+			c.Header("Access-Control-Allow-Headers", "Content-Type,X-API-Key,X-Request-ID,traceparent,Idempotency-Key")
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}

@@ -51,7 +51,7 @@ func TestFileJobUpgradeTwelveAndRepeat(t *testing.T) {
 			t.Fatal(e)
 		}
 	}
-	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != 13 {
+	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != CurrentVersion {
 		t.Fatal(version, e)
 	}
 	var n int

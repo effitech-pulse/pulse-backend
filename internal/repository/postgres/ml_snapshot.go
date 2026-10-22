@@ -15,6 +15,17 @@ import (
 
 // PersistCohort сохраняет неизменяемый полный результат, тревоги и done одной транзакцией.
 func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnapshot) error {
+	tx, err := l.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if err = persistCohortTx(ctx, tx, id, s, 1); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+func persistCohortTx(ctx context.Context, tx pgx.Tx, id int64, s domain.CohortSnapshot, formatVersion int) error {
 	if s.RunID == nil || *s.RunID != id || s.SnapshotID == nil || s.AsOf == nil || s.CohortVersion == "" || len(s.Outcomes) != 100 || s.OutcomeCompleteness != "complete" {
 		return domain.NewError(domain.Invalid, "Неполный снимок прогона")
 	}
@@ -32,11 +43,6 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 	}
 	sum := sha256.Sum256(raw)
 	digest := hex.EncodeToString(sum[:])
-	tx, err := l.conn.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
 	query, args, err := build(sqlBuilder.Select("status").From("ml_run").Where(sq.Eq{"id": id}).Suffix("FOR UPDATE"))
 	if err != nil {
 		return err
@@ -53,7 +59,7 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 	err = tx.QueryRow(ctx, query, args...).Scan(&old)
 	if err == nil {
 		if old == digest {
-			return tx.Commit(ctx)
+			return nil
 		}
 		return domain.NewError(domain.Duplicate, "Снимок этого прогона уже сохранён с другим содержимым")
 	}
@@ -114,7 +120,7 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 		}
 		alerts++
 	}
-	insert := sqlBuilder.Insert("ml_run_snapshot").Columns("run_id", "snapshot_id", "format_version", "cohort_version", "as_of", "provenance_status", "output_sha256", "snapshot").Values(id, *s.SnapshotID, 1, s.CohortVersion, *s.AsOf, s.ProvenanceStatus, digest, raw)
+	insert := sqlBuilder.Insert("ml_run_snapshot").Columns("run_id", "snapshot_id", "format_version", "cohort_version", "as_of", "provenance_status", "output_sha256", "snapshot").Values(id, *s.SnapshotID, formatVersion, s.CohortVersion, *s.AsOf, s.ProvenanceStatus, digest, raw)
 	if _, err = execute(ctx, tx, insert); err != nil {
 		return err
 	}
@@ -125,7 +131,7 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 	if tag.RowsAffected() != 1 {
 		return domain.NewError(domain.Duplicate, "Прогон уже завершён")
 	}
-	return tx.Commit(ctx)
+	return nil
 }
 func (r *Repository) CohortSnapshot(ctx context.Context, version string, run *int64) (domain.CohortSnapshot, error) {
 	q := sqlBuilder.Select("snapshot").From("ml_run_snapshot").Where(sq.Eq{"cohort_version": version}).OrderBy("run_id DESC").Limit(1)

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -30,24 +31,54 @@ func (l *lease) Close() {
 }
 
 func (r *Repository) Reserve(ctx context.Context) (service.RunLease, bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	conn, err := r.pool.Acquire(ctx)
 	if err != nil {
 		return nil, false, err
 	}
-	query, args, err := build(sq.Expr("SELECT pg_try_advisory_lock(?)", runLock))
+	tx, err := conn.Begin(ctx)
 	if err != nil {
 		conn.Release()
 		return nil, false, err
 	}
+	defer tx.Rollback(ctx)
+	if err = cohortGate(ctx, tx); err != nil {
+		_ = tx.Rollback(ctx)
+		conn.Release()
+		var de *domain.Error
+		if errors.As(err, &de) && de.Kind == domain.Limited {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	active, err := activeCohort(ctx, tx)
+	if err != nil {
+		_ = tx.Rollback(ctx)
+		conn.Release()
+		return nil, false, err
+	}
+	if active {
+		_ = tx.Rollback(ctx)
+		conn.Release()
+		return nil, false, nil
+	}
 	var acquired bool
-	if err = conn.QueryRow(ctx, query, args...).Scan(&acquired); err != nil {
+	if err = tx.QueryRow(ctx, "SELECT pg_try_advisory_lock($1)", runLock).Scan(&acquired); err != nil {
+		_ = tx.Rollback(ctx)
 		conn.Release()
 		return nil, false, err
 	}
 	if !acquired {
+		_ = tx.Rollback(ctx)
 		conn.Release()
 		return nil, false, nil
 	}
+	if err = tx.Commit(ctx); err != nil {
+		(&lease{conn: conn}).Close()
+		return nil, false, err
+	}
+
 	return &lease{conn: conn}, true, nil
 }
 
@@ -75,7 +106,7 @@ func (l *lease) begin(ctx context.Context, trigger, profile string, version *str
 	abandon := sqlBuilder.Update("ml_run").
 		Set("status", "error").Set("finished_at", sq.Expr("now()")).
 		Set("error", "Предыдущий процесс прогона был остановлен").
-		Where(sq.Eq{"status": "running"})
+		Where(sq.Eq{"status": "running"}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
 	if _, err := execute(ctx, l.conn, abandon); err != nil {
 		return 0, err
 	}
@@ -133,7 +164,7 @@ func (l *lease) Persist(ctx context.Context, id int64, snapshot domain.Snapshot)
 
 func (l *lease) Fail(ctx context.Context, id int64, message string) error {
 	query := sqlBuilder.Update("ml_run").Set("status", "error").Set("finished_at", sq.Expr("now()")).
-		Set("error", message).Where(sq.Eq{"id": id})
+		Set("error", message).Where(sq.Eq{"id": id}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
 	_, err := execute(ctx, l.conn, query)
 	return err
 }

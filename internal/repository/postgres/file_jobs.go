@@ -80,6 +80,8 @@ func validJobBounds(v domain.FileJobPrepared) bool {
 	return n == v.PointsCount && v.Start.Equal(min.Truncate(time.Microsecond)) && v.End.Equal(max.Truncate(time.Microsecond).Add(time.Microsecond))
 }
 func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared) (domain.FileJobStatus, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	var zero domain.FileJobStatus
 	actor, e := fileJobSession(ctx)
 	if e != nil {
@@ -93,6 +95,9 @@ func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared
 		return zero, e
 	}
 	defer tx.Rollback(ctx)
+	if e = fileJobCapacityGate(ctx, tx); e != nil {
+		return zero, e
+	}
 	allowed, e := r.authorizeFileJobTx(ctx, tx, actor, v.Input.PulseWellID)
 	if e != nil {
 		return zero, e
@@ -129,6 +134,11 @@ func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared
 	}
 	if !isMissing(e) {
 		return zero, e
+	}
+	if busy, e := activeCohort(ctx, tx); e != nil {
+		return zero, e
+	} else if busy {
+		return zero, domain.NewFileJobProblem(domain.Limited, "file_job_capacity")
 	}
 	if !r.allowsPrepared(v.Input) {
 		return zero, domain.NewFileJobProblem(domain.Forbidden, "synthetic_input_required")
@@ -293,4 +303,13 @@ func equalJobJSON(a, b any) bool {
 	x, _ := json.Marshal(a)
 	y, _ := json.Marshal(b)
 	return string(x) == string(y)
+}
+
+// fileJobCapacityGate сохраняет Q1 same-key replay при ограниченном ожидании общего gate.
+func fileJobCapacityGate(ctx context.Context, tx pgx.Tx) error {
+	_, e := execute(ctx, tx, sq.Expr("SELECT pg_advisory_xact_lock(?)", cohortCapacityGate))
+	if e != nil && ctx.Err() == context.DeadlineExceeded {
+		return domain.NewFileJobProblem(domain.Limited, "file_job_capacity")
+	}
+	return e
 }
