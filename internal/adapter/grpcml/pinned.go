@@ -61,20 +61,25 @@ func (e *safeRPCStatus) GRPCStatus() *status.Status { return status.New(e.code, 
 
 // UploadPinned запрещает fallback к legacy Upload, включая UNIMPLEMENTED.
 func (c *GRPCClient) UploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (domain.UploadResult, error) {
-	return c.uploadPinned(ctx, pin, input, canonical, pinnedRPCError)
+	return c.uploadPinned(ctx, pin, input, canonical, "uploaded_file", pinnedRPCError)
 }
 
 // UploadFileJobPinned сохраняет точный safe execution_busy только для Q1 worker.
 // Это внутренний Go seam; protobuf/SDK и Q0 UploadPinned не меняются.
 func (c *GRPCClient) UploadFileJobPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (domain.UploadResult, error) {
-	return c.uploadPinned(ctx, pin, input, canonical, fileJobPinnedRPCError)
+	return c.uploadPinned(ctx, pin, input, canonical, "uploaded_file", fileJobPinnedRPCError)
 }
 
-func (c *GRPCClient) uploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader, mapRPCError func(error) error) (out domain.UploadResult, err error) {
+// UploadCohortPinned принимает только сохранённый cohort snapshot без legacy fallback.
+func (c *GRPCClient) UploadCohortPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader) (domain.UploadResult, error) {
+	return c.uploadPinned(ctx, pin, input, canonical, "cohort_snapshot", fileJobPinnedRPCError)
+}
+
+func (c *GRPCClient) uploadPinned(ctx context.Context, pin domain.ExecutionPin, input domain.PinnedInputIdentity, canonical io.Reader, expectedSourceKind string, mapRPCError func(error) error) (out domain.UploadResult, err error) {
 	if err = pin.Validate(); err != nil {
 		return out, err
 	}
-	if canonical == nil || input.InputSnapshotID == "" || !domain.ValidFileSHA256(input.CanonicalSHA256) || !domain.ValidFileSHA256(input.FingerprintSHA256) || input.SourceKind != "uploaded_file" || input.CanonicalBytes < 1 || input.CanonicalBytes > 50<<20 {
+	if canonical == nil || input.InputSnapshotID == "" || !domain.ValidFileSHA256(input.CanonicalSHA256) || !domain.ValidFileSHA256(input.FingerprintSHA256) || input.SourceKind != expectedSourceKind || input.CanonicalBytes < 1 || input.CanonicalBytes > 50<<20 {
 		return out, domain.NewError(domain.Invalid, "invalid_pinned_input")
 	}
 	ctx, finish := c.begin(ctx, "UploadPinned")
