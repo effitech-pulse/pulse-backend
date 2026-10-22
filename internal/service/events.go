@@ -35,7 +35,7 @@ type Events struct {
 	aead         cipher.AEAD
 }
 
-var EventTypes = []string{"manual_check.saved.v1", "check.review_changed.v1", "alert.review_changed.v1", "well.metadata_changed.v1", "well.archived.v1", "well.restored.v1"}
+var EventTypes = []string{"manual_check.saved.v1", "review.check.recorded.v1", "review.alert.recorded.v1", "well.metadata_changed.v1", "well.archived.v1", "well.restored.v1"}
 
 func NewEvents(store EventStore, scope FundScope, o EventsOptions) (*Events, error) {
 	if store == nil || (o.Mode != "research" && o.Mode != "cohort") || (o.Mode == "cohort" && scope == nil) || o.Prefix == "" {

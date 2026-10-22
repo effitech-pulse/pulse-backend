@@ -10320,8 +10320,8 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "^-?(0|[1-9][0-9]*)$",
-                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+                "pattern": "^(user:[1-9][0-9]*|shared|service)$",
+                "description": "Saved actor namespace marker: user:<canonical positive int64>, shared, or service. Missing/unknown actor id is null; this marker is not a numeric wire ID."
               },
               {
                 "type": "null"
@@ -10411,8 +10411,8 @@
             "type": "string",
             "enum": [
               "manual_check.saved.v1",
-              "check.review_changed.v1",
-              "alert.review_changed.v1",
+              "review.check.recorded.v1",
+              "review.alert.recorded.v1",
               "well.metadata_changed.v1",
               "well.archived.v1",
               "well.restored.v1"

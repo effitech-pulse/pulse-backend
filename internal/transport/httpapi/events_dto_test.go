@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"reflect"
@@ -149,9 +150,27 @@ func TestEventsDTOFrozenExamples(t *testing.T) {
 				}
 				r.WellRevision = &domain.WellEvent{Revision: d.Revision, CreatedAt: d.CreatedAt, Kind: d.ChangeKind, Before: d.Before, After: d.After, Reason: d.Reason}
 			}
-			// Summary fixture is independent; mapping must retain exact saved detail values.
-			summary := domain.EventSummary{EventID: w.EventID, EventType: w.EventType, OccurredAt: at, Well: r.Well, Target: l, Actor: domain.EventActor{Kind: w.Actor.Kind, ID: w.Actor.ID, Name: w.Actor.Name, Authenticated: w.Actor.Authenticated}, Outcome: domain.EventOutcome{Verdict: w.Outcome.Verdict, ReviewStatus: w.Outcome.ReviewStatus, Conclusion: w.Outcome.Conclusion}}
-			got, e := toEventDetailDTO(domain.EventDetail{Event: summary, Record: r})
+			if r.WellRevision != nil {
+				r.ChangeKind = r.WellRevision.Kind
+			}
+			// Exercise the real service projection: expected summary remains frozen data.
+			events, e := service.NewEvents(eventHTTPStore{record: r, records: []domain.EventRecord{r}}, nil, service.EventsOptions{Mode: "research", Prefix: "/api/v1"})
+			if e != nil {
+				t.Fatal(e)
+			}
+			detail, e := events.Get(domain.WithPrincipal(context.Background(), domain.Principal{Role: "admin", Mechanism: "legacy"}), w.EventID)
+			if e != nil {
+				t.Fatal(e)
+			}
+			page, e := events.List(domain.WithPrincipal(context.Background(), domain.Principal{Role: "admin", Mechanism: "legacy"}), domain.EventFilter{Types: []string{w.EventType}}, "")
+			if e != nil || len(page.Items) != 1 {
+				t.Fatalf("frozen type filter/list: %+v %v", page, e)
+			}
+			if summary := toEventSummaryDTO(page.Items[0]); !reflect.DeepEqual(summary, w) {
+				t.Fatalf("service-produced List summary differs: got %+v want %+v", summary, w)
+			}
+
+			got, e := toEventDetailDTO(detail)
 			if e != nil {
 				t.Fatal(e)
 			}

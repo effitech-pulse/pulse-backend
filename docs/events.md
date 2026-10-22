@@ -1,8 +1,8 @@
 # История сохранённых событий
 
 `GET /api/v1/events` и `GET /api/v1/events/{event_id}` читают обычные сохранённые
-основания: `manual_check.saved.v1`, `check.review_changed.v1`,
-`alert.review_changed.v1`, `well.metadata_changed.v1`, `well.archived.v1`,
+основания: `manual_check.saved.v1`, `review.check.recorded.v1`,
+`review.alert.recorded.v1`, `well.metadata_changed.v1`, `well.archived.v1`,
 `well.restored.v1`. Настраиваемый `API_V1_PREFIX` применяется к обоим маршрутам.
 Это история предметных фактов; технический `/audit`, Q1 private file jobs,
 Q2 cohort jobs и прогоны остаются отдельными API. Чтение не запускает ML

@@ -126,7 +126,7 @@ func TestEventsReviewBindingUsesOnlyPrimaryTarget(t *testing.T) {
 		eventsExec(t, p, `INSERT INTO review_event(kind,target_id,revision,request_id,fingerprint,created_at,actor,comment,before_state,after_state) VALUES('check',$1,1,$1,'fingerprint',$2,'{"id":"user:41","authenticated":"true"}','secret comment','{}','{"status":"future","conclusion":"future"}')`, id, eventsAt)
 	}
 	s := eventsService(t, p, nil, "research")
-	page, e := s.List(eventsAdmin(), domain.EventFilter{Types: []string{"check.review_changed.v1"}}, "")
+	page, e := s.List(eventsAdmin(), domain.EventFilter{Types: []string{"review.check.recorded.v1"}}, "")
 	if e != nil || len(page.Items) != 1 || page.Items[0].Target.Target != "linked" {
 		t.Fatalf("binding %+v %v", page, e)
 	}

@@ -32,12 +32,13 @@ func TestEventsQueryStrict(t *testing.T) {
 }
 
 type eventHTTPStore struct {
-	err    error
-	record domain.EventRecord
+	records []domain.EventRecord
+	err     error
+	record  domain.EventRecord
 }
 
 func (f eventHTTPStore) ReadEventPage(context.Context, domain.EventReadQuery) ([]domain.EventRecord, error) {
-	return []domain.EventRecord{}, f.err
+	return f.records, f.err
 }
 func (f eventHTTPStore) ReadEvent(context.Context, domain.EventReadScope, domain.EventLocator) (domain.EventRecord, error) {
 	return f.record, f.err

@@ -248,7 +248,7 @@ func (r *Repository) ReadEventPage(ctx context.Context, q domain.EventReadQuery)
 		return nil, e
 	}
 	branches := []sq.Sqlizer{}
-	types := map[string]string{"mc": "manual_check.saved.v1", "review.check": "check.review_changed.v1", "review.alert": "alert.review_changed.v1"}
+	types := map[string]string{"mc": "manual_check.saved.v1", "review.check": "review.check.recorded.v1", "review.alert": "review.alert.recorded.v1"}
 	for _, b := range eventSourceBranches(false) {
 		if b.source != "well" && !slices.Contains(q.Filter.Types, types[b.source]) {
 			continue
