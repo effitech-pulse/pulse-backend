@@ -5424,6 +5424,348 @@
           }
         }
       }
+    },
+    "/api/v1/collection-jobs": {
+      "post": {
+        "tags": [
+          "collection-jobs"
+        ],
+        "operationId": "submitCollectionJob",
+        "summary": "Durably accept one finite synthetic collection",
+        "description": "Internal synthetic-only, default off. Current local admin session and current explicit source/well scope required. Cache-Control: no-store. Status contains safe metadata only; captured bytes, URLs, actor, digests, token and fence are never exposed. JSON duplicate/unknown fields and extra documents rejected.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Durable acceptance (including same replay)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionJobStatus"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_collection_request / invalid_period / fixture_unavailable / source_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "session_required; legacy API key is insufficient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "collection_access_denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "collection_job_missing; foreign and absent jobs indistinguishable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "replay_conflict / source_busy / revision_conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "collection_capacity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "collection_jobs_disabled / collection_store_unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Body bounded to 4096 bytes. UTC minute period [start,end), 1–1440 minutes; no rounding/clamping.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionSubmit"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collection-jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "collection-jobs"
+        ],
+        "operationId": "getCollectionJob",
+        "summary": "Read durable collection status, including mode off",
+        "description": "Internal synthetic-only, default off. Current local admin session and current explicit source/well scope required. Cache-Control: no-store. Status contains safe metadata only; captured bytes, URLs, actor, digests, token and fence are never exposed. JSON duplicate/unknown fields and extra documents rejected.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current owner-visible persisted status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionJobStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_collection_request / invalid_period / fixture_unavailable / source_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "session_required; legacy API key is insufficient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "collection_access_denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "collection_job_missing; foreign and absent jobs indistinguishable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "replay_conflict / source_busy / revision_conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "collection_capacity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "collection_jobs_disabled / collection_store_unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/collection-jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "collection-jobs"
+        ],
+        "operationId": "cancelCollectionJob",
+        "summary": "Cancel with expected revision; terminal cancel is idempotent",
+        "description": "Internal synthetic-only, default off. Current local admin session and current explicit source/well scope required. Cache-Control: no-store. Status contains safe metadata only; captured bytes, URLs, actor, digests, token and fence are never exposed. JSON duplicate/unknown fields and extra documents rejected.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current owner-visible persisted status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionJobStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_collection_request / invalid_period / fixture_unavailable / source_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "session_required; legacy API key is insufficient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "collection_access_denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "collection_job_missing; foreign and absent jobs indistinguishable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "replay_conflict / source_busy / revision_conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "collection_capacity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "collection_jobs_disabled / collection_store_unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Body bounded to 128 bytes. UTC minute period [start,end), 1–1440 minutes; no rounding/clamping.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionRevision"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9214,6 +9556,397 @@
           "execution_pin_sha256",
           "execution_pin",
           "replay_status"
+        ]
+      },
+      "CollectionSubmit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "replay_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{16,64}$"
+          },
+          "fixture_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "replay_key",
+          "fixture_id",
+          "source_id",
+          "start",
+          "end"
+        ]
+      },
+      "CollectionRevision": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "revision"
+        ]
+      },
+      "CollectionCaptureStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "enum": [
+              "absent",
+              "ready"
+            ]
+          },
+          "raw_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "raw_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unique_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "repeated_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "marker_values": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "null_values": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "excluded_setpoints": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "captured_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "state",
+          "raw_bytes",
+          "raw_rows",
+          "unique_rows",
+          "repeated_rows",
+          "marker_values",
+          "null_values",
+          "excluded_setpoints",
+          "captured_at"
+        ]
+      },
+      "CollectionWriteStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkpoint": {
+            "type": "boolean"
+          },
+          "inserted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "identical": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rejected": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "committed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "checkpoint",
+          "inserted",
+          "identical",
+          "rejected",
+          "committed_at"
+        ]
+      },
+      "CollectionCoverageStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "enum": [
+              "none",
+              "complete",
+              "complete_empty"
+            ]
+          },
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "end": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "data_revision": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maximum_measured_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "state",
+          "start",
+          "end",
+          "data_revision",
+          "maximum_measured_at"
+        ]
+      },
+      "CollectionSourceStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accepted_profile_version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "current_usable": {
+            "type": "boolean"
+          },
+          "availability": {
+            "enum": [
+              "unknown",
+              "dense",
+              "explicit_empty",
+              "unavailable",
+              "invalid",
+              "conflict"
+            ]
+          }
+        },
+        "required": [
+          "accepted_profile_version",
+          "current_usable",
+          "availability"
+        ]
+      },
+      "CollectionJobStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "state": {
+            "enum": [
+              "pending_dispatch",
+              "running",
+              "retry_wait",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "revoked",
+              "expired",
+              "quarantined"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fixture_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "well_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "original_start": {
+            "type": "string"
+          },
+          "original_end": {
+            "type": "string"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "maximum_attempts": {
+            "const": 3
+          },
+          "next_attempt_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              null,
+              "source_unavailable",
+              "source_timeout",
+              "invalid_capture",
+              "input_limit",
+              "input_conflict",
+              "measurement_conflict",
+              "unverifiable_existing",
+              "capture_corrupt",
+              "access_revoked",
+              "source_changed",
+              "binding_changed",
+              "attempts_exhausted",
+              "job_deadline",
+              "dispatch_exhausted",
+              "cancelled"
+            ]
+          },
+          "capture": {
+            "$ref": "#/components/schemas/CollectionCaptureStatus"
+          },
+          "write": {
+            "$ref": "#/components/schemas/CollectionWriteStatus"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CollectionCoverageStatus"
+          },
+          "source": {
+            "$ref": "#/components/schemas/CollectionSourceStatus"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "revision",
+          "fixture_id",
+          "source_id",
+          "well_id",
+          "start",
+          "end",
+          "original_start",
+          "original_end",
+          "accepted_at",
+          "deadline",
+          "attempt",
+          "maximum_attempts",
+          "next_attempt_at",
+          "error_code",
+          "capture",
+          "write",
+          "coverage",
+          "source"
+        ]
+      },
+      "CollectionError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "validation_error",
+              "unauthorized",
+              "forbidden",
+              "not_found",
+              "conflict",
+              "rate_limited",
+              "external_service_error"
+            ]
+          },
+          "message": {
+            "enum": [
+              "invalid_collection_request",
+              "invalid_period",
+              "fixture_unavailable",
+              "source_not_allowed",
+              "session_required",
+              "collection_access_denied",
+              "collection_job_missing",
+              "replay_conflict",
+              "source_busy",
+              "revision_conflict",
+              "collection_capacity",
+              "collection_jobs_disabled",
+              "collection_store_unavailable"
+            ]
+          },
+          "detail": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
         ]
       }
     },

@@ -92,3 +92,38 @@ func TestCohortJobsRequireIsolatedRuntime(t *testing.T) {
 		})
 	}
 }
+
+func TestCollectionConfigDefaultOffAndSyntheticGuard(t *testing.T) {
+	t.Setenv("APP_SCOPE", "research")
+	t.Setenv("AUTH_MODE", "local")
+	t.Setenv("COLLECTION_JOB_MODE", "real")
+	if _, e := Load(); e == nil {
+		t.Fatal("real collection accepted")
+	}
+	t.Setenv("COLLECTION_JOB_MODE", "synthetic")
+	if _, e := Load(); e == nil {
+		t.Fatal("synthetic missing guard accepted")
+	}
+	t.Setenv("COLLECTION_JOB_MODE", "off")
+	if _, e := Load(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func TestCollectionSyntheticConfigurationRequiresIsolation(t *testing.T) {
+	defaults := map[string]string{"COLLECTION_JOB_MODE": "synthetic", "COLLECTION_JOB_MANIFEST": "/synthetic/manifest.json", "COLLECTION_JOB_MANIFEST_SHA256": strings.Repeat("a", 64), "COLLECTION_JOB_RUN_ID": "test-run", "COLLECTION_JOB_TEST_SCHEMA": "q2c2_test", "COLLECTION_JOB_AMQP_URL": "amqp://localhost/pulse-q2c2-synthetic", "COLLECTION_JOB_PRODUCER_AMQP_URL": "amqp://localhost/pulse-q2c2-synthetic", "APP_SCOPE": "research", "AUTH_MODE": "local", "DB_POOL_SIZE": "8"}
+	for k, v := range defaults {
+		t.Setenv(k, v)
+	}
+	if c, e := Load(); e != nil || c.CollectionJobMode != "synthetic" {
+		t.Fatal(e)
+	}
+	for _, tc := range []struct{ key, value string }{{"COLLECTION_JOB_MODE", "real"}, {"COLLECTION_JOB_TEST_SCHEMA", "public"}, {"COLLECTION_JOB_TEST_SCHEMA", "pg_catalog"}, {"COLLECTION_JOB_MANIFEST_SHA256", "sha256:" + strings.Repeat("a", 64)}, {"COLLECTION_JOB_AMQP_URL", "amqp://localhost/"}, {"COLLECTION_JOB_PRODUCER_AMQP_URL", ""}, {"APP_SCOPE", "cohort"}, {"AUTH_MODE", "legacy"}, {"DB_POOL_SIZE", "9"}} {
+		t.Run(tc.key+tc.value, func(t *testing.T) {
+			t.Setenv(tc.key, tc.value)
+			if _, e := Load(); e == nil {
+				t.Fatal("unsafe config accepted")
+			}
+		})
+	}
+}

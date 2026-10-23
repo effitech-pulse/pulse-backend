@@ -64,3 +64,20 @@ type TelemetryBounds struct {
 	Start *time.Time `json:"start"`
 	End   *time.Time `json:"end"`
 }
+
+type TelemetrySourceLease struct {
+	SourceID       string
+	Token          string
+	Fence          int64
+	ProfileVersion int
+	Until          time.Time
+}
+type TelemetryWrite struct {
+	SourceID       string
+	ProfileVersion int                   // 0 only for manual
+	Lease          *TelemetrySourceLease // required iff Release=true
+	Points         []Measurement
+	Rejected       int
+	Message        string
+	Release        bool
+}

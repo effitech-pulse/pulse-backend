@@ -62,7 +62,7 @@ func TestCohortMigration14PreservesSnapshots(t *testing.T) {
 	if e = pool.QueryRow(ctx, "SELECT count(*) FROM cohort_job_guard").Scan(&n); e != nil || n != 0 {
 		t.Fatal("guard seeded", n, e)
 	}
-	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != 14 {
+	if e = pool.QueryRow(ctx, "SELECT max(version) FROM backend_schema_migration").Scan(&version); e != nil || version != CurrentVersion {
 		t.Fatal(version, e)
 	}
 }

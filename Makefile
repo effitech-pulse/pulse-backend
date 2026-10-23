@@ -1,6 +1,7 @@
 GO ?= go
 .PHONY: build run migrate test integration vet fmt check test-db-up test-db-down
 build:
+	$(GO) build -trimpath -o bin/collection-worker ./cmd/collection-worker
 	$(GO) build -trimpath -o bin/cohort-worker ./cmd/cohort-worker
 	$(GO) build -trimpath -o bin/worker ./cmd/worker
 	$(GO) build -trimpath -o bin/api ./cmd/api

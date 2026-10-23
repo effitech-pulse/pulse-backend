@@ -105,11 +105,11 @@ func TestTelemetryPullAndLease(t *testing.T) {
 	id := created["id"].(string)
 	call(t, h, "PATCH", "/api/v1/integrations/"+id+"/status", `{"status":"running"}`, 200)
 	claimed, err := app.store.ClaimSource(context.Background(), id, false)
-	if err != nil || !claimed {
+	if err != nil || claimed == nil {
 		t.Fatal(err)
 	}
 	call(t, h, "POST", "/api/v1/integrations/"+id+"/collect", "", 409)
-	if err = app.store.FailCollection(context.Background(), id, "test retry"); err != nil {
+	if err = app.store.FailCollection(context.Background(), *claimed, "test retry"); err != nil {
 		t.Fatal(err)
 	}
 	out := call(t, h, "POST", "/api/v1/integrations/"+id+"/collect", "", 200).(map[string]any)
@@ -138,7 +138,7 @@ func TestTelemetryBoundsAndArchiveMerge(t *testing.T) {
 	app.http.Integrations = service.NewIntegrations(app.store, telemetry.Connector{}, telemetry.Secrets{}).WithArchive(telemetry.Archive{BaseURL: server.URL, AllowedHosts: []string{"127.0.0.1"}})
 	ts, _ := time.Parse(time.RFC3339, "2025-01-01T00:00:00Z")
 	zero := 0.0
-	_, err := app.store.CommitTelemetry(ctx, "manual", []domain.Measurement{{WellID: "1", Timestamp: ts, Values: map[string]*float64{"F_out": &zero}}}, 0, "", false)
+	_, err := app.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: "manual", Points: []domain.Measurement{{WellID: "1", Timestamp: ts, Values: map[string]*float64{"F_out": &zero}}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +166,11 @@ func TestSourceRuntimeTimestampsOverrideSavedProfile(t *testing.T) {
 	value := 50.0
 	for n := 1; n <= 2; n++ {
 		measured := old.Add(time.Duration(n) * time.Hour)
-		if _, err = repo.CommitTelemetry(ctx, source.ID, []domain.Measurement{{WellID: "watermark-well", Timestamp: measured, Values: map[string]*float64{"F_out": &value}}}, 0, "cycle", true); err != nil {
+		lease, claimErr := repo.ClaimSource(ctx, source.ID, false)
+		if claimErr != nil || lease == nil {
+			t.Fatal(claimErr)
+		}
+		if _, err = repo.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: source.ID, ProfileVersion: source.ProfileVersion, Lease: lease, Points: []domain.Measurement{{WellID: "watermark-well", Timestamp: measured, Values: map[string]*float64{"F_out": &value}}}, Message: "cycle", Release: true}); err != nil {
 			t.Fatal(err)
 		}
 		got, err := repo.Source(ctx, source.ID)

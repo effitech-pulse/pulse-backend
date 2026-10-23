@@ -97,6 +97,12 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 			return nil, err
 		}
 	}
+	server.CollectionJobs, err = buildCollectionJobs(ctx, c, store)
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
 	if scope != nil {
 		ml.WithCohort(scope, server.Integrations, store)
 	}

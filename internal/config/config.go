@@ -16,6 +16,14 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
+	CollectionJobMode            string
+	CollectionJobManifest        string
+	CollectionJobManifestSHA256  string
+	CollectionJobRunID           string
+	CollectionJobTestSchema      string
+	CollectionJobAMQPURL         string
+	CollectionJobProducerAMQPURL string
+
 	CohortJobMode            string
 	CohortJobManifest        string
 	CohortJobManifestSHA256  string
@@ -74,6 +82,14 @@ func envInt(key string, fallback int) (int, error) {
 func Load() (Config, error) {
 	_ = godotenv.Load(".env")
 	c := Config{
+		CollectionJobMode:            env("COLLECTION_JOB_MODE", "off"),
+		CollectionJobManifest:        env("COLLECTION_JOB_MANIFEST", ""),
+		CollectionJobManifestSHA256:  env("COLLECTION_JOB_MANIFEST_SHA256", ""),
+		CollectionJobRunID:           env("COLLECTION_JOB_RUN_ID", ""),
+		CollectionJobTestSchema:      env("COLLECTION_JOB_TEST_SCHEMA", ""),
+		CollectionJobAMQPURL:         env("COLLECTION_JOB_AMQP_URL", ""),
+		CollectionJobProducerAMQPURL: env("COLLECTION_JOB_PRODUCER_AMQP_URL", ""),
+
 		CohortJobMode:            env("COHORT_JOB_MODE", "off"),
 		CohortJobManifest:        env("COHORT_JOB_MANIFEST", ""),
 		CohortJobManifestSHA256:  env("COHORT_JOB_MANIFEST_SHA256", ""),
@@ -102,6 +118,9 @@ func Load() (Config, error) {
 		MetabaseSecret:           env("METABASE_EMBED_SECRET", ""),
 	}
 
+	if err := validateCollectionJobConfig(c); err != nil {
+		return c, err
+	}
 	if err := validateCohortJobConfig(c); err != nil {
 		return c, err
 	}
@@ -149,6 +168,9 @@ func Load() (Config, error) {
 		return c, fmt.Errorf("DB_POOL_SIZE must be between 2 and 1000")
 	}
 	c.PoolSize = int32(size)
+	if c.CollectionJobMode == "synthetic" && size > 8 {
+		return c, fmt.Errorf("collection pool exceeds 8")
+	}
 	c.AutoRun, err = strconv.ParseBool(env("ML_AUTORUN_ENABLED", "true"))
 	if err != nil {
 		return c, err
@@ -196,6 +218,25 @@ func validateCohortJobConfig(c Config) error {
 		u, e := url.Parse(raw)
 		if e != nil || (u.Scheme != "amqp" && u.Scheme != "amqps") || u.Host == "" || u.Path != "/pulse-q2-synthetic" || u.RawQuery != "" || u.Fragment != "" {
 			return fmt.Errorf("synthetic cohort jobs require isolated AMQP URLs")
+		}
+	}
+	return nil
+}
+
+func validateCollectionJobConfig(c Config) error {
+	if c.CollectionJobMode != "off" && c.CollectionJobMode != "synthetic" {
+		return fmt.Errorf("COLLECTION_JOB_MODE must be off or synthetic")
+	}
+	if c.CollectionJobMode == "off" {
+		return nil
+	}
+	if c.AuthMode != "local" || c.AppScope != "research" || c.CollectionJobManifest == "" || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(c.CollectionJobManifestSHA256) || !regexp.MustCompile(`^[A-Za-z0-9_-]{1,64}$`).MatchString(c.CollectionJobRunID) || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(c.CollectionJobTestSchema) || c.CollectionJobTestSchema == "public" || c.CollectionJobTestSchema == "information_schema" || strings.HasPrefix(c.CollectionJobTestSchema, "pg_") {
+		return fmt.Errorf("synthetic collection requires local research and trusted manifest/hash/run/test schema")
+	}
+	for _, raw := range []string{c.CollectionJobAMQPURL, c.CollectionJobProducerAMQPURL} {
+		u, e := url.Parse(raw)
+		if e != nil || (u.Scheme != "amqp" && u.Scheme != "amqps") || u.Host == "" || u.Path != "/pulse-q2c2-synthetic" || u.RawQuery != "" || u.Fragment != "" {
+			return fmt.Errorf("synthetic collection requires isolated AMQP URLs")
 		}
 	}
 	return nil

@@ -22,10 +22,12 @@ type db interface {
 }
 
 type Repository struct {
-	pool            *pgxpool.Pool
-	fileJobPolicy   *domain.FileJobPolicy
-	cohortJobPolicy *domain.CohortJobPolicy
-	cohortClaims    *cohortClaimRegistry
+	pool                *pgxpool.Pool
+	fileJobPolicy       *domain.FileJobPolicy
+	cohortJobPolicy     *domain.CohortJobPolicy
+	cohortClaims        *cohortClaimRegistry
+	collectionJobPolicy *domain.CollectionPolicy
+	collectionClaims    *collectionClaimRegistry
 }
 
 func New(pool *pgxpool.Pool) *Repository {

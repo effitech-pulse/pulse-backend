@@ -23,9 +23,9 @@ type TelemetryStore interface {
 	Sources(context.Context) ([]domain.TelemetrySource, error)
 	Source(context.Context, string) (domain.TelemetrySource, error)
 	SaveSource(context.Context, domain.TelemetrySource) (domain.TelemetrySource, error)
-	ClaimSource(context.Context, string, bool) (bool, error)
-	CommitTelemetry(context.Context, string, []domain.Measurement, int, string, bool) (domain.CollectionLog, error)
-	FailCollection(context.Context, string, string) error
+	ClaimSource(context.Context, string, bool) (*domain.TelemetrySourceLease, error)
+	CommitTelemetry(context.Context, domain.TelemetryWrite) (domain.CollectionLog, error)
+	FailCollection(context.Context, domain.TelemetrySourceLease, string) error
 	Telemetry(context.Context, string, time.Time, time.Time) (domain.TelemetryResult, error)
 	CollectionLogs(context.Context) ([]domain.CollectionLog, error)
 }
@@ -485,7 +485,7 @@ func (s *Integrations) Ingest(ctx context.Context, id string, records []map[stri
 	if err != nil {
 		return domain.CollectionLog{}, err
 	}
-	return s.store.CommitTelemetry(ctx, id, points, rejected, "Пакет JSON обработан", false)
+	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Points: points, Rejected: rejected, Message: "Пакет JSON обработан"})
 }
 func (s *Integrations) Import(ctx context.Context, points []domain.Measurement) (domain.CollectionLog, error) {
 	if len(points) == 0 || len(points) > 100000 {
@@ -510,7 +510,7 @@ func (s *Integrations) Import(ctx context.Context, points []domain.Measurement) 
 			}
 		}
 	}
-	return s.store.CommitTelemetry(ctx, "manual", points, 0, "Файл импортирован; совпадения сохранены без перезаписи", false)
+	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: "manual", Points: points, Message: "Файл импортирован; совпадения сохранены без перезаписи"})
 }
 func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out domain.CollectionLog, err error) {
 	ctx, finish := observability.Operation(ctx, "telemetry.collect")
@@ -519,10 +519,13 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 	if err != nil {
 		return domain.CollectionLog{}, err
 	}
-	if !claimed {
+	if claimed == nil {
 		return domain.CollectionLog{}, domain.NewError(domain.Duplicate, "Источник занят, приостановлен или ещё не наступил срок сбора")
 	}
 	source, err := s.store.Source(ctx, id)
+	if err == nil && source.ProfileVersion != claimed.ProfileVersion {
+		return domain.CollectionLog{}, domain.NewError(domain.Duplicate, "stale_lease")
+	}
 	var records []map[string]any
 	var secret string
 	if err == nil {
@@ -535,7 +538,7 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 		slog.WarnContext(ctx, "telemetry collection failed", "error_code", "operation_failed")
 		failCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
-		if e := s.store.FailCollection(failCtx, id, "Ошибка подключения. Проверьте настройки и доступность источника."); e != nil {
+		if e := s.store.FailCollection(failCtx, *claimed, "Ошибка подключения. Проверьте настройки и доступность источника."); e != nil {
 			slog.ErrorContext(ctx, "record collection failure", "error_code", "operation_failed")
 		}
 		return domain.CollectionLog{}, domain.NewError(domain.Unavailable, "Не удалось получить данные источника")
@@ -543,7 +546,7 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 	if err = s.requireSourceRecords(ctx, source, records); err != nil {
 		failCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
-		_ = s.store.FailCollection(failCtx, id, "Пакет содержит недоступные скважины")
+		_ = s.store.FailCollection(failCtx, *claimed, "Пакет содержит недоступные скважины")
 		return domain.CollectionLog{}, err
 	}
 	points, rejected := MapTelemetry(records, source)
@@ -551,12 +554,12 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 	if err != nil {
 		failCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
-		if failure := s.store.FailCollection(failCtx, id, "Проверьте тип ID и связи скважин со справочником Pulse"); failure != nil {
+		if failure := s.store.FailCollection(failCtx, *claimed, "Проверьте тип ID и связи скважин со справочником Pulse"); failure != nil {
 			slog.ErrorContext(ctx, "record mapping failure", "error_code", "operation_failed")
 		}
 		return domain.CollectionLog{}, err
 	}
-	return s.store.CommitTelemetry(ctx, id, points, rejected, "Цикл сбора завершён", true)
+	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Lease: claimed, Points: points, Rejected: rejected, Message: "Цикл сбора завершён", Release: true})
 }
 func (s *Integrations) Schedule(ctx context.Context) {
 	ticker := time.NewTicker(time.Second)
