@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"strings"
 	"testing"
 	"time"
@@ -198,7 +199,7 @@ func TestFileJobPrivateGetListCursorReview(t *testing.T) {
 	}
 	for _, role := range []string{"technologist", "admin"} {
 		t.Run(role, func(t *testing.T) {
-			a, e := postgres.New(pool).CreateAccount(ctx, domain.Account{Login: role, Name: role, Role: role, Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
+			a, e := postgres.New(pool).CreateAccount(rbacFixtureManagerContext(t, pool), domain.Account{Login: role, Name: role, Role: role, Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
 			if e != nil {
 				t.Fatal(e)
 			}
@@ -250,7 +251,7 @@ func TestFileJobGuardStartupAndUnlistedAccount(t *testing.T) {
 	if e := store.ValidateFileJobPolicy(ctx); e != nil {
 		t.Fatal(e)
 	}
-	a, e := postgres.New(pool).CreateAccount(ctx, domain.Account{Login: "unlisted", Name: "unlisted", Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
+	a, e := postgres.New(pool).CreateAccount(rbacFixtureManagerContext(t, pool), domain.Account{Login: "unlisted", Name: "unlisted", Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -272,7 +273,7 @@ func TestFileJobActorLegacyNamespace(t *testing.T) {
 	if _, e := store.AcceptFileJob(ctx, v); e != nil {
 		t.Fatal(e)
 	}
-	other, e := postgres.New(pool).CreateAccount(ctx, domain.Account{Login: "sibling", Name: "sibling", Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
+	other, e := postgres.New(pool).CreateAccount(rbacFixtureManagerContext(t, pool), domain.Account{Login: "sibling", Name: "sibling", Role: "technologist", Scope: domain.AccessScope{Funds: []string{"operational"}}, Active: true}, "unused", false)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -311,4 +312,26 @@ func TestFileJobActorLegacyNamespace(t *testing.T) {
 	if _, e = store.AcceptFileJob(ctx, domain.FileJobPrepared{Input: orphan}); e == nil || e.Error() != "input_not_job" {
 		t.Fatal("orphan Q0 proof attached", e)
 	}
+}
+
+func rbacFixtureManagerContext(t *testing.T, pool *pgxpool.Pool) context.Context {
+	t.Helper()
+	ctx := context.Background()
+	var id int64
+	e := pool.QueryRow(ctx, "SELECT id FROM auth_user WHERE login='fixture-manager'").Scan(&id)
+	if e != nil {
+		id = rbacReadUser(t, pool, "fixture-manager", `{"kind":"organization","ngdu_id":null,"department_id":null}`, "users.read", "users.create", "users.update", "users.scope.assign", "users.roles.assign", "users.groups.assign", "roles.read", "roles.manage", "groups.read", "groups.manage", "access.manage_global")
+		var role int64
+		if e = pool.QueryRow(ctx, "SELECT id FROM auth_role WHERE builtin_key='admin'").Scan(&role); e != nil {
+			t.Fatal(e)
+		}
+		if _, e = pool.Exec(ctx, "INSERT INTO auth_user_role VALUES($1,$2)", id, role); e != nil {
+			t.Fatal(e)
+		}
+	}
+	account, e := postgres.New(pool).Account(ctx, id)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return domain.WithPrincipal(ctx, domain.AccountPrincipal(account))
 }

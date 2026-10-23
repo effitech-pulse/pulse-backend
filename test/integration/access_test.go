@@ -218,8 +218,15 @@ func TestAccountSessionsRevocationAndFutureSSOIdentity(t *testing.T) {
 	if err = a.BindIdentity(adminCtx, "keycloak-main", "stable-subject", user.ID); err != nil {
 		t.Fatal(err)
 	}
+	bound, err := app.store.Account(ctx, user.ID)
+	if err != nil || bound.Revision != updated.Revision+1 {
+		t.Fatal(bound, err)
+	}
+	if _, err = a.Identify(ctx, token); err == nil {
+		t.Fatal("identity binding retained old session")
+	}
 	accepted, externalToken, err := a.AcceptIdentity(ctx, service.VerifiedIdentity{ProviderID: "keycloak-main", Subject: "stable-subject"})
-	if err != nil || accepted.Role != "viewer" || accepted.Revision != updated.Revision {
+	if err != nil || accepted.Role != "viewer" || accepted.Revision != bound.Revision {
 		t.Fatal(accepted, err)
 	}
 	if _, err = a.Identify(ctx, externalToken); err != nil {

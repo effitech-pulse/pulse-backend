@@ -83,11 +83,12 @@ type AccessApply struct {
 }
 
 type AccessApplyResult struct {
-	User          *Account     `json:"user"`
-	Role          *AccessRole  `json:"role"`
-	Group         *AccessGroup `json:"group"`
-	GraphRevision int64        `json:"graph_revision"`
-	AffectedUsers int          `json:"affected_users"`
+	UserView      *AccountAccessView `json:"user_view"`
+	User          *Account           `json:"user"`
+	Role          *AccessRole        `json:"role"`
+	Group         *AccessGroup       `json:"group"`
+	GraphRevision int64              `json:"graph_revision"`
+	AffectedUsers int                `json:"affected_users"`
 }
 
 type AccessPageQuery struct {

@@ -317,7 +317,7 @@ func (a *Access) AcceptIdentity(ctx context.Context, identity VerifiedIdentity) 
 	return user, token, nil
 }
 func (a *Access) BindIdentity(ctx context.Context, provider, subject string, id int64) error {
-	if err := requireAccountAdmin(ctx); err != nil {
+	if _, err := managementActor(ctx); err != nil {
 		return err
 	}
 	if provider == "" || len(provider) > 80 || subject == "" || len(subject) > 512 {

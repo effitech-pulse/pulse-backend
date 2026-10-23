@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,7 @@ func authorizationQuery() sq.SelectBuilder {
 		`(SELECT row_to_json(a) FROM (
     SELECT u.id,u.login,u.name,u.role,u.scope,u.active,u.revision,u.created_at,u.last_login
    ) a) AS account`,
+		`COALESCE((SELECT jsonb_agg(jsonb_build_object('id',g.id,'name',g.name,'revision',g.revision,'role_ids',COALESCE((SELECT jsonb_agg(gr.role_id ORDER BY gr.role_id) FROM auth_group_role gr WHERE gr.group_id=g.id),'[]'::jsonb)) ORDER BY g.id) FROM auth_group_member m JOIN auth_group g ON g.id=m.group_id WHERE m.user_id=u.id),'[]'::jsonb) AS groups`,
 		"u.organization_scope AS organization", "u.authz_epoch AS epoch", "s.revision AS graph_revision",
 		`COALESCE((
    SELECT jsonb_agg(jsonb_build_object(
@@ -51,11 +53,12 @@ type accessRoleGrant struct {
 }
 
 type authorizationRow struct {
-	Account       domain.Account            `json:"account"`
-	Organization  *domain.OrganizationScope `json:"organization"`
-	Epoch         int64                     `json:"epoch"`
-	GraphRevision int64                     `json:"graph_revision"`
-	Grants        []accessRoleGrant         `json:"grants"`
+	Groups        []domain.AccessGroupMembership `json:"groups"`
+	Account       domain.Account                 `json:"account"`
+	Organization  *domain.OrganizationScope      `json:"organization"`
+	Epoch         int64                          `json:"epoch"`
+	GraphRevision int64                          `json:"graph_revision"`
+	Grants        []accessRoleGrant              `json:"grants"`
 }
 
 func (a authorizationRow) snapshot() domain.AuthorizationSnapshot {
@@ -64,7 +67,39 @@ func (a authorizationRow) snapshot() domain.AuthorizationSnapshot {
 		grants = append(grants, domain.RolePermissionGrant{Role: g.Role, GroupID: g.GroupID, GroupName: g.GroupName})
 	}
 	keys, sources := domain.ResolveRolePermissions(grants)
-	return domain.AuthorizationSnapshot{AccountID: a.Account.ID, Active: a.Account.Active, Epoch: a.Epoch, GraphRevision: a.GraphRevision, Permissions: keys, Sources: sources, Organization: a.Organization, LegacyScope: a.Account.Scope}
+	assignments := domain.AccessAssignments{DirectRoleIDs: []int64{}, Groups: slices.Clone(a.Groups), Roles: []domain.AccessRoleSummary{}}
+	if assignments.Groups == nil {
+		assignments.Groups = []domain.AccessGroupMembership{}
+	}
+	seen := map[int64]bool{}
+	for _, grant := range a.Grants {
+		if grant.GroupID == nil {
+			assignments.DirectRoleIDs = append(assignments.DirectRoleIDs, grant.Role.ID)
+		}
+		if !seen[grant.Role.ID] {
+			seen[grant.Role.ID] = true
+			var key *string
+			if grant.Role.BuiltinKey != nil {
+				v := *grant.Role.BuiltinKey
+				key = &v
+			}
+			assignments.Roles = append(assignments.Roles, domain.AccessRoleSummary{ID: grant.Role.ID, Name: grant.Role.Name, Revision: grant.Role.Revision, BuiltinKey: key})
+		}
+	}
+	slices.Sort(assignments.DirectRoleIDs)
+	slices.SortFunc(assignments.Roles, func(a, b domain.AccessRoleSummary) int {
+		if a.ID < b.ID {
+			return -1
+		}
+		if a.ID > b.ID {
+			return 1
+		}
+		return 0
+	})
+	for i := range assignments.Groups {
+		assignments.Groups[i].RoleIDs = slices.Clone(assignments.Groups[i].RoleIDs)
+	}
+	return domain.AuthorizationSnapshot{Assignments: assignments, AccountID: a.Account.ID, Active: a.Account.Active, Epoch: a.Epoch, GraphRevision: a.GraphRevision, Permissions: keys, Sources: sources, Organization: a.Organization, LegacyScope: a.Account.Scope}
 }
 func authorization(ctx context.Context, conn db, id int64) (domain.AuthorizationSnapshot, error) {
 	a, e := one[authorizationRow](ctx, conn, authorizationQuery().Where(sq.Eq{"u.id": id}))
@@ -388,4 +423,51 @@ func (r *Repository) OrganizationOptions(ctx context.Context, id int64) (out dom
 // SessionAccountEnforced используется только после явного cutover вызывающим кодом.
 func (r *Repository) SessionAccountEnforced(ctx context.Context, hash string) (domain.Account, error) {
 	return one[domain.Account](ctx, r.pool, sqlBuilder.Select("u.id,u.login,u.name,u.role,u.scope,u.active,u.revision,u.created_at,u.last_login").From("auth_session s").Join("auth_user u ON u.id=s.user_id").Where(sq.Eq{"s.token_hash": hash, "u.active": true}).Where("s.expires_at > now() AND s.authz_epoch=u.authz_epoch"))
+}
+
+// accountView сохраняет все назначения, включая роли и группы с пустым union.
+func (g accessGraph) accountView(id int64) (domain.AccountAccessView, error) {
+	i := g.accountIndex(id)
+	if i < 0 {
+		return domain.AccountAccessView{}, domain.NewError(domain.Missing, "Пользователь не найден")
+	}
+	a := g.Accounts[i]
+	a.Groups = []domain.AccessGroupMembership{}
+	a.Grants = []accessRoleGrant{}
+	for _, rid := range directAccessRoles(g.Accounts[i]) {
+		ri := g.roleIndex(rid)
+		if ri < 0 {
+			return domain.AccountAccessView{}, accessDenied()
+		}
+		a.Grants = append(a.Grants, accessRoleGrant{Role: g.Roles[ri]})
+	}
+	for _, gid := range g.userGroups(id) {
+		gi := g.groupIndex(gid)
+		if gi < 0 {
+			return domain.AccountAccessView{}, accessDenied()
+		}
+		group := g.Groups[gi]
+		roles := slices.Clone(group.RoleIDs)
+		if roles == nil {
+			roles = []int64{}
+		}
+		slices.Sort(roles)
+		for _, rid := range roles {
+			ri := g.roleIndex(rid)
+			if ri < 0 {
+				return domain.AccountAccessView{}, accessDenied()
+			}
+			v, name := gid, group.Name
+			a.Grants = append(a.Grants, accessRoleGrant{Role: g.Roles[ri], GroupID: &v, GroupName: &name})
+		}
+		a.Groups = append(a.Groups, domain.AccessGroupMembership{ID: gid, Name: group.Name, Revision: group.Revision, RoleIDs: roles})
+	}
+	// Typed deep copy keeps mutable slices/pointers independent of current/proposed graphs.
+	raw, e := json.Marshal(domain.AccountAccessView{Account: a.Account, Authorization: a.snapshot()})
+	if e != nil {
+		return domain.AccountAccessView{}, e
+	}
+	var view domain.AccountAccessView
+	e = json.Unmarshal(raw, &view)
+	return view, e
 }

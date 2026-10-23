@@ -17,5 +17,7 @@ type AccessManagementStore interface {
 	ListAccessGroups(context.Context, int64, domain.AccessPageQuery) (domain.GroupPage, error)
 	AccessGroup(context.Context, int64, int64) (domain.AccessGroup, error)
 	AccessGroupMembers(context.Context, int64, int64, domain.AccessPageQuery) (domain.AccountPage, error)
+	PreviewAccessChange(context.Context, int64, domain.AccessChange, domain.AccessPageQuery) (domain.AccessPreview, error)
+	ApplyAccessChange(context.Context, int64, domain.AccessApply, *string) (domain.AccessApplyResult, error)
 	OrganizationOptions(context.Context, int64) (domain.OrganizationOptions, error)
 }

@@ -34,6 +34,7 @@ type PermissionSource struct {
 }
 
 type AuthorizationSnapshot struct {
+	Assignments   AccessAssignments                 `json:"assignments"`
 	AccountID     int64                             `json:"account_id"`
 	Active        bool                              `json:"active"`
 	Epoch         int64                             `json:"epoch"`
