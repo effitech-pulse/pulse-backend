@@ -68,6 +68,9 @@ func (c *Catalog) Ping(ctx context.Context) error {
 }
 
 func (c *Catalog) Wells(ctx context.Context, active bool) ([]domain.Well, error) {
+	if err := requireDataPermission(ctx, "wells.read"); err != nil {
+		return nil, err
+	}
 	var rows []domain.Well
 	var err error
 	if c.scope != nil {
@@ -97,14 +100,7 @@ func (c *Catalog) Wells(ctx context.Context, active bool) ([]domain.Well, error)
 }
 
 func (c *Catalog) Well(ctx context.Context, id int64) (domain.Well, error) {
-	if c.scope != nil {
-		return c.scope.RequireWell(ctx, id)
-	}
-	w, err := c.store.Well(ctx, id)
-	if err == nil && !domain.CanReadWell(ctx, w) {
-		return domain.Well{}, domain.NewError(domain.Missing, "Скважина не найдена")
-	}
-	return w, err
+	return c.RequireWell(ctx, "wells.read", id)
 }
 
 func (c *Catalog) CreateWell(ctx context.Context, in domain.WellInput) (domain.Well, error) {
@@ -117,6 +113,9 @@ func (c *Catalog) CreateWell(ctx context.Context, in domain.WellInput) (domain.W
 	w, err := WellFromInput(in)
 	if err != nil {
 		return w, err
+	}
+	if err := requireWellValue(ctx, "wells.create", w); err != nil {
+		return domain.Well{}, err
 	}
 	return c.store.CreateWell(ctx, w)
 }
@@ -140,7 +139,18 @@ func (c *Catalog) PatchWell(ctx context.Context, id int64, p domain.WellPatch) (
 	if p.WellNumber.Present && !p.WellNumber.Null && len([]rune(p.WellNumber.Value)) > 50 {
 		return domain.Well{}, domain.NewError(domain.Invalid, "well_number длиннее 50 символов")
 	}
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	old, err := c.RequireWell(ctx, "wells.update", id)
+	if err != nil {
+		return domain.Well{}, err
+	}
+	proposed := old
+	if p.NGDU.Present {
+		proposed.NGDU = p.NGDU.Value
+	}
+	if p.Department.Present {
+		proposed.Department = p.Department.Value
+	}
+	if err := requireWellValue(ctx, "wells.update", proposed); err != nil {
 		return domain.Well{}, err
 	}
 	if c.scope != nil && (p.UnitekID.Present || p.ArmitsID.Present) {
@@ -150,7 +160,7 @@ func (c *Catalog) PatchWell(ctx context.Context, id int64, p domain.WellPatch) (
 }
 
 func (c *Catalog) DeleteWell(ctx context.Context, id int64) error {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "wells.delete", id); err != nil {
 		return err
 	}
 	return c.store.DeleteWell(ctx, id)
@@ -166,23 +176,35 @@ func (c *Catalog) ImportWells(ctx context.Context, input []domain.WellInput) (do
 		if err != nil {
 			return domain.ImportResult{}, err
 		}
+		if err := requireWellValue(ctx, "wells.import", w); err != nil {
+			return domain.ImportResult{}, err
+		}
 		rows = append(rows, w)
 	}
 	return c.store.ImportWells(ctx, rows)
 }
 
 func (c *Catalog) References(ctx context.Context, kind domain.ReferenceKind) ([]domain.Reference, error) {
+	if err := requireDataPermission(ctx, "references.read"); err != nil {
+		return nil, err
+	}
 	rows, err := c.store.References(ctx, kind)
 	p, ok := domain.CurrentPrincipal(ctx)
-	if err != nil || (c.scope == nil && (!ok || p.Role == "admin")) {
+	if err != nil || (c.scope == nil && !domain.RBACEnforced(ctx) && (!ok || p.Role == "admin")) {
 		return rows, err
 	}
-	wells, err := c.Wells(ctx, false)
+	wells, err := c.store.Wells(ctx, false)
+	if c.scope != nil {
+		_, wells, err = c.scope.Members(ctx)
+	}
 	if err != nil {
 		return nil, err
 	}
 	ids := map[int64]bool{}
 	for _, w := range wells {
+		if !domain.CanReadWell(ctx, w) {
+			continue
+		}
 		if kind == domain.NGDUReference {
 			ids[w.NGDU] = true
 		} else {
@@ -206,6 +228,9 @@ func referenceName(name *string) error {
 }
 
 func (c *Catalog) CreateReference(ctx context.Context, kind domain.ReferenceKind, in domain.ReferenceInput) (domain.Reference, error) {
+	if err := requireFullApplicationScope(ctx, "references.create"); err != nil {
+		return domain.Reference{}, err
+	}
 	if c.scope != nil {
 		return domain.Reference{}, domain.NewError(domain.Forbidden, "Изменение общих справочников недоступно в пользовательском фонде")
 	}
@@ -219,6 +244,9 @@ func (c *Catalog) CreateReference(ctx context.Context, kind domain.ReferenceKind
 }
 
 func (c *Catalog) UpdateReference(ctx context.Context, kind domain.ReferenceKind, id int64, name *string) (domain.Reference, error) {
+	if err := requireFullApplicationScope(ctx, "references.update"); err != nil {
+		return domain.Reference{}, err
+	}
 	if c.scope != nil {
 		return domain.Reference{}, domain.NewError(domain.Forbidden, "Изменение общих справочников недоступно в пользовательском фонде")
 	}
@@ -229,6 +257,9 @@ func (c *Catalog) UpdateReference(ctx context.Context, kind domain.ReferenceKind
 }
 
 func (c *Catalog) DeleteReference(ctx context.Context, kind domain.ReferenceKind, id int64) error {
+	if err := requireFullApplicationScope(ctx, "references.delete"); err != nil {
+		return err
+	}
 	if c.scope != nil {
 		return domain.NewError(domain.Forbidden, "Изменение общих справочников недоступно в пользовательском фонде")
 	}
@@ -236,14 +267,14 @@ func (c *Catalog) DeleteReference(ctx context.Context, kind domain.ReferenceKind
 }
 
 func (c *Catalog) Incidents(ctx context.Context, id int64) ([]domain.Incident, error) {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "incidents.read", id); err != nil {
 		return nil, err
 	}
 	return c.store.Incidents(ctx, id)
 }
 
 func (c *Catalog) CreateIncident(ctx context.Context, id int64, in domain.IncidentInput) (domain.Incident, error) {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "incidents.create", id); err != nil {
 		return domain.Incident{}, err
 	}
 	if in.FailureType == nil || len([]rune(*in.FailureType)) > 100 || in.FailureDate == nil {
@@ -263,7 +294,7 @@ func (c *Catalog) CreateIncident(ctx context.Context, id int64, in domain.Incide
 }
 
 func (c *Catalog) DeleteIncident(ctx context.Context, id int64) error {
-	if c.scope != nil {
+	if c.scope != nil || domain.RBACEnforced(ctx) {
 		resolver, ok := c.store.(interface {
 			IncidentWell(context.Context, int64) (int64, error)
 		})
@@ -274,7 +305,7 @@ func (c *Catalog) DeleteIncident(ctx context.Context, id int64) error {
 		if err != nil {
 			return err
 		}
-		if err = scopedWell(ctx, c.scope, well); err != nil {
+		if _, err = c.RequireWell(ctx, "incidents.delete", well); err != nil {
 			return err
 		}
 	}
@@ -282,6 +313,9 @@ func (c *Catalog) DeleteIncident(ctx context.Context, id int64) error {
 }
 
 func (c *Catalog) IncidentStats(ctx context.Context) (domain.IncidentStats, error) {
+	if err := requireDataPermission(ctx, "incidents.read"); err != nil {
+		return domain.IncidentStats{}, err
+	}
 	if c.scope != nil {
 		return c.FilteredIncidentStats(ctx, domain.WellFilter{Archive: "all"})
 	}
@@ -289,14 +323,14 @@ func (c *Catalog) IncidentStats(ctx context.Context) (domain.IncidentStats, erro
 }
 
 func (c *Catalog) Predictions(ctx context.Context, id int64, count int) ([]domain.Prediction, error) {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "risks.read", id); err != nil {
 		return nil, err
 	}
 	return c.store.Predictions(ctx, id, count)
 }
 
 func (c *Catalog) Complications(ctx context.Context, id int64) ([]domain.Complication, error) {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "risks.read", id); err != nil {
 		return nil, err
 	}
 	return c.store.Complications(ctx, id)
@@ -320,7 +354,7 @@ func Classify(rows []domain.Complication) *string {
 }
 
 func (c *Catalog) Classification(ctx context.Context, id int64) (domain.Classification, error) {
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	if _, err := c.RequireWell(ctx, "risks.read", id); err != nil {
 		return domain.Classification{}, err
 	}
 	rows, err := c.store.Complications(ctx, id)
@@ -328,16 +362,59 @@ func (c *Catalog) Classification(ctx context.Context, id int64) (domain.Classifi
 }
 
 func (c *Catalog) Runs(ctx context.Context, filter domain.RunFilter) ([]domain.RunEvent, error) {
+	if err := requireDataPermission(ctx, "runs.read"); err != nil {
+		return nil, err
+	}
+	if c.scope != nil {
+		scoped, ok := c.store.(ScopedRunStore)
+		if !ok {
+			return nil, domain.NewError(domain.Unavailable, "Хранилище событий фонда не подключено")
+		}
+		_, members, err := c.scope.Members(ctx)
+		if err != nil {
+			return nil, err
+		}
+		ids := make([]int64, 0, len(members))
+		for _, w := range members {
+			if domain.CanReadWell(ctx, w) {
+				ids = append(ids, w.ID)
+			}
+		}
+		return scoped.RunsForWells(ctx, filter, ids)
+	}
 	rows, err := c.store.Runs(ctx, filter)
 	return c.visibleRunEvents(ctx, rows, err)
 }
 
 func (c *Catalog) RunEvents(ctx context.Context, dag, run string) ([]domain.RunEvent, error) {
+	if err := requireDataPermission(ctx, "runs.read"); err != nil {
+		return nil, err
+	}
+	if c.scope != nil {
+		scoped, ok := c.store.(ScopedRunStore)
+		if !ok {
+			return nil, domain.NewError(domain.Unavailable, "Хранилище событий фонда не подключено")
+		}
+		_, members, err := c.scope.Members(ctx)
+		if err != nil {
+			return nil, err
+		}
+		ids := make([]int64, 0, len(members))
+		for _, w := range members {
+			if domain.CanReadWell(ctx, w) {
+				ids = append(ids, w.ID)
+			}
+		}
+		return scoped.RunEventsForWells(ctx, dag, run, ids)
+	}
 	rows, err := c.store.RunEvents(ctx, dag, run)
 	return c.visibleRunEvents(ctx, rows, err)
 }
 
 func (c *Catalog) Audit(ctx context.Context, count int) ([]domain.AuditEntry, error) {
+	if err := requireFullApplicationScope(ctx, "audit.read"); err != nil {
+		return nil, err
+	}
 	if c.scope != nil {
 		return []domain.AuditEntry{}, nil
 	}
@@ -351,6 +428,7 @@ func (c *Catalog) RecordAudit(ctx context.Context, actor, method, path string, s
 // PulseTelemetry проверяет ID Pulse и переводит их во внутренний ключ хранения.
 func (c *Catalog) PulseTelemetry(ctx context.Context, points []domain.Measurement) ([]domain.Measurement, error) {
 	checked := map[int64]bool{}
+	ids := make([]int64, 0)
 	out := make([]domain.Measurement, len(points))
 	for i, p := range points {
 		id, err := strconv.ParseInt(p.WellID, 10, 64)
@@ -358,13 +436,14 @@ func (c *Catalog) PulseTelemetry(ctx context.Context, points []domain.Measuremen
 			return nil, domain.NewError(domain.Invalid, "В файле нужен числовой ID Pulse из реестра скважин")
 		}
 		if !checked[id] {
-			if _, err = c.Well(ctx, id); err != nil {
-				return nil, err
-			}
+			ids = append(ids, id)
 			checked[id] = true
 		}
 		p.WellID = PulseTelemetryID(id)
 		out[i] = p
+	}
+	if err := c.RequireWellSet(ctx, "telemetry.import", ids); err != nil {
+		return nil, err
 	}
 	return out, nil
 }
@@ -395,10 +474,20 @@ func (c *Catalog) visibleRunEvents(ctx context.Context, rows []domain.RunEvent, 
 	if err != nil || c.scope == nil {
 		return rows, err
 	}
+	_, members, e := c.scope.Members(ctx)
+	if e != nil {
+		return nil, e
+	}
+	visible := map[int64]bool{}
+	for _, w := range members {
+		if domain.CanReadWell(ctx, w) {
+			visible[w.ID] = true
+		}
+	}
 	out := []domain.RunEvent{}
 	for _, row := range rows {
 		if row.WellID != nil {
-			if _, e := c.scope.RequireWell(ctx, *row.WellID); e == nil {
+			if visible[*row.WellID] {
 				out = append(out, row)
 			}
 		}

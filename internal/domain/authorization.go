@@ -347,3 +347,51 @@ func comparePermissionSource(a, b PermissionSource) int {
 	}
 	return compareAccessPointer(a.GroupName, b.GroupName)
 }
+
+// FullApplicationScope доказывает полную область, включая оба технических фонда.
+// Управление аккаунтами и имя роли не участвуют в этом доказательстве.
+func (a AuthorizationSnapshot) FullApplicationScope() bool {
+	if !a.valid() || !slices.Contains(a.LegacyScope.Funds, "operational") || !slices.Contains(a.LegacyScope.Funds, "presentation") {
+		return false
+	}
+	if a.Organization != nil {
+		return a.Organization.Kind == "organization"
+	}
+	return a.LegacyScope.NGDUs == nil && a.LegacyScope.Departments == nil
+}
+
+// TrustedLegacyPrincipal вызывается только после проверки server-owned legacy профиля.
+func TrustedLegacyPrincipal(name string) Principal {
+	a := AuthorizationSnapshot{Active: true, Permissions: BuiltinAccessPermissions("admin"), Organization: &OrganizationScope{Kind: "organization"}, LegacyScope: AccessScope{Funds: []string{"operational", "presentation"}}}
+	return Principal{trustedCompatibility: true, Name: name, Role: "admin", Scope: a.LegacyScope, Authorization: &a, Authenticated: true, Mechanism: "legacy"}
+}
+
+// TrustedCompatibilityPrincipal адаптирует проверенный server-side legacy account.
+// Вызывающий обязан проверить credential/account; клиентский role сюда не передаётся.
+func TrustedCompatibilityPrincipal(p Principal) Principal {
+	a := AuthorizationSnapshot{Active: true}
+	if p.Authorization != nil {
+		a = *p.Authorization
+	}
+	a.Permissions = BuiltinAccessPermissions(p.Role)
+	a.LegacyScope = p.Scope
+	a.Organization = nil
+	if p.AccountID != nil {
+		a.AccountID = *p.AccountID
+	}
+	if p.Role == "admin" {
+		a.LegacyScope = AccessScope{Funds: []string{"operational", "presentation"}}
+		a.Organization = &OrganizationScope{Kind: "organization"}
+	}
+	p.Authenticated = true
+	p.trustedCompatibility = true
+	p.Authorization = &a
+	return p
+}
+
+// WithSystemPrincipal назначает фиксированный server-owned actor внутреннему scheduler.
+func WithSystemPrincipal(ctx context.Context) context.Context {
+	p := TrustedLegacyPrincipal("Планировщик")
+	p.Mechanism = "system"
+	return WithPrincipal(ctx, p)
+}

@@ -43,6 +43,15 @@ func (r *Repository) SetWellArchive(ctx context.Context, id int64, revision *int
 		return domain.Well{}, err
 	}
 	defer tx.Rollback(ctx)
+	if domain.RBACEnforced(ctx) {
+		permission := domain.Permission("wells.restore")
+		if archived {
+			permission = "wells.archive"
+		}
+		if _, err = requireScopedWellTx(ctx, tx, permission, id); err != nil {
+			return domain.Well{}, err
+		}
+	}
 	before, err := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": id}).Suffix("FOR UPDATE"))
 	if err != nil {
 		return before, err

@@ -33,8 +33,21 @@ func (r *Repository) SaveManualCheck(ctx context.Context, v domain.ManualCheck) 
 	if err != nil {
 		return domain.ManualCheck{}, err
 	}
-	_, err = execute(ctx, r.pool, sqlBuilder.Insert("manual_check").Columns("id", "well_id", "request_id", "start_at", "end_at", "created_at", "input_sha256", "points_count", "resolution", "result").Values(v.ID, v.WellID, v.RequestID, v.Start, v.End, v.CreatedAt, v.InputSHA256, v.PointsCount, v.Resolution, raw).Suffix("ON CONFLICT (well_id, request_id) DO NOTHING"))
+	tx, err := r.pool.Begin(ctx)
 	if err != nil {
+		return domain.ManualCheck{}, err
+	}
+	defer tx.Rollback(ctx)
+	if domain.RBACEnforced(ctx) {
+		if _, err = requireScopedWellTx(ctx, tx, "checks.run", v.WellID); err != nil {
+			return domain.ManualCheck{}, err
+		}
+	}
+	_, err = execute(ctx, tx, sqlBuilder.Insert("manual_check").Columns("id", "well_id", "request_id", "start_at", "end_at", "created_at", "input_sha256", "points_count", "resolution", "result").Values(v.ID, v.WellID, v.RequestID, v.Start, v.End, v.CreatedAt, v.InputSHA256, v.PointsCount, v.Resolution, raw).Suffix("ON CONFLICT (well_id, request_id) DO NOTHING"))
+	if err != nil {
+		return domain.ManualCheck{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return domain.ManualCheck{}, err
 	}
 	return r.ManualCheckRequest(ctx, v.WellID, v.RequestID)

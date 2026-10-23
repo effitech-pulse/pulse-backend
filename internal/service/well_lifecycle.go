@@ -9,10 +9,14 @@ import (
 )
 
 func (c *Catalog) SetWellArchive(ctx context.Context, id int64, in domain.WellLifecycleInput, archive bool) (domain.Well, error) {
-	if p, ok := domain.CurrentPrincipal(ctx); ok && p.Role != "admin" {
+	if p, ok := domain.CurrentPrincipal(ctx); !domain.RBACEnforced(ctx) && ok && p.Role != "admin" {
 		return domain.Well{}, domain.NewError(domain.Forbidden, "Архивом управляет администратор")
 	}
-	if err := scopedWell(ctx, c.scope, id); err != nil {
+	permission := domain.Permission("wells.restore")
+	if archive {
+		permission = "wells.archive"
+	}
+	if _, err := c.RequireWell(ctx, permission, id); err != nil {
 		return domain.Well{}, err
 	}
 	in.Reason = strings.TrimSpace(in.Reason)

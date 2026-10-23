@@ -293,6 +293,6 @@ func (s *Server) analyticsEmbed(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	out, err := s.Analytics.Embed(n)
+	out, err := s.Analytics.EmbedContext(c.Request.Context(), n)
 	return respond(c, 200, out, err)
 }

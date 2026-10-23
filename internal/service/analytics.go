@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -35,7 +36,10 @@ func (a Analytics) Status() AnalyticsStatus {
 	return AnalyticsStatus{Enabled: a.URL != "" && a.Secret != "", Dashboards: a.Dashboards}
 }
 
-func (a Analytics) Embed(id int64) (EmbedURL, error) {
+func (a Analytics) EmbedContext(ctx context.Context, id int64) (EmbedURL, error) {
+	if err := requireFullApplicationScope(ctx, "analytics.read"); err != nil {
+		return EmbedURL{}, err
+	}
 	if !a.Status().Enabled {
 		return EmbedURL{}, &domain.Error{Kind: "analytics_disabled", Message: "Аналитика (Metabase) не настроена"}
 	}

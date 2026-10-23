@@ -317,7 +317,7 @@ func TestRunLockAndFeedbackCarry(t *testing.T) {
 	fake := &fakeML{gate: make(chan struct{}), started: make(chan struct{})}
 	a := New(testConfig(), pool, fake)
 	other := New(testConfig(), pool, fake)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal run fixture
 	started, err := a.StartRun(ctx, "manual")
 	if err != nil || !started {
 		t.Fatal(started, err)

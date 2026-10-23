@@ -312,7 +312,7 @@ func TestCohortFilteredViewKeepsCoverageAndLiveReviewLink(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	overlay, err := app.ml.CohortWells(ctx, &id)
+	overlay, err := app.ml.CohortWells(domain.WithSystemPrincipal(ctx), &id)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -52,6 +52,12 @@ type TelemetryArchive interface {
 func (s *Integrations) WithScope(scope FundScope) *Integrations      { s.scope = scope; return s }
 func (s *Integrations) WithArchive(a TelemetryArchive) *Integrations { s.archive = a; return s }
 func (s *Integrations) Bounds(ctx context.Context, well string) (domain.TelemetryBounds, error) {
+	if err := requireDataPermission(ctx, "telemetry.compat.read"); err != nil {
+		return domain.TelemetryBounds{}, err
+	}
+	return s.bounds(ctx, well)
+}
+func (s *Integrations) bounds(ctx context.Context, well string) (domain.TelemetryBounds, error) {
 	if err := s.requireTelemetry(ctx, well); err != nil {
 		return domain.TelemetryBounds{}, err
 	}
@@ -95,6 +101,9 @@ func NewIntegrations(store TelemetryStore, connector TelemetryConnector, secrets
 
 // Score передаёт выбранную историю существующему ML-контракту проверки файлов.
 func (s *Integrations) Score(ctx context.Context, well string, start, end time.Time) (domain.UploadResult, error) {
+	if err := requireDataPermission(ctx, "telemetry.compat.score"); err != nil {
+		return domain.UploadResult{}, err
+	}
 	if s.scorer == nil {
 		return domain.UploadResult{}, domain.NewError(domain.Unavailable, "ML-сервис не подключён")
 	}
@@ -161,15 +170,37 @@ func writeTelemetryCSV(output io.Writer, data domain.TelemetryResult) error {
 	return nil
 }
 func (s *Integrations) List(ctx context.Context) ([]domain.TelemetrySource, error) {
+	if err := requireDataPermission(ctx, "integrations.read"); err != nil {
+		return nil, err
+	}
+	if domain.RBACEnforced(ctx) {
+		if err := requireFullApplicationScope(ctx, "integrations.read"); err != nil {
+			return []domain.TelemetrySource{}, nil
+		}
+	}
 	return s.store.Sources(ctx)
 }
 func (s *Integrations) Logs(ctx context.Context) ([]domain.CollectionLog, error) {
+	if err := requireDataPermission(ctx, "integrations.logs.read"); err != nil {
+		return nil, err
+	}
+	if domain.RBACEnforced(ctx) {
+		if err := requireFullApplicationScope(ctx, "integrations.logs.read"); err != nil {
+			return []domain.CollectionLog{}, nil
+		}
+	}
 	if s.scope != nil {
 		return []domain.CollectionLog{}, nil
 	}
 	return s.store.CollectionLogs(ctx)
 }
 func (s *Integrations) Read(ctx context.Context, well string, start, end time.Time) (domain.TelemetryResult, error) {
+	if err := requireDataPermission(ctx, "telemetry.compat.read"); err != nil {
+		return domain.TelemetryResult{}, err
+	}
+	return s.read(ctx, well, start, end)
+}
+func (s *Integrations) read(ctx context.Context, well string, start, end time.Time) (domain.TelemetryResult, error) {
 	if err := s.requireTelemetry(ctx, well); err != nil {
 		return domain.TelemetryResult{}, err
 	}
@@ -253,6 +284,13 @@ func validateSource(in domain.TelemetrySource) error {
 	return nil
 }
 func (s *Integrations) Save(ctx context.Context, id string, in domain.SourceInput) (domain.TelemetrySource, error) {
+	permission := domain.Permission("integrations.update")
+	if id == "" {
+		permission = "integrations.create"
+	}
+	if err := requireFullApplicationScope(ctx, permission); err != nil {
+		return domain.TelemetrySource{}, err
+	}
 	if err := validateSource(in.TelemetrySource); err != nil {
 		return domain.TelemetrySource{}, err
 	}
@@ -288,6 +326,10 @@ func (s *Integrations) Save(ctx context.Context, id string, in domain.SourceInpu
 	return s.store.SaveSource(ctx, out)
 }
 func (s *Integrations) Status(ctx context.Context, id, status string) (domain.TelemetrySource, error) {
+	permission := domain.Permission("integrations.status")
+	if err := requireFullApplicationScope(ctx, permission); err != nil {
+		return domain.TelemetrySource{}, err
+	}
 	out, err := s.store.Source(ctx, id)
 	if err != nil {
 		return out, err
@@ -305,6 +347,10 @@ func (s *Integrations) Status(ctx context.Context, id, status string) (domain.Te
 	return s.store.SaveSource(ctx, out)
 }
 func (s *Integrations) Check(ctx context.Context, in domain.SourceInput) ([]map[string]any, error) {
+	permission := domain.Permission("integrations.check")
+	if err := requireFullApplicationScope(ctx, permission); err != nil {
+		return nil, err
+	}
 	if err := validateSource(in.TelemetrySource); err != nil {
 		return nil, err
 	}
@@ -470,6 +516,9 @@ func MapTelemetryAt(records []map[string]any, source domain.TelemetrySource, val
 	return points, rejected
 }
 func (s *Integrations) Ingest(ctx context.Context, id string, records []map[string]any) (domain.CollectionLog, error) {
+	if err := requireDataPermission(ctx, "integrations.ingest"); err != nil {
+		return domain.CollectionLog{}, err
+	}
 	source, err := s.store.Source(ctx, id)
 	if err != nil {
 		return domain.CollectionLog{}, err
@@ -488,13 +537,18 @@ func (s *Integrations) Ingest(ctx context.Context, id string, records []map[stri
 	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Points: points, Rejected: rejected, Message: "Пакет JSON обработан"})
 }
 func (s *Integrations) Import(ctx context.Context, points []domain.Measurement) (domain.CollectionLog, error) {
+	if err := requireDataPermission(ctx, "telemetry.import"); err != nil {
+		return domain.CollectionLog{}, err
+	}
 	if len(points) == 0 || len(points) > 100000 {
 		return domain.CollectionLog{}, domain.NewError(domain.Invalid, "Нужен пакет от 1 до 100000 записей")
 	}
+	ids := make([]string, 0, len(points))
 	for _, p := range points {
-		if err := s.requireTelemetry(ctx, p.WellID); err != nil {
-			return domain.CollectionLog{}, err
-		}
+		ids = append(ids, p.WellID)
+	}
+	if err := s.requireTelemetrySet(ctx, ids); err != nil {
+		return domain.CollectionLog{}, err
 	}
 	for _, p := range points {
 		if p.WellID == "" || len(p.WellID) > 200 || p.Timestamp.IsZero() || p.Timestamp.After(time.Now().Add(time.Hour)) || len(p.Values) == 0 || len(p.Values) > 100 {
@@ -513,6 +567,10 @@ func (s *Integrations) Import(ctx context.Context, points []domain.Measurement) 
 	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: "manual", Points: points, Message: "Файл импортирован; совпадения сохранены без перезаписи"})
 }
 func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out domain.CollectionLog, err error) {
+	permission := domain.Permission("integrations.collect")
+	if err := requireFullApplicationScope(ctx, permission); err != nil {
+		return domain.CollectionLog{}, err
+	}
 	ctx, finish := observability.Operation(ctx, "telemetry.collect")
 	defer func() { finish(err) }()
 	claimed, err := s.store.ClaimSource(ctx, id, due)
@@ -562,6 +620,7 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Lease: claimed, Points: points, Rejected: rejected, Message: "Цикл сбора завершён", Release: true})
 }
 func (s *Integrations) Schedule(ctx context.Context) {
+	ctx = domain.WithSystemPrincipal(ctx)
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
@@ -589,6 +648,11 @@ func (s *Integrations) Schedule(ctx context.Context) {
 func PulseTelemetryID(id int64) string { return "pulse:" + strconv.FormatInt(id, 10) }
 
 func (s *Integrations) ReadApp(ctx context.Context, well domain.Well, start, end time.Time) (domain.TelemetryResult, error) {
+	current, authorizationErr := s.currentTelemetryWell(ctx, well)
+	if authorizationErr != nil {
+		return domain.TelemetryResult{}, authorizationErr
+	}
+	well = current
 	if err := scopedWell(ctx, s.scope, well.ID); err != nil {
 		return domain.TelemetryResult{}, err
 	}
@@ -630,6 +694,11 @@ func (s *Integrations) ReadApp(ctx context.Context, well domain.Well, start, end
 	return domain.TelemetryResult{Points: points, Truncated: truncated, Resolution: resolution}, nil
 }
 func (s *Integrations) BoundsApp(ctx context.Context, well domain.Well) (domain.TelemetryBounds, error) {
+	current, authorizationErr := s.currentTelemetryWell(ctx, well)
+	if authorizationErr != nil {
+		return domain.TelemetryBounds{}, authorizationErr
+	}
+	well = current
 	if err := scopedWell(ctx, s.scope, well.ID); err != nil {
 		return domain.TelemetryBounds{}, err
 	}
@@ -640,7 +709,7 @@ func (s *Integrations) BoundsApp(ctx context.Context, well domain.Well) (domain.
 	if well.UnitekID == nil {
 		return local, nil
 	}
-	legacy, err := s.Bounds(ctx, strconv.FormatInt(*well.UnitekID, 10))
+	legacy, err := s.bounds(ctx, strconv.FormatInt(*well.UnitekID, 10))
 	if err != nil {
 		return local, err
 	}
@@ -653,6 +722,12 @@ func (s *Integrations) BoundsApp(ctx context.Context, well domain.Well) (domain.
 	return local, nil
 }
 func (s *Integrations) ScoreApp(ctx context.Context, well domain.Well, start, end time.Time) (domain.UploadResult, error) {
+	if err := requireDataPermission(ctx, "checks.run"); err != nil {
+		return domain.UploadResult{}, err
+	}
+	if err := requireWellValue(ctx, "telemetry.read", well); err != nil {
+		return domain.UploadResult{}, err
+	}
 	data, err := s.ReadApp(ctx, well, start, end)
 	if err != nil {
 		return domain.UploadResult{}, err
@@ -666,10 +741,12 @@ func (s *Integrations) resolveSourcePoints(ctx context.Context, source domain.Te
 		return points, nil
 	}
 	if source.WellIdentity == "" {
+		ids := make([]string, 0, len(points))
 		for _, p := range points {
-			if err := s.requireTelemetry(ctx, p.WellID); err != nil {
-				return nil, err
-			}
+			ids = append(ids, p.WellID)
+		}
+		if err := s.requireTelemetrySet(ctx, ids); err != nil {
+			return nil, err
 		}
 		return points, nil
 	}
@@ -711,7 +788,7 @@ func (s *Integrations) resolveSourcePoints(ctx context.Context, source domain.Te
 	for i, p := range points {
 		id, ok := ids[p.WellID]
 		if !ok {
-			return nil, domain.NewError(domain.Invalid, "Не все скважины сопоставлены с Pulse. Проверьте тип ID и связи с источником")
+			return nil, domain.NewError(domain.Missing, "Скважина не найдена")
 		}
 		p.WellID = PulseTelemetryID(id)
 		out[i] = p
@@ -734,6 +811,36 @@ func (s *Integrations) storedBounds(ctx context.Context, well string) (domain.Te
 }
 
 func (s *Integrations) requireTelemetry(ctx context.Context, raw string) error {
+	if domain.RBACEnforced(ctx) {
+		if err := requireDataPermission(ctx, "telemetry.read"); err != nil {
+			return err
+		}
+		catalog, ok := s.store.(interface {
+			Wells(context.Context, bool) ([]domain.Well, error)
+		})
+		if !ok {
+			return domain.NewError(domain.Unavailable, "Справочник скважин не подключён")
+		}
+		wells, err := catalog.Wells(ctx, false)
+		if err != nil {
+			return err
+		}
+		pulse := strings.HasPrefix(raw, "pulse:")
+		id, err := strconv.ParseInt(strings.TrimPrefix(raw, "pulse:"), 10, 64)
+		if err != nil {
+			return domain.NewError(domain.Missing, "Скважина не найдена")
+		}
+		for _, w := range wells {
+			if (pulse && w.ID == id || !pulse && w.UnitekID != nil && *w.UnitekID == id) && domain.CanReadWell(ctx, w) {
+				if s.scope != nil {
+					_, err := s.scope.RequireWell(ctx, w.ID)
+					return err
+				}
+				return nil
+			}
+		}
+		return domain.NewError(domain.Missing, "Скважина не найдена")
+	}
 	if s.scope == nil {
 		return nil
 	}
@@ -757,7 +864,7 @@ func (s *Integrations) requireTelemetry(ctx context.Context, raw string) error {
 
 // requireSourceRecords проверяет все ID до отбрасывания некорректных измерений.
 func (s *Integrations) requireSourceRecords(ctx context.Context, source domain.TelemetrySource, records []map[string]any) error {
-	if s.scope == nil {
+	if s.scope == nil && !domain.RBACEnforced(ctx) {
 		return nil
 	}
 	points := make([]domain.Measurement, 0, len(records))

@@ -72,7 +72,7 @@ func (s *Server) authorizeMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		p := domain.Principal{Role: "admin", Name: "Локальный сеанс", Mechanism: "legacy", Scope: domain.AccessScope{Funds: []string{"operational", "presentation"}}}
+		p := domain.TrustedLegacyPrincipal("Локальный сеанс")
 		if s.Config.APIKey != "" {
 			p.Name = "Общий API-ключ"
 		}

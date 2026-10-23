@@ -70,11 +70,11 @@ func (forbiddenArchive) Bounds(context.Context, string) (domain.TelemetryBounds,
 func TestUnlinkedPulseWellDoesNotRequireExternalArchive(t *testing.T) {
 	service := NewIntegrations(pulseOnlyStore{}, nil, nil).WithArchive(forbiddenArchive{})
 	start := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	data, err := service.ReadApp(context.Background(), domain.Well{ID: 2}, start, start.Add(time.Hour))
+	data, err := service.ReadApp(internalFixtureContext(), domain.Well{ID: 2}, start, start.Add(time.Hour))
 	if err != nil || len(data.Points) != 1 || data.Points[0].WellID != "2" || *data.Points[0].Values["F_out"] != 0 {
 		t.Fatal(data, err)
 	}
-	bounds, err := service.BoundsApp(context.Background(), domain.Well{ID: 2})
+	bounds, err := service.BoundsApp(internalFixtureContext(), domain.Well{ID: 2})
 	if err != nil || bounds.Start == nil {
 		t.Fatal(bounds, err)
 	}

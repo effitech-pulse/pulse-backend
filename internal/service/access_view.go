@@ -33,6 +33,10 @@ func (a *Access) SessionView(ctx context.Context, token string) (domain.AccountA
 }
 func (a *Access) ViewPrincipal(v domain.AccountAccessView) domain.Principal {
 	p := domain.AccountPrincipal(v.Account)
+	if !a.RBACEnforced() {
+		p.Authorization = &v.Authorization
+		return domain.TrustedCompatibilityPrincipal(p)
+	}
 	if a.RBACEnforced() {
 		p.Role = "viewer"
 		if key := domain.LegacyAccessRole(v.Authorization); key != nil {

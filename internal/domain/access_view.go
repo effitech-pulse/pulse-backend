@@ -42,6 +42,9 @@ func WithRBACMode(ctx context.Context, mode RBACMode) context.Context {
 	return context.WithValue(ctx, rbacModeKey{}, mode)
 }
 func RBACEnforced(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
 	mode, _ := ctx.Value(rbacModeKey{}).(RBACMode)
 	return mode == RBACEnforce
 }

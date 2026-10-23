@@ -44,7 +44,7 @@ func reviewCohort(t *testing.T) (*application, service.FundScope, []domain.Well)
 
 func TestReviewFixForeignReferenceMutation(t *testing.T) {
 	app, _, _ := reviewCohort(t)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal service fixture
 	const foreign = int64(717171)
 	if _, err := app.store.CreateReference(ctx, domain.NGDUReference, foreign, "outside-private"); err != nil {
 		t.Fatal(err)
@@ -64,7 +64,7 @@ func TestReviewFixForeignReferenceMutation(t *testing.T) {
 
 func TestReviewFixLatestReviewResetMustSurviveNextRun(t *testing.T) {
 	app, _, members := reviewCohort(t)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal service fixture
 	makeRun := func() (int64, int64) {
 		lease, ok, err := app.store.Reserve(ctx)
 		if err != nil || !ok {
@@ -150,7 +150,7 @@ func TestReviewFixFailedCohortRunVisibleInHistory(t *testing.T) {
 		t.Fatal(err)
 	}
 	lease.Close()
-	runs, err := app.ml.Runs(ctx, 20)
+	runs, err := app.ml.Runs(domain.WithSystemPrincipal(ctx), 20)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,13 +199,13 @@ func TestReviewFixAllReferenceWritesDeniedBeforeValidation(t *testing.T) {
 		research := service.NewCatalog(app.store)
 		name := "research"
 		id := int64(919191)
-		if _, err = research.CreateReference(ctx, kind, domain.ReferenceInput{ID: &id, Name: &name}); err != nil {
+		if _, err = research.CreateReference(domain.WithSystemPrincipal(ctx), kind, domain.ReferenceInput{ID: &id, Name: &name}); err != nil {
 			t.Fatal(err)
 		}
-		if _, err = research.UpdateReference(ctx, kind, id, &name); err != nil {
+		if _, err = research.UpdateReference(domain.WithSystemPrincipal(ctx), kind, id, &name); err != nil {
 			t.Fatal(err)
 		}
-		if err = research.DeleteReference(ctx, kind, id); err != nil {
+		if err = research.DeleteReference(domain.WithSystemPrincipal(ctx), kind, id); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -242,7 +242,7 @@ func TestReviewFixRunHistoryIdentifiesPendingFailureAndSuppressesPrivateMetadata
 	failed := makeAttempt("senior-v1", true)
 	assertFailure := func(ml *service.ML) {
 		t.Helper()
-		out, err := ml.Runs(ctx, 20)
+		out, err := ml.Runs(domain.WithSystemPrincipal(ctx), 20)
 		if err != nil || len(out.Runs) != 1 || out.Runs[0].ID != failed || out.Runs[0].Status != "error" {
 			t.Fatal(out, err)
 		}
@@ -281,18 +281,18 @@ func TestReviewFixRunHistoryIdentifiesPendingFailureAndSuppressesPrivateMetadata
 	makeAttempt("other-v2", true)
 	assertFailure(app.ml)
 	running := makeAttempt("senior-v1", false)
-	out, err := app.ml.Runs(ctx, 20)
+	out, err := app.ml.Runs(domain.WithSystemPrincipal(ctx), 20)
 	if err != nil || !out.Running || len(out.Runs) != 2 || out.Runs[0].ID != running || out.Runs[0].Status != "running" || out.Runs[0].Error != nil || out.Runs[0].FailureReasonCode != nil {
 		t.Fatal(out, err)
 	}
-	empty := domain.WithPrincipal(ctx, domain.Principal{Role: "viewer", Scope: domain.AccessScope{Funds: []string{}}})
+	empty := domain.WithPrincipal(ctx, domain.TrustedCompatibilityPrincipal(domain.Principal{Role: "viewer", Scope: domain.AccessScope{Funds: []string{}}}))
 	none, err := app.ml.Runs(empty, 20)
 	if err != nil || none.Running || len(none.Runs) != 0 {
 		t.Fatal("empty scope leaked orchestration", none, err)
 	}
 	// Абандон прежнего running сохраняет исходную identity и делает его видимым error.
 	next := makeAttempt("senior-v1", true)
-	out, err = app.ml.Runs(ctx, 20)
+	out, err = app.ml.Runs(domain.WithSystemPrincipal(ctx), 20)
 	if err != nil || out.Running || len(out.Runs) != 3 || out.Runs[0].ID != next || out.Runs[1].ID != running || out.Runs[1].Status != "error" {
 		t.Fatal(out, err)
 	}
@@ -314,13 +314,13 @@ func TestReviewFixCaptureFailureStillHasAttemptIdentity(t *testing.T) {
 	ctx := context.Background()
 	failing := &reviewCaptureFailure{FundScope: scope, fail: true}
 	ml := service.NewML(app.store, app.store, &fakeML{}, service.RunOptions{Profile: "cohort", CohortVersion: "senior-v1", Timeout: time.Second}).WithCohort(failing, nil, app.store)
-	started, err := ml.StartRun(ctx, "manual")
+	started, err := ml.StartRun(domain.WithSystemPrincipal(ctx), "manual")
 	if err != nil || !started {
 		t.Fatal(started, err)
 	}
 	ml.Wait()
 	failing.fail = false
-	out, err := ml.Runs(ctx, 20)
+	out, err := ml.Runs(domain.WithSystemPrincipal(ctx), 20)
 	if err != nil || len(out.Runs) != 1 || out.Runs[0].Status != "error" || out.Runs[0].Profile == nil || *out.Runs[0].Profile != "cohort" || out.Runs[0].CohortVersion == nil || *out.Runs[0].CohortVersion != "senior-v1" {
 		t.Fatal(out, err)
 	}

@@ -105,7 +105,7 @@ func (f *cohortOnlyML) Upload(_ context.Context, _ string, r io.Reader) (domain.
 	return domain.UploadResult{Verdict: "norm", ModelVersion: ptr("same-bundle"), Timeline: []domain.TimelinePoint{}, Contributions: []domain.Contribution{}}, err
 }
 func TestCohortScheduledRunUsesUploadAndNeverManualChecks(t *testing.T) {
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background()) // intentional scheduler fixture
 	pool := testDB(t)
 	r := postgres.New(pool)
 	points := []domain.Measurement{}

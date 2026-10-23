@@ -36,12 +36,12 @@ func TestCohortGuardAdminCannotEscapeMembership(t *testing.T) {
 		f.wells = append(f.wells, domain.Well{ID: i, UnitekID: &u, FundType: "presentation", Active: true})
 	}
 	f.members = f.wells[:100]
-	scope, err := NewFundScope(context.Background(), f, "v1")
+	scope, err := NewFundScope(internalFixtureContext(), f, "v1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	c := NewCatalog(f).WithScope(scope)
-	ctx := domain.WithPrincipal(context.Background(), domain.Principal{Role: "admin"})
+	ctx := domain.WithPrincipal(internalFixtureContext(), domain.TrustedCompatibilityPrincipal(domain.Principal{Role: "admin"}))
 	rows, err := c.Wells(ctx, false)
 	if err != nil || len(rows) != 100 {
 		t.Fatalf("rows=%d err=%v", len(rows), err)
@@ -59,12 +59,12 @@ func TestCohortRejectsIncompleteAndDuplicateMembership(t *testing.T) {
 		for i := range f.wells {
 			f.wells[i].ID = int64(i + 1)
 		}
-		if _, err := NewFundScope(context.Background(), f, "v1"); err == nil {
+		if _, err := NewFundScope(internalFixtureContext(), f, "v1"); err == nil {
 			t.Fatalf("accepted %d members", n)
 		}
 	}
 	f := &cohortFixture{cohort: domain.Cohort{Version: "v1"}, wells: make([]domain.Well, 100)}
-	if _, err := NewFundScope(context.Background(), f, "v1"); err == nil {
+	if _, err := NewFundScope(internalFixtureContext(), f, "v1"); err == nil {
 		t.Fatal("duplicate membership accepted")
 	}
 }

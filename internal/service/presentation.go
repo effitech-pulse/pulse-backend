@@ -22,13 +22,28 @@ func (s *Presentation) WithScope(scope FundScope) *Presentation { s.scope = scop
 
 func NewPresentation(store PresentationStore) *Presentation { return &Presentation{store: store} }
 func (s *Presentation) Summary(ctx context.Context) (domain.PresentationSummary, error) {
+	for _, permission := range []domain.Permission{"wells.read", "risks.read", "incidents.read"} {
+		if err := requireDataPermission(ctx, permission); err != nil {
+			return domain.PresentationSummary{}, err
+		}
+	}
 	rows, err := s.store.PresentationWells(ctx)
 	if err != nil {
 		return domain.PresentationSummary{}, err
 	}
+	members := map[int64]bool{}
+	if s.scope != nil {
+		_, wells, err := s.scope.Members(ctx)
+		if err != nil {
+			return domain.PresentationSummary{}, err
+		}
+		for _, w := range wells {
+			members[w.ID] = true
+		}
+	}
 	visible := make([]domain.PresentationWell, 0, len(rows))
 	for _, row := range rows {
-		if domain.CanReadWell(ctx, row.Well) && scopedWell(ctx, s.scope, row.Well.ID) == nil {
+		if domain.CanReadWell(ctx, row.Well) && (s.scope == nil || members[row.Well.ID]) {
 			visible = append(visible, row)
 		}
 	}
@@ -56,6 +71,9 @@ func (s *Presentation) WithSource(source PresentationSource) *Presentation {
 	return s
 }
 func (s *Presentation) Scenario(ctx context.Context) (domain.PresentationScenario, error) {
+	if err := requireFullApplicationScope(ctx, "presentation.scenario.read"); err != nil {
+		return domain.PresentationScenario{}, err
+	}
 	if s.source == nil {
 		return domain.PresentationScenario{}, domain.NewError(domain.Unavailable, "Pulse Data не настроен")
 	}

@@ -61,3 +61,9 @@ type MLClient interface {
 	ModelHealth(context.Context, domain.ModelState) (domain.ModelHealth, error)
 	Upload(context.Context, string, io.Reader) (domain.UploadResult, error)
 }
+
+// ScopedRunStore применяет текущий состав фонда до pagination событий.
+type ScopedRunStore interface {
+	RunsForWells(context.Context, domain.RunFilter, []int64) ([]domain.RunEvent, error)
+	RunEventsForWells(context.Context, string, string, []int64) ([]domain.RunEvent, error)
+}

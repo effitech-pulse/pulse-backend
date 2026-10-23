@@ -43,10 +43,10 @@ func TestStartRunCapturesCorrelationBeforeDetachedWorker(t *testing.T) {
 	old := otel.GetTracerProvider()
 	otel.SetTracerProvider(p)
 	defer otel.SetTracerProvider(old)
-	defer p.Shutdown(context.Background())
+	defer p.Shutdown(internalFixtureContext())
 	lease := &operationLease{ready: make(chan context.Context, 1), release: make(chan struct{})}
 	ml := NewML(operationStore{lease: lease}, nil, nil, RunOptions{Timeout: time.Second})
-	ctx, parent := observability.Start(observability.WithRequestID(context.Background(), "request_fixture_1234"), "HTTP parent", trace.SpanKindServer)
+	ctx, parent := observability.Start(observability.WithRequestID(internalFixtureContext(), "request_fixture_1234"), "HTTP parent", trace.SpanKindServer)
 	ctx, cancel := context.WithCancel(ctx)
 	started, err := ml.StartRun(ctx, "manual")
 	if err != nil || !started {

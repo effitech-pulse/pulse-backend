@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"testing"
 	"time"
@@ -50,13 +52,13 @@ func TestCohortScoringPreservesAllNullableOutcomes(t *testing.T) {
 	}
 	f.wells[0].ArchivedAt = ptr(time.Now())
 	f.wells[1].Active = false
-	scope, err := NewFundScope(context.Background(), f, "v1")
+	scope, err := NewFundScope(internalFixtureContext(), f, "v1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	source := &cohortTelemetryFixture{}
 	ml := &cohortMLFixture{}
-	s, err := ScoreCohort(context.Background(), scope, source, ml, 19, time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC))
+	s, err := ScoreCohort(internalFixtureContext(), scope, source, ml, 19, time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,11 +88,11 @@ func TestCohortTimeoutStillReturnsAllTerminalOutcomes(t *testing.T) {
 	for i := int64(1); i <= 100; i++ {
 		f.wells = append(f.wells, domain.Well{ID: i, Active: true})
 	}
-	scope, err := NewFundScope(context.Background(), f, "v1")
+	scope, err := NewFundScope(internalFixtureContext(), f, "v1")
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(internalFixtureContext())
 	cancel()
 	source := &cohortTelemetryFixture{}
 	out, err := ScoreCohort(ctx, scope, source, &cohortMLFixture{}, 1, time.Now())
@@ -119,7 +121,7 @@ func TestCohortInsufficientAndUnsupportedRemainNullable(t *testing.T) {
 		{name: "digest", result: &domain.UploadResult{Verdict: "norm", Provenance: &domain.Provenance{InputSHA256: ptr("sha256:wrong")}}, status: "error", reason: "input_digest_mismatch"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			o, identity := scoreCohortMember(context.Background(), domain.CohortOutcome{AppWellID: 1, Status: "error"}, domain.Well{ID: 1}, &cohortTelemetryFixture{}, &cohortMLFixture{result: tc.result, failure: tc.failure}, time.Now().Add(-24*time.Hour), time.Now())
+			o, identity := scoreCohortMember(internalFixtureContext(), domain.CohortOutcome{AppWellID: 1, Status: "error"}, domain.Well{ID: 1}, &cohortTelemetryFixture{}, &cohortMLFixture{result: tc.result, failure: tc.failure}, time.Now().Add(-24*time.Hour), time.Now())
 			if o.Status != tc.status || o.ReasonCode != tc.reason || o.Result != nil {
 				t.Fatal(o)
 			}
@@ -149,11 +151,15 @@ func TestCohortRestrictedProjectionClearsExecution(t *testing.T) {
 		fixture.wells = append(fixture.wells, w)
 		snapshot.Outcomes = append(snapshot.Outcomes, domain.CohortOutcome{AppWellID: i, Metadata: w, Status: "inactive"})
 	}
-	scope, err := NewFundScope(context.Background(), fixture, "v1")
+	scope, err := NewFundScope(internalFixtureContext(), fixture, "v1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	store := &cohortProjectionStore{snapshot: snapshot}
+	beforeBytes, err := json.Marshal(store.snapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
 	m := &ML{scope: scope, snapshots: store}
 	for _, tc := range []struct {
 		name  string
@@ -166,12 +172,18 @@ func TestCohortRestrictedProjectionClearsExecution(t *testing.T) {
 	} {
 		for _, run := range []*int64{nil, ptr(int64(7))} {
 			t.Run(tc.name, func(t *testing.T) {
-				out, err := m.CohortWells(domain.WithPrincipal(context.Background(), tc.p), run)
+				a := domain.AuthorizationSnapshot{Active: true, Permissions: domain.BuiltinAccessPermissions("viewer"), LegacyScope: tc.p.Scope}
+				ctx := domain.WithRBACMode(domain.WithPrincipal(context.Background(), domain.Principal{Authenticated: true, Authorization: &a}), domain.RBACEnforce)
+				out, err := m.CohortWells(ctx, run)
 				if err != nil {
 					t.Fatal(err)
 				}
 				if len(out.Outcomes) != tc.count || (tc.count == 100) != (out.Execution != nil) {
 					t.Fatalf("scope execution leak: count=%d execution=%+v", len(out.Outcomes), out.Execution)
+				}
+				afterBytes, e := json.Marshal(store.snapshot)
+				if e != nil || !bytes.Equal(beforeBytes, afterBytes) {
+					t.Fatal("read mutated immutable snapshot bytes", e)
 				}
 				if store.snapshot.Execution == nil {
 					t.Fatal("read mutated stored identity")

@@ -120,6 +120,18 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 		return domain.Review{}, err
 	}
 	defer tx.Rollback(ctx)
+	if domain.RBACEnforced(ctx) && target.Kind != "file_check" {
+		permission := domain.Permission("checks.review")
+		if target.Kind == "alert" {
+			permission = "alerts.review"
+		}
+		if target.WellID == nil {
+			return domain.Review{}, domain.NewError(domain.Missing, "Результат не найден")
+		}
+		if _, err = requireScopedWellTx(ctx, tx, permission, *target.WellID); err != nil {
+			return domain.Review{}, err
+		}
+	}
 	if target.Kind == "file_check" {
 		if target.WellID == nil || target.FileJobID == nil || *target.FileJobID != target.ID || target.CheckID != nil || target.AlertID != nil {
 			return domain.Review{}, missingFileJob()

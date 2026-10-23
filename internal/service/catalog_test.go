@@ -26,7 +26,7 @@ func (s *wellStore) CreateWell(ctx context.Context, w domain.Well) (domain.Well,
 func TestCreateWellPreservesValidZeroAndDefaults(t *testing.T) {
 	store := &wellStore{}
 	catalog := NewCatalog(store)
-	w, err := catalog.CreateWell(context.Background(), domain.WellInput{UnitekID: ptr(int64(0)), ArmitsID: ptr(int64(21)), NGDU: ptr(int64(0)), Department: ptr(int64(0))})
+	w, err := catalog.CreateWell(internalFixtureContext(), domain.WellInput{UnitekID: ptr(int64(0)), ArmitsID: ptr(int64(21)), NGDU: ptr(int64(0)), Department: ptr(int64(0))})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func TestCreateWellPreservesValidZeroAndDefaults(t *testing.T) {
 }
 
 func TestCreateRejectsMissingRequiredFieldsBeforeStore(t *testing.T) {
-	_, err := NewCatalog(&wellStore{}).CreateWell(context.Background(), domain.WellInput{})
+	_, err := NewCatalog(&wellStore{}).CreateWell(internalFixtureContext(), domain.WellInput{})
 	if err == nil {
 		t.Fatal("missing identifiers accepted")
 	}
@@ -53,7 +53,7 @@ func TestPatchDistinguishesMissingNullAndZero(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{"ngdu":null}`), &p); err != nil {
 		t.Fatal(err)
 	}
-	_, err := NewCatalog(&wellStore{}).PatchWell(context.Background(), 1, p)
+	_, err := NewCatalog(&wellStore{}).PatchWell(internalFixtureContext(), 1, p)
 	if err == nil {
 		t.Fatal("required null accepted")
 	}
@@ -74,7 +74,7 @@ func TestClassificationCollapsesDistinctCategories(t *testing.T) {
 }
 
 func TestCreateWellWithoutExternalReferences(t *testing.T) {
-	w, err := NewCatalog(&wellStore{}).CreateWell(context.Background(), domain.WellInput{NGDU: ptr(int64(0)), Department: ptr(int64(0))})
+	w, err := NewCatalog(&wellStore{}).CreateWell(internalFixtureContext(), domain.WellInput{NGDU: ptr(int64(0)), Department: ptr(int64(0))})
 	if err != nil || w.ID != 12 || w.UnitekID != nil || w.ArmitsID != nil {
 		t.Fatal(w, err)
 	}

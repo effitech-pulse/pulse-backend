@@ -32,12 +32,36 @@ func NewChecks(store CheckStore, telemetry *Integrations) *Checks {
 	return &Checks{store: store, telemetry: telemetry}
 }
 func (s *Checks) List(ctx context.Context, well int64, before string) ([]domain.ManualCheck, error) {
+	if err := requireDataPermission(ctx, "checks.read"); err != nil {
+		return nil, err
+	}
+	if domain.RBACEnforced(ctx) {
+		store, ok := s.store.(Store)
+		if !ok {
+			return nil, domain.NewError(domain.Unavailable, "Справочник не подключён")
+		}
+		if _, err := NewCatalog(store).WithScope(s.scope).RequireWell(ctx, "checks.read", well); err != nil {
+			return nil, err
+		}
+	}
 	if err := scopedWell(ctx, s.scope, well); err != nil {
 		return nil, err
 	}
 	return s.store.ManualChecks(ctx, well, before)
 }
 func (s *Checks) Get(ctx context.Context, well int64, id string) (domain.ManualCheck, error) {
+	if err := requireDataPermission(ctx, "checks.read"); err != nil {
+		return domain.ManualCheck{}, err
+	}
+	if domain.RBACEnforced(ctx) {
+		store, ok := s.store.(Store)
+		if !ok {
+			return domain.ManualCheck{}, domain.NewError(domain.Unavailable, "Справочник не подключён")
+		}
+		if _, err := NewCatalog(store).WithScope(s.scope).RequireWell(ctx, "checks.read", well); err != nil {
+			return domain.ManualCheck{}, err
+		}
+	}
 	if err := scopedWell(ctx, s.scope, well); err != nil {
 		return domain.ManualCheck{}, err
 	}
@@ -55,6 +79,20 @@ func checkPeriod(v domain.ManualCheck, in domain.CheckInput) (domain.ManualCheck
 
 // Create сохраняет результат до ответа клиенту. Повтор запроса возвращает сохранённый расчёт.
 func (s *Checks) Create(ctx context.Context, well domain.Well, in domain.CheckInput) (out domain.ManualCheck, err error) {
+	if domain.RBACEnforced(ctx) {
+		store, ok := s.store.(Store)
+		if !ok {
+			return domain.ManualCheck{}, domain.NewError(domain.Unavailable, "Справочник не подключён")
+		}
+		current, err := NewCatalog(store).WithScope(s.scope).RequireWell(ctx, "checks.run", well.ID)
+		if err != nil {
+			return domain.ManualCheck{}, err
+		}
+		well = current
+	}
+	if err := requireWellValue(ctx, "checks.run", well); err != nil {
+		return domain.ManualCheck{}, err
+	}
 	if err := scopedWell(ctx, s.scope, well.ID); err != nil {
 		return domain.ManualCheck{}, err
 	}

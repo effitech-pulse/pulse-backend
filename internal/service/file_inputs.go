@@ -114,7 +114,13 @@ func (s *FileChecks) actor(ctx context.Context) (context.Context, domain.Account
 	if a.ID != *p.AccountID || !a.Active || (a.Role != "technologist" && a.Role != "admin") {
 		return ctx, a, domain.NewError(domain.Forbidden, "file_check_forbidden")
 	}
-	return domain.WithPrincipal(ctx, domain.AccountPrincipal(a)), a, nil
+	current := domain.AccountPrincipal(a)
+	if !domain.RBACEnforced(ctx) {
+		current = domain.TrustedCompatibilityPrincipal(current)
+	} else {
+		current.Authorization = p.Authorization
+	}
+	return domain.WithPrincipal(ctx, current), a, nil
 }
 func (s *FileChecks) authorize(ctx context.Context, wellID int64) (context.Context, domain.Account, domain.Well, error) {
 	ctx, a, err := s.actor(ctx)
@@ -125,7 +131,7 @@ func (s *FileChecks) authorize(ctx context.Context, wellID int64) (context.Conte
 	if err != nil {
 		return ctx, a, well, err
 	}
-	if well.ID != wellID || !well.Active || well.ArchivedAt != nil || !domain.AccountPrincipal(a).Allows(well) {
+	if well.ID != wellID || !well.Active || well.ArchivedAt != nil || !domain.CanReadWell(ctx, well) {
 		return ctx, a, well, domain.NewError(domain.Missing, "well_unavailable")
 	}
 	return ctx, a, well, nil

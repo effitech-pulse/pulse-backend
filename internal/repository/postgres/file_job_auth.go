@@ -99,7 +99,11 @@ func (r *Repository) authorizeFileJobTx(ctx context.Context, tx pgx.Tx, actor, w
 	if e != nil {
 		return false, e
 	}
-	if !a.Active || (a.Role != "technologist" && a.Role != "admin") || !w.Active || w.ArchivedAt != nil || !domain.AccountPrincipal(a).Allows(w) {
+	current := domain.AccountPrincipal(a)
+	if !domain.RBACEnforced(ctx) {
+		current = domain.TrustedCompatibilityPrincipal(current)
+	}
+	if !a.Active || (a.Role != "technologist" && a.Role != "admin") || !w.Active || w.ArchivedAt != nil || !current.Allows(w) {
 		return false, nil
 	}
 	guard, e := list[struct {

@@ -164,6 +164,9 @@ func (m *ML) WithCohort(scope FundScope, source CohortTelemetry, store CohortSna
 }
 func (m *ML) IsCohort() bool { return m.scope != nil }
 func (m *ML) CohortWells(ctx context.Context, run *int64) (domain.CohortSnapshot, error) {
+	if err := requireDataPermission(ctx, "risks.read"); err != nil {
+		return domain.CohortSnapshot{}, err
+	}
 	cohort, wells, err := m.scope.Members(ctx)
 	if err != nil {
 		return domain.CohortSnapshot{}, err

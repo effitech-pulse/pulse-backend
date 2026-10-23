@@ -42,6 +42,9 @@ func NewML(runs RunStore, catalog Store, client MLClient, options RunOptions) *M
 }
 
 func (m *ML) StartRun(ctx context.Context, trigger string) (bool, error) {
+	if err := requireFullApplicationScope(ctx, "runs.start"); err != nil {
+		return false, err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.closing {
@@ -56,6 +59,12 @@ func (m *ML) StartRun(ctx context.Context, trigger string) (bool, error) {
 	}
 	m.jobs.Add(1)
 	seed := observability.BackgroundSeed(ctx)
+	if p, ok := domain.CurrentPrincipal(ctx); ok {
+		seed = domain.WithPrincipal(seed, p)
+	}
+	if domain.RBACEnforced(ctx) {
+		seed = domain.WithRBACMode(seed, domain.RBACEnforce)
+	}
 	go m.execute(seed, lease, trigger)
 	return true, nil
 }
@@ -122,6 +131,7 @@ func (m *ML) Wait() {
 }
 
 func (m *ML) Schedule(ctx context.Context) {
+	ctx = domain.WithSystemPrincipal(ctx)
 	if !m.options.AutoRun {
 		return
 	}
@@ -167,6 +177,7 @@ func (m *ML) enrich(ctx context.Context, rows []domain.WellRisk) error {
 	}
 	for i := range rows {
 		w := &rows[i]
+		w.AppWellID = nil
 		if w.UnitekID == nil {
 			continue
 		}
@@ -185,6 +196,9 @@ func (m *ML) Wells(ctx context.Context, min *float64, alertOnly bool) (domain.Ri
 	if m.scope != nil {
 		return domain.RiskList{}, domain.NewError(domain.Missing, "Используйте cohort outcomes по ID Pulse")
 	}
+	if err := requireDataPermission(ctx, "risks.read"); err != nil {
+		return domain.RiskList{}, err
+	}
 	snapshot, err := m.client.Snapshot(ctx, min)
 	if err != nil {
 		return domain.RiskList{}, err
@@ -198,17 +212,29 @@ func (m *ML) Wells(ctx context.Context, min *float64, alertOnly bool) (domain.Ri
 	if err = m.enrich(ctx, rows); err != nil {
 		return domain.RiskList{}, err
 	}
-	if p, ok := domain.CurrentPrincipal(ctx); ok && p.Role != "admin" {
+	if domain.RBACEnforced(ctx) {
 		visible := make([]domain.WellRisk, 0, len(rows))
 		for _, row := range rows {
 			if row.AppWellID != nil {
-				w, e := m.catalog.Well(ctx, *row.AppWellID)
-				if e != nil {
-					return domain.RiskList{}, e
-				}
-				if p.Allows(w) {
-					visible = append(visible, row)
-				}
+				visible = append(visible, row)
+			}
+		}
+		rows = visible
+	} else if p, ok := domain.CurrentPrincipal(ctx); ok && p.Role != "admin" {
+		known, e := m.catalog.Wells(ctx, false)
+		if e != nil {
+			return domain.RiskList{}, e
+		}
+		allowed := map[int64]bool{}
+		for _, w := range known {
+			if p.Allows(w) {
+				allowed[w.ID] = true
+			}
+		}
+		visible := make([]domain.WellRisk, 0, len(rows))
+		for _, row := range rows {
+			if row.AppWellID != nil && allowed[*row.AppWellID] {
+				visible = append(visible, row)
 			}
 		}
 		rows = visible
@@ -242,6 +268,25 @@ func (m *ML) Wells(ctx context.Context, min *float64, alertOnly bool) (domain.Ri
 }
 
 func (m *ML) ByUnitek(ctx context.Context, id int64) (domain.WellRisk, error) {
+	if err := requireDataPermission(ctx, "risks.read"); err != nil {
+		return domain.WellRisk{}, err
+	}
+	if domain.RBACEnforced(ctx) {
+		wells, err := m.catalog.Wells(ctx, false)
+		if err != nil {
+			return domain.WellRisk{}, err
+		}
+		found := false
+		for _, w := range wells {
+			if w.UnitekID != nil && *w.UnitekID == id && domain.CanReadWell(ctx, w) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return domain.WellRisk{}, domain.NewError(domain.Missing, "Скважина не найдена")
+		}
+	}
 	if m.scope != nil {
 		return domain.WellRisk{}, domain.NewError(domain.Missing, "Используйте ID Pulse и сохранённый результат")
 	}
@@ -263,7 +308,13 @@ func (m *ML) ByUnitek(ctx context.Context, id int64) (domain.WellRisk, error) {
 
 func (m *ML) Runs(ctx context.Context, count int) (domain.RunList, error) {
 	if m.scope != nil {
+		if err := requireDataPermission(ctx, "cohort.runs.read"); err != nil {
+			return domain.RunList{}, err
+		}
 		return m.cohortRuns(ctx, count)
+	}
+	if err := requireFullApplicationScope(ctx, "runs.read"); err != nil {
+		return domain.RunList{}, err
 	}
 	running, err := m.runs.Running(ctx)
 	if err != nil {
@@ -286,6 +337,23 @@ func (m *ML) Runs(ctx context.Context, count int) (domain.RunList, error) {
 }
 
 func (m *ML) UpdateAlert(ctx context.Context, id int64, status string) (domain.Alert, error) {
+	if err := requireDataPermission(ctx, "alerts.review"); err != nil {
+		return domain.Alert{}, err
+	}
+	if domain.RBACEnforced(ctx) {
+		store, ok := m.runs.(ReviewStore)
+		if !ok {
+			return domain.Alert{}, domain.NewError(domain.Unavailable, "Хранилище обработки тревог не подключено")
+		}
+		p, _ := domain.CurrentPrincipal(ctx)
+		actor := domain.ReviewActor{Name: p.Name, Authenticated: p.Authenticated}
+		if p.AccountID != nil {
+			actor.ID = "user:" + strconv.FormatInt(*p.AccountID, 10)
+		}
+		_, err := NewReviews(store).WithCatalog(m.catalog).WithScope(m.scope).LegacyAlert(ctx, strconv.FormatInt(id, 10), status, actor)
+		return domain.Alert{ID: id, Status: status}, err
+	}
+
 	if status != "new" && status != "acknowledged" && status != "false_positive" {
 		return domain.Alert{}, &domain.Error{Kind: domain.Invalid, Message: "Недопустимый статус", Plain: true}
 	}
@@ -311,6 +379,9 @@ func (m *ML) UpdateAlert(ctx context.Context, id int64, status string) (domain.A
 }
 
 func (m *ML) Explain(ctx context.Context, id int64, top int32) (domain.Explanation, error) {
+	if err := requireDataPermission(ctx, "risks.explain"); err != nil {
+		return domain.Explanation{}, err
+	}
 	if err := m.checkModelScope(ctx, id); err != nil {
 		return domain.Explanation{}, err
 	}
@@ -343,6 +414,9 @@ func (m *ML) Health(ctx context.Context) (domain.ModelHealth, error) {
 }
 
 func (m *ML) Upload(ctx context.Context, name string, input io.Reader) (domain.UploadResult, error) {
+	if err := requireFullApplicationScope(ctx, "filechecks.legacy.run"); err != nil {
+		return domain.UploadResult{}, err
+	}
 	return m.client.Upload(ctx, name, input)
 }
 
@@ -369,8 +443,11 @@ func (m *ML) checkModelScope(ctx context.Context, id int64) error {
 	if m.scope != nil {
 		return domain.NewError(domain.Missing, "Исследовательский ID недоступен в пользовательском фонде")
 	}
+	if err := requireDataPermission(ctx, "risks.read"); err != nil {
+		return err
+	}
 	p, ok := domain.CurrentPrincipal(ctx)
-	if !ok || p.Role == "admin" {
+	if !domain.RBACEnforced(ctx) && (!ok || p.Role == "admin") {
 		return nil
 	}
 	snapshot, err := m.client.Snapshot(ctx, nil)

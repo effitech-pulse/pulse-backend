@@ -187,6 +187,39 @@ func (r *Repository) LatestAlerts(ctx context.Context) ([]domain.Alert, error) {
 }
 
 func (r *Repository) UpdateAlert(ctx context.Context, id int64, status string) (domain.Alert, error) {
+	if domain.RBACEnforced(ctx) {
+		tx, err := r.pool.Begin(ctx)
+		if err != nil {
+			return domain.Alert{}, err
+		}
+		defer tx.Rollback(ctx)
+		a, err := currentScopeAuthorization(ctx, tx, "alerts.review")
+		if err != nil {
+			return domain.Alert{}, err
+		}
+		target, err := one[struct {
+			WellID *int64 `json:"app_well_id"`
+		}](ctx, tx, sqlBuilder.Select("app_well_id").From("ml_alert").Where(sq.Eq{"id": id}).Suffix("FOR UPDATE"))
+		if err != nil {
+			return domain.Alert{}, err
+		}
+		if target.WellID == nil {
+			return domain.Alert{}, domain.NewError(domain.Missing, "Результат не найден")
+		}
+		w, err := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": *target.WellID}).Suffix("FOR SHARE"))
+		if err != nil {
+			return domain.Alert{}, err
+		}
+		if !a.AllowsWell(w) {
+			return domain.Alert{}, domain.NewError(domain.Missing, "Результат не найден")
+		}
+		out, err := mutate[domain.Alert](ctx, tx, sqlBuilder.Update("ml_alert").Set("status", status).Set("updated_at", sq.Expr("now()")).Where(sq.Eq{"id": id}).Suffix("RETURNING id,unitek_id,status"))
+		if err != nil {
+			return out, err
+		}
+		return out, tx.Commit(ctx)
+	}
+
 	query := sqlBuilder.Update("ml_alert").Set("status", status).Set("updated_at", sq.Expr("now()")).
 		Where(sq.Eq{"id": id}).Suffix("RETURNING id,unitek_id,status")
 	return mutate[domain.Alert](ctx, r.pool, query)

@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"slices"
 	"time"
 )
 
@@ -32,27 +31,21 @@ type AccountInput struct {
 	Password *string     `json:"password"`
 }
 type Principal struct {
-	Authorization *AuthorizationSnapshot `json:"authorization,omitempty"`
-	AccountID     *int64                 `json:"account_id"`
-	Name          string                 `json:"name"`
-	Role          string                 `json:"role"`
-	Scope         AccessScope            `json:"scope"`
-	Authenticated bool                   `json:"authenticated"`
-	Mechanism     string                 `json:"mechanism"`
+	trustedCompatibility bool
+	Authorization        *AuthorizationSnapshot `json:"authorization,omitempty"`
+	AccountID            *int64                 `json:"account_id"`
+	Name                 string                 `json:"name"`
+	Role                 string                 `json:"role"`
+	Scope                AccessScope            `json:"scope"`
+	Authenticated        bool                   `json:"authenticated"`
+	Mechanism            string                 `json:"mechanism"`
 }
 
 func (p Principal) Allows(well Well) bool {
 	if p.Authorization != nil {
 		return p.Authorization.AllowsWell(well)
 	}
-	if p.Role == "admin" {
-		return true
-	}
-	kind := well.FundType
-	if kind == "" {
-		kind = "operational"
-	}
-	return slices.Contains(p.Scope.Funds, kind) && (p.Scope.NGDUs == nil || slices.Contains(*p.Scope.NGDUs, well.NGDU)) && (p.Scope.Departments == nil || slices.Contains(*p.Scope.Departments, well.Department))
+	return false
 }
 
 type principalKey struct{}
@@ -61,13 +54,19 @@ func WithPrincipal(ctx context.Context, p Principal) context.Context {
 	return context.WithValue(ctx, principalKey{}, p)
 }
 func CurrentPrincipal(ctx context.Context) (Principal, bool) {
+	if ctx == nil {
+		return Principal{}, false
+	}
 	p, ok := ctx.Value(principalKey{}).(Principal)
 	return p, ok
 }
 func CanReadWell(ctx context.Context, w Well) bool {
 	p, ok := CurrentPrincipal(ctx)
-	return !ok || p.Allows(w)
+	return ok && p.Authenticated && p.Allows(w)
 }
 func AccountPrincipal(a Account) Principal {
 	return Principal{AccountID: &a.ID, Name: a.Name, Role: a.Role, Scope: a.Scope, Authenticated: true, Mechanism: "session"}
 }
+
+// CompatibilityAuthority отмечает только snapshot явного server-owned compatibility адаптера.
+func (p Principal) CompatibilityAuthority() bool { return p.trustedCompatibility }

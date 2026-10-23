@@ -11,7 +11,7 @@ import (
 const wellColumns = "revision,archived_at,responsible,fund_type,id,unitek_id,armits_id,well_number,ngdu,department,active"
 
 func (r *Repository) Wells(ctx context.Context, active bool) ([]domain.Well, error) {
-	query := sqlBuilder.Select(wellColumns).From("well").OrderBy("id")
+	query := sqlBuilder.Select(wellColumns).From("well").Where(contextWellPredicate(ctx, "")).OrderBy("id")
 	if active {
 		query = query.Where(sq.Eq{"active": true})
 	}
@@ -19,16 +19,34 @@ func (r *Repository) Wells(ctx context.Context, active bool) ([]domain.Well, err
 }
 
 func (r *Repository) Well(ctx context.Context, id int64) (domain.Well, error) {
-	query := sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": id})
+	query := sqlBuilder.Select(wellColumns).From("well").Where(contextWellPredicate(ctx, "")).Where(sq.Eq{"id": id})
 	return one[domain.Well](ctx, r.pool, query)
 }
 
 func (r *Repository) CreateWell(ctx context.Context, w domain.Well) (domain.Well, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return domain.Well{}, err
+	}
+	defer tx.Rollback(ctx)
+	if domain.RBACEnforced(ctx) {
+		a, err := currentScopeAuthorization(ctx, tx, "wells.create")
+		if err != nil {
+			return domain.Well{}, err
+		}
+		if !a.AllowsWell(w) {
+			return domain.Well{}, domain.NewError(domain.Missing, "Скважина не найдена")
+		}
+	}
 	query := sqlBuilder.Insert("well").
 		Columns("unitek_id", "armits_id", "well_number", "ngdu", "department", "active", "fund_type", "responsible").
 		Values(w.UnitekID, w.ArmitsID, w.WellNumber, w.NGDU, w.Department, w.Active, sq.Expr("COALESCE(NULLIF(?, ''), 'operational')", w.FundType), w.Responsible).
 		Suffix("RETURNING " + wellColumns)
-	return mutate[domain.Well](ctx, r.pool, query)
+	out, err := mutate[domain.Well](ctx, tx, query)
+	if err != nil {
+		return out, err
+	}
+	return out, tx.Commit(ctx)
 }
 
 func (r *Repository) PatchWell(ctx context.Context, id int64, p domain.WellPatch) (domain.Well, error) {
@@ -37,9 +55,26 @@ func (r *Repository) PatchWell(ctx context.Context, id int64, p domain.WellPatch
 		return domain.Well{}, err
 	}
 	defer tx.Rollback(ctx)
+	var authority domain.AuthorizationSnapshot
+	if domain.RBACEnforced(ctx) {
+		authority, err = currentScopeAuthorization(ctx, tx, "wells.update")
+		if err != nil {
+			return domain.Well{}, err
+		}
+	}
 	old, err := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": id}).Suffix("FOR UPDATE"))
 	if err != nil {
 		return old, err
+	}
+	proposed := old
+	if p.NGDU.Present {
+		proposed.NGDU = p.NGDU.Value
+	}
+	if p.Department.Present {
+		proposed.Department = p.Department.Value
+	}
+	if domain.RBACEnforced(ctx) && (!authority.AllowsWell(old) || !authority.AllowsWell(proposed)) {
+		return domain.Well{}, domain.NewError(domain.Missing, "Скважина не найдена")
 	}
 	if p.Revision.Present && old.Revision != p.Revision.Value {
 		return old, domain.NewError(domain.Duplicate, "Карточка уже изменена. Обновите её перед сохранением")
@@ -113,6 +148,26 @@ func (r *Repository) ImportWells(ctx context.Context, rows []domain.Well) (domai
 		return out, err
 	}
 	defer tx.Rollback(ctx)
+	if domain.RBACEnforced(ctx) {
+		a, e := currentScopeAuthorization(ctx, tx, "wells.import")
+		if e != nil {
+			return out, e
+		}
+		for _, w := range rows {
+			if !a.AllowsWell(w) {
+				return out, domain.NewError(domain.Missing, "Скважина не найдена")
+			}
+			if w.ID > 0 {
+				old, e := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": w.ID}).Suffix("FOR SHARE"))
+				if e != nil {
+					return out, e
+				}
+				if !a.AllowsWell(old) {
+					return out, domain.NewError(domain.Missing, "Скважина не найдена")
+				}
+			}
+		}
+	}
 	for _, w := range rows {
 		if w.ID > 0 {
 			if _, err := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": w.ID})); err != nil {

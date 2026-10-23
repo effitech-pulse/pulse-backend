@@ -149,7 +149,7 @@ func TestAlertReviewAndLegacyStatusCommitOneHistory(t *testing.T) {
 	if err != nil || state.AlertsFalse != 0 || state.AlertsReviewed != 1 {
 		t.Fatal(state, err)
 	}
-	wells, err := app.ml.Wells(context.Background(), nil, false)
+	wells, err := app.ml.Wells(domain.WithSystemPrincipal(context.Background()), nil, false)
 	if err != nil || len(wells.Wells) != 1 || wells.Wells[0].Tier == nil || *wells.Wells[0].Tier != "watch" || wells.Wells[0].DataOk {
 		t.Fatal(wells, err)
 	}

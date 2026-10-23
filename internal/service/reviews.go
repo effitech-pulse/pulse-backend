@@ -47,7 +47,7 @@ func (s *Reviews) target(ctx context.Context, kind, id string, well *int64) (dom
 	if well != nil && (target.WellID == nil || *well != *target.WellID) {
 		return target, domain.NewError(domain.Missing, "Проверка не найдена у этой скважины")
 	}
-	if p, ok := domain.CurrentPrincipal(ctx); kind != "file_check" && ok && p.Role != "admin" {
+	if p, ok := domain.CurrentPrincipal(ctx); kind != "file_check" && (domain.RBACEnforced(ctx) || ok && p.Role != "admin") {
 		if target.WellID == nil || s.catalog == nil {
 			return target, domain.NewError(domain.Missing, "Результат не найден")
 		}
@@ -55,7 +55,7 @@ func (s *Reviews) target(ctx context.Context, kind, id string, well *int64) (dom
 		if err != nil {
 			return target, err
 		}
-		if !p.Allows(w) {
+		if !domain.CanReadWell(ctx, w) {
 			return target, domain.NewError(domain.Missing, "Результат не найден")
 		}
 	}
@@ -73,6 +73,16 @@ func (s *Reviews) target(ctx context.Context, kind, id string, well *int64) (dom
 	return target, nil
 }
 func (s *Reviews) Get(ctx context.Context, kind, id string, well *int64, before int64) (domain.Review, error) {
+	permission := domain.Permission("checks.read")
+	if kind == "alert" {
+		permission = "alerts.read"
+	}
+	if kind == "file_check" {
+		permission = "filechecks.read"
+	}
+	if err := requireDataPermission(ctx, permission); err != nil {
+		return domain.Review{}, err
+	}
 	target, err := s.target(ctx, kind, id, well)
 	if err != nil {
 		return domain.Review{}, err
@@ -100,6 +110,16 @@ func reviewFingerprint(in domain.ReviewInput) (string, error) {
 	return hex.EncodeToString(digest[:]), nil
 }
 func (s *Reviews) Update(ctx context.Context, kind, id string, well *int64, in domain.ReviewInput, actor domain.ReviewActor) (domain.Review, error) {
+	permission := domain.Permission("checks.review")
+	if kind == "alert" {
+		permission = "alerts.review"
+	}
+	if kind == "file_check" {
+		permission = "filechecks.review"
+	}
+	if err := requireDataPermission(ctx, permission); err != nil {
+		return domain.Review{}, err
+	}
 	in.Owner = strings.TrimSpace(in.Owner)
 	in.Comment = strings.TrimSpace(in.Comment)
 	if !checkRequestID.MatchString(in.RequestID) || in.Revision < 0 || utf8.RuneCountInString(in.Owner) > 120 || utf8.RuneCountInString(in.Comment) > 4000 {
@@ -138,6 +158,16 @@ func (s *Reviews) Update(ctx context.Context, kind, id string, well *int64, in d
 
 // LegacyAlert сохраняет совместимый PATCH и включает его изменения в ту же историю.
 func (s *Reviews) LegacyAlert(ctx context.Context, id, status string, actor domain.ReviewActor) (domain.Review, error) {
+	permission := domain.Permission("checks.review")
+	if "alert" == "alert" {
+		permission = "alerts.review"
+	}
+	if "alert" == "file_check" {
+		permission = "filechecks.review"
+	}
+	if err := requireDataPermission(ctx, permission); err != nil {
+		return domain.Review{}, err
+	}
 	if status != "new" && status != "acknowledged" && status != "false_positive" {
 		return domain.Review{}, domain.NewError(domain.Invalid, "Недопустимый статус")
 	}
