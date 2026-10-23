@@ -1,5 +1,17 @@
 # Связь требований макетов кода и проверок
 
+C2 → [protocol](../references/q2-collection-jobs.md)/[C4](../diagrams/q2-collection-jobs.drawio)/
+[schema15](../schemas/postgres/collection_jobs.sql) → core47+SamplerSuccessDeadline30 →
+sameSenior core3+H01–H20 CLOSED,78source controls,module-v2 PASS → FULLACT14 all11
+PASS/canonical fullspanresources/ML0/canary/exactteardown. [Proof/runbook](../references/q2-collection-runtime.md)
+связывает run `r8e1b5066a1e3`, exact hashes и code commit
+`1a824a63c068f828a9d4dfa663b8036cd426e191`(77testedpaths). Old binary stamp7fcdirty content-bound,
+SDKexact1d0b...candidate0.1.2UNRELEASED; postrunREADME docs-only separate.
+
+PreviousACT13FAIL и diagnostics не переписаны/не суммированы. Publication sync/build/
+sourcecheck/standaloneZIP PASS отдельно; D01/D02 operatorguards проверены external
+stubs, не новымwholelive replay. Scientific not_assessed/PREP/UI/real не приняты.
+
 Q1/F2: implemented FileJobs/private projection/review kind `file_check` →
 [протокол](../references/q1-file-jobs.md)/[C4](../diagrams/q1-file-jobs.drawio) →
 [exact source/binary/runtime proof](../references/q1-runtime.md).

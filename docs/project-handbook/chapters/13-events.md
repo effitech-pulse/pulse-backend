@@ -1,5 +1,11 @@
 # Журналы события и уведомления
 
+C2 Rabbit events `collection.ready.v1` несут только version/event_id/job_id/
+generation. PG outbox/inbox/reconcile, confirm+return и ACK после durable disposition
+не дают exactly-once source Fetch до capture; committed capture больше не читается
+с upstream. collection_job_action и safe collection log — durable diagnostics,
+не уведомления пользователя. [Протокол](../references/q2-collection-jobs.md).
+
 ## Что работает сейчас
 
 Технический `action_log` фиксирует изменяющие HTTP-запросы. Экран «Журнал» показывает method/path/status_code — это аудит API, а не полная предметная история. В отдельных сущностях уже сохранены события well_event, review_event, manual_check, ml_run и telemetry_collection_log.

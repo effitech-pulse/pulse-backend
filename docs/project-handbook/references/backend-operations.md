@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-backend/docs/operations.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Эксплуатация
 
@@ -10,8 +10,8 @@ Q0 synthetic process/resource проверки описаны в [runbook/proof]
 make migrate
 ```
 
-- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии14 (Q2 immutable cohort inputs/jobs/checkpoints поверх Q1 schema13 и Q0 schema12). PostgreSQL server16 и app schema14 — разные версии.
-- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12, jobs/outbox/inbox/guard/leases13, cohort jobs/inputs/checkpoints14. Migration13/14 не создают synthetic guard и не включают feature; actual PREP не мигрирован этими проверками. Таблицы и прежние данные сохраняются.
+- Новая БД: принимается baseline прежних миграций 0001–0012 и применяются последующие Go-миграции до текущей версии15 (C2 collection/capture/coverage поверх C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server16 и app schema15 — разные версии.
+- Существующий Alembic baseline: требуется `alembic_version=0012_ml_run_drift`; принятие фиксируется в `backend_schema_migration`. Существующая Go-БД обновляется последовательными аддитивными миграциями; cohort9, snapshot10, run profile/cohort identity11, additive file inputs/payload/budget/result12, jobs/outbox/inbox/guard/leases13, cohort jobs/inputs/checkpoints14, collection jobs/capture/coverage и source fencing15. Migration13/14/15 не создают synthetic guard и не включают feature; actual PREP не мигрирован этими проверками. Таблицы и прежние данные сохраняются.
 - Другая ревизия или отсутствующий Alembic marker: команда завершается ошибкой. Сначала приведите БД к поддерживаемой ревизии прежним мигратором.
 
 Приложение не выполняет миграции при HTTP-старте. Перед изменением нужен backup и проверка на отдельной восстановленной БД. Версия11 не backfill-ит profile/cohort_version старых ml_run: NULL означает исторически неизвестную identity. Не удаляйте nullable-поля/таблицы ради rollback приложения. Исходники прежнего монолита — только локальный archive.
@@ -277,3 +277,59 @@ cancel/drain принятые jobs либо оставьте persisted intents �
 через legacy и не выполняйте schema downgrade/volume deletion. Новый binary
 сохраняет narrow Q1/legacy guards даже при mode off; quarantine Q1 блокирует Q2,
 terminal/superseded Q1 delivery получает durable disposition без нового compute.
+
+## Q2-C2 collection recovery и откат
+
+[Протокол](q2-collection-jobs.md), [конфигурация](backend-configuration.md#изолированный-q2-c2-synthetic-профиль),
+[ACT14 evidence](q2-collection-runtime.md),
+автономный operator bootstrap (исходник `pulse-backend/test/runtime/collection/README.md`; в пакет не включён).
+Core47/SamplerSuccessDeadline30/H20 и module-v2 приняты; свежий ACT14 all11 PASS,
+full-span resources/canary/ML0/exact teardown VERIFIED. Publication PASS отдельно.
+Рабочие PREP/UI/сбор/real enable не переключены, scientific not_assessed.
+
+1. Нужны exact reviewed offline SDK1d0b.../candidate0.1.2UNRELEASED, source77 commit
+   `1a824a63c068f828a9d4dfa663b8036cd426e191`, cached PG16/Rabbit4.3.6 и новый own run root.
+   Проверить свободные host8094/8093/55442/5675/15675; Data8092 сохраняется.
+   Host exposure только fixed bounded stdio, Docker publications отсутствуют;
+   internal egress-denied network и original caps сохраняются.
+2. Provision асинхронен: bounded exact-owned **read-only** PG/Rabbit readiness до
+   supervisor и единственного mutating broker bootstrap. Fail→preserve/guarded
+   teardown/fresh stand, не повторять add_vhost/add_user. Полный copyable recipe
+   включает set-eu, SDK identity/run-root guard и readiness deadline; docs controls
+   проверены на stubs, новый whole operator run после handover не заявляется.
+3. Явные migrations15/own guard/accounts/presentation wells/sources выполняет seed;
+   local/research, ML_AUTORUN_ENABLED=false, source interval86400/next_pollfuture.
+   Own readonly90 Rabbit collector config/--user rabbitmq/strict4queuegauges и
+   exact C2management namespace permissions автоматические. Startup ничего не
+   мигрирует/seed-ит на рабочей БД.
+4. Submit durable intent до202; source bytes фиксируются позже immutable capture.
+   При потере ответа повторить replay key, GET читает persisted capture/write/coverage.
+   После capture commit не refetch; unknown commit определяется checkpoint.
+   Finite worker reconnect8/backoffs может завершить процесс: operator/orchestrator
+   restart получает новый claim/session/fence, не resurrect старую lease.
+5. Authority/profile change revoke; каждый A07 fault сохраняет real≥7s late-I/O окно.
+   Source PUTdraft восстанавливается intendedstatus PATCH с own temporary exact-source
+   futurepoll guard/finally cleanup, не permanent production trigger/global pause.
+   Не редактировать job attempts/fence/lease/quota или capture вручную.
+6. Rollback: own guard accepting=false, owner cancel nonterminal/current revision,
+   stop dispatch/consumers≤10s и проверить leases/owned transactions0. Новый API off
+   даёт authorized GET200/POST-cancel503, сохраняя protected writer semantics.
+   Данные/schema/capture/checkpoint/coverage не удаляются down migration.
+7. **Старый executable** только после drain всех старых/новых telemetry writers/API/
+   schedulers и отсутствия их PG connections. Все sources paused, PG readonly.
+   Unrestricted old writes не имеют C2 fences; same protection не обещается.
+   ACT14 A10 проверил nonempty accepted data preservation в этих точных границах.
+8. До optional worker2 retirement/API replacement сохраняются complete current∪retired
+   logs и exact ID/run binding; physical stop→fresh sampler ACK→guarded removal→
+   Engine absence→immutable receipt. Required roles не исключаются из supervision.
+   Fixed-cutoff/current-epoch/earliest3s sampler и78source controls сохраняют rawFAIL
+   прежнего ACT13; новый ACT14 принят только по собственному canonical A11.
+9. Export safe metadata, выполнить exact ledger teardown, recheck working IDs/ports.
+   ACT14:592.801s,569relevant/596total samples,897host+wait4; reconstructed917348352B
+   и sampled956289024B — разные aggregate metrics, оба ниже1536MiB; ML0/canary0,
+   226surfaces/8logIDs, working8same/free5. Неатрибутированный volume не удалён;
+   полного environment cleanup нет. Stand01 и prior failures остаются отдельной историей.
+
+Точный code/binary binding, per-case durations/caveats и non-production scope — в
+runtime guide. PostgreSQL16 и app schema15 различаются; C2 не продвигает legacy
+last_measured. Root выполнил handbook sync/build/validate/source-check и independent extracted ZIP validation после docs review.

@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-backend/test/q0_process/README.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-backend/test/q0_process/README.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Q0 process reproducer
 

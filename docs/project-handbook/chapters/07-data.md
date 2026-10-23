@@ -1,5 +1,13 @@
 # Данные и схемы хранения
 
+Текущая source schema15 additive: source writer fence/token/profile,
+nullable `telemetry_measurement.collection_provenance`, collection guard/job/hold/
+capture/checkpoint/coverage/outbox/inbox/action. Global wide-row PK прежний.
+Same full provenance+payload → identical; unattributed old row не доказывает replay.
+Coverage receipt конкретной revision/interval отличается от nullable maximum timestamp;
+C2 не продвигает legacy last_measured. [Протокол](../references/q2-collection-jobs.md),
+[DDL](../schemas/postgres/collection_jobs.sql). Explicit migration не активирует PREP.
+
 
 Q0 schema12 добавляет `file_input`, `file_input_payload`, `file_input_budget`, `file_check_result`: raw/canonical bytes и exact typed identity immutable; metadata/list не читают payload. New acceptance требует `file_parser_v2` с embedded6sources/actual9dependencies, schema/config hashes; historical v1 metadata/result читаются без backfill. [Schema12](../schemas/postgres/file_inputs.sql), [архитектура](../references/q0-architecture.md), [synthetic RUN-2](../references/q0-runtime.md). Эти primitives не включены на actual PREP и не означают разрешение хранения реальных частных файлов.
 ## Разделение хранилищ

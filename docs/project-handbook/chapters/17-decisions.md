@@ -1,5 +1,13 @@
 # Решения и план развития
 
+C2 выбирает one finite captured unit и atomic whole-unit Apply за
+CollectionJobStore. Direct Data pagination отклонена: нет upper/snapshot/completion
+receipt. Global measurement PK сохраняется; full provenance equality обязательна,
+legacy NULL provenance не повышается до replay. Source hold/fence и global collision
+защита решают разные задачи. [Принятый source protocol](../references/q2-collection-jobs.md),
+[раздельные принятый runtime и publication gates](../references/q2-collection-runtime.md).
+Исторический roadmap не переписывается; C2 не включает real source/scheduler/UI.
+
 Q1 реализовал выбранный узкий вариант: PostgreSQL authority/input+job+outbox,
 Go cmd/worker и RabbitMQ4.3.6/amqp091-go1.15.0, private saved-check поверх Q0
 result, current rights и fences; схема13 additive. Broker остаётся отдельным

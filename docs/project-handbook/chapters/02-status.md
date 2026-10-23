@@ -1,5 +1,20 @@
 # Текущее состояние и согласованные изменения
 
+C2 ·23.10.2026: Core47/SamplerSuccessDeadline30 SOURCE APPROVED,core3+H01–H20
+CLOSED,78Python controls/module-v2 PASS. Fresh FULLACT14 `r8e1b5066a1e3`
+ALL11 PASS; canonical full-span resources/canary/ML0/exact teardown VERIFIED.
+[Протокол](../references/q2-collection-jobs.md), [C4](../diagrams/q2-collection-jobs.drawio),
+[датированный actual guide](../references/q2-collection-runtime.md).
+
+592.801s,569relevant/596samples/897host+wait4; reconstructed aggregate917348352B и
+sampled956289024B — разные metrics, оба ниже1536MiB. Canary0/226surfaces/8logIDs,
+ML0/working8same/free5; parkedunattributedvolume untouched. Code commit
+`1a824a63c068f828a9d4dfa663b8036cd426e191` связывает77testedpaths; README handover —
+postrun docs-only delta, не новая executable version. Publication PASS отдельно.
+ACT13 A01–10PASS/A11FAIL и diagnostics сохранены, не суммируются в новый PASS.
+Defaultoff/syntheticonly, legacy last_measured не продвигается; PREP/UI/real/production/
+scientific не приняты. Historical C1/Q1 ниже сохраняются.
+
 Q2-C1 ·22.10.2026: source APPROVED тем же Senior,все8findings CLOSED; latest
 module gates PASS. Actual max/restart/mixed/rollback PASS232.61s:100scored,
 0recomputed accepted checkpoints, mixed95/1archived/1inactive/2insufficient/1error.

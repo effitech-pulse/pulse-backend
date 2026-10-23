@@ -31,9 +31,9 @@
     },
     {
       "name": "pulse-backend",
-      "head": "677cf337393b500c9173333a249c337135ff33b1",
-      "branch": "codex/q2-cohort",
-      "dirty_entries": 30,
+      "head": "1a824a63c068f828a9d4dfa663b8036cd426e191",
+      "branch": "codex/q2-collection",
+      "dirty_entries": 71,
       "repository_url": "https://github.com/effitech-pulse/pulse-backend"
     },
     {
@@ -51,8 +51,8 @@
       "repository_url": "https://github.com/effitech-pulse/pulse-landing"
     }
   ],
-  "http_operations": 78,
+  "http_operations": 93,
   "figma_catalog_rows": 150,
-  "source_file_count": 718,
+  "source_file_count": 781,
   "snapshot_registry": "snapshot-sources.json"
 }

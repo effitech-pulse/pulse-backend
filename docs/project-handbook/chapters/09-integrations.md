@@ -1,5 +1,13 @@
 # Источники и обработка телеметрии
 
+C2 finite collection — отдельный synthetic-only fixture protocol
+`collection-fixture-v1`, не расширение Data `/v1/stream`. One source/well/response,
+minute [start,end), fixed horizon/31d retention, dense exact slots или заранее
+объявленный explicit-empty. Capture immutable после commit, до этого bytes не pinned.
+Marker→null до scale, valid0 сохранён, setpoints исключены по OR правилу.
+[Протокол/coverage/collision](../references/q2-collection-jobs.md);
+legacy schedule/UI/PREP не переключены.
+
 ## Настройка источника
 
 Источник имеет имя, kind, status, interval_seconds, endpoint/table_name, records_path, well_field, time_field, well_identity и массив mappings. Секрет передаётся отдельным полем; он не размещается в URL или в открытом config. Сохранение создаёт новую версию профиля; запуск/пауза — отдельное действие.

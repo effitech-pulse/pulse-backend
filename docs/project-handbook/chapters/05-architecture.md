@@ -1,5 +1,19 @@
 # Архитектура и взаимодействие приложений
 
+C2/1: CollectionJobs→CollectionJobStore хранит immutable intent/capture, source
+hold, dedicated physical PG ownership и shared protected writer. One Apply атомарно
+пишет measurements/checkpoint/coverage/terminal/inbox; Rabbit — opaque wakeup,
+PostgreSQL — authority/work truth. C2 не вызывает ML/Data snapshot API. Core47 и
+SamplerSuccessDeadline30 source APPROVED/78controls; ACT14 runtime VERIFIED, publication PASS.
+[Протокол](../references/q2-collection-jobs.md), [editable C4](../diagrams/q2-collection-jobs.drawio).
+
+Own harness: sole fixedstdio, exact-owned Engine counters1s/fresh3s, streaming64KiB
+SHA, guarded optionalworker2 retirement и complete current∪retired logs. Finite8
+Consume может требовать external new-process restart. Authority faults проверяют
+real≥7s lateI/O; source PUT draft восстанавливается statusPATCH с temporary exact-source
+running next_poll guard, finally cleanup. Это test-only infrastructure, не product
+schema/API/trigger/globalpause change. Fresh full A01–A11 после diagnostics обязателен.
+
 Q1 source реализует input+quota+job+outbox одной PG tx и result+terminal job+inbox
 одной fenced tx. Go worker получает trusted persisted intent/current rights,
 не browser Principal; RabbitMQ переносит opaque references. Private FileSavedCheck

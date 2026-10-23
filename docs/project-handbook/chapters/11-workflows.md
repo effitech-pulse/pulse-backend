@@ -1,5 +1,11 @@
 # Рабочие сценарии и жизненный цикл скважины
 
+C2 API-only: explicit source/fixture/period + replay key →202 durable intent →
+capture ready → whole-unit committed write/coverage. Poll/reopen читает persisted
+status без ML; owner cancel конкурирует с Apply через те же locks/fence. Current
+rights/profile change revoke, retry ограничен3attempts. Рабочего C2 UI нет;
+[протокол](../references/q2-collection-jobs.md), [ACT14 runtime proof](../references/q2-collection-runtime.md).
+
 Q1/F2 source добавил отдельный synthetic-only сценарий: явные файл/parse spec →
 202 с job ID → polling или повторное открытие сохранённого job/result/review.
 Закрытие browser/logout не отменяет persisted job; они очищают private UI state.

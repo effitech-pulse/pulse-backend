@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/q0-runtime-2026-10-21.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-backend/docs/q0-runtime-2026-10-21.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Q0: synthetic runtime proof и воспроизведение · 21.10.2026
 

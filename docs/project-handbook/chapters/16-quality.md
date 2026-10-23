@@ -1,5 +1,18 @@
 # Тестирование и критерии приёмки
 
+C2 ·23.10.2026: Core47/SamplerSuccessDeadline30 SOURCE APPROVED,core3+H01–H20
+CLOSED,78Python/mock controls PASS. Module17.398/421.538monotonic(pkg419.575)/7.129s
+PASS. FULLACT14 all11 PASS с canonical A11/resources/canary/ML0/teardown; это отдельное
+actual evidence, не вывод из unit tests. [Runtime](../references/q2-collection-runtime.md),
+[матрица](../references/verification-matrix.md).
+
+Fullspan592.801s/569relevant/596total/897host+wait4; reconstructed917348352B и
+sampled956289024B различаются, оба ниже1536MiB. Canary0/2012647B/226surfaces/8logIDs,
+working8same/free5; parkedunknownvolume untouched. PriorACT13 rawA11FAIL и isolated
+DIAGNOSTIC11/12PASS сохранены отдельно, ACT14 — одинfresh acceptedrun. Publication
+PASS, scientific not_assessed. README docs-only D01/D02 fixed shell/readiness
+проверены24externalstub controls/синтаксисом; новый wholeprinted operator run не заявлен.
+
 Q2-C1 ·22.10.2026: source APPROVED, все8findings CLOSED; latest check17.843s/
 integration194.411s monotonic (387.485s wall)/build6.063s PASS. Actual max/restart/
 mixed/rollback PASS232.61s (runner235.769s), accepted checkpoint recompute0.

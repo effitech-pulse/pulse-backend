@@ -1,5 +1,23 @@
 # Архитектура backend
 
+## Q2-C2 · конечный collection source, статус23.10.2026
+
+Отдельный default-off synthetic путь использует CollectionJobs → CollectionJobStore.
+Acceptance сохраняет intent/hold/job/outbox; source bytes фиксируются позже одним
+immutable capture. Dedicated PG session/fence защищают capture и whole-unit Apply:
+measurements + checkpoint + coverage + terminal/inbox/log в одной transaction.
+Rabbit переносит opaque wakeup, worker/reconciler используют persisted PG truth.
+Общий measurement writer защищает `(well_id,measured_at)` и от legacy collisions;
+source token/profile/generation и hold отдельно fence-ят Collect/Ingest.
+Schema15 additive; C2 не продвигает legacy last_measured и не создаёт ML output.
+[Протокол](q2-collection-jobs.md), [две редактируемые C4 страницы](q2-collection-jobs.drawio),
+[отдельные source/module/runtime/publication gates](q2-collection-runtime-2026-10-22.md).
+Core47/SamplerSuccessDeadline30 SOURCE APPROVED тем же Senior,3core+20harness findings CLOSED;
+full module check17.398s/integration421.538s monotonic/build7.129s PASS.
+ACT14 all11/source-bound resources/ML0/canary/teardown VERIFIED; docs/publication PASS.
+Source commit `1a824a63c068f828a9d4dfa663b8036cd426e191` связывает tested77paths; post-run README — docs-only delta.
+Исторические C1/Q1 ниже сохраняются.
+
 ## Q2-C1 · additive durable cohort source, 22.10.2026
 
 Отдельный default-off synthetic модуль сохраняет все100 inputs/markers, membership,
@@ -51,7 +69,7 @@ synthetic требует server-owned manifest/guard/accounts/well/pin; real ena
 [датированном свидетельстве](q1-runtime-2026-10-21.md).
 
 
-Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют историческую принятую Q0 область (13PASS, docs/publication PASS). Q1 добавил отдельный default-off synthetic модуль: [протокол](q1-file-jobs.md), [C4](q1-file-jobs.drawio), [runtime proof](q1-runtime-2026-10-21.md). Q1 schema13 проверена в выделенных test schemas; actual PREP этим не мигрирован. Текущая source schema14 добавляет Q2, описанный выше. Sync routes сохранены.
+Q0 добавил внутренний stored-file module: bounded CSV/XLSX → immutable raw/canonical snapshot в PostgreSQL schema12 → typed execution pin → strict `UploadPinned`. [Архитектура Q0](q0-architecture-2026-10-20.md) и [synthetic runtime proof](q0-runtime-2026-10-21.md) фиксируют историческую принятую Q0 область (13PASS, docs/publication PASS). Q1 добавил отдельный default-off synthetic модуль: [протокол](q1-file-jobs.md), [C4](q1-file-jobs.drawio), [runtime proof](q1-runtime-2026-10-21.md). Q1 schema13 проверена в выделенных test schemas; actual PREP этим не мигрирован. Текущая source schema15 добавляет C2; schema14 относится к историческому Q2-C1 выше. Sync routes сохранены.
 ## Границы ответственности
 
 Frontend обращается к HTTP API на Gin. Backend хранит операционные данные в PostgreSQL и вызывает Python ML по gRPC. Обучение, признаки и модель остаются в `pulse-model`; backend не устанавливает этот пакет.

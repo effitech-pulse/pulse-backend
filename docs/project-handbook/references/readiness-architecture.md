@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/readiness-architecture-2026-10-19.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-backend/docs/readiness-architecture-2026-10-19.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # PREP: архитектура готовности Pulse, 19.10.2026
 

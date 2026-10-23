@@ -1,6 +1,25 @@
 # Сборка запуск и сопровождение
 
-Q1 `make build` собирает пять CLI, включая `bin/worker`. Schema13 additive,
+C2 actual14 all11/resource/ML0/canary/teardown VERIFIED; publication PASS.
+[Runbook](../references/backend-operations.md#q2-c2-collection-recovery-и-откат),
+[actual guide](../references/q2-collection-runtime.md) содержат bootstrap, finite-worker
+restart, exactSDK1d0b...candidate0.1.2UNRELEASED и oldBASE readonly rollback.
+
+Schema15 явно; build7CLI. Copyable shells set-eu/freshRUN_ROOT/exactSDK guard,
+bounded exact-owned read-only PG/Rabbit readiness до one-shot broker bootstrap;
+ошибка→preserve/guardedteardown/freshstand. Recipe guards проверены на externalstubs,
+wholelive replay после docs handover не заявлен. Толькоfixedstdio, sourceGET/coverage
+receipt не legacywatermark; own90Rabbitmetrics/statusfuturepoll helpers автоматические.
+
+Для rollback guardoff/cancelnonterminal/stopdispatch+workers/leases+TX0; newmodeoff
+GET200/POST503 с protectedwritersemantics. OldAPI только после всех telemetrywriters/
+API/schedulers/connections drained, sourcespaused/PGreadonly; unrestricted oldwrite
+protection не обещается. Current∪retiredlogs сохраняются до removal и входят в scan.
+ACT14 exactteardown сохранил working8/free5, parkedunknownvolume untouched.
+ACT13 rawA11FAIL сохранён; samplerfixedcutoff/exactID/currentepoch/earliest3s не
+редактировал history. Code commit contentbinds tested77paths, README prose separate.
+
+Исторический Q1 `make build` собирает пять CLI, включая `bin/worker`. Schema13 additive,
 мигрируется явно только в разрешённую БД; actual PREP ей не мигрирован.
 Worker/dispatcher/reconciler используют bounded leases/retry/deadline; при
 неизвестной PG ошибке delivery не ack-ается до durable disposition.

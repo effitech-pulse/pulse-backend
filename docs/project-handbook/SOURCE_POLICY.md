@@ -1,6 +1,19 @@
 # Источники документации и публикация
 
-Редакция22.10.2026, после Q0 и реализации Q1/F2. Владелец комплекта — tech-lead. Этот автономный handbook является датированным снимком рабочего дерева семи pulse-репозиториев. Актуальный код/контракты принадлежат исходным модулям; целевые решения отделяются от фактического поведения. Наличие контрольных сумм подтверждает целостность снимка, а не истинность научных выводов или работу production runtime.
+Редакция23.10.2026: core/harness review, module gates и freshACT14 all11/runtime
+приняты в internal synthetic-only scope; docs/publication PASS отдельно.
+SamplerSuccessDeadline30/H20 и78source controls content-bound к source commit
+`1a824a63c068f828a9d4dfa663b8036cd426e191`(77testedpaths с прежнимREADME). Postrun README handover
+— docs-only delta; executable29/core47 неизменны. Наличие hashes/snapshot не обещает
+production/scientific acceptance, cloud release или remote SDK availability.
+Владелец комплекта — tech-lead; актуальные код/контракты принадлежат исходным модулям.
+Текущий publication gate PASS:125mappings/781public sources/37HTML/32draw.io pages/
+676local links/306OpenAPI refs/164checksums; freshly unpacked package validated без
+siblings/tasks/nestedZIP. Это датированный validation scope, не remote release.
+Фактическая status correction пересобирается root до final docs commit; архив первого
+успешного прохода сохранён отдельно, final ZIP hash не встраивается в собственные sources.
+
+
 
 ## Владение и обновление
 
@@ -17,6 +30,7 @@
 | O2 диагностика/пилот | pulse-backend/docs/observability-o2.md, o2-runtime-2026-10-20.md; o2-architecture-2026-10-20.md и o2-observability.drawio | Координатор владеет runbook/runtime evidence; architect-analyst — pins/budgets/C4; tech-lead — execution/главы/публикация. Source review, runtime proof и финальная приёмка отмечаются отдельно |
 | Q0 и предложение паспорт/Excel/помощник | pulse-backend/docs/q0-architecture-2026-10-20.md, q0-runtime-2026-10-21.md, well-operations-assistant-proposal-2026-10-20.md, well-operations-data-review-2026-10-20.md | Q0 synthetic internal acceptance принята; паспорт/Excel/помощник остаётся предложением. tech-lead + architect-analyst поддерживают отдельные факты и открытые gates |
 | Q1/F2 synthetic jobs | pulse-backend/docs/q1-file-jobs.md, q1-runtime-2026-10-21.md, q1-file-jobs.drawio, internal/migrations/file_jobs.sql | architect-planner владеет протоколом/схемой/C4; documentation-analyst и координатор — runtime facts/границы. Source review, actual fault/browser proof и whole acceptance отмечаются отдельно; default-off и real-file disabled сохраняются |
+| Q2-C2 finite collection | pulse-backend/docs/q2-collection-jobs.md, q2-collection-runtime-2026-10-22.md, q2-collection-jobs.drawio, internal/migrations/collection_jobs.sql и test/runtime/collection | documentation-analyst поддерживает source-linked prose/C4; координатор — final runtime facts, registry/snapshots/inventory и publication. Source/module/actual/docs gates раздельны; MODULE ceilings не actual capacity |
 | Рабочие инструкции модулей | README/AGENTS каждого репозитория | tech-lead: граница модуля, команды, утверждённое решение или статус |
 | Основные главы 01–19, схемы сценариев | Markdown/diagrams внутри этого handbook | tech-lead; архитектурные схемы сверяет architect-analyst; правятся содержательно после изменения источников |
 

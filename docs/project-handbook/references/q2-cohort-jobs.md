@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-backend/docs/q2-cohort-jobs.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-backend/docs/q2-cohort-jobs.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Q2-C1 · долговечный прогон cohort
 

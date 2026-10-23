@@ -1,5 +1,10 @@
 # Разделение кода по модулям
 
+Backend C2 добавляет `cmd/collection-worker`, typed domain/service/store,
+HTTP fixture и AMQP adapters, PG durable module и общий telemetry writer.
+Это backend-only change; Data/model/contracts/ML/UI не изменяются для collection.
+[Границы](../references/q2-collection-jobs.md), [C4](../diagrams/q2-collection-jobs.drawio).
+
 ## Рабочее место
 
 Разработка ведётся только в семи соседних репозиториях `repository-split/pulse-*`. Старые `esp/src/scripts/tests/frontend/landing/utils/deploy` в корне grant не восстанавливаются. `archive` и `reference` — исторические материалы, не текущие исходники. `data` и `.venv` проектов ссылаются на общее хранилище и окружение.

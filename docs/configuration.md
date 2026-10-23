@@ -125,3 +125,62 @@ private environment; URL/credentials не передаются browser/logs. П�
 outbox/reconcile TRY сохраняются. Correction SOURCE APPROVED, все8findings CLOSED;
 latest module gates и3actual cases PASS, internal synthetic runtime gates VERIFIED.
 Measured resources и teardown подтверждены в dated proof; проверки публикации комплекта учитываются отдельно, real/production/scientific не приняты.
+
+## Изолированный Q2-C2 synthetic профиль
+
+[Протокол](q2-collection-jobs.md) и [датированный runtime](q2-collection-runtime-2026-10-22.md)
+описывают отдельный collection path; source статус актуализирован23.10.2026.
+Source config имеет ровно семь COLLECTION_JOB_*
+переменных; COLLECTION_JOB_ALLOW_REAL не существует. Mode принимает только off/synthetic.
+
+| Переменная | Default | Synthetic проверка |
+| --- | --- | --- |
+| `COLLECTION_JOB_MODE` | `off` | Только `off` / `synthetic` |
+| `COLLECTION_JOB_MANIFEST` | Пусто | Explicit trusted regular local JSON file ≤65536 bytes; symlink/FIFO отвергаются |
+| `COLLECTION_JOB_MANIFEST_SHA256` | Пусто | Ровно 64 lowercase hex **без sha256:**, SHA точных manifest bytes |
+| `COLLECTION_JOB_RUN_ID` | Пусто | `[A-Za-z0-9_-]{1,64}`, совпадает policy/guard |
+| `COLLECTION_JOB_TEST_SCHEMA` | Пусто | `[a-z][a-z0-9_]{0,62}`, не public/information_schema/pg_*, совпадает current_schema/guard |
+| `COLLECTION_JOB_AMQP_URL` | Пусто | Scoped consumer amqp/amqps URL, path `/pulse-q2c2-synthetic`, без query/fragment |
+| `COLLECTION_JOB_PRODUCER_AMQP_URL` | Пусто | Отдельный scoped producer connection, тот же isolated vhost |
+
+Обязательны `AUTH_MODE=local`, `APP_SCOPE=research`, non-public disposable DB/schema
+и matching explicit guard. Manifest top-level: run_id, test_schema,
+manifest_sha256 (в файле пусто, loader подставляет actual hash), fixture_origin,
+allowed_account_ids (1–2), bindings (1–2), fixtures (1–4). Binding: source_id,
+well_id (Pulse), external_id (отрицательная decimal string), identity_kind
+unitek/armits. Fixture: id/protocol/horizon/retention_start/empty/channels/mappings.
+Нужны current allowlisted account и explicit scope на presentation well; full100
+и ML lane не требуются. Fixed actual origin `http://fixture:8080`; endpoint source
+точно `/v1/collection-capture`, kind=json_pull/status=running, credentials отсутствуют.
+
+`ML_AUTORUN_ENABLED=false` — точное existing env имя; AUTO_RUN не env параметр.
+Source interval_seconds=86400 и next_poll в будущем задаются explicit own seed,
+чтобы legacy scheduler не выполнял unrelated collection. Forbidden ML RPC counter
+всё равно обязан наблюдать 0. Pool ≤8/process, workers ≤2/1inflight, лимиты
+[заданы протоколом](q2-collection-jobs.md#схема-budgets-и-откат), не новым набором env.
+
+`bin/collection-worker` объединяет consumer/dispatcher/reconciler. API в mode off
+проверяет schema15 и предоставляет current authorized GET без manifest/guard/broker;
+POST/cancel возвращают503. Startup не применяет миграции и не создаёт synthetic seed.
+Не переносите C1 vhost/hash prefix/ML target в C2 профиль.
+
+Current C2 source-status23.10.2026: SamplerSuccessDeadline30/H20 SOURCE APPROVED,78Python controls
+PASS;3core+20harness findings CLOSED. Sole host transport — fixed bounded stdio;
+redundant PG/Rabbit Docker `-p` отсутствуют. Provision создаёт own readonly
+90-collection-test-metrics.conf до boot, collector=false сохраняется после restart;
+bootstrap выполняется с --user rabbitmq. Ready/quarantine требуют4observed
+nonnegative integer gauges с messages=ready+unacked; missing не значит0, A04 ждёт
+unacked1 до KILL. [Точный runtime guide](q2-collection-runtime-2026-10-22.md)
+разделяет source/probe/prior failures и принятый ACT14 runtime; publication PASS отдельно.
+
+C2 worker reconnect budget конечный8/backoffs на Consume lifetime; после exhaustion
+operator/orchestrator restart нужен вне процесса. Для этого proof не добавлены env,
+auto-restart policy или гарантии бесконечного daemon lifetime; durable attempts3,
+lease30s, fences и исходные resource caps прежние. Source SamplerSuccessDeadline30/H20,
+78Python tests отделены от actual ACT14 all11 PASS; runtime VERIFIED, publication PASS.
+
+C2 standalone source-state test workflow: сохранение source PUT всегда draft,
+activation — отдельный existing status PATCH, который resets next_poll=now(). Для
+own synthetic proof helper временно guard-ит exact ID/running config update,
+атомарно задавая future next_poll, и снимает trigger finally. Source/job configs,
+COLLECTION_JOB_* env, production migrations и resource limits не меняются.

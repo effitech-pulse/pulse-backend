@@ -1,10 +1,10 @@
 {
-  "edition": "2026-10-22: Q2-C1 synthetic durable cohort source and runtime verified; default off; Q2-C2 collection next",
-  "sections": 21,
+  "edition": "2026-10-23: Q2-C2 reliable collection — synthetic technical acceptance",
+  "sections": 23,
   "figma_entries": 150,
-  "http_operations": 90,
-  "source_records": 718,
-  "editable_diagram_pages": 30,
+  "http_operations": 93,
+  "source_records": 781,
+  "editable_diagram_pages": 32,
   "contains_production_data": false,
   "contains_model_weights": false,
   "contains_credentials": false,
@@ -16,5 +16,5 @@
   "validate": "python3 tools/validate.py",
   "sources_check": "python3 tools/sync_sources.py --workspace <repository-split> --check",
   "main_chapters": 19,
-  "html_sections": 35
+  "html_sections": 37
 }

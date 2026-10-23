@@ -1,5 +1,32 @@
 # Проверки Pulse и обязательные gates — DOC-05
 
+## Q2-C2 · collection,23.10.2026
+
+[Протокол](q2-collection-jobs.md), [C4](q2-collection-jobs.drawio),
+[source/actual/publication](q2-collection-runtime-2026-10-22.md).
+Core47/SamplerSuccessDeadline30 SOURCE APPROVED,core3+H01–H20 CLOSED;
+78Python controls и module-v2 PASS. Fresh ACT14 `r8e1b5066a1e3` ALL11 PASS,
+source-bound full-span resources/canary/ML0/teardown VERIFIED. Publication PASS.
+
+| Gate | Подтверждение / граница |
+| --- | --- |
+| Whole backend | make check17.398s, isolated integration421.538s monotonic(pkg419.575s), build7.129s PASS |
+| Protocol/PG | Exact replay/intent/capture/coverage, bounded parser+markers/null/zero/setpoints, global provenance collisions, authority/fence/session/legacy regressions |
+| Actual14 | A01–A10 и canonical A11 PASS одним fresh run; per-case5.815/74.653/3.421/52.947/39.407/39.767/29.625/94.434/64.973/5.836s |
+| Resources |592.801s/569relevant из596samples/897host+wait4; reconstructed aggregate917348352B и sampled956289024B — разные метрики, оба<1536MiB; source-owned helper peaks учтены |
+| Privacy/teardown | MLmethods0,canary0/2012647B/226surfaces/8current∪retiredlogIDs; exact own teardown/working8same/free5; parkedunattributedvolume untouched |
+| Publication | Docs-only README handover/D01–03 shell/readiness semantic controls, local links/XML/syntax; root sync/build/validate/sourcecheck/standalone ZIP PASS |
+
+Stand01 WALFAIL, failed/partialACT02–13 и isolateddiagnostics сохранены отдельно.
+ACT13 A01–10PASS/A11FAIL не исправлен задним числом; ACT14 имеет собственный fullproof.
+A03 actualcombined2MiB/2880raw/1440unique/body+1/rows+1 отделён от остальных unit/schema
+границ. A06 combined PG-session loss+same-container/new-process restart не sameOS
+survival; finite8 reconnect не unlimiteddaemon guarantee. Рецепт после docs-only
+D01/D02 guards проверен externalstubs/syntax, wholelive operator rerun не заявляется.
+Current code commit `1a824a63c068f828a9d4dfa663b8036cd426e191` content-binds77testedfiles;
+old binary VCS stamp BASE7fcdirty сохраняется, postrunREADME prose separate.
+Defaultoff/syntheticonly, PREP/UI/real/production/SLA/scientific не приняты.
+
 ## Q2-C1 · source и actual runtime gates, 22.10.2026
 
 Отдельный default-off synthetic cohort путь описан в [протоколе](q2-cohort-jobs.md)
@@ -53,7 +80,7 @@ Q0 RUN-2 ·21.10.2026: [постоянный proof/runbook](q0-runtime-2026-10-2
 
 | Модуль и окружение | Проверка перед приёмкой | Настроенный CI | Ручная часть и SKIP |
 |---|---|---|---|
-| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.2 local UNRELEASED (исторический PREP0.1.1 отдельно), отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort/worker/cohort-worker | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
+| Backend: Go ≥1.25 по go.mod, SDK contracts 0.1.2 local UNRELEASED (исторический PREP0.1.1 отдельно), отдельная PostgreSQL 16 | `make check`; `TEST_DATABASE_URL=... make integration`; `make build`. `make fmt` исправляет код, для контроля форматирования используется проверка gofmt из make check | GitHub: gofmt, race tests, vet, сборка api/migrate; тот же job использует отдельный сервис PG. GitLab: race tests/vet с PG. Make build дополнительно проверяет adminuser/cohort/worker/cohort-worker/collection-worker | Без тестовой PG integration не принят, даже если прямой go test вывел SKIP. Рабочую БД esp_app не использовать. Проверки реального источника, браузерных прав и восстановления выделяются отдельно |
 | Frontend: Node 22 (для тестов минимум 22.18), package-lock | `npm ci`; `npm test`; `npm run build` (TypeScript + Vite) | GitHub и GitLab: install → **npm test → build**; ошибка теста останавливает job, ignore-failure не задан | Для этих тестов модель/БД не нужны: отсутствие модели не основание для SKIP. Визуальная сверка с Figma, клавиатура, обе темы и браузерные сценарии проверяются отдельно |
 | Data: Python3.13 в CI, model exact source SHA из PREP manifest; workspace `.venv` общий | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: установка pinned model, test, build/twine check. Отдельного GitLab workflow в текущем репозитории нет | Офлайн-регрессия парсера не требует UNITEK/ARMITS credentials. Живой сбор — отдельная разрешённая проверка; не смешивать его пропуск с пропуском офлайн-тестов |
 | Model: Python 3.13 в CI, test/deep-learning extras для объявленного набора | `.venv/bin/python -m pytest`; `.venv/bin/python -m pip wheel --no-deps . -w dist` | GitHub: pytest с JUnit, build/twine check. GitLab: pytest и wheel | Если необязательный extra отсутствует, конкретный SKIP и причина фиксируются. Успех unit suite не подтверждает ML-качество; причинная оценка eval_honest.py и закрытый test — отдельная ML-приёмка. Обучение не запускается ради этого документа |

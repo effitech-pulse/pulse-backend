@@ -1,5 +1,12 @@
 # HTTP API и gRPC контракты
 
+C2 добавляет ровно `/api/v1/collection-jobs`: POST202, GET `/{job_id}`200,
+POST `/{job_id}/cancel`200. В path нет `/ml`. Local admin session, current owner/
+explicit scope, mutation origin и revision обязательны; opaque IDs, no-store,
+strict bounded JSON, безопасные errors. GET сохраняется в mode off на schema15;
+submit/cancel503. [DTO/replay/codes](../references/q2-collection-jobs.md#http).
+Нет raw capture download, manual redrive или ML/RPC вызова.
+
 Q1 добавляет opt-in `/file-check-capabilities` и
 `/wells/{well_id}/file-check-jobs`: POST202 после durable acceptance, list/status,
 result, review GET/PUT и cancel POST; paths под обычным `/api/v1`.

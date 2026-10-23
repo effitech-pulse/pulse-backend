@@ -4,7 +4,28 @@
 
 **Начните с [HTML-версии с поиском](index.html)** или читайте разделы Markdown ниже. [Figma](https://www.figma.com/design/km4tIbp3LnMTRrV6yi6Qho) и [C4 в draw.io](diagrams/pulse-c4.drawio) связаны с описанием текущего кода. [Сценарии в draw.io](diagrams/pulse-flows.drawio) дополняют архитектуру.
 
-## Текущий Q2-C1 и исторические принятые редакции ·22.10.2026
+## Текущая редакция Q2-C2 ·23.10.2026
+
+Принят надёжный сбор данных: сохранённое намерение, неизменяемый capture перед
+записью, атомарные measurements/checkpoint/coverage и защита от устаревшей попытки.
+[Протокол Q2-C2](references/q2-collection-jobs.md) и
+[результаты ACT14 и воспроизведение](references/q2-collection-runtime.md) описывают
+границы и проверки. `COLLECTION_JOB_MODE=off` остаётся значением по умолчанию;
+включение ограничено синтетическим стендом. Рабочий портал не переключён.
+
+FULL ACT14 `r8e1b5066a1e3`: **A01–A11 PASS** в одном свежем прогоне; проверены
+весь ресурсный след, ML RPC0, canary0, удаление учтённого стенда и сохранение
+восьми рабочих контейнеров. Source code commit
+`1a824a63c068f828a9d4dfa663b8036cd426e191` связан с проверенными bytes;
+локальный commit документации следует после публикационных проверок.
+Научная и промышленная приёмка остаются отдельными этапами.
+
+Текущий комплект: **125 mapped snapshots,781 public source records,37 HTML-разделов,
+32 страницы draw.io**. Sync/build/validate/source-check и автономная проверка
+свежераспакованного ZIP прошли; его SHA фиксируется отдельным receipt без self-hash.
+Числа в датированных разделах ниже относятся к соответствующим прежним редакциям.
+
+## Исторические принятые редакции ·22.10.2026
 
 Q2-C1 source ·22.10.2026: реализован отдельный default-off synthetic-only durable
 cohort API/worker с complete100 immutable inputs и all100 final publication.
@@ -44,7 +65,7 @@ Backend выполняет пользовательский bulk через те
 
 **O1/F1 приняты как программное изменение в согласованной области.** Core OTel SDK 1.38.0/безопасные JSON logs и шесть вкладок с восемью versioned Figma nodes проверены: task и whole-wave Senior Spec/Standards PASS, findings 0; runtime 12/12 и browser 7+2/9, pageErrors 0, scoped visual PASS. HTTP код обращения отделён от бизнес `request_id`; exporter/центрального хранилища нет. [Execution ledger](references/o1-f1-execution.md), [O1 contract](references/observability-o1.md) и [runtime playbook](references/o1-f1-runtime.md) фиксируют payload refs, evidence и пределы: нет successful live ML→PG прогона, forced rollover или научной приёмки. Последующие O2/Q0 редакции прошли sync/build/validate/source check и standalone ZIP gate; это историческая принятая публикация, не свидетельство current Q1 publication. PREP manifest сохранён историческим.
 
-Сборка22.10.2026:117 mapped snapshots,680 public source records,35 HTML-разделов,
+Историческая сборка22.10.2026:117 mapped snapshots,680 public source records,35 HTML-разделов,
 28 draw.io pages. Sync/build/validate/source check и standalone ZIP validation PASS.
 Эти проверки подтверждают автономность прежней редакции комплекта; новое
 post-fix stale свидетельство22.10 и границы synthetic runtime verification

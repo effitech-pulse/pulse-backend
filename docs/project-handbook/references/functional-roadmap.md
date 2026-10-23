@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `tasks/pulse-backend/docs/functional-roadmap-2026-10-20.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Pulse: общий план функционала, наблюдаемости и надёжных заданий
 

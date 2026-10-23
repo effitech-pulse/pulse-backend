@@ -103,5 +103,15 @@
     "id": "q1-runtime",
     "title": "Q1/F2 — проверка восстановления и пределы",
     "path": "references/q1-runtime.md"
+  },
+  {
+    "id": "q2-collection-jobs",
+    "title": "Q2-C2 — надёжный сбор: протокол",
+    "path": "references/q2-collection-jobs.md"
+  },
+  {
+    "id": "q2-collection-runtime",
+    "title": "Q2-C2 — проверка восстановления и пределы",
+    "path": "references/q2-collection-runtime.md"
   }
 ]

@@ -1,6 +1,6 @@
 # Инвентаризация исходников и версий
 
-Редакция22.10.2026 индексирует **public working tree** семи репозиториев после принятого Q0, Q1/F2 и Q2-C1 в internal synthetic technical scope. SHA и наличие файла фиксируют bytes; статус приёмки отдельно указан в [разделе2](02-status.md) и [Q2-C1 runtime proof](../references/q2-runtime.md). Mapped snapshots с владельцами перечислены в [реестре](../inventory/snapshot-sources.json); private SDD/runtime files исключены. PREP/O1/O2 refs ниже исторические. Текущие sync/source check и автономная проверка пакета PASS:121 mappings,718 source records,35 HTML-разделов,30 draw.io pages; это целостность публикации. Приёмка source/runtime Q2-C1 описана отдельно; scientific/real-private/production acceptance не заявляется.
+Редакция 23.10.2026 индексирует **public working tree** семи репозиториев после Q0, Q1/F2, Q2-C1 и принятого Q2-C2 в synthetic technical scope. Точные bytes фиксируются SHA; результаты runtime-проверок описаны отдельно в [статусе проекта](02-status.md) и [Q2-C2 runtime proof](../references/q2-collection-runtime.md). Реестр содержит **125 mappings**, файловый индекс — **781 source records**, HTML — **37 разделов**, редактируемые draw.io — **32 страницы**. Это состав и целостность публикации; научная и промышленная приёмка относятся к отдельным этапам. Private SDD/runtime материалы исключены. PREP/O1/O2 refs ниже сохраняют исторический смысл.
 
 Файловая инвентаризация: [CSV с SHA256](../inventory/source-files.csv), [репозитории и HEAD](../inventory/source-manifest.json). В перечень включены исходники и публичные конфигурации; исключены данные, окружения, Git metadata, бинарники, секреты и этот комплект документации.
 
@@ -12,7 +12,7 @@
 | pulse-data | `e38a978a1c25` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-data) |
 | pulse-ml-service | `f5e08f529117` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-ml-service) |
 | pulse-contracts | `1d0b2b62d2cb` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-contracts) |
-| pulse-backend | `677cf337393b` | 30 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
+| pulse-backend | `1a824a63c068` | 71 | [GitHub](https://github.com/effitech-pulse/pulse-backend) |
 | pulse-frontend | `771187e27051` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-frontend) |
 | pulse-landing | `e555b333003f` | 0 | [GitHub](https://github.com/effitech-pulse/pulse-landing) |
 
@@ -46,9 +46,9 @@
 ### pulse-backend
 
 - `scripts/`
-- `cmd/`: `adminuser/`, `api/`, `cohort/`, `migrate/`, `worker/`
+- `cmd/`: `adminuser/`, `api/`, `cohort/`, `collection-worker/`, `migrate/`, `worker/`
 - `internal/`: `adapter/`, `bootstrap/`, `config/`, `domain/`, `migrations/`, `observability/`, `repository/`, `service/`, `transport/`
-- `test/`: `architecture/`, `integration/`
+- `test/`: `architecture/`, `integration/`, `runtime/collection/`
 - `deployments/`: `local/`
 
 ### pulse-frontend

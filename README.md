@@ -1,5 +1,18 @@
 # Пульс скважины · Backend
 
+Q2-C2 ·статус23.10.2026: добавлен отдельный конечный synthetic-only collection path:
+`POST /api/v1/collection-jobs` → immutable captured response → атомарные
+measurements/checkpoint/coverage. `COLLECTION_JOB_MODE=off` по умолчанию;
+допустимы только off/synthetic. [Протокол](docs/q2-collection-jobs.md),
+[редактируемый C4](docs/q2-collection-jobs.drawio),
+[статусы и runtime](docs/q2-collection-runtime-2026-10-22.md).
+Core и harness source APPROVED тем же Senior,3core+20harness findings CLOSED.
+Full module check/integration/build и ACT14 all11/runtime/resources/ML0/teardown PASS.
+Code source commit `1a824a63c068f828a9d4dfa663b8036cd426e191`; docs/publication gate PASS (standalone validation/source-check), docs commit оформляется отдельно. App schema15 применяется явно.
+C2 не вызывает ML и не продвигает legacy last_measured. Рабочие PREP/UI/сбор,
+real enable и scientific acceptance не переключены. Ниже C1 — историческая область;
+C2 добавляет следующий самостоятельный slice.
+
 Q2-C1 ·22.10.2026: реализован отдельный internal synthetic-only durable cohort путь
 с full100 freeze до202, persisted checkpoints и атомарной публикацией полного
 snapshot. `COHORT_JOB_MODE=off` default, `COHORT_JOB_ALLOW_REAL=false` обязательно.
@@ -73,7 +86,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию14 (additive Q2 cohort jobs/immutable inputs/checkpoints поверх Q1 schema13 и Q0 schema12). PostgreSQL server —16;14 означает версию схемы приложения. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию15 (additive collection jobs/capture/coverage поверх Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16;15 означает версию схемы приложения. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -95,6 +108,7 @@ curl http://127.0.0.1:8000/health
 | Данные | `/api/v1/wells/{id}/predictions`, `complications`, `classification` | Прогнозы и осложнения |
 | ML | `/api/v1/ml/*` | Риск, SHAP, история, загрузка файла, прогоны, статусы тревог |
 | Q2 internal synthetic | `POST /api/v1/ml/cohort-jobs`, `GET /api/v1/ml/cohort-jobs/{job_id}`, `POST /api/v1/ml/cohort-jobs/{job_id}/cancel` | Durable submit, status по ID и revision cancel; [точный контракт](docs/q2-cohort-jobs.md#http) |
+| Q2-C2 internal synthetic | `POST /api/v1/collection-jobs`, `GET /api/v1/collection-jobs/{job_id}`, `POST /api/v1/collection-jobs/{job_id}/cancel` | Конечный collection/capture/receipt; [контракт](docs/q2-collection-jobs.md#http) |
 | Наблюдаемость | `/health`, `/api/v1/audit`, `/api/v1/runs` | Проверка БД, аудит и события |
 | Аналитика | `/api/v1/analytics/*` | Подписанные Metabase URL |
 
@@ -106,7 +120,7 @@ curl http://127.0.0.1:8000/health
 
 ```sh
 make check       # unit-тесты, границы слоёв, race detector, vet, форматирование
-make build       # bin/api, bin/migrate, bin/adminuser, bin/cohort, bin/worker, bin/cohort-worker
+make build       # bin/api, bin/migrate, bin/adminuser, bin/cohort, bin/worker, bin/cohort-worker, bin/collection-worker
 ```
 
 Интеграционные тесты:
@@ -122,7 +136,7 @@ make test-db-down
 ## Структура
 
 ```text
-cmd/                  Точки входа api, migrate, adminuser, cohort, worker, cohort-worker
+cmd/                  Точки входа api, migrate, adminuser, cohort, worker, cohort-worker, collection-worker
 internal/
   bootstrap/          Сборка зависимостей и жизненный цикл
   config/             Настройки окружения

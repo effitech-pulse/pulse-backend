@@ -1,4 +1,4 @@
-> Снимок документа 22.10.2026. Источник: `pulse-ml-service/docs/model-rpc-compatibility.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
+> Снимок документа 23.10.2026. Источник: `pulse-ml-service/docs/model-rpc-compatibility.md`; связь и владелец — `inventory/snapshot-sources.json`. Ссылки локализованы для автономного пакета.
 
 # Совместимость моделей, RPC и происхождение результата
 

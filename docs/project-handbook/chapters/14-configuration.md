@@ -1,5 +1,16 @@
 # Конфигурация и зависимости окружения
 
+C2 harness own90-collection-test-metrics.conf readonly задаёт collector=false
+до Rabbit boot, сохраняется после restart. Это test-owned static config, не новая
+COLLECTION_JOB_* env. Host ports экспонирует только fixed stdio bridge, Docker-p нет.
+
+C2 имеет ровно7 COLLECTION_JOB_* env: MODE, MANIFEST, MANIFEST_SHA256, RUN_ID,
+TEST_SCHEMA, AMQP_URL, PRODUCER_AMQP_URL. MODE=off default, только off/synthetic;
+ALLOW_REAL нет. SHA —64lowercase hex без prefix; vhost `/pulse-q2c2-synthetic`.
+Нужны local/research, explicit synthetic guard, ≤2 accounts/bindings и≤4 fixtures;
+`ML_AUTORUN_ENABLED=false` и future source next_poll. [Точная таблица](../references/backend-configuration.md#изолированный-q2-c2-synthetic-профиль).
+Schema15 проверяется новым API даже off; startup не мигрирует/seed-ит.
+
 Q1 добавил default-off `FILE_CHECK_MODE=off|synthetic`, обязательный false
 `FILE_CHECK_ALLOW_REAL`, explicit manifest/hash/run ID и две scoped broker URLs
 только для worker. Synthetic требует local/cohort, полную100-well cohort,
