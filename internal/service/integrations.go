@@ -590,7 +590,16 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 		secret, err = s.secrets.Open(source.EncryptedSecret)
 	}
 	if err == nil {
-		records, err = s.connector.Fetch(ctx, source, secret)
+		if gate, ok := s.store.(interface {
+			AuthorizeTelemetrySourceLease(context.Context, domain.TelemetrySourceLease) error
+		}); ok {
+			err = gate.AuthorizeTelemetrySourceLease(ctx, *claimed)
+		} else {
+			err = domain.NewError(domain.Unavailable, "current_authority_store_required")
+		}
+		if err == nil {
+			records, err = s.connector.Fetch(ctx, source, secret)
+		}
 	}
 	if err != nil {
 		slog.WarnContext(ctx, "telemetry collection failed", "error_code", "operation_failed")
@@ -617,10 +626,16 @@ func (s *Integrations) Collect(ctx context.Context, id string, due bool) (out do
 		}
 		return domain.CollectionLog{}, err
 	}
-	return s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Lease: claimed, Points: points, Rejected: rejected, Message: "Цикл сбора завершён", Release: true})
+	out, err = s.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: id, ProfileVersion: source.ProfileVersion, Lease: claimed, Points: points, Rejected: rejected, Message: "Цикл сбора завершён", Release: true})
+	if err != nil {
+		cleanup, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer cancel()
+		_ = s.store.FailCollection(cleanup, *claimed, "Сбор не опубликован")
+	}
+	return out, err
 }
 func (s *Integrations) Schedule(ctx context.Context) {
-	ctx = domain.WithSystemPrincipal(ctx)
+	ctx = domain.WithSchedulerPrincipal(ctx, domain.ExecutionSystemCollect, domain.AccessScope{Funds: []string{"operational", "presentation"}})
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {

@@ -104,12 +104,12 @@ func TestTelemetryPullAndLease(t *testing.T) {
 	created := call(t, h, "POST", "/api/v1/integrations", body, 200).(map[string]any)
 	id := created["id"].(string)
 	call(t, h, "PATCH", "/api/v1/integrations/"+id+"/status", `{"status":"running"}`, 200)
-	claimed, err := app.store.ClaimSource(context.Background(), id, false)
+	claimed, err := app.store.ClaimSource(legacyResearchFixtureContext(), id, false)
 	if err != nil || claimed == nil {
 		t.Fatal(err)
 	}
 	call(t, h, "POST", "/api/v1/integrations/"+id+"/collect", "", 409)
-	if err = app.store.FailCollection(context.Background(), *claimed, "test retry"); err != nil {
+	if err = app.store.FailCollection(legacyResearchFixtureContext(), *claimed, "test retry"); err != nil {
 		t.Fatal(err)
 	}
 	out := call(t, h, "POST", "/api/v1/integrations/"+id+"/collect", "", 200).(map[string]any)
@@ -124,7 +124,7 @@ func TestTelemetryPullAndLease(t *testing.T) {
 
 func TestTelemetryBoundsAndArchiveMerge(t *testing.T) {
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	app := New(testConfig(), pool, &fakeML{})
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -156,8 +156,8 @@ func TestTelemetryBoundsAndArchiveMerge(t *testing.T) {
 
 // Снимок настроек не должен подменять watermark после следующего цикла сбора.
 func TestSourceRuntimeTimestampsOverrideSavedProfile(t *testing.T) {
-	ctx := context.Background()
-	repo := postgres.New(testDB(t))
+	ctx := legacyResearchFixtureContext()
+	repo := postgres.New(testDB(t)).WithExecutionProfile("legacy", "research")
 	old := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	source, err := repo.SaveSource(ctx, domain.TelemetrySource{ID: "watermark-profile", Name: "Watermark", Kind: "json_pull", Status: "running", IntervalSeconds: 5, LastReceived: &old, LastMeasured: &old})
 	if err != nil {

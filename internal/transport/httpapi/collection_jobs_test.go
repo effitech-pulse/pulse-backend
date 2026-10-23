@@ -31,7 +31,7 @@ func TestCollectionHTTPReplayReadCancelSecurity(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request = httptest.NewRequest(method, "/api/v1/collection-jobs/"+strings.Repeat("a", 32), strings.NewReader(`{}`))
-		c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), domain.Principal{AccountID: &id, Authenticated: true, Mechanism: "session", Role: "admin"}))
+		c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), domain.TrustedCompatibilityPrincipal(domain.Principal{AccountID: &id, Authenticated: true, Mechanism: "session", Role: "admin"})))
 		c.Params = gin.Params{{Key: "job_id", Value: strings.Repeat("a", 32)}}
 		var e error
 		if method == "GET" {

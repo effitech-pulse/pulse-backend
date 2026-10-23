@@ -1,5 +1,21 @@
 # Архитектура backend
 
+## Настраиваемый доступ · schema16
+
+Access хранит union прямых и групповых ролей в PostgreSQL. Personal organization
+scope пересекается с техническими funds. Data/worker transitions удерживают
+`auth_user FOR SHARE` перед current union/epoch до commit; graph edits используют
+graph → sorted affected users. Worker/data graph lock не берётся. Rabbit содержит
+opaque reference, persisted `access_v1` authority перечитывается перед чтением,
+checkpoint и атомарной публикацией. Legacy manual ML сохраняет account initiator,
+source collect связывает writer authority с lease generation/token. Исторические
+input/output/role snapshots не превращаются в текущие полномочия.
+
+[RBAC runbook и DTO/compatibility](rbac.md), [редактируемый C4 component view](rbac.drawio)
+содержат отдельные Current schema15 и Proposed schema16 страницы. Новых containers
+нет. Schema16 source/test readiness и activation runtime разделены; compat default,
+enforce требует explicit drained maintenance activation и повторный вход.
+
 ## Q2-C2 · конечный collection source, статус23.10.2026
 
 Отдельный default-off synthetic путь использует CollectionJobs → CollectionJobStore.

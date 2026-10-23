@@ -40,6 +40,10 @@ HTTP API системы диагностики УЭЦН. Backend ведёт ре
 
 **Стек:** Go · Gin · PostgreSQL (pgx + Squirrel) · gRPC/protobuf. Вычисления модели и обучение выполняются в Python-проектах `pulse-ml-service` и `pulse-model`.
 
+Настраиваемый RBAC v1: [права, workers и staged activation](docs/rbac.md),
+[редактируемая C4-схема](docs/rbac.drawio). `RBAC_MODE=compat` — default; переход
+в enforce выполняется отдельным maintenance cutover. Source не активирует runtime.
+
 ## Быстрый запуск
 
 Нужны Go 1.25+, PostgreSQL 16 и соседний `pulse-contracts`. Для страниц риска также запустите `pulse-ml-service`.
@@ -72,6 +76,7 @@ cp configs/app.env.example .env
 | `AUTH_MODE` | legacy или персональные сеансы local | `local` в примере и Compose; code default legacy |
 | `APP_SCOPE` | Граница пользовательского фонда | `cohort` (default); research выбирается явно |
 | `COHORT_VERSION` | Версия сохранённых 100 участников | `presentation-v1`; обязательна при cohort |
+| `RBAC_MODE` | compat или enforce; согласован с persisted activation | `compat` |
 | `AUTH_COOKIE_SECURE` | Secure cookie персональных сеансов | `true` |
 | `ML_SERVICE_TARGET` | Адрес Python ML-сервиса | `127.0.0.1:50051` |
 | `ML_SERVICE_API_KEY` | Общий ключ backend и ML-сервиса | Одинаковое значение в обоих сервисах |
@@ -86,7 +91,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию15 (additive collection jobs/capture/coverage поверх Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16;15 означает версию схемы приложения. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию16 (additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения16 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 

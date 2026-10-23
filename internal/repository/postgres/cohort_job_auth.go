@@ -121,20 +121,27 @@ func (r *Repository) cohortGuard(ctx context.Context, tx pgx.Tx) (bool, error) {
 }
 
 // authority различает устойчивый отказ и неизвестную SQL-ошибку; admin shortcut не используется.
-func (r *Repository) cohortAuthority(ctx context.Context, tx pgx.Tx, actor int64, frozen []domain.CohortFrozenMember) (domain.Account, []domain.Well, bool, error) {
+func (r *Repository) cohortAuthority(ctx context.Context, tx pgx.Tx, actor int64, frozen []domain.CohortFrozenMember, saved *domain.JobAuthorization, permission domain.Permission, execution bool) (domain.Account, []domain.Well, bool, error) {
 	var a domain.Account
 	p := r.cohortJobPolicy
 	if p == nil || !slices.Contains(p.AllowedAccountIDs, actor) {
 		return a, nil, false, nil
 	}
-	a, e := one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": actor}).Suffix("FOR SHARE"))
+	auth, e := jobAuthority(ctx, tx, actor, saved, permission, execution)
+	if authorityDenied(e) {
+		return a, nil, false, nil
+	}
+	if e != nil {
+		return a, nil, false, e
+	}
+	a, e = one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": actor}))
 	if isMissing(e) {
 		return a, nil, false, nil
 	}
 	if e != nil {
 		return a, nil, false, e
 	}
-	if !a.Active || a.Role != "admin" {
+	if !a.Active {
 		return a, nil, false, nil
 	}
 	ids := sqlBuilder.Select("well_id").From("app_cohort_member").Where(sq.Eq{"version": p.CohortVersion})
@@ -150,7 +157,7 @@ func (r *Repository) cohortAuthority(ctx context.Context, tx pgx.Tx, actor int64
 		if fund == "" {
 			fund = "operational"
 		}
-		if !slices.Contains(a.Scope.Funds, fund) || (a.Scope.NGDUs != nil && !slices.Contains(*a.Scope.NGDUs, w.NGDU)) || (a.Scope.Departments != nil && !slices.Contains(*a.Scope.Departments, w.Department)) {
+		if !auth.AllowsWell(w) {
 			return a, nil, false, nil
 		}
 	}
@@ -168,7 +175,7 @@ func (r *Repository) cohortAuthority(ctx context.Context, tx pgx.Tx, actor int64
 		if members[i].WellID != w.ID {
 			return a, nil, false, nil
 		}
-		if frozen != nil && (len(frozen) != 100 || frozen[i].Well.ID != w.ID || frozen[i].Well.Active != w.Active || !sameCohortLifecycleTime(frozen[i].Well.ArchivedAt, w.ArchivedAt)) {
+		if frozen != nil && (len(frozen) != 100 || frozen[i].Well.ID != w.ID || frozen[i].Well.Revision != w.Revision || frozen[i].Well.Active != w.Active || frozen[i].Well.NGDU != w.NGDU || frozen[i].Well.Department != w.Department || frozen[i].Well.FundType != w.FundType || !equalJobJSON(frozen[i].Well.UnitekID, w.UnitekID) || !equalJobJSON(frozen[i].Well.ArmitsID, w.ArmitsID) || !sameCohortLifecycleTime(frozen[i].Well.ArchivedAt, w.ArchivedAt)) {
 			return a, nil, false, nil
 		}
 	}

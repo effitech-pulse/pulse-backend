@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"strings"
 	"testing"
 	"time"
@@ -205,7 +204,7 @@ func TestCohortLegacyFailAndCleanupExcluded(t *testing.T) {
 		t.Fatal(reason, e)
 	}
 
-	if _, e = held.BeginCohort(context.Background(), "manual", v.Fixture.CohortVersion); e != nil {
+	if _, e = held.BeginCohort(ctx, "manual", v.Fixture.CohortVersion); e != nil {
 		t.Fatal(e)
 	}
 }

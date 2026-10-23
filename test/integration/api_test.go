@@ -71,7 +71,7 @@ func (f *fakeML) Upload(ctx context.Context, name string, r io.Reader) (domain.U
 	return domain.UploadResult{Filename: name, NWindows: int64(len(data))}, nil
 }
 func testConfig() config.Config {
-	return config.Config{Prefix: "/api/v1", MLTimeout: time.Second, PoolSize: 5, Location: time.UTC, CORS: []string{"http://localhost:3000"}, Dashboards: []config.Dashboard{}}
+	return config.Config{AuthMode: "legacy", AppScope: "research", Prefix: "/api/v1", MLTimeout: time.Second, PoolSize: 5, Location: time.UTC, CORS: []string{"http://localhost:3000"}, Dashboards: []config.Dashboard{}}
 }
 
 type application struct {
@@ -81,7 +81,7 @@ type application struct {
 }
 
 func New(c config.Config, pool *pgxpool.Pool, client service.MLClient) *application {
-	store := postgres.New(pool)
+	store := postgres.New(pool).WithExecutionProfile(c.AuthMode, c.AppScope)
 	ml := service.NewML(store, store, client, service.RunOptions{Timeout: c.MLTimeout, Location: c.Location})
 	var catalog *service.Catalog
 	if pool != nil {
@@ -317,7 +317,7 @@ func TestRunLockAndFeedbackCarry(t *testing.T) {
 	fake := &fakeML{gate: make(chan struct{}), started: make(chan struct{})}
 	a := New(testConfig(), pool, fake)
 	other := New(testConfig(), pool, fake)
-	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal run fixture
+	ctx := legacyResearchFixtureContext() // intentional legacy research run fixture
 	started, err := a.StartRun(ctx, "manual")
 	if err != nil || !started {
 		t.Fatal(started, err)

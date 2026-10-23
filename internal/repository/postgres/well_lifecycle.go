@@ -43,7 +43,7 @@ func (r *Repository) SetWellArchive(ctx context.Context, id int64, revision *int
 		return domain.Well{}, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		permission := domain.Permission("wells.restore")
 		if archived {
 			permission = "wells.archive"

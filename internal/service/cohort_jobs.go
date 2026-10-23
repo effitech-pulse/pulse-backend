@@ -22,18 +22,18 @@ func NewCohortJobs(store CohortJobStore, catalogue CohortFixtureCatalogue) (*Coh
 	}
 	return &CohortJobs{store: store, catalogue: catalogue}, nil
 }
-func cohortJobActor(ctx context.Context) (int64, error) {
+func cohortJobActor(ctx context.Context, permission domain.Permission) (int64, error) {
 	p, ok := domain.CurrentPrincipal(ctx)
 	if !ok || !p.Authenticated || p.Mechanism != "session" || p.AccountID == nil || *p.AccountID <= 0 {
 		return 0, domain.NewError(domain.Unauthorized, "session_required")
 	}
-	if p.Role != "admin" {
+	if p.Authorization == nil || p.Authorization.Require(permission) != nil {
 		return 0, domain.NewError(domain.Forbidden, "cohort_job_forbidden")
 	}
 	return *p.AccountID, nil
 }
 func (s *CohortJobs) Submit(ctx context.Context, key, fixtureID string) (domain.CohortJobStatus, error) {
-	actor, err := cohortJobActor(ctx)
+	actor, err := cohortJobActor(ctx, "cohortjobs.run")
 	if err != nil {
 		return domain.CohortJobStatus{}, err
 	}
@@ -56,7 +56,7 @@ func (s *CohortJobs) Submit(ctx context.Context, key, fixtureID string) (domain.
 	return s.store.AcceptCohortJob(ctx, p)
 }
 func (s *CohortJobs) Get(ctx context.Context, id string) (domain.CohortJobStatus, error) {
-	if _, err := cohortJobActor(ctx); err != nil {
+	if _, err := cohortJobActor(ctx, "cohortjobs.read"); err != nil {
 		return domain.CohortJobStatus{}, err
 	}
 	if !cohortOpaqueID.MatchString(id) {
@@ -65,7 +65,7 @@ func (s *CohortJobs) Get(ctx context.Context, id string) (domain.CohortJobStatus
 	return s.store.CohortJobStatus(ctx, id)
 }
 func (s *CohortJobs) Cancel(ctx context.Context, id string, revision int64) (domain.CohortJobStatus, error) {
-	if _, err := cohortJobActor(ctx); err != nil {
+	if _, err := cohortJobActor(ctx, "cohortjobs.cancel"); err != nil {
 		return domain.CohortJobStatus{}, err
 	}
 	if !cohortOpaqueID.MatchString(id) {

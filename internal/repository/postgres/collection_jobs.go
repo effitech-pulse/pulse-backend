@@ -127,7 +127,7 @@ func collectionStatus(ctx context.Context, tx pgx.Tx, j collectionJobRow) (domai
 	}
 	return s, nil
 }
-func collectionReadAuthority(ctx context.Context, tx pgx.Tx, j collectionJobRow) error {
+func collectionReadAuthority(ctx context.Context, tx pgx.Tx, j collectionJobRow, permission domain.Permission) error {
 	actor, e := cohortSession(ctx)
 	if e != nil {
 		return e
@@ -135,15 +135,16 @@ func collectionReadAuthority(ctx context.Context, tx pgx.Tx, j collectionJobRow)
 	if actor != j.Actor {
 		return collectionError(domain.Missing, "collection_job_missing")
 	}
-	a, e := collectionAccount(ctx, tx, actor)
+	auth, e := jobAuthority(ctx, tx, actor, nil, permission, false)
 	if e != nil {
 		return e
 	}
+
 	w, e := collectionWell(ctx, tx, j.Intent.Binding.WellID)
 	if e != nil {
 		return e
 	}
-	if !collectionAllows(a, w) {
+	if !collectionAllows(auth, w) {
 		return collectionError(domain.Forbidden, "collection_access_denied")
 	}
 	return nil
@@ -164,7 +165,7 @@ func (r *Repository) CollectionJobStatus(ctx context.Context, id string) (domain
 	if e != nil {
 		return zero, e
 	}
-	if e = collectionReadAuthority(ctx, tx, j); e != nil {
+	if e = collectionReadAuthority(ctx, tx, j, "collectionjobs.read"); e != nil {
 		return zero, e
 	}
 	j, e = collectionRow(ctx, tx, id, "FOR SHARE")
@@ -203,7 +204,7 @@ func (r *Repository) AcceptCollectionJob(ctx context.Context, in domain.Collecti
 	// Replay is resolved from the original accepted descriptor, before current source validation.
 	old, e := one[collectionJobRow](ctx, tx, sqlBuilder.Select("*").From("collection_job").Where(sq.Eq{"actor_account_id": actor, "replay_key_sha256": telemetryTokenSHA(in.ReplayKey)}))
 	if e == nil {
-		if e = collectionReadAuthority(ctx, tx, old); e != nil {
+		if e = collectionReadAuthority(ctx, tx, old, "collectionjobs.run"); e != nil {
 			return zero, e
 		}
 		start, end, err := domain.NormalizeCollectionPeriod(in.Start, in.End, old.Intent.Fixture)
@@ -252,6 +253,10 @@ func (r *Repository) AcceptCollectionJob(ctx context.Context, in domain.Collecti
 	if e != nil {
 		return zero, e
 	}
+	auth, e := jobAuthority(ctx, tx, actor, nil, "collectionjobs.run", false)
+	if e != nil {
+		return zero, e
+	}
 	a, e := collectionAccount(ctx, tx, actor)
 	if e != nil {
 		return zero, e
@@ -264,7 +269,7 @@ func (r *Repository) AcceptCollectionJob(ctx context.Context, in domain.Collecti
 	if e != nil {
 		return zero, e
 	}
-	if !slices.Contains(p.AllowedAccountIDs, actor) || !collectionAllows(a, w) {
+	if !slices.Contains(p.AllowedAccountIDs, actor) || !collectionAllows(auth, w) {
 		return zero, collectionError(domain.Forbidden, "collection_access_denied")
 	}
 	view, ok := collectionWellView(w, binding)
@@ -297,8 +302,15 @@ func (r *Repository) AcceptCollectionJob(ctx context.Context, in domain.Collecti
 	if e != nil {
 		return zero, e
 	}
-	intent := domain.CollectionIntent{JobID: id, ActorAccountID: actor, ActorRevision: a.Revision, ScopeSHA256: collectionHash(a.Scope), RunID: p.RunID, ManifestSHA256: p.ManifestSHA256, Fixture: fixture, Binding: binding, Well: view, SourceProfileVersion: source.ProfileVersion, SourceConfigSHA256: collectionSourceHash(source), MappingSHA256: collectionHash(source.Mappings), BindingSHA256: collectionHash(binding), CanonicalVersion: "collection-canonical-v1", SchemaVersion: "collection-measurement-v1", FixtureOrigin: p.FixtureOrigin, OriginalStart: in.Start, OriginalEnd: in.End, Start: start, End: end, AcceptedAt: now, Deadline: now.Add(300 * time.Second), RequestSHA256: request}
+	snapshotAuth, e := admissionAuthorization(ctx, tx, actor, "collectionjobs.run")
+	if e != nil {
+		return zero, e
+	}
+	intent := domain.CollectionIntent{Authorization: snapshotAuth, JobID: id, ActorAccountID: actor, ActorRevision: a.Revision, ScopeSHA256: collectionHash(a.Scope), RunID: p.RunID, ManifestSHA256: p.ManifestSHA256, Fixture: fixture, Binding: binding, Well: view, SourceProfileVersion: source.ProfileVersion, SourceConfigSHA256: collectionSourceHash(source), MappingSHA256: collectionHash(source.Mappings), BindingSHA256: collectionHash(binding), CanonicalVersion: "collection-canonical-v1", SchemaVersion: "collection-measurement-v1", FixtureOrigin: p.FixtureOrigin, OriginalStart: in.Start, OriginalEnd: in.End, Start: start, End: end, AcceptedAt: now, Deadline: now.Add(300 * time.Second), RequestSHA256: request}
 	raw, e := json.Marshal(intent)
+	if len(raw) > 65536 {
+		return zero, collectionError(domain.Invalid, "collection_intent_too_large")
+	}
 	if e != nil {
 		return zero, e
 	}
@@ -306,7 +318,7 @@ func (r *Repository) AcceptCollectionJob(ctx context.Context, in domain.Collecti
 		return zero, e
 	}
 	var generation int64
-	if e = tx.QueryRow(ctx, `UPDATE telemetry_source SET writer_generation=writer_generation+1,writer_token_sha256=NULL,writer_profile_version=NULL WHERE id=$1 RETURNING writer_generation`, in.SourceID).Scan(&generation); e != nil {
+	if e = tx.QueryRow(ctx, `UPDATE telemetry_source SET writer_generation=writer_generation+1,writer_token_sha256=NULL,writer_profile_version=NULL,writer_execution_actor=NULL,writer_authorization=NULL WHERE id=$1 RETURNING writer_generation`, in.SourceID).Scan(&generation); e != nil {
 		return zero, e
 	}
 	if _, e = execute(ctx, tx, sqlBuilder.Insert("collection_job_source_hold").Columns("source_id", "job_id", "source_generation").Values(in.SourceID, id, generation)); e != nil {

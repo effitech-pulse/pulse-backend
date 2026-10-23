@@ -96,7 +96,7 @@ func savedService(t testing.TB, pool *pgxpool.Pool, scorer *savedScorer, pin dom
 func savedSetup(t *testing.T) (*pgxpool.Pool, context.Context, *service.FileChecks, *savedScorer) {
 	t.Helper()
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background())
 	if _, e := pool.Exec(ctx, `INSERT INTO well(unitek_id,armits_id,ngdu,department,active) VALUES(9007199254740993,42,0,0,true);INSERT INTO auth_user(login,name,password_hash,role,scope) VALUES('q0','q0','unused','technologist','{"funds":["operational"]}')`); e != nil {
 		t.Fatal(e)
 	}
@@ -105,7 +105,13 @@ func savedSetup(t *testing.T) (*pgxpool.Pool, context.Context, *service.FileChec
 	if e != nil {
 		t.Fatal(e)
 	}
-	ctx = domain.WithPrincipal(ctx, domain.AccountPrincipal(account))
+	auth, e := store.Authorization(ctx, account.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	principal := domain.AccountPrincipal(account)
+	principal.Authorization = &auth
+	ctx = domain.WithPrincipal(ctx, domain.TrustedCompatibilityPrincipal(principal))
 	scorer := &savedScorer{expectedPin: savedPin()}
 	return pool, ctx, savedService(t, pool, scorer, savedPin(), domain.DefaultFileInputLimits()), scorer
 }

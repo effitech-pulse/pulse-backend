@@ -46,6 +46,7 @@ type Config struct {
 	DatabaseURL    string
 	APIKey         string
 	AuthMode       string
+	RBACMode       string
 	CookieSecure   bool
 	Prefix         string
 	ParameterPath  string
@@ -110,6 +111,7 @@ func Load() (Config, error) {
 		DatabaseURL:              strings.Replace(env("DATABASE_URL", "postgresql://esp:esp@localhost:5433/esp_app"), "postgresql+psycopg2://", "postgresql://", 1),
 		APIKey:                   env("API_KEY", ""),
 		AuthMode:                 env("AUTH_MODE", "legacy"),
+		RBACMode:                 env("RBAC_MODE", "compat"),
 		Prefix:                   strings.TrimRight(env("API_V1_PREFIX", "/api/v1"), "/"),
 		ParameterPath:            env("PARAM_DICT_PATH", "parameters_dict.json"),
 		MLTarget:                 env("ML_SERVICE_TARGET", "127.0.0.1:50051"),
@@ -144,6 +146,9 @@ func Load() (Config, error) {
 	}
 	if c.AuthMode != "legacy" && c.AuthMode != "local" {
 		return c, fmt.Errorf("AUTH_MODE must be legacy or local")
+	}
+	if c.RBACMode != "compat" && c.RBACMode != "enforce" {
+		return c, fmt.Errorf("RBAC_MODE must be compat or enforce")
 	}
 	var cookieErr error
 	c.CookieSecure, cookieErr = strconv.ParseBool(env("AUTH_COOKIE_SECURE", "true"))

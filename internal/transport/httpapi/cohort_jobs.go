@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,14 @@ func (s *Server) cohortJobReady(c *gin.Context) error {
 	if !ok || !p.Authenticated || p.Mechanism != "session" || p.AccountID == nil || *p.AccountID <= 0 {
 		return domain.NewError(domain.Unauthorized, "session_required")
 	}
-	if p.Role != "admin" {
+	permission := domain.Permission("cohortjobs.read")
+	if c.Request.Method != "GET" {
+		permission = "cohortjobs.run"
+	}
+	if strings.HasSuffix(c.Request.URL.Path, "/cancel") {
+		permission = "cohortjobs.cancel"
+	}
+	if p.Authorization == nil || p.Authorization.Require(permission) != nil {
 		return domain.NewError(domain.Forbidden, "cohort_job_forbidden")
 	}
 	if c.Request.Method != "GET" && !s.allowedOrigin(c) {

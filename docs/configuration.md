@@ -184,3 +184,16 @@ activation — отдельный existing status PATCH, который resets n
 own synthetic proof helper временно guard-ит exact ID/running config update,
 атомарно задавая future next_poll, и снимает trigger finally. Source/job configs,
 COLLECTION_JOB_* env, production migrations и resource limits не меняются.
+
+
+## Режим RBAC
+
+`RBAC_MODE=compat` по умолчанию; допустимы только `compat` и `enforce`.
+Local compatibility writers dual-write-ят фиксированные builtin assignments,
+modern access mutations запрещены до cutover. Enforce требует persisted activation;
+compat после activation запрещён при старте API и всех workers. Legacy остаётся
+отдельным trusted auth profile с недоступным graph management.
+
+См. [RBAC runbook](rbac.md) для backup/drain, `bin/adminuser -activate-rbac`,
+startup schema policy, восстановления и rollback. Применение миграции16 само
+не активирует RBAC и не меняет default-off feature flags.

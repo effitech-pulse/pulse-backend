@@ -22,18 +22,18 @@ func NewCollectionJobs(store CollectionJobStore, enabled bool) (*CollectionJobs,
 	}
 	return &CollectionJobs{store, enabled}, nil
 }
-func collectionActor(ctx context.Context) error {
+func collectionActor(ctx context.Context, permission domain.Permission) error {
 	p, ok := domain.CurrentPrincipal(ctx)
 	if !ok || !p.Authenticated || p.Mechanism != "session" || p.AccountID == nil || *p.AccountID <= 0 {
 		return domain.NewError(domain.Unauthorized, "session_required")
 	}
-	if p.Role != "admin" {
+	if p.Authorization == nil || p.Authorization.Require(permission) != nil {
 		return domain.NewError(domain.Forbidden, "collection_access_denied")
 	}
 	return nil
 }
 func (s *CollectionJobs) Submit(ctx context.Context, input domain.CollectionSubmit) (domain.CollectionJobStatus, error) {
-	if e := collectionActor(ctx); e != nil {
+	if e := collectionActor(ctx, "collectionjobs.run"); e != nil {
 		return domain.CollectionJobStatus{}, e
 	}
 	if !s.enabled {
@@ -45,7 +45,7 @@ func (s *CollectionJobs) Submit(ctx context.Context, input domain.CollectionSubm
 	return s.store.AcceptCollectionJob(ctx, input)
 }
 func (s *CollectionJobs) Status(ctx context.Context, id string) (domain.CollectionJobStatus, error) {
-	if e := collectionActor(ctx); e != nil {
+	if e := collectionActor(ctx, "collectionjobs.read"); e != nil {
 		return domain.CollectionJobStatus{}, e
 	}
 	if !collectionOpaque.MatchString(id) {
@@ -54,7 +54,7 @@ func (s *CollectionJobs) Status(ctx context.Context, id string) (domain.Collecti
 	return s.store.CollectionJobStatus(ctx, id)
 }
 func (s *CollectionJobs) Cancel(ctx context.Context, id string, revision int64) (domain.CollectionJobStatus, error) {
-	if e := collectionActor(ctx); e != nil {
+	if e := collectionActor(ctx, "collectionjobs.cancel"); e != nil {
 		return domain.CollectionJobStatus{}, e
 	}
 	if !s.enabled {

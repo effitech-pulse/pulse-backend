@@ -102,7 +102,7 @@ func NewFileChecksWithBuildInfo(store FileInputStore, accounts FileInputAccounts
 	_ = json.Unmarshal(raw, &pin)
 	return &FileChecks{store: store, accounts: accounts, scope: scope, reader: reader, scorer: scorer, schema: schema, pin: pin, limits: limits, implementation: implementation, configSHA: configSHA, normalize: make(chan struct{}, 1), execute: make(chan struct{}, 1)}, nil
 }
-func (s *FileChecks) actor(ctx context.Context) (context.Context, domain.Account, error) {
+func (s *FileChecks) actor(ctx context.Context, permissions ...domain.Permission) (context.Context, domain.Account, error) {
 	p, ok := domain.CurrentPrincipal(ctx)
 	if !ok || !p.Authenticated || p.Mechanism != "session" || p.AccountID == nil || *p.AccountID <= 0 {
 		return ctx, domain.Account{}, domain.NewError(domain.Unauthorized, "session_required")
@@ -111,7 +111,7 @@ func (s *FileChecks) actor(ctx context.Context) (context.Context, domain.Account
 	if err != nil {
 		return ctx, a, err
 	}
-	if a.ID != *p.AccountID || !a.Active || (a.Role != "technologist" && a.Role != "admin") {
+	if a.ID != *p.AccountID || !a.Active {
 		return ctx, a, domain.NewError(domain.Forbidden, "file_check_forbidden")
 	}
 	current := domain.AccountPrincipal(a)
@@ -120,10 +120,17 @@ func (s *FileChecks) actor(ctx context.Context) (context.Context, domain.Account
 	} else {
 		current.Authorization = p.Authorization
 	}
+	permission := domain.Permission("filechecks.run")
+	if len(permissions) > 0 {
+		permission = permissions[0]
+	}
+	if current.Authorization == nil || current.Authorization.Require(permission) != nil {
+		return ctx, a, domain.NewError(domain.Forbidden, "file_check_forbidden")
+	}
 	return domain.WithPrincipal(ctx, current), a, nil
 }
-func (s *FileChecks) authorize(ctx context.Context, wellID int64) (context.Context, domain.Account, domain.Well, error) {
-	ctx, a, err := s.actor(ctx)
+func (s *FileChecks) authorize(ctx context.Context, wellID int64, permissions ...domain.Permission) (context.Context, domain.Account, domain.Well, error) {
+	ctx, a, err := s.actor(ctx, permissions...)
 	if err != nil {
 		return ctx, a, domain.Well{}, err
 	}

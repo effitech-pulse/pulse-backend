@@ -65,6 +65,7 @@ type CollectionWellAuthority struct {
 	IdentityKind string     `json:"identity_kind"`
 }
 type CollectionIntent struct {
+	Authorization        *JobAuthorization       `json:"authorization,omitempty"`
 	JobID                string                  `json:"job_id"`
 	ActorAccountID       int64                   `json:"actor_account_id"`
 	ActorRevision        int64                   `json:"actor_revision"`

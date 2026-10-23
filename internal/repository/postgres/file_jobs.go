@@ -98,12 +98,20 @@ func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared
 	if e = fileJobCapacityGate(ctx, tx); e != nil {
 		return zero, e
 	}
-	allowed, e := r.authorizeFileJobTx(ctx, tx, actor, v.Input.PulseWellID)
+	allowed, e := r.authorizeFileJobTx(ctx, tx, actor, v.Input.PulseWellID, nil, "filechecks.run", false)
 	if e != nil {
 		return zero, e
 	}
 	if !allowed {
 		return zero, missingFileJob()
+	}
+	acceptedWell, e := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": v.Input.PulseWellID}).Suffix("FOR SHARE"))
+	if e != nil {
+		return zero, e
+	}
+	wellAuthority, e := domain.FileJobWellAuthorityFrom(acceptedWell)
+	if e != nil {
+		return zero, e
 	}
 	if e = lockJobBudget(ctx, tx); e != nil {
 		return zero, e
@@ -168,7 +176,11 @@ func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared
 		return zero, e
 	}
 	p := r.fileJobPolicy
-	_, e = execute(ctx, tx, sqlBuilder.Insert("file_job").Columns("id", "input_id", "actor_account_id", "well_id", "cohort_version", "cohort_manifest_sha256", "pilot_run_id", "state", "created_at", "updated_at", "deadline_at", "start_at", "end_at", "points_count").Values(input.ID, input.ID, actor, input.PulseWellID, p.CohortVersion, p.CohortManifestSHA256, p.RunID, "pending_dispatch", now, now, now.Add(20*time.Minute), v.Start, v.End, v.PointsCount))
+	snapshot, e := admissionAuthorization(ctx, tx, actor, "filechecks.run")
+	if e != nil {
+		return zero, e
+	}
+	_, e = execute(ctx, tx, sqlBuilder.Insert("file_job").Columns("well_authority", "actor_authorization", "id", "input_id", "actor_account_id", "well_id", "cohort_version", "cohort_manifest_sha256", "pilot_run_id", "state", "created_at", "updated_at", "deadline_at", "start_at", "end_at", "points_count").Values(wellAuthority, snapshot, input.ID, input.ID, actor, input.PulseWellID, p.CohortVersion, p.CohortManifestSHA256, p.RunID, "pending_dispatch", now, now, now.Add(20*time.Minute), v.Start, v.End, v.PointsCount))
 	if e != nil {
 		return zero, e
 	}
@@ -183,7 +195,7 @@ func (r *Repository) AcceptFileJob(ctx context.Context, v domain.FileJobPrepared
 }
 
 // publicFileJobTx требует owner даже для admin и линеаризует auth/job guards.
-func (r *Repository) publicFileJobTx(ctx context.Context, tx pgx.Tx, well int64, id string) (jobRecord, error) {
+func (r *Repository) publicFileJobTx(ctx context.Context, tx pgx.Tx, well int64, id string, actions ...domain.Permission) (jobRecord, error) {
 	actor, e := fileJobSession(ctx)
 	if e != nil {
 		return jobRecord{}, e
@@ -192,7 +204,11 @@ func (r *Repository) publicFileJobTx(ctx context.Context, tx pgx.Tx, well int64,
 	if e != nil {
 		return row, e
 	}
-	allowed, e := r.authorizeFileJobTx(ctx, tx, actor, well)
+	permission := domain.Permission("filechecks.read")
+	if len(actions) > 0 {
+		permission = actions[0]
+	}
+	allowed, e := r.authorizeFileJobTx(ctx, tx, actor, well, nil, permission, false)
 	if e != nil {
 		return row, e
 	}
@@ -232,7 +248,7 @@ func (r *Repository) FileJobs(ctx context.Context, well int64, before string) (d
 		return zero, e
 	}
 	defer tx.Rollback(ctx)
-	ok, e := r.authorizeFileJobTx(ctx, tx, actor, well)
+	ok, e := r.authorizeFileJobTx(ctx, tx, actor, well, nil, "filechecks.read", false)
 	if e != nil {
 		return zero, e
 	}

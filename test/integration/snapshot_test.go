@@ -13,7 +13,7 @@ import (
 )
 
 func TestCohortSnapshotAtomicImmutableAndRestartRead(t *testing.T) {
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	pool := testDB(t)
 	r := postgres.New(pool)
 	for i := 0; i < 100; i++ {
@@ -128,11 +128,11 @@ func TestCohortScheduledRunUsesUploadAndNeverManualChecks(t *testing.T) {
 	}
 	client := &cohortOnlyML{}
 	data := service.NewIntegrations(r, nil, nil, client).WithScope(scope)
-	if _, err = data.Import(ctx, points); err != nil {
+	if _, err = data.Import(domain.WithSchedulerPrincipal(ctx, domain.ExecutionSystemCollect, domain.AccessScope{Funds: []string{"operational", "presentation"}}), points); err != nil {
 		t.Fatal(err)
 	}
 	ml := service.NewML(r, r, client, service.RunOptions{Profile: "cohort", CohortVersion: "v1", Timeout: 10 * time.Second}).WithCohort(scope, data, r)
-	started, err := ml.StartRun(ctx, "scheduled")
+	started, err := ml.StartRun(domain.WithSchedulerPrincipal(ctx, domain.ExecutionSystemML, domain.AccessScope{Funds: []string{"operational", "presentation"}}), "scheduled")
 	if err != nil || !started {
 		t.Fatal(started, err)
 	}

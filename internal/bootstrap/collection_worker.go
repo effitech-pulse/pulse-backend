@@ -12,6 +12,7 @@ import (
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/jobqueue"
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/telemetry"
 	"github.com/effitech-pulse/pulse-backend/internal/config"
+	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
 	"github.com/effitech-pulse/pulse-backend/internal/service"
 )
@@ -33,6 +34,14 @@ func RunCollectionJobWorker(ctx context.Context, c config.Config) error {
 		return err
 	}
 	defer pool.Close()
+	mode := domain.RBACMode(c.RBACMode)
+	if mode == "" {
+		mode = domain.RBACCompat
+	}
+	ctx = domain.WithRBACMode(ctx, mode)
+	if err = postgres.New(pool).ValidateRBAC(ctx, mode); err != nil {
+		return err
+	}
 	trusted, err := postgres.New(pool).WithCollectionJobPolicy(policy)
 	if err != nil {
 		return err

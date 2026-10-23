@@ -29,7 +29,25 @@ func main() {
 func run() error {
 	login := flag.String("login", "", "Логин первого администратора")
 	name := flag.String("name", "", "Имя администратора")
+	activate := flag.Bool("activate-rbac", false, "Активировать RBAC после остановки и drain")
 	flag.Parse()
+	if *activate {
+		if *login != "" || *name != "" || flag.NArg() != 0 {
+			return errors.New("-activate-rbac не совместим с bootstrap flags")
+		}
+		cfg, err := config.Load()
+		if err != nil {
+			return err
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		pool, err := postgres.Open(ctx, cfg)
+		if err != nil {
+			return err
+		}
+		defer pool.Close()
+		return postgres.New(pool).ActivateRBAC(ctx)
+	}
 	if *login == "" || *name == "" {
 		return errors.New("укажите -login и -name; пароль передайте одной строкой через stdin")
 	}

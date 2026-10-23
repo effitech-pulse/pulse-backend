@@ -9,6 +9,7 @@ import (
 	"mime"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,23 @@ func fileJobSession(c *gin.Context) error {
 	if !ok || !p.Authenticated || p.Mechanism != "session" || p.AccountID == nil || *p.AccountID <= 0 {
 		return domain.NewError(domain.Unauthorized, "session_required")
 	}
-	if p.Role != "admin" && p.Role != "technologist" {
+	permission := domain.Permission("filechecks.read")
+	if c.Request.Method != "GET" {
+		permission = "filechecks.run"
+	}
+	if strings.HasSuffix(c.Request.URL.Path, "/cancel") {
+		permission = "filechecks.cancel"
+	}
+	if c.Request.Method == "PUT" && strings.HasSuffix(c.Request.URL.Path, "/review") {
+		permission = "filechecks.review"
+	}
+	if strings.HasSuffix(c.Request.URL.Path, "/file-check-capabilities") {
+		if p.Authorization == nil {
+			return domain.NewError(domain.Forbidden, "file_check_forbidden")
+		}
+		return p.Authorization.Require()
+	}
+	if p.Authorization == nil || p.Authorization.Require(permission) != nil {
 		return domain.NewError(domain.Forbidden, "file_check_forbidden")
 	}
 	return nil

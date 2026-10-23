@@ -113,8 +113,8 @@ func collectionWellView(w domain.Well, b domain.CollectionBinding) (domain.Colle
 	}
 	return domain.CollectionWellAuthority{WellID: w.ID, FundType: w.FundType, NGDU: w.NGDU, Department: w.Department, Active: w.Active, ArchivedAt: w.ArchivedAt, ExternalID: strconv.FormatInt(*external, 10), IdentityKind: b.IdentityKind}, true
 }
-func collectionAllows(a domain.Account, w domain.Well) bool {
-	return a.Active && a.Role == "admin" && slices.Contains(a.Scope.Funds, w.FundType) && (a.Scope.NGDUs == nil || slices.Contains(*a.Scope.NGDUs, w.NGDU)) && (a.Scope.Departments == nil || slices.Contains(*a.Scope.Departments, w.Department)) && w.Active && w.ArchivedAt == nil && w.FundType == "presentation"
+func collectionAllows(a domain.AuthorizationSnapshot, w domain.Well) bool {
+	return a.AllowsWell(w) && w.Active && w.ArchivedAt == nil && w.FundType == "presentation"
 }
 func collectionSource(ctx context.Context, tx pgx.Tx, id string) (domain.TelemetrySource, time.Time, error) {
 	var s domain.TelemetrySource
@@ -135,6 +135,13 @@ func (r *Repository) collectionAuthority(ctx context.Context, tx pgx.Tx, i domai
 	p := r.collectionJobPolicy
 	if p == nil || !slices.Contains(p.AllowedAccountIDs, i.ActorAccountID) {
 		return "access_revoked", nil
+	}
+	auth, e := jobAuthority(ctx, tx, i.ActorAccountID, i.Authorization, "collectionjobs.run", true)
+	if authorityDenied(e) {
+		return "access_revoked", nil
+	}
+	if e != nil {
+		return "", e
 	}
 	a, e := collectionAccount(ctx, tx, i.ActorAccountID)
 	if isMissing(e) {
@@ -157,7 +164,7 @@ func (r *Repository) collectionAuthority(ctx context.Context, tx pgx.Tx, i domai
 	if e != nil {
 		return "", e
 	}
-	if !collectionAllows(a, w) || a.Revision != i.ActorRevision || collectionHash(a.Scope) != i.ScopeSHA256 {
+	if !collectionAllows(auth, w) || a.Revision != i.ActorRevision || collectionHash(a.Scope) != i.ScopeSHA256 {
 		return "access_revoked", nil
 	}
 	v, ok := collectionWellView(w, i.Binding)

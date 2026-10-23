@@ -228,7 +228,7 @@ func (r *Repository) lockCohort(ctx context.Context, tx pgx.Tx, id string) (coho
 	if e != nil {
 		return j, m, false, e
 	}
-	_, _, ok, e := r.cohortAuthority(ctx, tx, j.Actor, m.Members)
+	_, _, ok, e := r.cohortAuthority(ctx, tx, j.Actor, m.Members, j.Authorization, "cohortjobs.run", true)
 	if e != nil {
 		return j, m, false, e
 	}
@@ -787,7 +787,7 @@ func (r *Repository) CancelCohortJob(ctx context.Context, id string, revision in
 	if e = cohortGate(ctx, tx); e != nil {
 		return zero, e
 	}
-	_, _, allowed, e := r.cohortAuthority(ctx, tx, actor, nil)
+	_, _, allowed, e := r.cohortAuthority(ctx, tx, actor, nil, nil, "cohortjobs.cancel", false)
 	if e != nil {
 		return zero, e
 	}
@@ -798,7 +798,7 @@ func (r *Repository) CancelCohortJob(ctx context.Context, id string, revision in
 	if e != nil {
 		return zero, e
 	}
-	if !r.cohortMatches(j) {
+	if j.Actor != actor || !r.cohortMatches(j) {
 		return zero, cohortError(domain.Missing, "cohort_job_not_found")
 	}
 	if j.State == domain.CohortJobCancelled {

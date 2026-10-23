@@ -131,7 +131,7 @@ func (m *ML) Wait() {
 }
 
 func (m *ML) Schedule(ctx context.Context) {
-	ctx = domain.WithSystemPrincipal(ctx)
+	ctx = domain.WithSchedulerPrincipal(ctx, domain.ExecutionSystemML, domain.AccessScope{Funds: []string{"operational", "presentation"}})
 	if !m.options.AutoRun {
 		return
 	}

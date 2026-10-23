@@ -33,7 +33,7 @@ func (r *Repository) CreateReference(ctx context.Context, kind domain.ReferenceK
 		return domain.Reference{}, e
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, e := currentScopeAuthorization(ctx, tx, "references.create")
 		if e != nil {
 			return domain.Reference{}, e
@@ -61,7 +61,7 @@ func (r *Repository) UpdateReference(ctx context.Context, kind domain.ReferenceK
 		return domain.Reference{}, e
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, e := currentScopeAuthorization(ctx, tx, "references.update")
 		if e != nil {
 			return domain.Reference{}, e
@@ -89,7 +89,7 @@ func (r *Repository) DeleteReference(ctx context.Context, kind domain.ReferenceK
 		return e
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, e := currentScopeAuthorization(ctx, tx, "references.delete")
 		if e != nil {
 			return e
@@ -123,7 +123,7 @@ func (r *Repository) CreateIncident(ctx context.Context, v domain.Incident) (dom
 		return domain.Incident{}, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		if _, err = requireScopedWellTx(ctx, tx, "incidents.create", v.WellID); err != nil {
 			return domain.Incident{}, err
 		}
@@ -145,7 +145,7 @@ func (r *Repository) DeleteIncident(ctx context.Context, id int64) error {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, e := currentScopeAuthorization(ctx, tx, "incidents.delete")
 		if e != nil {
 			return e

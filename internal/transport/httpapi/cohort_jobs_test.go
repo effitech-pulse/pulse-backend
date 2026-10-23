@@ -74,7 +74,7 @@ func TestCohortHTTPStatusPreservesRunIDAndHidesInternalIdentity(t *testing.T) {
 }
 func TestCohortHTTPStrictRequestAndPersistedStatus(t *testing.T) {
 	account := int64(1)
-	admin := domain.Principal{AccountID: &account, Role: "admin", Authenticated: true, Mechanism: "session"}
+	admin := domain.TrustedCompatibilityPrincipal(domain.Principal{AccountID: &account, Role: "admin", Authenticated: true, Mechanism: "session"})
 	for _, tc := range []struct {
 		name, method, body string
 		code               int
@@ -152,7 +152,7 @@ func TestCohortHTTPAcceptanceAndSafeErrors(t *testing.T) {
 			c.Request = httptest.NewRequest("POST", "/api/v1/ml/cohort-jobs", strings.NewReader(`{"fixture_id":"all100"}`))
 			c.Request.Header.Set("Idempotency-Key", strings.Repeat("k", 16))
 			actor := int64(1)
-			c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), domain.Principal{AccountID: &actor, Role: "admin", Authenticated: true, Mechanism: "session"}))
+			c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), domain.TrustedCompatibilityPrincipal(domain.Principal{AccountID: &actor, Role: "admin", Authenticated: true, Mechanism: "session"})))
 			err := s.submitCohortJob(c)
 			if err != nil {
 				writeError(c, err)

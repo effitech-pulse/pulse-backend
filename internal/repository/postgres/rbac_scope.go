@@ -43,15 +43,10 @@ func contextWellPredicate(ctx context.Context, alias string) sq.Sqlizer {
 	if ok && p.Authorization != nil {
 		return visibleWellPredicate(*p.Authorization, alias)
 	}
-	if domain.RBACEnforced(ctx) {
-		return sq.Expr("FALSE")
-	}
-	return sq.Expr("TRUE")
+	return sq.Expr("FALSE")
 }
 func linkedWellPredicate(ctx context.Context, column string, global bool) sq.Sqlizer {
-	if !domain.RBACEnforced(ctx) {
-		return sq.Expr("TRUE")
-	}
+
 	q := sqlBuilder.Select("scope_w.id").From("well scope_w").Where(contextWellPredicate(ctx, "scope_w"))
 	bound := sq.Expr(column+" IN (?)", q)
 	p, ok := domain.CurrentPrincipal(ctx)
@@ -64,8 +59,14 @@ func linkedWellPredicate(ctx context.Context, column string, global bool) sq.Sql
 // currentScopeAuthorization сериализует authority с изменением графа до commit.
 func currentScopeAuthorization(ctx context.Context, tx db, permission domain.Permission) (domain.AuthorizationSnapshot, error) {
 	p, ok := domain.CurrentPrincipal(ctx)
-	if !ok || !p.Authenticated || p.Authorization == nil || p.AccountID == nil {
+	if !ok || !p.Authenticated || p.Authorization == nil {
 		return domain.AuthorizationSnapshot{}, domain.NewError(domain.Forbidden, "authorization required")
+	}
+	if p.AccountID == nil {
+		if !p.CompatibilityAuthority() {
+			return domain.AuthorizationSnapshot{}, domain.NewError(domain.Forbidden, "authorization required")
+		}
+		return *p.Authorization, p.Authorization.Require(permission)
 	}
 	if _, err := execute(ctx, tx, sqlBuilder.Select("id").From("auth_user").Where(sq.Eq{"id": *p.AccountID}).Suffix("FOR SHARE")); err != nil {
 		return domain.AuthorizationSnapshot{}, err
@@ -77,12 +78,20 @@ func currentScopeAuthorization(ctx context.Context, tx db, permission domain.Per
 	if !a.Active || a.Epoch != p.Authorization.Epoch {
 		return a, domain.NewError(domain.Unauthorized, "Сеанс истёк")
 	}
+	if !domain.RBACEnforced(ctx) && p.CompatibilityAuthority() {
+		account, e := one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": *p.AccountID}))
+		if e != nil {
+			return a, e
+		}
+		current := domain.AccountPrincipal(account)
+		current.Authorization = &a
+		current = domain.TrustedCompatibilityPrincipal(current)
+		a = *current.Authorization
+	}
 	return a, a.Require(permission)
 }
 func requireScopedWellTx(ctx context.Context, tx db, permission domain.Permission, id int64) (domain.Well, error) {
-	if !domain.RBACEnforced(ctx) {
-		return one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": id}).Suffix("FOR SHARE"))
-	}
+
 	a, err := currentScopeAuthorization(ctx, tx, permission)
 	if err != nil {
 		return domain.Well{}, err

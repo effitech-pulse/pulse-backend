@@ -16,7 +16,10 @@ import (
 const runLock int64 = 74019321
 
 // lease владеет выделенным соединением до освобождения advisory lock.
-type lease struct{ conn *pgxpool.Conn }
+type lease struct {
+	conn       *pgxpool.Conn
+	repository *Repository
+}
 
 func (l *lease) Close() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -79,7 +82,7 @@ func (r *Repository) Reserve(ctx context.Context) (service.RunLease, bool, error
 		return nil, false, err
 	}
 
-	return &lease{conn: conn}, true, nil
+	return &lease{conn: conn, repository: r}, true, nil
 }
 
 func (r *Repository) Running(ctx context.Context) (bool, error) {
@@ -103,22 +106,36 @@ func (l *lease) BeginCohort(ctx context.Context, trigger, version string) (int64
 	return l.begin(ctx, trigger, "cohort", &version)
 }
 func (l *lease) begin(ctx context.Context, trigger, profile string, version *string) (int64, error) {
-	abandon := sqlBuilder.Update("ml_run").
-		Set("status", "error").Set("finished_at", sq.Expr("now()")).
-		Set("error", "Предыдущий процесс прогона был остановлен").
-		Where(sq.Eq{"status": "running"}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
-	if _, err := execute(ctx, l.conn, abandon); err != nil {
+	tx, err := l.conn.Begin(ctx)
+	if err != nil {
 		return 0, err
 	}
-	insert := sqlBuilder.Insert("ml_run").Columns("status", "trigger", "started_at", "profile", "cohort_version").
-		Values("running", trigger, sq.Expr("now()"), profile, version).Suffix("RETURNING id")
+	defer tx.Rollback(ctx)
+	kind, snapshot, err := beginExecutionTx(ctx, tx, "runs.start", domain.ExecutionSystemML)
+	if err != nil {
+		return 0, err
+	}
+	current, err := executionAuthorityTx(ctx, tx, kind, snapshot, "runs.start", domain.ExecutionSystemML)
+	if err != nil {
+		return 0, err
+	}
+	if !current.FullApplicationScope() {
+		return 0, domain.NewError(domain.Forbidden, "access_revoked")
+	}
+	abandon := sqlBuilder.Update("ml_run").Set("status", "error").Set("finished_at", sq.Expr("now()")).Set("error", "Предыдущий процесс прогона был остановлен").Where(sq.Eq{"status": "running"}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
+	if _, err = execute(ctx, tx, abandon); err != nil {
+		return 0, err
+	}
+	insert := sqlBuilder.Insert("ml_run").Columns("status", "trigger", "started_at", "profile", "cohort_version", "execution_actor", "actor_authorization").Values("running", trigger, sq.Expr("now()"), profile, version, kind, snapshot).Suffix("RETURNING id")
 	query, args, err := build(insert)
 	if err != nil {
 		return 0, err
 	}
 	var id int64
-	err = l.conn.QueryRow(ctx, query, args...).Scan(&id)
-	return id, err
+	if err = tx.QueryRow(ctx, query, args...).Scan(&id); err != nil {
+		return 0, err
+	}
+	return id, tx.Commit(ctx)
 }
 
 func latestCompletedRun() sq.SelectBuilder {
@@ -132,6 +149,37 @@ func (l *lease) Persist(ctx context.Context, id int64, snapshot domain.Snapshot)
 		return err
 	}
 	defer tx.Rollback(ctx)
+	a, err := runAuthorityTx(ctx, tx, id)
+	if err != nil {
+		return err
+	}
+	frame, err := one[struct {
+		Kind    domain.ExecutionActorKind `json:"execution_actor"`
+		Profile string                    `json:"profile"`
+	}](ctx, tx, sqlBuilder.Select("execution_actor", "profile").From("ml_run").Where(sq.Eq{"id": id}))
+	if err != nil {
+		return err
+	}
+	allowUnbound := frame.Profile == "research" && l.repository.legacyResearchUnboundAllowed(ctx, frame.Kind, a, "runs.start")
+	for _, risk := range snapshot.Wells {
+		if risk.UnitekID == nil {
+			if allowUnbound {
+				continue
+			}
+			return domain.NewError(domain.Missing, "well_missing")
+		}
+		w, e := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"unitek_id": risk.UnitekID}).Suffix("FOR SHARE"))
+		if e != nil {
+			var de *domain.Error
+			if allowUnbound && errors.As(e, &de) && de.Kind == domain.Missing {
+				continue
+			}
+			return e
+		}
+		if !a.AllowsWell(w) || !w.Active || w.ArchivedAt != nil {
+			return domain.NewError(domain.Forbidden, "access_revoked")
+		}
+	}
 	previousRun := latestCompletedRun().Where(sq.NotEq{"id": id})
 	alerts := 0
 	for _, w := range snapshot.Wells {
@@ -187,7 +235,7 @@ func (r *Repository) LatestAlerts(ctx context.Context) ([]domain.Alert, error) {
 }
 
 func (r *Repository) UpdateAlert(ctx context.Context, id int64, status string) (domain.Alert, error) {
-	if domain.RBACEnforced(ctx) {
+	{
 		tx, err := r.pool.Begin(ctx)
 		if err != nil {
 			return domain.Alert{}, err
@@ -220,9 +268,6 @@ func (r *Repository) UpdateAlert(ctx context.Context, id int64, status string) (
 		return out, tx.Commit(ctx)
 	}
 
-	query := sqlBuilder.Update("ml_alert").Set("status", status).Set("updated_at", sq.Expr("now()")).
-		Where(sq.Eq{"id": id}).Suffix("RETURNING id,unitek_id,status")
-	return mutate[domain.Alert](ctx, r.pool, query)
 }
 
 func (r *Repository) ModelState(ctx context.Context) (domain.ModelState, error) {

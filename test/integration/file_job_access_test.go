@@ -190,6 +190,17 @@ func TestFileJobPrivateGetListCursorReview(t *testing.T) {
 	if _, e = store.FinishFileJob(context.Background(), *lease, &result, nil); e != nil {
 		t.Fatal(e)
 	}
+	auth, e := store.Authorization(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	account, e := store.Account(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	principal := domain.AccountPrincipal(account)
+	principal.Authorization = &auth
+	ctx = domain.WithPrincipal(ctx, domain.TrustedCompatibilityPrincipal(principal))
 	reviews := service.NewReviews(store)
 	well := int64(1)
 	in := domain.ReviewInput{RequestID: "q1-review-request1", Status: "in_progress", Owner: "test", Comment: "synthetic"}
@@ -203,7 +214,13 @@ func TestFileJobPrivateGetListCursorReview(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			sibling := domain.WithPrincipal(context.Background(), domain.AccountPrincipal(a))
+			auth, e := store.Authorization(ctx, a.ID)
+			if e != nil {
+				t.Fatal(e)
+			}
+			principal := domain.AccountPrincipal(a)
+			principal.Authorization = &auth
+			sibling := domain.WithPrincipal(context.Background(), domain.TrustedCompatibilityPrincipal(principal))
 			if _, e = store.FileJob(sibling, 1, v.Input.ID); e == nil {
 				t.Fatal("foreign job")
 			}

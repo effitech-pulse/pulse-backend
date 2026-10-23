@@ -13,19 +13,21 @@ import (
 )
 
 type jobRecord struct {
+	WellAuthority *domain.FileJobWellAuthority `json:"well_authority"`
 	domain.FileJobStatus
-	ActorAccountID       int64      `json:"actor_account_id"`
-	InputID              string     `json:"input_id"`
-	CohortVersion        string     `json:"cohort_version"`
-	CohortManifestSHA256 string     `json:"cohort_manifest_sha256"`
-	PilotRunID           string     `json:"pilot_run_id"`
-	Generation           int        `json:"generation"`
-	RedriveCount         int        `json:"redrive_count"`
-	Fence                int64      `json:"fence"`
-	LeaseTokenSHA256     *string    `json:"lease_token_sha256"`
-	LeaseUntil           *time.Time `json:"lease_until"`
-	StartAt              time.Time  `json:"start_at"`
-	EndAt                time.Time  `json:"end_at"`
+	Authorization        *domain.JobAuthorization `json:"actor_authorization"`
+	ActorAccountID       int64                    `json:"actor_account_id"`
+	InputID              string                   `json:"input_id"`
+	CohortVersion        string                   `json:"cohort_version"`
+	CohortManifestSHA256 string                   `json:"cohort_manifest_sha256"`
+	PilotRunID           string                   `json:"pilot_run_id"`
+	Generation           int                      `json:"generation"`
+	RedriveCount         int                      `json:"redrive_count"`
+	Fence                int64                    `json:"fence"`
+	LeaseTokenSHA256     *string                  `json:"lease_token_sha256"`
+	LeaseUntil           *time.Time               `json:"lease_until"`
+	StartAt              time.Time                `json:"start_at"`
+	EndAt                time.Time                `json:"end_at"`
 }
 
 func jobQuery() sq.SelectBuilder { return sqlBuilder.Select("*").From("file_job") }
@@ -43,14 +45,36 @@ type runtimeRecord struct {
 func lockJobRuntime(ctx context.Context, tx pgx.Tx) (runtimeRecord, error) {
 	return one[runtimeRecord](ctx, tx, sqlBuilder.Select("job_id", "fence", "lease_until").From("file_job_runtime").Where(sq.Eq{"key": "execution"}).Suffix("FOR UPDATE"))
 }
-func (r *Repository) lockRuntimeJob(ctx context.Context, tx pgx.Tx, id string) (jobRecord, runtimeRecord, bool, error) {
+func (r *Repository) lockRuntimeJob(ctx context.Context, tx pgx.Tx, id string, actions ...domain.Permission) (jobRecord, runtimeRecord, bool, error) {
 	j, e := one[jobRecord](ctx, tx, jobQuery().Where(sq.Eq{"id": id}))
 	if e != nil {
 		return j, runtimeRecord{}, false, e
 	}
-	ok, e := r.authorizeFileJobTx(ctx, tx, j.ActorAccountID, j.WellID)
+	permission := domain.Permission("filechecks.run")
+	saved := j.Authorization
+	execution := true
+	if len(actions) > 0 {
+		permission = actions[0]
+		saved = nil
+		execution = false
+	}
+	ok, e := r.authorizeFileJobTx(ctx, tx, j.ActorAccountID, j.WellID, saved, permission, execution)
 	if e != nil {
 		return j, runtimeRecord{}, false, e
+	}
+	if execution {
+		if j.WellAuthority == nil {
+			ok = ok && !domain.RBACEnforced(ctx)
+		} else {
+			w, err := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": j.WellID}).Suffix("FOR SHARE"))
+			if isMissing(err) {
+				ok = false
+			} else if err != nil {
+				return j, runtimeRecord{}, false, err
+			} else {
+				ok = ok && j.WellAuthority.Matches(w)
+			}
+		}
 	}
 	slot, e := lockJobRuntime(ctx, tx)
 	if e != nil {
@@ -463,7 +487,7 @@ func (r *Repository) CancelFileJob(ctx context.Context, well int64, id string, r
 	if e != nil {
 		return zero, e
 	}
-	j, _, allowed, e := r.lockRuntimeJob(ctx, tx, initial.ID)
+	j, _, allowed, e := r.lockRuntimeJob(ctx, tx, initial.ID, "filechecks.cancel")
 	if e != nil {
 		return zero, e
 	}
@@ -529,11 +553,11 @@ func (r *Repository) RedriveFileJob(ctx context.Context, well int64, id string, 
 	if !allowed {
 		return zero, missingFileJob()
 	}
-	a, e := one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": actor}))
+	auth, e := jobAuthority(ctx, tx, actor, j.Authorization, "filechecks.run", true)
 	if e != nil {
 		return zero, e
 	}
-	if a.Role != "admin" {
+	if !auth.FullApplicationScope() {
 		return zero, missingFileJob()
 	}
 	now, e := dbJobNow(ctx, tx)

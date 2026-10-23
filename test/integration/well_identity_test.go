@@ -2,7 +2,6 @@ package integration
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -78,7 +77,7 @@ func TestPulseRegistryWorkbookRoundtripWithoutExternalIdentifiers(t *testing.T) 
 	app := New(testConfig(), pool, &fakeML{})
 	h := app.Handler()
 	call(t, h, "POST", "/api/v1/wells", `{"ngdu":0,"department":0}`, 201)
-	wells, err := app.store.Wells(context.Background(), false)
+	wells, err := app.store.Wells(legacyResearchFixtureContext(), false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +105,7 @@ func TestPulseRegistryWorkbookRoundtripWithoutExternalIdentifiers(t *testing.T) 
 	if err != nil || len(failures) != 0 || len(input) != 1 || input[0].ID == nil || *input[0].ID != wells[0].ID || input[0].UnitekID != nil {
 		t.Fatal(input, failures, err)
 	}
-	result, err := app.http.Catalog.ImportWells(context.Background(), input)
+	result, err := app.http.Catalog.ImportWells(legacyResearchFixtureContext(), input)
 	if err != nil || result.Created != 0 || result.Skipped != 1 {
 		t.Fatal(result, err)
 	}

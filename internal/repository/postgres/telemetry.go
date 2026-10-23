@@ -5,6 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -93,7 +95,7 @@ func (r *Repository) SaveSource(ctx context.Context, s domain.TelemetrySource) (
 	if err != nil {
 		return s, err
 	}
-	_, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source").Columns("id", "config", "encrypted_secret").Values(s.ID, data, s.EncryptedSecret).Suffix("ON CONFLICT (id) DO UPDATE SET config=EXCLUDED.config, encrypted_secret=EXCLUDED.encrypted_secret, error='', next_poll=now(), writer_generation=telemetry_source.writer_generation+1, writer_token_sha256=NULL, writer_profile_version=NULL, lease_until='-infinity'::timestamptz"))
+	_, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source").Columns("id", "config", "encrypted_secret").Values(s.ID, data, s.EncryptedSecret).Suffix("ON CONFLICT (id) DO UPDATE SET config=EXCLUDED.config, encrypted_secret=EXCLUDED.encrypted_secret, error='', next_poll=now(), writer_generation=telemetry_source.writer_generation+1, writer_token_sha256=NULL, writer_profile_version=NULL, writer_execution_actor=NULL,writer_authorization=NULL, lease_until='-infinity'::timestamptz"))
 	if err != nil {
 		return s, err
 	}
@@ -117,6 +119,17 @@ func (r *Repository) ClaimSource(ctx context.Context, id string, due bool) (*dom
 		return nil, e
 	}
 	defer tx.Rollback(ctx)
+	kind, auth, e := beginExecutionTx(ctx, tx, "integrations.collect", domain.ExecutionSystemCollect)
+	if e != nil {
+		return nil, e
+	}
+	current, e := executionAuthorityTx(ctx, tx, kind, auth, "integrations.collect", domain.ExecutionSystemCollect)
+	if e != nil {
+		return nil, e
+	}
+	if !current.FullApplicationScope() {
+		return nil, domain.NewError(domain.Forbidden, "access_revoked")
+	}
 	var exists string
 	if e = tx.QueryRow(ctx, "SELECT id FROM telemetry_source WHERE id=$1 FOR UPDATE", id).Scan(&exists); e == pgx.ErrNoRows {
 		return nil, nil
@@ -128,7 +141,7 @@ func (r *Repository) ClaimSource(ctx context.Context, id string, due bool) (*dom
 	if e != nil {
 		return nil, e
 	}
-	q := sqlBuilder.Update("telemetry_source").Set("lease_until", sq.Expr("clock_timestamp()+interval '60 seconds'")).Set("writer_generation", sq.Expr("writer_generation+1")).Set("writer_token_sha256", telemetryTokenSHA(token)).Set("writer_profile_version", sq.Expr("(config->>'profile_version')::int")).Where(sq.Eq{"id": id}).Where("config->>'status'='running'").Where("lease_until<clock_timestamp()").Where("NOT EXISTS(SELECT 1 FROM collection_job_source_hold WHERE source_id=telemetry_source.id)")
+	q := sqlBuilder.Update("telemetry_source").Set("writer_execution_actor", kind).Set("writer_authorization", auth).Set("lease_until", sq.Expr("clock_timestamp()+interval '60 seconds'")).Set("writer_generation", sq.Expr("writer_generation+1")).Set("writer_token_sha256", telemetryTokenSHA(token)).Set("writer_profile_version", sq.Expr("(config->>'profile_version')::int")).Where(sq.Eq{"id": id}).Where("config->>'status'='running'").Where("lease_until<clock_timestamp()").Where("NOT EXISTS(SELECT 1 FROM collection_job_source_hold WHERE source_id=telemetry_source.id)")
 	if due {
 		q = q.Where("next_poll<=clock_timestamp()")
 	}
@@ -136,7 +149,7 @@ func (r *Repository) ClaimSource(ctx context.Context, id string, due bool) (*dom
 	if e != nil {
 		return nil, e
 	}
-	out := &domain.TelemetrySourceLease{SourceID: id, Token: token}
+	out := &domain.TelemetrySourceLease{SourceID: id, Token: token, ExecutionActor: kind, Authorization: auth}
 	e = tx.QueryRow(ctx, sql, args...).Scan(&out.Fence, &out.ProfileVersion, &out.Until)
 	if e == pgx.ErrNoRows {
 		return nil, nil
@@ -193,7 +206,7 @@ func (r *Repository) CommitTelemetry(ctx context.Context, w domain.TelemetryWrit
 	if _, err = tx.Exec(ctx, "SET LOCAL lock_timeout='2s'"); err != nil {
 		return log, err
 	}
-	if err = checkTelemetryWriter(ctx, tx, w); err != nil {
+	if err = r.telemetryWriteAuthority(ctx, tx, w); err != nil {
 		return log, err
 	}
 	log.Accepted, log.Duplicates, err = insertTelemetryRows(ctx, tx, w.SourceID, w.Points, nil)
@@ -216,7 +229,7 @@ func (r *Repository) CommitTelemetry(ctx context.Context, w domain.TelemetryWrit
 		}
 		q := sqlBuilder.Update("telemetry_source").Set("last_received", log.Timestamp).Set("error", "").Set("last_measured", sq.Expr("GREATEST(last_measured,?::timestamptz)", latest)).Where(sq.Eq{"id": w.SourceID})
 		if w.Release {
-			q = q.Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("next_poll", sq.Expr("clock_timestamp()+(config->>'interval_seconds')::int*interval '1 second'"))
+			q = q.Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("writer_execution_actor", nil).Set("writer_authorization", nil).Set("next_poll", sq.Expr("clock_timestamp()+(config->>'interval_seconds')::int*interval '1 second'"))
 		}
 		if _, err = execute(ctx, tx, q); err != nil {
 			return log, err
@@ -235,7 +248,7 @@ func (r *Repository) FailCollection(ctx context.Context, l domain.TelemetrySourc
 	if err = checkTelemetryWriter(ctx, tx, domain.TelemetryWrite{SourceID: l.SourceID, ProfileVersion: l.ProfileVersion, Lease: &l, Release: true}); err != nil {
 		return err
 	}
-	if _, err = execute(ctx, tx, sqlBuilder.Update("telemetry_source").Set("error", message).Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("next_poll", sq.Expr("clock_timestamp()+interval '60 seconds'")).Where(sq.Eq{"id": l.SourceID})); err != nil {
+	if _, err = execute(ctx, tx, sqlBuilder.Update("telemetry_source").Set("error", message).Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("writer_execution_actor", nil).Set("writer_authorization", nil).Set("next_poll", sq.Expr("clock_timestamp()+interval '60 seconds'")).Where(sq.Eq{"id": l.SourceID})); err != nil {
 		return err
 	}
 	if _, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_collection_log").Columns("source_id", "accepted", "duplicates", "rejected", "message").Values(l.SourceID, 0, 0, 0, message)); err != nil {
@@ -286,4 +299,114 @@ func (r *Repository) TelemetryBounds(ctx context.Context, well string) (out doma
 	}
 	err = r.pool.QueryRow(ctx, q, args...).Scan(&out.Start, &out.End)
 	return out, err
+}
+
+// telemetryWriteAuthority лочит user перед source fence и проверяет persisted lease frame.
+func (r *Repository) telemetryWriteAuthority(ctx context.Context, tx pgx.Tx, w domain.TelemetryWrite) error {
+	var a domain.AuthorizationSnapshot
+	var kind domain.ExecutionActorKind
+	permission := domain.Permission("integrations.collect")
+	var err error
+	if w.Lease != nil {
+		frame, e := one[struct {
+			Kind          domain.ExecutionActorKind `json:"writer_execution_actor"`
+			Authorization *domain.JobAuthorization  `json:"writer_authorization"`
+		}](ctx, tx, sqlBuilder.Select("writer_execution_actor", "writer_authorization").From("telemetry_source").Where(sq.Eq{"id": w.SourceID}))
+		if e != nil {
+			return e
+		}
+		kind = frame.Kind
+		a, err = executionAuthorityTx(ctx, tx, frame.Kind, frame.Authorization, "integrations.collect", domain.ExecutionSystemCollect)
+		if err != nil {
+			return err
+		}
+		if !equalJobJSON(frame.Authorization, w.Lease.Authorization) || frame.Kind != w.Lease.ExecutionActor {
+			return domain.NewError(domain.Duplicate, "stale_lease")
+		}
+		if !a.FullApplicationScope() {
+			return domain.NewError(domain.Forbidden, "access_revoked")
+		}
+	} else {
+		permission = domain.Permission("telemetry.import")
+		if w.SourceID != "manual" {
+			permission = "integrations.ingest"
+		}
+		actualKind, saved, e := beginExecutionTx(ctx, tx, permission, domain.ExecutionSystemCollect)
+		if e != nil {
+			return e
+		}
+		kind = actualKind
+		a, err = executionAuthorityTx(ctx, tx, kind, saved, permission, domain.ExecutionSystemCollect)
+		if err != nil {
+			return err
+		}
+	}
+	if err = checkTelemetryWriter(ctx, tx, w); err != nil {
+		return err
+	}
+	allowUnbound := r.legacyResearchUnboundAllowed(ctx, kind, a, permission)
+	pulseIDs, externalIDs := []int64{}, []int64{}
+	requested := map[string]bool{}
+	for _, point := range w.Points {
+		if requested[point.WellID] {
+			continue
+		}
+		requested[point.WellID] = true
+		pulse := strings.HasPrefix(point.WellID, "pulse:")
+		raw := point.WellID
+		if pulse {
+			raw = strings.TrimPrefix(raw, "pulse:")
+		}
+		id, e := strconv.ParseInt(raw, 10, 64)
+		if e != nil {
+			if !pulse && allowUnbound {
+				continue
+			}
+			return domain.NewError(domain.Missing, "well_missing")
+		}
+		if pulse {
+			pulseIDs = append(pulseIDs, id)
+		} else {
+			externalIDs = append(externalIDs, id)
+		}
+	}
+	if len(requested) == 0 {
+		return nil
+	}
+	wells, e := list[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Or{sq.Eq{"id": pulseIDs}, sq.Eq{"unitek_id": externalIDs}}).OrderBy("id").Suffix("FOR SHARE"))
+	if e != nil {
+		return e
+	}
+	found := map[string]bool{}
+	for _, well := range wells {
+		if !a.AllowsWell(well) || !well.Active || well.ArchivedAt != nil {
+			return domain.NewError(domain.Forbidden, "access_revoked")
+		}
+		found["pulse:"+strconv.FormatInt(well.ID, 10)] = true
+		if well.UnitekID != nil {
+			found[strconv.FormatInt(*well.UnitekID, 10)] = true
+		}
+	}
+	for key := range requested {
+		if !found[key] && !(allowUnbound && !strings.HasPrefix(key, "pulse:")) {
+			return domain.NewError(domain.Missing, "well_missing")
+		}
+	}
+	return nil
+}
+
+// AuthorizeTelemetrySourceLease проверяет current authority непосредственно перед Fetch.
+func (r *Repository) AuthorizeTelemetrySourceLease(ctx context.Context, l domain.TelemetrySourceLease) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	w := domain.TelemetryWrite{SourceID: l.SourceID, ProfileVersion: l.ProfileVersion, Lease: &l, Release: true}
+	if err = r.telemetryWriteAuthority(ctx, tx, w); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }

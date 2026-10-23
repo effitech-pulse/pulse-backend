@@ -389,7 +389,8 @@ func TrustedCompatibilityPrincipal(p Principal) Principal {
 	return p
 }
 
-// WithSystemPrincipal назначает фиксированный server-owned actor внутреннему scheduler.
+// WithSystemPrincipal задаёт явный trusted maintenance/test context.
+// Планировщики используют профильный WithSchedulerPrincipal с ограниченным набором прав.
 func WithSystemPrincipal(ctx context.Context) context.Context {
 	p := TrustedLegacyPrincipal("Планировщик")
 	p.Mechanism = "system"

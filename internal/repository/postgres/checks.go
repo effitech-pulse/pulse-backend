@@ -38,7 +38,7 @@ func (r *Repository) SaveManualCheck(ctx context.Context, v domain.ManualCheck) 
 		return domain.ManualCheck{}, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		if _, err = requireScopedWellTx(ctx, tx, "checks.run", v.WellID); err != nil {
 			return domain.ManualCheck{}, err
 		}

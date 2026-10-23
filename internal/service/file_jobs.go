@@ -104,28 +104,28 @@ func fileJobCoverage(raw []byte) (time.Time, time.Time, int, error) {
 	return first.UTC().Truncate(time.Microsecond), last.UTC().Truncate(time.Microsecond).Add(time.Microsecond), count, nil
 }
 func (s *FileJobs) Get(ctx context.Context, well int64, id string) (domain.FileJobStatus, error) {
-	ctx, _, _, e := s.checks.authorize(ctx, well)
+	ctx, _, _, e := s.checks.authorize(ctx, well, "filechecks.read")
 	if e != nil {
 		return domain.FileJobStatus{}, e
 	}
 	return s.store.FileJob(ctx, well, id)
 }
 func (s *FileJobs) List(ctx context.Context, well int64, before string) (domain.FileJobPage, error) {
-	ctx, _, _, e := s.checks.authorize(ctx, well)
+	ctx, _, _, e := s.checks.authorize(ctx, well, "filechecks.read")
 	if e != nil {
 		return domain.FileJobPage{}, e
 	}
 	return s.store.FileJobs(ctx, well, before)
 }
 func (s *FileJobs) Result(ctx context.Context, well int64, id string) (domain.FileSavedCheck, error) {
-	ctx, _, _, e := s.checks.authorize(ctx, well)
+	ctx, _, _, e := s.checks.authorize(ctx, well, "filechecks.read")
 	if e != nil {
 		return domain.FileSavedCheck{}, e
 	}
 	return s.store.FileJobResult(ctx, well, id)
 }
 func (s *FileJobs) Cancel(ctx context.Context, well int64, id string, revision int64) (domain.FileJobStatus, error) {
-	ctx, _, _, e := s.checks.authorize(ctx, well)
+	ctx, _, _, e := s.checks.authorize(ctx, well, "filechecks.cancel")
 	if e != nil {
 		return domain.FileJobStatus{}, e
 	}

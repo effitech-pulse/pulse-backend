@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,7 +15,7 @@ import (
 
 func TestCohortCaptureExistingImmutableMembership(t *testing.T) {
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	r := postgres.New(pool)
 	if _, err := r.CaptureCohort(ctx, "prep-v1"); err == nil {
 		t.Fatal("captured incomplete cohort")
@@ -62,7 +61,7 @@ func TestCohortCaptureExistingImmutableMembership(t *testing.T) {
 }
 
 func TestCohortHTTPAdminScopeRawAndJournalIsolation(t *testing.T) {
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	pool := testDB(t)
 	app := New(testConfig(), pool, &fakeML{})
 	defer app.ml.Wait()
@@ -121,7 +120,7 @@ func TestCohortHTTPAdminScopeRawAndJournalIsolation(t *testing.T) {
 }
 
 func TestCohortScopedSnapshotAndReviewsDoNotExposeHiddenMembers(t *testing.T) {
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	pool := testDB(t)
 	app := New(testConfig(), pool, &fakeML{})
 	defer app.Wait()
@@ -247,7 +246,7 @@ func TestCohortScopedSnapshotAndReviewsDoNotExposeHiddenMembers(t *testing.T) {
 }
 
 func TestCohortFilteredViewKeepsCoverageAndLiveReviewLink(t *testing.T) {
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	pool := testDB(t)
 	app := New(testConfig(), pool, &fakeML{})
 	defer app.Wait()

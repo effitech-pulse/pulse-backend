@@ -29,7 +29,7 @@ func (r *Repository) CreateWell(ctx context.Context, w domain.Well) (domain.Well
 		return domain.Well{}, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, err := currentScopeAuthorization(ctx, tx, "wells.create")
 		if err != nil {
 			return domain.Well{}, err
@@ -56,7 +56,7 @@ func (r *Repository) PatchWell(ctx context.Context, id int64, p domain.WellPatch
 	}
 	defer tx.Rollback(ctx)
 	var authority domain.AuthorizationSnapshot
-	if domain.RBACEnforced(ctx) {
+	{
 		authority, err = currentScopeAuthorization(ctx, tx, "wells.update")
 		if err != nil {
 			return domain.Well{}, err
@@ -73,7 +73,7 @@ func (r *Repository) PatchWell(ctx context.Context, id int64, p domain.WellPatch
 	if p.Department.Present {
 		proposed.Department = p.Department.Value
 	}
-	if domain.RBACEnforced(ctx) && (!authority.AllowsWell(old) || !authority.AllowsWell(proposed)) {
+	if !authority.AllowsWell(old) || !authority.AllowsWell(proposed) {
 		return domain.Well{}, domain.NewError(domain.Missing, "Скважина не найдена")
 	}
 	if p.Revision.Present && old.Revision != p.Revision.Value {
@@ -148,7 +148,7 @@ func (r *Repository) ImportWells(ctx context.Context, rows []domain.Well) (domai
 		return out, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) {
+	{
 		a, e := currentScopeAuthorization(ctx, tx, "wells.import")
 		if e != nil {
 			return out, e

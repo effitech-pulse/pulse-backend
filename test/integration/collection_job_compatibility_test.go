@@ -352,7 +352,7 @@ func TestCollectionApplyPreservesLegacyWatermark(t *testing.T) {
 			}
 			if tc.prior {
 				value := 40.0
-				legacy := domain.Measurement{WellID: "legacy-observation", Timestamp: time.Date(2026, 10, 18, 0, 0, 0, 0, time.UTC), Values: map[string]*float64{"F_out": &value}}
+				legacy := domain.Measurement{WellID: "pulse:1", Timestamp: time.Date(2026, 10, 18, 0, 0, 0, 0, time.UTC), Values: map[string]*float64{"F_out": &value}}
 				if _, e = r.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: source.ID, ProfileVersion: source.ProfileVersion, Points: []domain.Measurement{legacy}}); e != nil {
 					t.Fatal(e)
 				}
@@ -435,8 +435,8 @@ func TestCollectionApplyPreservesLegacyWatermark(t *testing.T) {
 // Допустимый legacy Import100000 не должен регрессировать в timeout после защиты C2 keys.
 func TestCollectionLegacyBulk100000(t *testing.T) {
 	pool := testDB(t)
-	r := postgres.New(pool)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	r := postgres.New(pool).WithExecutionProfile("legacy", "research")
+	ctx, cancel := context.WithTimeout(legacyResearchFixtureContext(), 5*time.Second)
 	defer cancel()
 	value := 50.0
 	start := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -474,9 +474,12 @@ func TestCollectionLegacyBatchProtectedLateRollback(t *testing.T) {
 	}
 	value := 50.0
 	stamp := time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC)
+	if _, e := r.CreateWell(ctx, domain.Well{UnitekID: ptr(int64(-900001)), FundType: "operational", Active: true}); e != nil {
+		t.Fatal(e)
+	}
 	points := make([]domain.Measurement, 4097)
 	for i := 0; i < 4096; i++ {
-		points[i] = domain.Measurement{WellID: "a-unprotected", Timestamp: stamp.Add(time.Duration(i) * time.Minute), Values: map[string]*float64{"F_out": &value}}
+		points[i] = domain.Measurement{WellID: "-900001", Timestamp: stamp.Add(time.Duration(i) * time.Minute), Values: map[string]*float64{"F_out": &value}}
 	}
 	// Protected key sorts after all fresh rows and lands beyond the initial bounded batches.
 	points[4096] = domain.Measurement{WellID: "pulse:1", Timestamp: stamp, Values: map[string]*float64{"F_out": &value}}
@@ -494,8 +497,8 @@ func TestCollectionLegacyBatchProtectedLateRollback(t *testing.T) {
 
 func TestCollectionLegacyBatchUnprotectedFirstWins(t *testing.T) {
 	pool := testDB(t)
-	r := postgres.New(pool)
-	ctx := context.Background()
+	r := postgres.New(pool).WithExecutionProfile("legacy", "research")
+	ctx := legacyResearchFixtureContext()
 	stamp := time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC)
 	first, later := 1.0, 2.0
 	points := make([]domain.Measurement, 4096)

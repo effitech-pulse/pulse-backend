@@ -15,7 +15,7 @@ import (
 
 func TestWellArchivePreservesIdentityDataReviewsAndActiveState(t *testing.T) {
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	app := New(testConfig(), pool, &fakeML{})
 	app.http.Reviews = service.NewReviews(app.store).WithCatalog(app.store)
 	h := app.Handler()

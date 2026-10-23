@@ -12,6 +12,7 @@ import (
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/parameterfile"
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/telemetry"
 	"github.com/effitech-pulse/pulse-backend/internal/config"
+	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
 	"github.com/effitech-pulse/pulse-backend/internal/service"
 	"github.com/effitech-pulse/pulse-backend/internal/transport/httpapi"
@@ -34,7 +35,16 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		pool.Close()
 		return nil, err
 	}
-	store := postgres.New(pool)
+	mode := domain.RBACMode(c.RBACMode)
+	if mode == "" {
+		mode = domain.RBACCompat
+	}
+	ctx = domain.WithRBACMode(ctx, mode)
+	store := postgres.New(pool).WithExecutionProfile(c.AuthMode, c.AppScope)
+	if err := store.ValidateRBAC(ctx, mode); err != nil {
+		pool.Close()
+		return nil, err
+	}
 	var scope service.FundScope
 	if c.AppScope != "research" {
 		scope, err = service.NewFundScope(ctx, store, c.CohortVersion)
@@ -76,6 +86,7 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		pool.Close()
 		return nil, err
 	}
+	server.Access = server.Access.WithRBACMode(mode)
 	server.Checks = service.NewChecks(store, server.Integrations).WithScope(scope)
 	server.Reviews = service.NewReviews(store).WithCatalog(store).WithScope(scope)
 	server.Presentation = service.NewPresentation(store).WithSource(archive).WithScope(scope)

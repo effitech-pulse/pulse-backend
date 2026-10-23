@@ -117,7 +117,7 @@ func TestAccountsEnforceRoleAndWellScopeAcrossRoutes(t *testing.T) {
 	}
 	authRequest(t, h, "POST", "/api/v1/wells/1/checks", `{}`, viewer, 403)
 	authRequest(t, h, "POST", "/api/v1/wells/2/checks", `{}`, tech, 404)
-	check, err := app.store.SaveManualCheck(ctx, domain.ManualCheck{ID: "scope-check", WellID: 1, PointsCount: 1, RequestID: "scope-check-request", Start: time.Now().Add(-time.Hour), End: time.Now(), CreatedAt: time.Now()})
+	check, err := app.store.SaveManualCheck(legacyResearchFixtureContext(), domain.ManualCheck{ID: "scope-check", WellID: 1, PointsCount: 1, RequestID: "scope-check-request", Start: time.Now().Add(-time.Hour), End: time.Now(), CreatedAt: time.Now()})
 	if err != nil {
 		t.Fatal(err)
 	}

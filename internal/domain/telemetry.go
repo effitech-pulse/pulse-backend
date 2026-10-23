@@ -66,6 +66,8 @@ type TelemetryBounds struct {
 }
 
 type TelemetrySourceLease struct {
+	ExecutionActor ExecutionActorKind
+	Authorization  *JobAuthorization
 	SourceID       string
 	Token          string
 	Fence          int64

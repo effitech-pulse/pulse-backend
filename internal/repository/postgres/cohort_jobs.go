@@ -14,34 +14,35 @@ import (
 )
 
 type cohortJobRow struct {
-	ID            string                `json:"id"`
-	RunID         int64                 `json:"run_id"`
-	Actor         int64                 `json:"actor_account_id"`
-	ActorRevision int64                 `json:"actor_revision"`
-	Key           string                `json:"request_key"`
-	Commitment    string                `json:"request_commitment_sha256"`
-	Pilot         string                `json:"pilot_run_id"`
-	Version       string                `json:"cohort_version"`
-	CohortSHA     string                `json:"cohort_manifest_sha256"`
-	SnapshotID    string                `json:"snapshot_id"`
-	AsOf          time.Time             `json:"as_of"`
-	Reserved      int64                 `json:"reserved_bytes"`
-	State         domain.CohortJobState `json:"state"`
-	Revision      int64                 `json:"revision"`
-	Generation    int                   `json:"generation"`
-	Fence         int64                 `json:"fence"`
-	Attempt       int                   `json:"attempt_count"`
-	Starts        int                   `json:"compute_starts"`
-	Token         *string               `json:"lease_token_sha256"`
-	Until         *time.Time            `json:"lease_until"`
-	PID           *int32                `json:"physical_backend_pid"`
-	Created       time.Time             `json:"created_at"`
-	Updated       time.Time             `json:"updated_at"`
-	Deadline      time.Time             `json:"deadline_at"`
-	Started       *time.Time            `json:"started_at"`
-	Finished      *time.Time            `json:"finished_at"`
-	Next          *time.Time            `json:"next_attempt_at"`
-	Error         *string               `json:"error_code"`
+	Authorization *domain.JobAuthorization `json:"actor_authorization"`
+	ID            string                   `json:"id"`
+	RunID         int64                    `json:"run_id"`
+	Actor         int64                    `json:"actor_account_id"`
+	ActorRevision int64                    `json:"actor_revision"`
+	Key           string                   `json:"request_key"`
+	Commitment    string                   `json:"request_commitment_sha256"`
+	Pilot         string                   `json:"pilot_run_id"`
+	Version       string                   `json:"cohort_version"`
+	CohortSHA     string                   `json:"cohort_manifest_sha256"`
+	SnapshotID    string                   `json:"snapshot_id"`
+	AsOf          time.Time                `json:"as_of"`
+	Reserved      int64                    `json:"reserved_bytes"`
+	State         domain.CohortJobState    `json:"state"`
+	Revision      int64                    `json:"revision"`
+	Generation    int                      `json:"generation"`
+	Fence         int64                    `json:"fence"`
+	Attempt       int                      `json:"attempt_count"`
+	Starts        int                      `json:"compute_starts"`
+	Token         *string                  `json:"lease_token_sha256"`
+	Until         *time.Time               `json:"lease_until"`
+	PID           *int32                   `json:"physical_backend_pid"`
+	Created       time.Time                `json:"created_at"`
+	Updated       time.Time                `json:"updated_at"`
+	Deadline      time.Time                `json:"deadline_at"`
+	Started       *time.Time               `json:"started_at"`
+	Finished      *time.Time               `json:"finished_at"`
+	Next          *time.Time               `json:"next_attempt_at"`
+	Error         *string                  `json:"error_code"`
 }
 
 func cohortJobQuery() sq.SelectBuilder { return sqlBuilder.Select("*").From("cohort_job") }
@@ -149,7 +150,7 @@ func (r *Repository) AcceptCohortJob(ctx context.Context, v domain.PreparedCohor
 	if actor != v.ActorAccountID {
 		return zero, cohortError(domain.Missing, "cohort_job_not_found")
 	}
-	tx, e := r.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
+	tx, e := r.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if e != nil {
 		return zero, e
 	}
@@ -170,7 +171,7 @@ func (r *Repository) AcceptCohortJob(ctx context.Context, v domain.PreparedCohor
 			return zero, cohortError(domain.Limited, "cohort_job_capacity")
 		}
 	}
-	a, wells, ok, e := r.cohortAuthority(ctx, tx, actor, nil)
+	a, wells, ok, e := r.cohortAuthority(ctx, tx, actor, nil, nil, "cohortjobs.run", false)
 	if e != nil {
 		return zero, e
 	}
@@ -281,7 +282,7 @@ func (r *Repository) AcceptCohortJob(ctx context.Context, v domain.PreparedCohor
 		return zero, e
 	}
 	var run int64
-	if e = tx.QueryRow(ctx, `INSERT INTO ml_run(status,trigger,started_at,profile,cohort_version) VALUES('running','manual',clock_timestamp(),'cohort',$1) RETURNING id`, v.Fixture.CohortVersion).Scan(&run); e != nil {
+	if e = tx.QueryRow(ctx, `INSERT INTO ml_run(status,trigger,started_at,profile,cohort_version,execution_actor) VALUES('running','manual',clock_timestamp(),'cohort',$1,'cohort_job') RETURNING id`, v.Fixture.CohortVersion).Scan(&run); e != nil {
 		return zero, e
 	}
 	if run > math.MaxInt32 {
@@ -295,7 +296,19 @@ func (r *Repository) AcceptCohortJob(ctx context.Context, v domain.PreparedCohor
 	if e != nil {
 		return zero, e
 	}
-	_, e = execute(ctx, tx, sqlBuilder.Insert("cohort_job").Columns("id", "run_id", "actor_account_id", "actor_revision", "actor_role", "actor_scope", "request_key", "request_commitment_sha256", "pilot_run_id", "cohort_version", "cohort_manifest_sha256", "snapshot_id", "as_of", "reserved_bytes", "state", "created_at", "updated_at", "deadline_at").Values(job, run, actor, a.Revision, a.Role, actorScope, v.RequestKey, v.RequestCommitmentSHA256, r.cohortJobPolicy.RunID, v.Fixture.CohortVersion, v.Fixture.CohortManifestSHA256, snapshot, v.Fixture.AsOf, reserved, "pending_dispatch", now, now, now.Add(30*time.Minute)))
+	snapshotAuth, e := admissionAuthorization(ctx, tx, actor, "cohortjobs.run")
+	if e != nil {
+		return zero, e
+	}
+	current, e := authorization(ctx, tx, actor)
+	if e != nil {
+		return zero, e
+	}
+	a.Role = "viewer"
+	if legacy := domain.LegacyAccessRole(current); legacy != nil {
+		a.Role = *legacy
+	}
+	_, e = execute(ctx, tx, sqlBuilder.Insert("cohort_job").Columns("actor_authorization", "id", "run_id", "actor_account_id", "actor_revision", "actor_role", "actor_scope", "request_key", "request_commitment_sha256", "pilot_run_id", "cohort_version", "cohort_manifest_sha256", "snapshot_id", "as_of", "reserved_bytes", "state", "created_at", "updated_at", "deadline_at").Values(snapshotAuth, job, run, actor, a.Revision, a.Role, actorScope, v.RequestKey, v.RequestCommitmentSHA256, r.cohortJobPolicy.RunID, v.Fixture.CohortVersion, v.Fixture.CohortManifestSHA256, snapshot, v.Fixture.AsOf, reserved, "pending_dispatch", now, now, now.Add(30*time.Minute)))
 	if e != nil {
 		return zero, e
 	}
@@ -378,7 +391,7 @@ func (r *Repository) CohortJobStatus(ctx context.Context, id string) (domain.Coh
 		return zero, e
 	}
 	defer tx.Rollback(ctx)
-	_, _, ok, e := r.cohortAuthority(ctx, tx, actor, nil)
+	_, _, ok, e := r.cohortAuthority(ctx, tx, actor, nil, nil, "cohortjobs.read", false)
 	if e != nil {
 		return zero, e
 	}
@@ -389,7 +402,7 @@ func (r *Repository) CohortJobStatus(ctx context.Context, id string) (domain.Coh
 	if e != nil {
 		return zero, e
 	}
-	if !r.cohortMatches(j) {
+	if j.Actor != actor || !r.cohortMatches(j) {
 		return zero, cohortError(domain.Missing, "cohort_job_not_found")
 	}
 	out, e := cohortStatus(ctx, tx, j)

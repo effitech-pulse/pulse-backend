@@ -12,6 +12,7 @@ import (
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/grpcml"
 	"github.com/effitech-pulse/pulse-backend/internal/adapter/jobqueue"
 	"github.com/effitech-pulse/pulse-backend/internal/config"
+	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
 	"github.com/effitech-pulse/pulse-backend/internal/service"
 )
@@ -31,7 +32,16 @@ func RunFileJobWorker(ctx context.Context, c config.Config) error {
 		return e
 	}
 	defer client.Close()
+	mode := domain.RBACMode(c.RBACMode)
+	if mode == "" {
+		mode = domain.RBACCompat
+	}
+	ctx = domain.WithRBACMode(ctx, mode)
 	store := postgres.New(pool)
+	if err := store.ValidateRBAC(ctx, mode); err != nil {
+		pool.Close()
+		return err
+	}
 	scope, e := service.NewFundScope(ctx, store, c.CohortVersion)
 	if e != nil {
 		return e

@@ -56,7 +56,7 @@ func (r *Repository) CancelCollectionJob(ctx context.Context, id string, revisio
 	if _, _, e = r.collectionGuard(ctx, tx, false); e != nil {
 		return zero, e
 	}
-	if e = collectionReadAuthority(ctx, tx, locator); e != nil {
+	if e = collectionReadAuthority(ctx, tx, locator, "collectionjobs.cancel"); e != nil {
 		return zero, e
 	}
 	if _, _, e = collectionSource(ctx, tx, locator.Intent.Binding.SourceID); e != nil {

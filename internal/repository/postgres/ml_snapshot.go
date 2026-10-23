@@ -20,6 +20,9 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 		return err
 	}
 	defer tx.Rollback(ctx)
+	if _, err = runAuthorityTx(ctx, tx, id); err != nil {
+		return err
+	}
 	if err = persistCohortTx(ctx, tx, id, s, 1); err != nil {
 		return err
 	}

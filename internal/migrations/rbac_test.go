@@ -128,12 +128,16 @@ func TestRBACMigrationScopeTruthTable(t *testing.T) {
 				t.Fatal("legacy scope flattened", i)
 			}
 			a := domain.AuthorizationSnapshot{Active: true, LegacyScope: newScope}
-			oldp := domain.Principal{Role: c.role, Scope: oldScope}
 			for _, n := range []int64{-2, -1, 0, 1, 3} {
 				for _, d := range []int64{-2, -1, 0, 1, 3} {
 					for _, f := range []string{"operational", "presentation"} {
 						w := domain.Well{NGDU: n, Department: d, FundType: f}
-						if a.AllowsWell(w) != oldp.Allows(w) {
+						// Freeze the pre-migration scope truth independently of Principal,
+						// whose missing-snapshot behavior intentionally fails closed now.
+						legacyAllowed := slices.Contains(oldScope.Funds, f) &&
+							(oldScope.NGDUs == nil || slices.Contains(*oldScope.NGDUs, n)) &&
+							(oldScope.Departments == nil || slices.Contains(*oldScope.Departments, d))
+						if a.AllowsWell(w) != legacyAllowed {
 							t.Fatal("predicate changed", i, n, d, f)
 						}
 					}

@@ -17,7 +17,7 @@ import (
 
 func reviewCohort(t *testing.T) (*application, service.FundScope, []domain.Well) {
 	t.Helper()
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	app := New(testConfig(), testDB(t), &fakeML{})
 	t.Cleanup(app.Wait)
 	for i := 0; i < 100; i++ {
@@ -44,7 +44,7 @@ func reviewCohort(t *testing.T) (*application, service.FundScope, []domain.Well)
 
 func TestReviewFixForeignReferenceMutation(t *testing.T) {
 	app, _, _ := reviewCohort(t)
-	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal service fixture
+	ctx := legacyResearchFixtureContext() // intentional legacy execution fixture
 	const foreign = int64(717171)
 	if _, err := app.store.CreateReference(ctx, domain.NGDUReference, foreign, "outside-private"); err != nil {
 		t.Fatal(err)
@@ -64,7 +64,7 @@ func TestReviewFixForeignReferenceMutation(t *testing.T) {
 
 func TestReviewFixLatestReviewResetMustSurviveNextRun(t *testing.T) {
 	app, _, members := reviewCohort(t)
-	ctx := domain.WithSystemPrincipal(context.Background()) // intentional internal service fixture
+	ctx := legacyResearchFixtureContext() // intentional legacy execution fixture
 	makeRun := func() (int64, int64) {
 		lease, ok, err := app.store.Reserve(ctx)
 		if err != nil || !ok {
@@ -128,7 +128,7 @@ func TestReviewFixLatestReviewResetMustSurviveNextRun(t *testing.T) {
 
 func TestReviewFixFailedCohortRunVisibleInHistory(t *testing.T) {
 	app, _, _ := reviewCohort(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	lease, ok, err := app.store.Reserve(ctx)
 	if err != nil || !ok {
 		t.Fatal(err)
@@ -164,7 +164,7 @@ func TestReviewFixFailedCohortRunVisibleInHistory(t *testing.T) {
 
 func TestReviewFixAllReferenceWritesDeniedBeforeValidation(t *testing.T) {
 	app, _, _ := reviewCohort(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	for _, kind := range []domain.ReferenceKind{domain.NGDUReference, domain.DepartmentReference} {
 		if _, err := app.store.CreateReference(ctx, kind, 717171, "outside-private"); err != nil {
 			t.Fatal(err)
@@ -220,7 +220,7 @@ func assertForbiddenReference(t *testing.T, err error) {
 
 func TestReviewFixRunHistoryIdentifiesPendingFailureAndSuppressesPrivateMetadata(t *testing.T) {
 	app, scope, members := reviewCohort(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	makeAttempt := func(version string, fail bool) int64 {
 		lease, ok, err := app.store.Reserve(ctx)
 		if err != nil || !ok {
@@ -311,10 +311,10 @@ func (s *reviewCaptureFailure) Members(ctx context.Context) (domain.Cohort, []do
 }
 func TestReviewFixCaptureFailureStillHasAttemptIdentity(t *testing.T) {
 	app, scope, _ := reviewCohort(t)
-	ctx := context.Background()
+	ctx := legacyResearchFixtureContext()
 	failing := &reviewCaptureFailure{FundScope: scope, fail: true}
 	ml := service.NewML(app.store, app.store, &fakeML{}, service.RunOptions{Profile: "cohort", CohortVersion: "senior-v1", Timeout: time.Second}).WithCohort(failing, nil, app.store)
-	started, err := ml.StartRun(domain.WithSystemPrincipal(ctx), "manual")
+	started, err := ml.StartRun(ctx, "manual")
 	if err != nil || !started {
 		t.Fatal(started, err)
 	}

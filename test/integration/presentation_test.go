@@ -41,7 +41,7 @@ func TestFundFilterKeepsPresentationOutsideOperationalListsAndSummary(t *testing
 		verdict string
 		date    string
 	}{{1, "alert", "2025-02-01T00:00:00Z"}, {2, "alert", "2025-02-01T00:00:00Z"}, {2, "norm", "2025-02-02T00:00:00Z"}} {
-		_, err := app.store.SaveManualCheck(context.Background(), domain.ManualCheck{ID: string(rune('a' + i)), WellID: v.well, RequestID: string(rune('a' + i)), Start: mustDate(t, "2025-01-01T00:00:00Z"), End: mustDate(t, "2025-02-01T00:00:00Z"), CreatedAt: mustDate(t, v.date), PointsCount: 1, Result: domain.UploadResult{Verdict: v.verdict}})
+		_, err := app.store.SaveManualCheck(legacyResearchFixtureContext(), domain.ManualCheck{ID: string(rune('a' + i)), WellID: v.well, RequestID: string(rune('a' + i)), Start: mustDate(t, "2025-01-01T00:00:00Z"), End: mustDate(t, "2025-02-01T00:00:00Z"), CreatedAt: mustDate(t, v.date), PointsCount: 1, Result: domain.UploadResult{Verdict: v.verdict}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -64,11 +64,11 @@ func TestFundMigrationOnlyAdoptsReservedSyntheticRange(t *testing.T) {
 	if err := migrations.Apply(context.Background(), pool); err != nil {
 		t.Fatal(err)
 	}
-	first, err := app.store.Well(context.Background(), 1)
+	first, err := app.store.Well(legacyResearchFixtureContext(), 1)
 	if err != nil || first.FundType != "presentation" {
 		t.Fatal(first, err)
 	}
-	second, err := app.store.Well(context.Background(), 2)
+	second, err := app.store.Well(legacyResearchFixtureContext(), 2)
 	if err != nil || second.FundType != "operational" {
 		t.Fatal(second, err)
 	}

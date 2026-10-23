@@ -105,11 +105,11 @@ func TestManualCheckHistoryPaginationAndIdempotentStorage(t *testing.T) {
 		v.Start = mustDate(t, "2025-01-01T00:00:00Z")
 		v.End = mustDate(t, "2025-02-01T00:00:00Z")
 		v.CreatedAt = v.End
-		if _, err := app.store.SaveManualCheck(context.Background(), v); err != nil {
+		if _, err := app.store.SaveManualCheck(legacyResearchFixtureContext(), v); err != nil {
 			t.Fatal(err)
 		}
 		v.ID = "duplicate"
-		if _, err := app.store.SaveManualCheck(context.Background(), v); err != nil {
+		if _, err := app.store.SaveManualCheck(legacyResearchFixtureContext(), v); err != nil {
 			t.Fatal(err)
 		}
 	}

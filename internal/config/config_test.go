@@ -127,3 +127,16 @@ func TestCollectionSyntheticConfigurationRequiresIsolation(t *testing.T) {
 		})
 	}
 }
+
+func TestRBACModeValidation(t *testing.T) {
+	t.Setenv("APP_SCOPE", "research")
+	t.Setenv("AUTH_MODE", "local")
+	for _, mode := range []string{"", "unknown", "ENFORCE"} {
+		t.Run(mode, func(t *testing.T) {
+			t.Setenv("RBAC_MODE", mode)
+			if _, err := Load(); err == nil {
+				t.Fatal("invalid RBAC mode accepted")
+			}
+		})
+	}
+}

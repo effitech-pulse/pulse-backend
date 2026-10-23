@@ -19,7 +19,7 @@ import (
 func collectionSetup(t *testing.T) (*pgxpool.Pool, context.Context, *postgres.Repository, domain.CollectionSubmit) {
 	t.Helper()
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background())
 	r := postgres.New(pool)
 	if _, e := pool.Exec(ctx, `INSERT INTO auth_user(login,name,password_hash,role,scope)VALUES('collection-admin','Synthetic','unused','admin','{"funds":["presentation"],"ngdus":null,"departments":null}')`); e != nil {
 		t.Fatal(e)
@@ -46,8 +46,17 @@ func collectionSetup(t *testing.T) (*pgxpool.Pool, context.Context, *postgres.Re
 	if e = r.ValidateCollectionJobPolicy(ctx); e != nil {
 		t.Fatal(e)
 	}
-	actor := int64(1)
-	ctx = domain.WithPrincipal(ctx, domain.Principal{Authenticated: true, AccountID: &actor, Mechanism: "session"})
+	account, e := r.Account(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	auth, e := r.Authorization(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	principal := domain.AccountPrincipal(account)
+	principal.Authorization = &auth
+	ctx = domain.WithPrincipal(ctx, domain.TrustedCompatibilityPrincipal(principal))
 	return pool, ctx, r, domain.CollectionSubmit{ReplayKey: "collection-replay-0001", FixtureID: "dense-v1", SourceID: source.ID, Start: "2026-10-19T00:00:00Z", End: "2026-10-19T00:02:00Z"}
 }
 func collectionClaim(t *testing.T, ctx context.Context, r *postgres.Repository) (service.CollectionJobClaim, domain.CollectionMessage) {

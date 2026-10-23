@@ -135,3 +135,19 @@ Migration11 runtime: первое/повторное применение exit0;
 `runtime-image-binding.json`:4actual image IDs связаны с source manifests; семь численных ML/Data versions совпадают, pip check обоих PASS. Backend image имеет no_container_healthcheck: HTTP Health200 проверен отдельно, поэтому общий Health не выводится из Docker healthy.
 
 Техническая приёмка PREP завершена; [native artifact manifest](readiness-native-artifacts.json) сохраняет119source/50wheel hashes. Остался отдельный публикационный gate: final handbook sync/build/check/validate/extractedZIP и docs-only commit координатора. Научный/промышленный/cloud gate этим не закрывается.
+
+
+## RBAC v1 / workers / activation
+
+Обязательные source gates: `make check`, `make build` до process suites,
+`TEST_DATABASE_URL=<отдельная тестовая БД> make integration`. RBAC integration
+без БД/SKIP не считается приёмкой. Узкие suites `TestRBACWorkerRevocation`,
+`TestRBACLegacyScheduledActors`, `TestRBACLegacyCollectEpoch`,
+`TestRBACWorkerSchema*`, `TestRBACWorkerOwnerConstraint`,
+`TestRBACWorkerSQLFailureRetry`, `TestRBACMissingStorageContext`,
+`TestRBACActivation*` проверяют current authority/epochs, rollback output,
+malformed/owner/immutable schema policy, drain и idempotent activation.
+
+Локальные source tests не подтверждают операционный cutover: runtime backup,
+drain, activation, restart/relogin и real enable требуют отдельного поручения
+по [runbook](rbac.md). Worker retry/fence и synthetic-only gates остаются прежними.

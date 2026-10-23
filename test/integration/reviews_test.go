@@ -21,7 +21,7 @@ func reviewFixture(t *testing.T) *application {
 	h := app.Handler()
 	call(t, h, "POST", "/api/v1/wells", `{"unitek_id":42,"ngdu":0,"department":0}`, 201)
 	call(t, h, "POST", "/api/v1/wells", `{"ngdu":0,"department":0}`, 201)
-	_, err := app.store.SaveManualCheck(context.Background(), domain.ManualCheck{ID: "check_001", WellID: 1, RequestID: "request_001", Start: mustDate(t, "2025-01-01T00:00:00Z"), End: mustDate(t, "2025-02-01T00:00:00Z"), CreatedAt: mustDate(t, "2025-02-01T00:00:00Z"), PointsCount: 1, InputSHA256: "input", Result: domain.UploadResult{Verdict: "watch"}})
+	_, err := app.store.SaveManualCheck(legacyResearchFixtureContext(), domain.ManualCheck{ID: "check_001", WellID: 1, RequestID: "request_001", Start: mustDate(t, "2025-01-01T00:00:00Z"), End: mustDate(t, "2025-02-01T00:00:00Z"), CreatedAt: mustDate(t, "2025-02-01T00:00:00Z"), PointsCount: 1, InputSHA256: "input", Result: domain.UploadResult{Verdict: "watch"}})
 	if err != nil {
 		t.Fatal(err)
 	}

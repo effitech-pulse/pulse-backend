@@ -27,6 +27,7 @@ func TestRBACScopeSurfaces(t *testing.T) {
 	pool := testDB(t)
 	app := New(testConfig(), pool, &fakeML{})
 	ctx := context.Background()
+	setupCtx := domain.WithPrincipal(ctx, domain.TrustedLegacyPrincipal("scope fixture"))
 	for _, body := range []string{`{"ngdu":1,"department":3}`, `{"ngdu":1,"department":4}`, `{"ngdu":2,"department":3}`, `{"ngdu":1,"department":3,"fund_type":"presentation"}`} {
 		call(t, app.Handler(), "POST", "/api/v1/wells", body, 201)
 	}
@@ -40,7 +41,7 @@ func TestRBACScopeSurfaces(t *testing.T) {
 		t.Fatal("foreign well disclosed")
 	}
 	for _, id := range []int64{1, 2} {
-		_, err = app.store.CreateIncident(ctx, domain.Incident{WellID: id, FailureType: "salt", FailureDate: "2026-01-01", DaysBefore: 60})
+		_, err = app.store.CreateIncident(setupCtx, domain.Incident{WellID: id, FailureType: "salt", FailureDate: "2026-01-01", DaysBefore: 60})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -52,7 +53,7 @@ func TestRBACScopeSurfaces(t *testing.T) {
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	end := start.Add(time.Hour)
 	zero := float64(0)
-	_, err = app.store.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: "manual", Points: []domain.Measurement{{WellID: "pulse:1", Timestamp: start, Values: map[string]*float64{"F_out": &zero, "CosF": nil}}, {WellID: "pulse:2", Timestamp: start, Values: map[string]*float64{"F_out": &zero}}}})
+	_, err = app.store.CommitTelemetry(setupCtx, domain.TelemetryWrite{SourceID: "manual", Points: []domain.Measurement{{WellID: "pulse:1", Timestamp: start, Values: map[string]*float64{"F_out": &zero, "CosF": nil}}, {WellID: "pulse:2", Timestamp: start, Values: map[string]*float64{"F_out": &zero}}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +66,7 @@ func TestRBACScopeSurfaces(t *testing.T) {
 		t.Fatal("unmapped raw telemetry accepted")
 	}
 	check := domain.ManualCheck{ID: "scope-check-00000001", WellID: 1, RequestID: "scope-request-0001", Start: start, End: end, CreatedAt: start, PointsCount: 1, InputSHA256: strings.Repeat("a", 64), Resolution: "raw", Result: domain.UploadResult{Verdict: "norm"}}
-	if _, err = app.store.SaveManualCheck(ctx, check); err != nil {
+	if _, err = app.store.SaveManualCheck(setupCtx, check); err != nil {
 		t.Fatal(err)
 	}
 	checks := service.NewChecks(app.store, integrations)
@@ -102,7 +103,7 @@ func TestRBACWellTransfer(t *testing.T) {
 	if _, err := c.PatchWell(scopeContext(), 1, patch); err == nil {
 		t.Fatal("foreign proposed scope accepted")
 	}
-	w, err := app.store.Well(context.Background(), 1)
+	w, err := app.store.Well(domain.WithSystemPrincipal(context.Background()), 1)
 	if err != nil || w.Department != 3 || w.Revision != 1 {
 		t.Fatalf("partial write %+v %v", w, err)
 	}
@@ -110,7 +111,7 @@ func TestRBACWellTransfer(t *testing.T) {
 	if _, err = c.ImportWells(scopeContext(), rows); err == nil {
 		t.Fatal("mixed import accepted")
 	}
-	wells, err := app.store.Wells(context.Background(), false)
+	wells, err := app.store.Wells(domain.WithSystemPrincipal(context.Background()), false)
 	if err != nil || len(wells) != 1 {
 		t.Fatalf("partial import %v %v", wells, err)
 	}
@@ -190,7 +191,7 @@ func TestRBACScopeSurfacesHTTP(t *testing.T) {
 	if _, e = app.store.PatchWell(stale, 1, stalePatch); e == nil {
 		t.Fatal("revoked actor committed")
 	}
-	current, e := app.store.Well(ctx, 1)
+	current, e := app.store.Well(domain.WithSystemPrincipal(ctx), 1)
 	if e != nil || current.Revision != 2 || current.Department != 3 || current.Active {
 		t.Fatalf("unexpected mutation %+v %v", current, e)
 	}

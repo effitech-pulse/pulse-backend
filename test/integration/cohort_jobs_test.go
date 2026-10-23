@@ -16,7 +16,7 @@ import (
 func cohortJobSetup(t *testing.T) (*pgxpool.Pool, context.Context, *postgres.Repository, domain.PreparedCohortJob) {
 	t.Helper()
 	pool := testDB(t)
-	ctx := context.Background()
+	ctx := domain.WithSystemPrincipal(context.Background())
 	r := postgres.New(pool)
 	if _, e := pool.Exec(ctx, `INSERT INTO auth_user(login,name,password_hash,role,scope) VALUES('cohort-admin','Synthetic','unused','admin','{"funds":["presentation"],"ngdus":null,"departments":null}')`); e != nil {
 		t.Fatal(e)
@@ -52,8 +52,17 @@ func cohortJobSetup(t *testing.T) (*pgxpool.Pool, context.Context, *postgres.Rep
 	if e != nil {
 		t.Fatal(e)
 	}
-	actor := int64(1)
-	ctx = domain.WithPrincipal(ctx, domain.Principal{Authenticated: true, AccountID: &actor, Mechanism: "session", Role: "viewer"})
+	account, e := r.Account(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	auth, e := r.Authorization(ctx, 1)
+	if e != nil {
+		t.Fatal(e)
+	}
+	principal := domain.AccountPrincipal(account)
+	principal.Authorization = &auth
+	ctx = domain.WithPrincipal(ctx, domain.TrustedCompatibilityPrincipal(principal))
 	return pool, ctx, r, v
 }
 func TestCohortAdmissionReplay(t *testing.T) {

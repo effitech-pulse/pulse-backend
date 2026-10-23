@@ -74,7 +74,7 @@ func TestCollectionWorkerNeverRereadsCaptured(t *testing.T) {
 func TestCollectionOffStatusPreserved(t *testing.T) {
 	s, _ := NewCollectionJobs(&collectionTestStore{}, false)
 	id := int64(1)
-	ctx := domain.WithPrincipal(context.Background(), domain.Principal{Authenticated: true, Mechanism: "session", Role: "admin", AccountID: &id})
+	ctx := domain.WithPrincipal(context.Background(), domain.TrustedCompatibilityPrincipal(domain.Principal{Authenticated: true, Mechanism: "session", Role: "admin", AccountID: &id}))
 	if _, e := s.Submit(ctx, domain.CollectionSubmit{}); e == nil {
 		t.Fatal("off submit accepted")
 	}

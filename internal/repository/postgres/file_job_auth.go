@@ -70,7 +70,7 @@ func isMissing(err error) bool {
 
 // authorizeFileJobTx линеаризует current account/well/cohort/guard до runtime/job locks.
 // false означает устойчивый отказ; SQL failures не превращаются в revoked.
-func (r *Repository) authorizeFileJobTx(ctx context.Context, tx pgx.Tx, actor, well int64) (bool, error) {
+func (r *Repository) authorizeFileJobTx(ctx context.Context, tx pgx.Tx, actor, well int64, saved *domain.JobAuthorization, permission domain.Permission, execution bool) (bool, error) {
 	if r.fileJobPolicy == nil {
 		return false, nil
 	}
@@ -85,8 +85,8 @@ func (r *Repository) authorizeFileJobTx(ctx context.Context, tx pgx.Tx, actor, w
 	if !slices.Contains(p.AllowedAccountIDs, actor) {
 		return false, nil
 	}
-	a, e := one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": actor}).Suffix("FOR SHARE"))
-	if isMissing(e) {
+	a, e := jobAuthority(ctx, tx, actor, saved, permission, execution)
+	if authorityDenied(e) {
 		return false, nil
 	}
 	if e != nil {
@@ -99,11 +99,7 @@ func (r *Repository) authorizeFileJobTx(ctx context.Context, tx pgx.Tx, actor, w
 	if e != nil {
 		return false, e
 	}
-	current := domain.AccountPrincipal(a)
-	if !domain.RBACEnforced(ctx) {
-		current = domain.TrustedCompatibilityPrincipal(current)
-	}
-	if !a.Active || (a.Role != "technologist" && a.Role != "admin") || !w.Active || w.ArchivedAt != nil || !current.Allows(w) {
+	if !w.Active || w.ArchivedAt != nil || !a.AllowsWell(w) {
 		return false, nil
 	}
 	guard, e := list[struct {

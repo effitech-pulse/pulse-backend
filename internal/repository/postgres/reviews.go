@@ -120,7 +120,7 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 		return domain.Review{}, err
 	}
 	defer tx.Rollback(ctx)
-	if domain.RBACEnforced(ctx) && target.Kind != "file_check" {
+	if target.Kind != "file_check" {
 		permission := domain.Permission("checks.review")
 		if target.Kind == "alert" {
 			permission = "alerts.review"
@@ -136,7 +136,7 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 		if target.WellID == nil || target.FileJobID == nil || *target.FileJobID != target.ID || target.CheckID != nil || target.AlertID != nil {
 			return domain.Review{}, missingFileJob()
 		}
-		if _, err = r.privateReviewJobTx(ctx, tx, *target.WellID, target.ID); err != nil {
+		if _, err = r.privateReviewJobTx(ctx, tx, *target.WellID, target.ID, "filechecks.review"); err != nil {
 			return domain.Review{}, err
 		}
 	}
@@ -204,8 +204,8 @@ func (r *Repository) CommitReview(ctx context.Context, target domain.ReviewTarge
 	return r.Review(ctx, target, 0)
 }
 
-func (r *Repository) privateReviewJobTx(ctx context.Context, tx pgx.Tx, well int64, id string) (jobRecord, error) {
-	row, e := r.publicFileJobTx(ctx, tx, well, id)
+func (r *Repository) privateReviewJobTx(ctx context.Context, tx pgx.Tx, well int64, id string, actions ...domain.Permission) (jobRecord, error) {
+	row, e := r.publicFileJobTx(ctx, tx, well, id, actions...)
 	if e != nil {
 		return row, e
 	}
