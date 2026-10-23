@@ -38,16 +38,19 @@ func appendWellEvent(ctx context.Context, db db, kind, reason string, before, af
 	return err
 }
 func (r *Repository) SetWellArchive(ctx context.Context, id int64, revision *int64, archived bool, reason string) (domain.Well, error) {
+	permission := domain.Permission("wells.restore")
+	if archived {
+		permission = "wells.archive"
+	}
+	return r.setWellArchive(ctx, id, revision, archived, reason, permission)
+}
+func (r *Repository) setWellArchive(ctx context.Context, id int64, revision *int64, archived bool, reason string, permission domain.Permission) (domain.Well, error) {
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
 		return domain.Well{}, err
 	}
 	defer tx.Rollback(ctx)
 	{
-		permission := domain.Permission("wells.restore")
-		if archived {
-			permission = "wells.archive"
-		}
 		if _, err = requireScopedWellTx(ctx, tx, permission, id); err != nil {
 			return domain.Well{}, err
 		}

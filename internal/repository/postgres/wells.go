@@ -137,7 +137,7 @@ func (r *Repository) PatchWell(ctx context.Context, id int64, p domain.WellPatch
 }
 
 func (r *Repository) DeleteWell(ctx context.Context, id int64) error {
-	_, err := r.SetWellArchive(ctx, id, nil, true, "Архивирование через совместимый DELETE API")
+	_, err := r.setWellArchive(ctx, id, nil, true, "Архивирование через совместимый DELETE API", "wells.delete")
 	return err
 }
 

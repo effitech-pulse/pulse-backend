@@ -410,7 +410,7 @@ func TestRunFiltersBindAllValues(t *testing.T) {
 		t.Fatal(err)
 	}
 	status := "success"
-	rows, err := postgres.New(pool).Runs(ctx, domain.RunFilter{
+	rows, err := postgres.New(pool).Runs(legacyResearchFixtureContext(), domain.RunFilter{
 		DAGID: &dag, WellID: &wellID, StatusType: &status, Limit: 10,
 	})
 	if err != nil || len(rows) != 1 || rows[0].RunID != "matching" {

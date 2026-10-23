@@ -20,7 +20,11 @@ func (l *lease) PersistCohort(ctx context.Context, id int64, s domain.CohortSnap
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if _, err = runAuthorityTx(ctx, tx, id); err != nil {
+	a, err := runAuthorityTx(ctx, tx, id)
+	if err != nil {
+		return err
+	}
+	if err = guardManualCohortPublicationTx(ctx, tx, id, a, s); err != nil {
 		return err
 	}
 	if err = persistCohortTx(ctx, tx, id, s, 1); err != nil {
@@ -165,4 +169,61 @@ func (r *Repository) CohortAlerts(ctx context.Context, run int64) ([]domain.Coho
 func (r *Repository) CohortRuns(ctx context.Context, version string, count int) ([]domain.MLRun, error) {
 	q := sqlBuilder.Select("r.id,r.started_at,r.finished_at,r.status,r.trigger,r.profile,r.cohort_version,s.snapshot_id,s.provenance_status").From("ml_run r").LeftJoin("ml_run_snapshot s ON s.run_id=r.id AND s.cohort_version=r.cohort_version").Where(sq.Eq{"r.profile": "cohort", "r.cohort_version": version}).OrderBy("r.id DESC").Limit(uint64(count))
 	return list[domain.MLRun](ctx, r.pool, q)
+}
+
+// guardManualCohortPublicationTx использует captured Metadata; current binding читается только из well.
+func guardManualCohortPublicationTx(ctx context.Context, tx pgx.Tx, runID int64, a domain.AuthorizationSnapshot, s domain.CohortSnapshot) error {
+	if s.RunID == nil || *s.RunID != runID || s.CohortVersion == "" || len(s.Outcomes) != 100 || s.OutcomeCompleteness != "complete" {
+		return domain.NewError(domain.Invalid, "invalid_cohort_authority")
+	}
+	accepted := map[int64]domain.FileJobWellAuthority{}
+	ids := make([]int64, 0, 100)
+	for _, o := range s.Outcomes {
+		if o.AppWellID != o.Metadata.ID || accepted[o.AppWellID].WellID != 0 {
+			return domain.NewError(domain.Invalid, "invalid_cohort_authority")
+		}
+		frame, e := domain.FileJobWellAuthorityFrom(o.Metadata)
+		if e != nil {
+			return e
+		}
+		accepted[o.AppWellID] = frame
+		ids = append(ids, o.AppWellID)
+	}
+	members, e := list[struct {
+		ID int64 `json:"well_id"`
+	}](ctx, tx, sqlBuilder.Select("well_id").From("app_cohort_member").Where(sq.Eq{"version": s.CohortVersion}))
+	if e != nil {
+		return e
+	}
+	if len(members) != 100 {
+		return domain.NewError(domain.Invalid, "invalid_cohort_authority")
+	}
+	for _, m := range members {
+		if accepted[m.ID].WellID == 0 {
+			return domain.NewError(domain.Invalid, "invalid_cohort_authority")
+		}
+	}
+	wells, e := list[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"id": ids}).OrderBy("id").Suffix("FOR SHARE"))
+	if e != nil {
+		return e
+	}
+	if len(wells) != 100 {
+		return domain.NewError(domain.Forbidden, "access_revoked")
+	}
+	for _, w := range wells {
+		if !a.AllowsWell(w) || !accepted[w.ID].Matches(w) {
+			return domain.NewError(domain.Forbidden, "access_revoked")
+		}
+	}
+	run, e := one[struct {
+		Profile *string `json:"profile"`
+		Version *string `json:"cohort_version"`
+	}](ctx, tx, sqlBuilder.Select("profile", "cohort_version").From("ml_run").Where(sq.Eq{"id": runID}).Suffix("FOR UPDATE"))
+	if e != nil {
+		return e
+	}
+	if run.Profile == nil || *run.Profile != "cohort" || run.Version == nil || *run.Version != s.CohortVersion {
+		return domain.NewError(domain.Invalid, "invalid_cohort_authority")
+	}
+	return nil
 }

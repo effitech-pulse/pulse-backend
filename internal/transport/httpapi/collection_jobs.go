@@ -106,7 +106,7 @@ func writeCollectionError(c *gin.Context, e error) error {
 	}
 	// Collection errors expose only fixed protocol codes, never adapter messages.
 	switch de.Message {
-	case "invalid_collection_request", "invalid_period", "fixture_unavailable", "source_not_allowed", "session_required", "collection_access_denied", "collection_job_missing", "replay_conflict", "source_busy", "revision_conflict", "collection_capacity", "collection_jobs_disabled", "collection_store_unavailable":
+	case "collection_intent_too_large", "invalid_collection_request", "invalid_period", "fixture_unavailable", "source_not_allowed", "session_required", "collection_access_denied", "collection_job_missing", "replay_conflict", "source_busy", "revision_conflict", "collection_capacity", "collection_jobs_disabled", "collection_store_unavailable":
 	default:
 		return domain.NewError(domain.Unavailable, "collection_store_unavailable")
 	}

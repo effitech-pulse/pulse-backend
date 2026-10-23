@@ -30,7 +30,9 @@ func TestCohortSnapshotAtomicImmutableAndRestartRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer lease.Close()
-	id, err := lease.Begin(ctx, "test")
+	id, err := lease.(interface {
+		BeginCohort(context.Context, string, string) (int64, error)
+	}).BeginCohort(ctx, "test", "v1")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -103,7 +103,7 @@ func TestCohortHTTPAdminScopeRawAndJournalIsolation(t *testing.T) {
 	if count != 0 {
 		t.Fatal("partial mixed import", count)
 	}
-	source, err := app.store.SaveSource(ctx, domain.TelemetrySource{ID: "mixed-source", Kind: "json_push", Status: "running", WellField: "well_id", TimeField: "timestamp", Mappings: []domain.Mapping{{Field: "f", Parameter: "F_out", Scale: 1}}})
+	source, err := mutateSourceFixture(ctx, app.store, domain.SourceCreate, domain.TelemetrySource{ID: "mixed-source", Kind: "json_push", Status: "running", WellField: "well_id", TimeField: "timestamp", Mappings: []domain.Mapping{{Field: "f", Parameter: "F_out", Scale: 1}}})
 	if err != nil {
 		t.Fatal(err)
 	}

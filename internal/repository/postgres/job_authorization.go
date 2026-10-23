@@ -64,16 +64,17 @@ func jobAuthority(ctx context.Context, tx pgx.Tx, id int64, saved *domain.JobAut
 			return a, domain.NewError(domain.Forbidden, "access_revoked")
 		}
 	}
+	if !execution {
+		p, ok := domain.CurrentPrincipal(ctx)
+		if !ok || !p.Authenticated || p.AccountID == nil || *p.AccountID != id || p.Authorization == nil || p.Authorization.AccountID != id || p.Authorization.Epoch != a.Epoch {
+			return a, domain.NewError(domain.Forbidden, "access_revoked")
+		}
+	}
 	if domain.RBACEnforced(ctx) {
 		if execution && saved == nil {
 			return a, domain.NewError(domain.Forbidden, "access_revoked")
 		}
-		if !execution {
-			p, ok := domain.CurrentPrincipal(ctx)
-			if !ok || p.AccountID == nil || *p.AccountID != id || p.Authorization == nil || p.Authorization.Epoch != a.Epoch {
-				return a, domain.NewError(domain.Forbidden, "access_revoked")
-			}
-		}
+
 	} else {
 		account, e := one[domain.Account](ctx, tx, sqlBuilder.Select(accountColumns).From("auth_user").Where(sq.Eq{"id": id}))
 		if e != nil {
@@ -83,6 +84,11 @@ func jobAuthority(ctx context.Context, tx pgx.Tx, id int64, saved *domain.JobAut
 		p.Authorization = &a
 		p = domain.TrustedCompatibilityPrincipal(p)
 		a = *p.Authorization
+		switch permission {
+		case "cohortjobs.run", "cohortjobs.read", "cohortjobs.cancel", "collectionjobs.run", "collectionjobs.read", "collectionjobs.cancel":
+			a.LegacyScope = account.Scope
+			a.Organization = nil
+		}
 	}
 	return a, a.Require(permission)
 }

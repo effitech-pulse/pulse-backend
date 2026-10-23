@@ -329,7 +329,7 @@ func TestRBACLegacyCollectEpoch(t *testing.T) {
 	principal := domain.AccountPrincipal(account)
 	principal.Authorization = &a
 	ctx = domain.WithRBACMode(domain.WithPrincipal(ctx, principal), domain.RBACEnforce)
-	source, err := r.SaveSource(ctx, domain.TelemetrySource{ID: "rbac-collect", Status: "running", Kind: "json_pull", IntervalSeconds: 60})
+	source, err := mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceCreate, domain.TelemetrySource{ID: "rbac-collect", Status: "running", Kind: "json_pull", IntervalSeconds: 60})
 	if err != nil {
 		t.Fatal(err)
 	}

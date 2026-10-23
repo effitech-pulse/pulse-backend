@@ -36,7 +36,7 @@ func TestCollectionApplicationHTTPSourceApply(t *testing.T) {
 		t.Fatal(e)
 	}
 	source.Endpoint = fixture.URL + "/v1/collection-capture"
-	source, e = r.SaveSource(ctx, source)
+	source, e = mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceUpdate, source)
 	if e != nil {
 		t.Fatal(e)
 	}

@@ -134,7 +134,7 @@ func TestCollectionSourceFenceAndProtectedKeys(t *testing.T) {
 		t.Fatal(e)
 	}
 	source.Name = "revision2"
-	if _, e = r.SaveSource(ctx, source); e != nil {
+	if _, e = mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceUpdate, source); e != nil {
 		t.Fatal(e)
 	}
 	newer, e := r.ClaimSource(ctx, in.SourceID, false)
@@ -168,7 +168,10 @@ func TestCollectionSourceFenceAndProtectedKeys(t *testing.T) {
 		t.Fatal(e)
 	}
 	v := 50.0
-	points := []domain.Measurement{{WellID: "pulse:1", Timestamp: time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC), Values: map[string]*float64{"F_out": &v}}, {WellID: "unprotected", Timestamp: time.Now().UTC(), Values: map[string]*float64{"F_out": &v}}}
+	if _, e = r.CreateWell(ctx, domain.Well{FundType: "presentation", Active: true, UnitekID: ptr(int64(-900001))}); e != nil {
+		t.Fatal(e)
+	}
+	points := []domain.Measurement{{WellID: "pulse:1", Timestamp: time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC), Values: map[string]*float64{"F_out": &v}}, {WellID: "-900001", Timestamp: time.Now().UTC(), Values: map[string]*float64{"F_out": &v}}}
 	if _, e = r.CommitTelemetry(ctx, domain.TelemetryWrite{SourceID: "manual", Points: points}); e == nil {
 		t.Fatal("manual overwrote protected key")
 	}
@@ -290,7 +293,7 @@ func TestCollectionSourceOtherSourceCannotOverwriteProtectedKey(t *testing.T) {
 	if _, e := r.ApplyCollectionCapture(ctx, c.Lease()); e != nil {
 		t.Fatal(e)
 	}
-	other, e := r.SaveSource(ctx, domain.TelemetrySource{ID: "other-source", Kind: "json_push", Status: "running", IntervalSeconds: 60})
+	other, e := mutateSourceFixture(ctx, r, domain.SourceCreate, domain.TelemetrySource{ID: "other-source", Kind: "json_push", Status: "running", IntervalSeconds: 60})
 	if e != nil {
 		t.Fatal(e)
 	}

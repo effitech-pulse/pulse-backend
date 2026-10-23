@@ -10,9 +10,7 @@ import (
 )
 
 func TestCollectionApplicationOwnerReplayCancel(t *testing.T) {
-	_, ctx, r, in := collectionSetup(t)
-	id := int64(1)
-	ctx = domain.WithPrincipal(ctx, domain.Principal{AccountID: &id, Authenticated: true, Role: "admin", Mechanism: "session"})
+	pool, ctx, r, in := collectionSetup(t)
 	jobs, e := service.NewCollectionJobs(r, true)
 	if e != nil {
 		t.Fatal(e)
@@ -32,8 +30,8 @@ func TestCollectionApplicationOwnerReplayCancel(t *testing.T) {
 	if e != nil || again.Revision != s.Revision {
 		t.Fatal("terminal cancel", again, e)
 	}
-	foreign := int64(1234)
-	other := domain.WithPrincipal(context.Background(), domain.Principal{AccountID: &foreign, Authenticated: true, Role: "admin", Mechanism: "session"})
+	foreign := rbacReadUser(t, pool, "valid-foreign-owner", `{"kind":"organization","ngdu_id":null,"department_id":null}`, "collectionjobs.read", "wells.read", "integrations.read")
+	other := reviewActor(t, r, foreign)
 	for _, jobID := range []string{s.ID, strings.Repeat("f", 32)} {
 		if _, e = jobs.Status(other, jobID); e == nil || e.Error() != "collection_job_missing" {
 			t.Fatal("foreign/missing leak", e)

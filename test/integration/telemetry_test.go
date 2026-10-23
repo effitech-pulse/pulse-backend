@@ -159,7 +159,7 @@ func TestSourceRuntimeTimestampsOverrideSavedProfile(t *testing.T) {
 	ctx := legacyResearchFixtureContext()
 	repo := postgres.New(testDB(t)).WithExecutionProfile("legacy", "research")
 	old := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	source, err := repo.SaveSource(ctx, domain.TelemetrySource{ID: "watermark-profile", Name: "Watermark", Kind: "json_pull", Status: "running", IntervalSeconds: 5, LastReceived: &old, LastMeasured: &old})
+	source, err := mutateSourceFixture(ctx, repo, domain.SourceCreate, domain.TelemetrySource{ID: "watermark-profile", Name: "Watermark", Kind: "json_pull", Status: "running", IntervalSeconds: 5, LastReceived: &old, LastMeasured: &old})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +192,7 @@ func TestSourceRuntimeTimestampsOverrideSavedProfile(t *testing.T) {
 				t.Fatalf("cycle %d: stale collection time %v", n, s.LastReceived)
 			}
 		}
-		source, err = repo.SaveSource(ctx, got)
+		source, err = mutateSourceFixture(domain.WithSystemPrincipal(ctx), repo, domain.SourceUpdate, got)
 		if err != nil {
 			t.Fatal(err)
 		}

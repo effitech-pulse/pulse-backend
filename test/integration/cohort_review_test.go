@@ -71,7 +71,9 @@ func TestReviewFixLatestReviewResetMustSurviveNextRun(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer lease.Close()
-		id, err := lease.Begin(ctx, "senior-repro")
+		id, err := lease.(interface {
+			BeginCohort(context.Context, string, string) (int64, error)
+		}).BeginCohort(ctx, "senior-repro", "senior-v1")
 		if err != nil {
 			t.Fatal(err)
 		}

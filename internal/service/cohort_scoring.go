@@ -31,6 +31,22 @@ func ScoreCohort(ctx context.Context, scope FundScope, source CohortTelemetry, c
 	if err != nil {
 		return domain.CohortSnapshot{}, err
 	}
+	wells = append([]domain.Well(nil), wells...)
+	for i := range wells {
+		w := &wells[i]
+		if w.UnitekID != nil {
+			v := *w.UnitekID
+			w.UnitekID = &v
+		}
+		if w.ArmitsID != nil {
+			v := *w.ArmitsID
+			w.ArmitsID = &v
+		}
+		if w.ArchivedAt != nil {
+			v := *w.ArchivedAt
+			w.ArchivedAt = &v
+		}
+	}
 	asof = asof.UTC()
 	start := asof.Add(-60 * 24 * time.Hour)
 	token := make([]byte, 16)

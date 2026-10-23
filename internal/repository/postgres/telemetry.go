@@ -69,44 +69,121 @@ func (r *Repository) Sources(ctx context.Context) ([]domain.TelemetrySource, err
 	}
 	return out, rows.Err()
 }
-func (r *Repository) SaveSource(ctx context.Context, s domain.TelemetrySource) (domain.TelemetrySource, error) {
+func (r *Repository) MutateSource(ctx context.Context, in domain.SourceMutation) (domain.TelemetrySource, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	var out domain.TelemetrySource
+	permission := domain.Permission("")
+	switch in.Kind {
+	case domain.SourceCreate:
+		permission = "integrations.create"
+	case domain.SourceUpdate:
+		permission = "integrations.update"
+	case domain.SourceStatus:
+		permission = "integrations.status"
+	default:
+		return out, domain.NewError(domain.Invalid, "invalid_source_mutation")
+	}
+	if in.Source.ID == "" || in.Kind == domain.SourceStatus && in.ReplaceSecret {
+		return out, domain.NewError(domain.Invalid, "invalid_source_mutation")
+	}
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
-		return s, err
+		return out, err
 	}
 	defer tx.Rollback(ctx)
-	q, args, err := build(sqlBuilder.Select("config").From("telemetry_source").Where(sq.Eq{"id": s.ID}).Suffix("FOR UPDATE"))
+	var authority domain.AuthorizationSnapshot
+	p, ok := domain.CurrentPrincipal(ctx)
+	if ok && p.AccountID != nil {
+		authority, err = jobAuthority(ctx, tx, *p.AccountID, nil, permission, false)
+		if err == nil {
+			var current domain.AuthorizationSnapshot
+			current, err = authorization(ctx, tx, *p.AccountID)
+			if err == nil && !current.FullApplicationScope() {
+				err = domain.NewError(domain.Forbidden, "full application scope required")
+			}
+		}
+	} else {
+		authority, err = currentScopeAuthorization(ctx, tx, permission)
+	}
 	if err != nil {
-		return s, err
+		return out, err
 	}
-	var oldData []byte
-	err = tx.QueryRow(ctx, q, args...).Scan(&oldData)
-	if err != nil && err != pgx.ErrNoRows {
-		return s, err
+	if !authority.FullApplicationScope() {
+		return out, domain.NewError(domain.Forbidden, "full application scope required")
 	}
-	var old domain.TelemetrySource
-	if len(oldData) > 0 {
-		if err = json.Unmarshal(oldData, &old); err != nil {
-			return s, err
+	q, args, err := build(sqlBuilder.Select("config", "encrypted_secret", "last_received", "last_measured", "error").From("telemetry_source").Where(sq.Eq{"id": in.Source.ID}).Suffix("FOR UPDATE"))
+	if err != nil {
+		return out, err
+	}
+	old, lookupErr := scanSource(tx.QueryRow(ctx, q, args...))
+	if lookupErr != nil && !isMissing(lookupErr) {
+		return out, lookupErr
+	}
+	if in.Kind == domain.SourceCreate {
+		if lookupErr == nil {
+			return out, domain.NewError(domain.Duplicate, "source_exists")
+		}
+		out = in.Source
+		out.Status = "draft"
+		out.ProfileVersion = 1
+		out.LastReceived = nil
+		out.LastMeasured = nil
+		out.EncryptedSecret = ""
+	} else {
+		if lookupErr != nil {
+			return out, lookupErr
+		}
+		if in.Kind == domain.SourceStatus {
+			out = old
+			out.Status = in.Source.Status
+			if out.Status != "running" && out.Status != "paused" {
+				return out, domain.NewError(domain.Invalid, "invalid_source_status")
+			}
+		} else {
+			out = in.Source
+			out.Status = "draft"
+			out.EncryptedSecret = old.EncryptedSecret
+		}
+		out.LastReceived = old.LastReceived
+		out.LastMeasured = old.LastMeasured
+		out.ProfileVersion = old.ProfileVersion + 1
+	}
+	if in.ReplaceSecret {
+		out.EncryptedSecret = in.Source.EncryptedSecret
+	}
+	out.Error = ""
+	if in.Kind != domain.SourceStatus || out.Status == "running" {
+		if err = domain.ValidateTelemetrySource(out); err != nil {
+			return out, err
 		}
 	}
-	s.ProfileVersion = old.ProfileVersion + 1
-	data, err := json.Marshal(s)
+	data, err := json.Marshal(out)
 	if err != nil {
-		return s, err
+		return out, err
 	}
-	_, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source").Columns("id", "config", "encrypted_secret").Values(s.ID, data, s.EncryptedSecret).Suffix("ON CONFLICT (id) DO UPDATE SET config=EXCLUDED.config, encrypted_secret=EXCLUDED.encrypted_secret, error='', next_poll=now(), writer_generation=telemetry_source.writer_generation+1, writer_token_sha256=NULL, writer_profile_version=NULL, writer_execution_actor=NULL,writer_authorization=NULL, lease_until='-infinity'::timestamptz"))
+	if in.Kind == domain.SourceCreate {
+		_, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source").Columns("id", "config", "encrypted_secret").Values(out.ID, data, out.EncryptedSecret))
+	} else {
+		_, err = execute(ctx, tx, sqlBuilder.Update("telemetry_source").Set("config", data).Set("encrypted_secret", out.EncryptedSecret).Set("error", "").Set("next_poll", sq.Expr("now()")).Set("writer_generation", sq.Expr("writer_generation+1")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("writer_execution_actor", nil).Set("writer_authorization", nil).Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Where(sq.Eq{"id": out.ID}))
+	}
 	if err != nil {
-		return s, err
+		return out, err
 	}
-	if _, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source_profile").Columns("source_id", "version", "config").Values(s.ID, s.ProfileVersion, data)); err != nil {
-		return s, err
+	if _, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_source_profile").Columns("source_id", "version", "config").Values(out.ID, out.ProfileVersion, data)); err != nil {
+		return out, err
 	}
-	if err = tx.Commit(ctx); err != nil {
-		return s, err
+	q, args, err = build(sqlBuilder.Select("config", "encrypted_secret", "last_received", "last_measured", "error").From("telemetry_source").Where(sq.Eq{"id": out.ID}))
+	if err != nil {
+		return out, err
 	}
-	return r.Source(ctx, s.ID)
+	out, err = scanSource(tx.QueryRow(ctx, q, args...))
+	if err != nil {
+		return out, err
+	}
+	return out, tx.Commit(ctx)
 }
+
 func telemetryTokenSHA(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])

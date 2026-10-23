@@ -30,7 +30,7 @@ func collectionSetup(t *testing.T) (*pgxpool.Pool, context.Context, *postgres.Re
 		t.Fatal(e)
 	}
 	mapping := []domain.Mapping{{Field: "f", Parameter: "F_out", Scale: 1, Unit: "Hz"}}
-	source, e := r.SaveSource(ctx, domain.TelemetrySource{ID: "collection-source", Name: "Synthetic", Kind: "json_pull", Status: "running", Endpoint: "http://fixture:8080/v1/collection-capture", IntervalSeconds: 86400, WellIdentity: "unitek", WellField: "well_id", TimeField: "timestamp", Mappings: mapping})
+	source, e := mutateSourceFixture(ctx, r, domain.SourceCreate, domain.TelemetrySource{ID: "collection-source", Name: "Synthetic", Kind: "json_pull", Status: "running", Endpoint: "http://fixture:8080/v1/collection-capture", IntervalSeconds: 86400, WellIdentity: "unitek", WellField: "well_id", TimeField: "timestamp", Mappings: mapping})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -172,7 +172,7 @@ func TestCollectionIntentAndCaptureImmutable(t *testing.T) {
 		t.Fatal(e)
 	}
 	source.Name = "changed"
-	if _, e = r.SaveSource(ctx, source); e != nil {
+	if _, e = mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceUpdate, source); e != nil {
 		t.Fatal(e)
 	}
 	if _, e = r.LoadCollectionWork(ctx, c.Lease()); e == nil {

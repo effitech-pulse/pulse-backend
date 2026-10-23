@@ -84,7 +84,7 @@ ALTER TABLE telemetry_source ADD COLUMN writer_execution_actor text;
 ALTER TABLE telemetry_source ADD COLUMN writer_authorization jsonb;
 ALTER TABLE telemetry_source ADD CONSTRAINT telemetry_source_authorization_shape CHECK (
  (writer_execution_actor IS NULL AND writer_authorization IS NULL) OR
- (writer_token_sha256 IS NOT NULL AND ((writer_execution_actor='account' AND writer_authorization IS NOT NULL AND COALESCE(valid_job_authorization(writer_authorization),false)) OR (writer_execution_actor IN ('system_collect','legacy_http') AND writer_authorization IS NULL)))
+ (writer_execution_actor IS NOT NULL AND writer_token_sha256 IS NOT NULL AND ((writer_execution_actor='account' AND writer_authorization IS NOT NULL AND COALESCE(valid_job_authorization(writer_authorization),false)) OR (writer_execution_actor IN ('system_collect','legacy_http') AND writer_authorization IS NULL)))
 );
 ALTER TABLE collection_job ADD CONSTRAINT collection_job_authorization_shape CHECK (
  NOT (intent ? 'authorization') OR COALESCE(valid_job_authorization(intent->'authorization') AND (intent->'authorization'->>'account_id')::bigint=actor_account_id AND (intent->'authorization'->>'account_id')::bigint=(intent->>'actor_account_id')::bigint,false)

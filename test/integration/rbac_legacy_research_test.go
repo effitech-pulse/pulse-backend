@@ -116,7 +116,7 @@ func TestRBACLegacyResearchPersistedKinds(t *testing.T) {
 	r := postgres.New(pool).WithExecutionProfile("legacy", "research")
 	ctx := legacyResearchFixtureContext()
 	system := domain.WithSchedulerPrincipal(context.Background(), domain.ExecutionSystemCollect, domain.AccessScope{Funds: []string{"operational", "presentation"}})
-	source, err := r.SaveSource(ctx, domain.TelemetrySource{ID: "legacy-cross-kind", Kind: "json_pull", Status: "running", IntervalSeconds: 60})
+	source, err := mutateSourceFixture(ctx, r, domain.SourceCreate, domain.TelemetrySource{ID: "legacy-cross-kind", Kind: "json_pull", Status: "running", IntervalSeconds: 60})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -223,7 +223,7 @@ func TestRBACLegacyAccountCallerMismatch(t *testing.T) {
 					t.Fatal("legacy caller published persisted account bound run")
 				}
 			} else {
-				source, e := r.SaveSource(legacy, domain.TelemetrySource{ID: "bound-account-source", Status: "running", Kind: "json_pull", IntervalSeconds: 60})
+				source, e := mutateSourceFixture(legacy, r, domain.SourceCreate, domain.TelemetrySource{ID: "bound-account-source", Status: "running", Kind: "json_pull", IntervalSeconds: 60})
 				if e != nil {
 					t.Fatal(e)
 				}

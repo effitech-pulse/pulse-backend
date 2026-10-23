@@ -163,3 +163,14 @@ synthetic pilots, scoped Fund/Frozen paths и явно заданные `pulse:<
 запроса никогда не включает compatibility fallback. ML проверяет persisted run
 kind/profile, collect — persisted writer kind/frame и token/generation/profile
 fences; caller не может заменить их legacy discriminator.
+
+Review closure: source definitions use typed create/update/status mutations with
+current user/action/full-scope checks before source row locks. Status merges only
+ID/status into the locked current config; update without a new secret preserves
+the locked ciphertext and runtime watermarks. Manual cohort publication compares
+all100 captured Metadata records against sorted locked live wells before run and
+output writes; unchanged inactive/archive outcomes remain valid. Q2/C2 compat
+permissions retain their fixed adapter while their persisted personal scope still
+applies separately. An account audit snapshot making a collection intent exceed
+65536 bytes returns HTTP400 (`code=invalid`, fixed
+`message=collection_intent_too_large`, `detail=null`) with no job/hold/outbox writes.

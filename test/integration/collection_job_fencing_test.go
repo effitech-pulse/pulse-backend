@@ -161,7 +161,7 @@ func TestCollectionLateIOAfterAuthorityChange(t *testing.T) {
 					t.Fatal(e)
 				}
 				source.Name = "edited"
-				if _, e = r.SaveSource(ctx, source); e != nil {
+				if _, e = mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceUpdate, source); e != nil {
 					t.Fatal(e)
 				}
 			case "account":

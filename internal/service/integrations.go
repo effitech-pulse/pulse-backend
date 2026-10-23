@@ -9,7 +9,6 @@ import (
 	"io"
 	"log/slog"
 	"math"
-	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,7 +21,7 @@ import (
 type TelemetryStore interface {
 	Sources(context.Context) ([]domain.TelemetrySource, error)
 	Source(context.Context, string) (domain.TelemetrySource, error)
-	SaveSource(context.Context, domain.TelemetrySource) (domain.TelemetrySource, error)
+	MutateSource(context.Context, domain.SourceMutation) (domain.TelemetrySource, error)
 	ClaimSource(context.Context, string, bool) (*domain.TelemetrySourceLease, error)
 	CommitTelemetry(context.Context, domain.TelemetryWrite) (domain.CollectionLog, error)
 	FailCollection(context.Context, domain.TelemetrySourceLease, string) error
@@ -234,55 +233,8 @@ func (s *Integrations) read(ctx context.Context, well string, start, end time.Ti
 	}
 	return domain.TelemetryResult{Points: points, Truncated: truncated, Resolution: remote.Resolution}, nil
 }
-func validateSource(in domain.TelemetrySource) error {
-	switch in.WellIdentity {
-	case "", "pulse", "unitek", "armits":
-	default:
-		return domain.NewError(domain.Invalid, "Неизвестный тип идентификатора скважины")
-	}
+func validateSource(in domain.TelemetrySource) error { return domain.ValidateTelemetrySource(in) }
 
-	if strings.TrimSpace(in.Name) == "" || len(in.Name) > 200 || in.IntervalSeconds < 5 || in.IntervalSeconds > 86400 || in.WellField == "" || in.TimeField == "" {
-		return domain.NewError(domain.Invalid, "Нужны название, поля времени и скважины, интервал от 5 секунд до суток")
-	}
-	switch in.Kind {
-	case "json_pull", "json_push", "clickhouse", "postgres", "mysql":
-	default:
-		return domain.NewError(domain.Invalid, "Неизвестный тип источника")
-	}
-	if in.Kind != "json_push" && in.Endpoint == "" {
-		return domain.NewError(domain.Invalid, "Укажите адрес источника")
-	}
-	if in.Kind != "json_push" {
-		u, err := url.Parse(in.Endpoint)
-		if err != nil || u.Hostname() == "" {
-			return domain.NewError(domain.Invalid, "Некорректный адрес источника")
-		}
-		if u.User != nil {
-			if _, has := u.User.Password(); has {
-				return domain.NewError(domain.Invalid, "Не включайте пароль в адрес. Используйте поле секрета")
-			}
-		}
-		for _, k := range []string{"password", "token", "api_key", "secret"} {
-			if u.Query().Has(k) {
-				return domain.NewError(domain.Invalid, "Секреты нельзя включать в адрес источника")
-			}
-		}
-	}
-	if (in.Kind == "postgres" || in.Kind == "mysql" || in.Kind == "clickhouse") && in.TableName == "" {
-		return domain.NewError(domain.Invalid, "Укажите таблицу или представление")
-	}
-	seen := map[string]bool{}
-	if len(in.Mappings) == 0 || len(in.Mappings) > 100 {
-		return domain.NewError(domain.Invalid, "Укажите от 1 до 100 параметров")
-	}
-	for _, m := range in.Mappings {
-		if m.Field == "" || m.Parameter == "" || seen[m.Parameter] || math.IsNaN(m.Scale) || math.IsInf(m.Scale, 0) || math.IsNaN(m.Offset) || math.IsInf(m.Offset, 0) {
-			return domain.NewError(domain.Invalid, "Некорректный или повторный параметр словаря")
-		}
-		seen[m.Parameter] = true
-	}
-	return nil
-}
 func (s *Integrations) Save(ctx context.Context, id string, in domain.SourceInput) (domain.TelemetrySource, error) {
 	permission := domain.Permission("integrations.update")
 	if id == "" {
@@ -300,22 +252,18 @@ func (s *Integrations) Save(ctx context.Context, id string, in domain.SourceInpu
 	out.LastMeasured = nil
 	out.Error = ""
 	out.EncryptedSecret = ""
+	kind := domain.SourceUpdate
 	if id != "" {
-		old, err := s.store.Source(ctx, id)
-		if err != nil {
-			return out, err
-		}
-		out.LastReceived = old.LastReceived
-		out.LastMeasured = old.LastMeasured
-		out.EncryptedSecret = old.EncryptedSecret
 		out.ID = id
 	} else {
+		kind = domain.SourceCreate
 		var raw [16]byte
 		if _, err := rand.Read(raw[:]); err != nil {
 			return out, err
 		}
 		out.ID = hex.EncodeToString(raw[:])
 	}
+
 	if in.Secret != nil {
 		encrypted, err := s.secrets.Seal(*in.Secret)
 		if err != nil {
@@ -323,29 +271,19 @@ func (s *Integrations) Save(ctx context.Context, id string, in domain.SourceInpu
 		}
 		out.EncryptedSecret = encrypted
 	}
-	return s.store.SaveSource(ctx, out)
+	return s.store.MutateSource(ctx, domain.SourceMutation{Kind: kind, Source: out, ReplaceSecret: in.Secret != nil})
 }
 func (s *Integrations) Status(ctx context.Context, id, status string) (domain.TelemetrySource, error) {
 	permission := domain.Permission("integrations.status")
 	if err := requireFullApplicationScope(ctx, permission); err != nil {
 		return domain.TelemetrySource{}, err
 	}
-	out, err := s.store.Source(ctx, id)
-	if err != nil {
-		return out, err
-	}
 	if status != "running" && status != "paused" {
-		return out, domain.NewError(domain.Invalid, "Допустимы running и paused")
+		return domain.TelemetrySource{}, domain.NewError(domain.Invalid, "Допустимы running и paused")
 	}
-	if status == "running" {
-		if err = validateSource(out); err != nil {
-			return out, err
-		}
-	}
-	out.Status = status
-	out.Error = ""
-	return s.store.SaveSource(ctx, out)
+	return s.store.MutateSource(ctx, domain.SourceMutation{Kind: domain.SourceStatus, Source: domain.TelemetrySource{ID: id, Status: status}})
 }
+
 func (s *Integrations) Check(ctx context.Context, in domain.SourceInput) ([]map[string]any, error) {
 	permission := domain.Permission("integrations.check")
 	if err := requireFullApplicationScope(ctx, permission); err != nil {
