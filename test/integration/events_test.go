@@ -57,7 +57,7 @@ func TestEventsTraversalExactAndSourceDeletion(t *testing.T) {
 	for _, kind := range []string{"check", "alert"} {
 		eventsExec(t, p, `INSERT INTO case_review(kind,target_id,check_id,alert_id,well_id,state,revision) VALUES($1,'42',CASE WHEN $1='check' THEN '42' END,CASE WHEN $1='alert' THEN 42 END,NULL,'{}',20)`, kind)
 		for i := 1; i <= 20; i++ {
-			eventsExec(t, p, `INSERT INTO review_event(kind,target_id,revision,request_id,fingerprint,created_at,actor,comment,before_state,after_state) VALUES($1,'42',$2,$2::text,'fingerprint',$3,'{"id":"user:41","name":"saved name","authenticated":true}','saved comment',jsonb_build_object('revision',$2::bigint-1,'status','new'),jsonb_build_object('revision',$2::bigint,'status','closed','conclusion','inconclusive'))`, kind, i, eventsAt)
+			eventsExec(t, p, `INSERT INTO review_event(kind,target_id,revision,request_id,fingerprint,created_at,actor,comment,before_state,after_state) VALUES($1,'42',$2::bigint,($2::bigint)::text,'fingerprint',$3,'{"id":"user:41","name":"saved name","authenticated":true}','saved comment',jsonb_build_object('revision',$2::bigint-1,'status','new'),jsonb_build_object('revision',$2::bigint,'status','closed','conclusion','inconclusive'))`, kind, i, eventsAt)
 		}
 	}
 	for i := 1; i <= 20; i++ {
