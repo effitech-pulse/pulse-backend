@@ -27,7 +27,7 @@ func eventsExec(t *testing.T, p *pgxpool.Pool, q string, args ...any) {
 }
 func eventsWell(t *testing.T, p *pgxpool.Pool, id, ngdu int64) {
 	t.Helper()
-	eventsExec(t, p, `INSERT INTO well(id,unitek_id,armits_id,well_number,ngdu,department,active,fund_type) OVERRIDING SYSTEM VALUE VALUES($1,$1,$1,'101',$2,1,false,'operational')`, id, ngdu)
+	eventsExec(t, p, `INSERT INTO well(id,unitek_id,armits_id,well_number,ngdu,department,active,fund_type) OVERRIDING SYSTEM VALUE VALUES($1::bigint,$1::bigint,$1::bigint,'101',$2::integer,1,false,'operational')`, id, ngdu)
 }
 func eventsCheck(t *testing.T, p *pgxpool.Pool, well int64, id string) {
 	t.Helper()
@@ -55,14 +55,14 @@ func TestEventsTraversalExactAndSourceDeletion(t *testing.T) {
 	eventsExec(t, p, `INSERT INTO ml_run(id,started_at,status,trigger) OVERRIDING SYSTEM VALUE VALUES(1,now(),'done','manual')`)
 	eventsExec(t, p, `INSERT INTO ml_alert(id,run_id,ml_well_id,app_well_id,risk,status) OVERRIDING SYSTEM VALUE VALUES(42,1,1,9223372036854775807,0,'new')`)
 	for _, kind := range []string{"check", "alert"} {
-		eventsExec(t, p, `INSERT INTO case_review(kind,target_id,check_id,alert_id,well_id,state,revision) VALUES($1,'42',CASE WHEN $1='check' THEN '42' END,CASE WHEN $1='alert' THEN 42 END,NULL,'{}',20)`, kind)
+		eventsExec(t, p, `INSERT INTO case_review(kind,target_id,check_id,alert_id,well_id,state,revision) VALUES($1::text,'42',CASE WHEN $1::text='check' THEN '42'::text END,CASE WHEN $1::text='alert' THEN 42::bigint END,NULL,'{}',20)`, kind)
 		for i := 1; i <= 20; i++ {
-			eventsExec(t, p, `INSERT INTO review_event(kind,target_id,revision,request_id,fingerprint,created_at,actor,comment,before_state,after_state) VALUES($1,'42',$2::bigint,($2::bigint)::text,'fingerprint',$3,'{"id":"user:41","name":"saved name","authenticated":true}','saved comment',jsonb_build_object('revision',$2::bigint-1,'status','new'),jsonb_build_object('revision',$2::bigint,'status','closed','conclusion','inconclusive'))`, kind, i, eventsAt)
+			eventsExec(t, p, `INSERT INTO review_event(kind,target_id,revision,request_id,fingerprint,created_at,actor,comment,before_state,after_state) VALUES($1::text,'42',$2::bigint,($2::bigint)::text,'fingerprint',$3::timestamptz,'{"id":"user:41","name":"saved name","authenticated":true}','saved comment',jsonb_build_object('revision',$2::bigint-1,'status','new'),jsonb_build_object('revision',$2::bigint,'status','closed','conclusion','inconclusive'))`, kind, i, eventsAt)
 		}
 	}
 	for i := 1; i <= 20; i++ {
 		eventsCheck(t, p, 9223372036854775807, fmt.Sprintf("mc-%02d", i))
-		eventsExec(t, p, `INSERT INTO well_event(well_id,revision,created_at,kind,actor,reason,before_state,after_state) VALUES(9223372036854775807,$1,$2,CASE WHEN $1=1 THEN 'archive' WHEN $1=2 THEN 'restore' ELSE 'metadata' END,'{}','saved reason','{}',jsonb_build_object('id',9223372036854775807::bigint,'revision',$1::bigint))`, i, eventsAt)
+		eventsExec(t, p, `INSERT INTO well_event(well_id,revision,created_at,kind,actor,reason,before_state,after_state) VALUES(9223372036854775807,$1::bigint,$2::timestamptz,CASE WHEN $1::bigint=1 THEN 'archive' WHEN $1::bigint=2 THEN 'restore' ELSE 'metadata' END,'{}','saved reason','{}',jsonb_build_object('id',9223372036854775807::bigint,'revision',$1::bigint))`, i, eventsAt)
 	}
 	s := eventsService(t, p, nil, "research")
 	seen := map[string]bool{}
