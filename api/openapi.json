@@ -22,8 +22,13 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "PUBLIC",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/wells": {
@@ -156,9 +161,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
-        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин.",
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.read"
+        ]
       },
       "post": {
         "tags": [
@@ -214,8 +226,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "wells.create"
+        ]
       }
     },
     "/api/v1/wells/import": {
@@ -273,8 +292,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "wells.import"
+        ]
       }
     },
     "/api/v1/wells/bulk": {
@@ -336,8 +362,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "wells.import"
+        ]
       }
     },
     "/api/v1/wells/export": {
@@ -480,9 +513,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
-        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин.",
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.export"
+        ]
       }
     },
     "/api/v1/wells/{well_id}": {
@@ -547,8 +587,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.read"
+        ]
       },
       "patch": {
         "tags": [
@@ -613,8 +660,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "wells.update"
+        ]
       },
       "delete": {
         "tags": [
@@ -669,9 +723,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
-        "description": "Совместимый DELETE архивирует скважину без удаления связанных данных. Возвращает 204; обычный GET после этого возвращает 404. Для просмотра архива нужен include_archived=true. В local требуется If-Match с текущей revision; в legacy версия необязательна."
+        "description": "Совместимый DELETE архивирует скважину без удаления связанных данных. Возвращает 204; обычный GET после этого возвращает 404. Для просмотра архива нужен include_archived=true. В local требуется If-Match с текущей revision; в legacy версия необязательна.",
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.delete"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/predictions": {
@@ -745,8 +806,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/predictions/export": {
@@ -802,8 +870,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.export"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/complications": {
@@ -865,8 +940,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/classification": {
@@ -924,8 +1006,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/incidents": {
@@ -986,8 +1075,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "incidents.read"
+        ]
       },
       "post": {
         "tags": [
@@ -1052,8 +1148,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "incidents.create"
+        ]
       }
     },
     "/api/v1/incidents/{incident_id}": {
@@ -1103,8 +1206,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "incidents.delete"
+        ]
       }
     },
     "/api/v1/incidents/stats": {
@@ -1218,9 +1328,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
-        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин."
+        "description": "Отбор внутри разрешённой пользователю области. НГДУ/цех 0 и int64 поддерживаются; сортировка стабильна по ID Pulse. Статистика относится к выбранным скважинам и включает историю неактивных скважин.",
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "incidents.read"
+        ]
       }
     },
     "/api/v1/departments": {
@@ -1272,8 +1389,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "references.read"
+        ]
       },
       "post": {
         "tags": [
@@ -1329,8 +1453,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "references.create"
+        ]
       }
     },
     "/api/v1/departments/{dep_id}": {
@@ -1499,8 +1630,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "references.read"
+        ]
       },
       "post": {
         "tags": [
@@ -1556,8 +1694,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "references.create"
+        ]
       }
     },
     "/api/v1/ngdu/{ngdu_id}": {
@@ -1722,8 +1867,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "GLOBAL",
+        "x-authorization-permissions": [
+          "analytics.read"
+        ]
       }
     },
     "/api/v1/analytics/dashboards/{dashboard_id}/embed": {
@@ -1780,8 +1932,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "analytics.read"
+        ]
       }
     },
     "/api/v1/runs": {
@@ -1893,8 +2052,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "runs.read"
+        ]
       }
     },
     "/api/v1/runs/export": {
@@ -1988,8 +2154,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "runs.export"
+        ]
       }
     },
     "/api/v1/runs/{dag_id}/{run_id}": {
@@ -2059,8 +2232,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "runs.read"
+        ]
       }
     },
     "/api/v1/parameters": {
@@ -2112,8 +2292,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "GLOBAL",
+        "x-authorization-permissions": [
+          "parameters.read"
+        ]
       }
     },
     "/api/v1/audit": {
@@ -2177,8 +2364,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "audit.read"
+        ]
       }
     },
     "/api/v1/ml/wells/refresh": {
@@ -2229,8 +2423,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "runs.start"
+        ]
       }
     },
     "/api/v1/ml/runs": {
@@ -2304,8 +2505,13 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "PROFILE_RUNS",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/ml/alerts/{alert_id}": {
@@ -2375,8 +2581,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "alerts.review"
+        ]
       }
     },
     "/api/v1/ml/wells": {
@@ -2464,8 +2677,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "PROFILE_WELLS",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/ml/wells/by-unitek/{unitek_id}": {
@@ -2539,8 +2759,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.external.read"
+        ]
       }
     },
     "/api/v1/ml/wells/{well_id}/explain": {
@@ -2609,8 +2836,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.explain"
+        ]
       }
     },
     "/api/v1/ml/wells/{well_id}/history": {
@@ -2679,8 +2913,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/ml/health": {
@@ -2730,8 +2971,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "GLOBAL",
+        "x-authorization-permissions": [
+          "services.read"
+        ]
       }
     },
     "/api/v1/ml/metrics": {
@@ -2781,8 +3029,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "GLOBAL",
+        "x-authorization-permissions": [
+          "metrics.read"
+        ]
       }
     },
     "/api/v1/ml/upload": {
@@ -2842,8 +3097,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "filechecks.legacy.run"
+        ]
       }
     },
     "/api/v1/integrations": {
@@ -2871,8 +3133,15 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "integrations.read"
+        ]
       },
       "post": {
         "tags": [
@@ -2895,6 +3164,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -2906,7 +3178,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "integrations.create"
+        ]
       }
     },
     "/api/v1/integrations/check": {
@@ -2942,6 +3218,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -2953,7 +3232,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "integrations.check"
+        ]
       }
     },
     "/api/v1/integrations/logs": {
@@ -2981,8 +3264,15 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "integrations.logs.read"
+        ]
       }
     },
     "/api/v1/integrations/{source_id}": {
@@ -3007,6 +3297,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3028,6 +3321,10 @@
               "type": "string"
             }
           }
+        ],
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "integrations.update"
         ]
       }
     },
@@ -3053,6 +3350,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3086,6 +3386,10 @@
               "type": "string"
             }
           }
+        ],
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "integrations.status"
         ]
       }
     },
@@ -3111,6 +3415,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "parameters": [
@@ -3122,6 +3429,10 @@
               "type": "string"
             }
           }
+        ],
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "integrations.collect"
         ]
       }
     },
@@ -3147,6 +3458,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3181,6 +3495,10 @@
               "type": "string"
             }
           }
+        ],
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "integrations.ingest"
         ]
       }
     },
@@ -3206,6 +3524,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "parameters": [
@@ -3235,6 +3556,10 @@
               "format": "date-time"
             }
           }
+        ],
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "telemetry.compat.read"
         ]
       },
       "post": {
@@ -3258,6 +3583,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3282,7 +3610,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "telemetry.import"
+        ]
       }
     },
     "/api/v1/telemetry/score": {
@@ -3307,6 +3639,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3336,7 +3671,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "telemetry.compat.score"
+        ]
       }
     },
     "/api/v1/telemetry/bounds": {
@@ -3362,8 +3701,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "telemetry.compat.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/telemetry": {
@@ -3412,8 +3758,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "telemetry.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/telemetry/bounds": {
@@ -3444,8 +3797,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "telemetry.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/telemetry/score": {
@@ -3470,6 +3830,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3506,6 +3869,10 @@
               "minimum": 1
             }
           }
+        ],
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.run"
         ]
       }
     },
@@ -3531,6 +3898,9 @@
           },
           "503": {
             "description": "Источник или ML недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
         },
         "requestBody": {
@@ -3555,7 +3925,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "WT",
+        "x-authorization-permissions": [
+          "telemetry.import"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/risk": {
@@ -3628,8 +4002,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/risk/history": {
@@ -3713,8 +4094,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "risks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/checks": {
@@ -3759,8 +4147,15 @@
           },
           "404": {
             "description": "Скважина не найдена"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.read"
+        ]
       },
       "post": {
         "tags": [
@@ -3809,8 +4204,15 @@
           },
           "503": {
             "description": "Источник или модель недоступны"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.run"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/checks/{check_id}": {
@@ -3852,8 +4254,15 @@
           },
           "404": {
             "description": "Проверка не найдена у этой скважины"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/checks/{check_id}/review": {
@@ -3904,8 +4313,15 @@
           },
           "404": {
             "description": "Результат не найден"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.read"
+        ]
       },
       "put": {
         "tags": [
@@ -3961,8 +4377,15 @@
           },
           "422": {
             "description": "Некорректное состояние или незаполненные обязательные поля"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "checks.review"
+        ]
       }
     },
     "/api/v1/ml/alerts/{alert_id}/review": {
@@ -4005,8 +4428,15 @@
           },
           "404": {
             "description": "Результат не найден"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "alerts.read"
+        ]
       },
       "put": {
         "tags": [
@@ -4054,8 +4484,15 @@
           },
           "422": {
             "description": "Некорректное состояние или незаполненные обязательные поля"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "alerts.review"
+        ]
       }
     },
     "/api/v1/presentation/summary": {
@@ -4078,8 +4515,17 @@
           },
           "503": {
             "description": "Pulse Data недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.read",
+          "risks.read",
+          "incidents.read"
+        ]
       }
     },
     "/api/v1/presentation/scenario": {
@@ -4102,8 +4548,15 @@
           },
           "503": {
             "description": "Pulse Data недоступен"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "FULL",
+        "x-authorization-permissions": [
+          "presentation.scenario.read"
+        ]
       }
     },
     "/api/v1/auth/me": {
@@ -4141,7 +4594,9 @@
           "503": {
             "description": "Персональный вход не включён"
           }
-        }
+        },
+        "x-authorization-scope": "ANONYMOUS_OR_SELF",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/auth/login": {
@@ -4189,7 +4644,9 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "PUBLIC_LOGIN",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/auth/logout": {
@@ -4220,7 +4677,9 @@
           "503": {
             "description": "Персональный вход не включён"
           }
-        }
+        },
+        "x-authorization-scope": "SELF",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/auth/users": {
@@ -4228,74 +4687,139 @@
         "tags": [
           "access"
         ],
-        "summary": "Учётные записи (администратор)",
+        "summary": "GET /api/v1/auth/users",
         "responses": {
           "200": {
-            "description": "Успех",
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Account"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Account"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/AccountAccessPage"
+                    }
+                  ]
                 }
               }
             }
           },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
           "401": {
-            "description": "Требуется вход"
+            "description": "Missing/expired/revoked session or epoch."
           },
           "403": {
-            "description": "Недостаточно прав"
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
           },
           "409": {
-            "description": "Конфликт версии или идентичности"
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
           },
           "422": {
-            "description": "Некорректные данные"
-          },
-          "429": {
-            "description": "Слишком много попыток"
+            "description": "Invalid business input."
           },
           "503": {
-            "description": "Персональный вход не включён"
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "access_version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                1
+              ]
+            },
+            "description": "Absent preserves original Account[]; 1 returns scoped page."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "graph_revision",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.read"
+        ]
       },
       "post": {
         "tags": [
           "access"
         ],
-        "summary": "Создать учётную запись (администратор)",
+        "summary": "POST /api/v1/auth/users",
         "responses": {
           "201": {
-            "description": "Успех",
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Account"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Account"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AccessApplyResult"
+                    }
+                  ]
                 }
               }
             }
           },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
           "401": {
-            "description": "Требуется вход"
+            "description": "Missing/expired/revoked session or epoch."
           },
           "403": {
-            "description": "Недостаточно прав"
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
           },
           "409": {
-            "description": "Конфликт версии или идентичности"
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
           },
           "422": {
-            "description": "Некорректные данные"
-          },
-          "429": {
-            "description": "Слишком много попыток"
+            "description": "Invalid business input."
           },
           "503": {
-            "description": "Персональный вход не включён"
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
           }
         },
         "requestBody": {
@@ -4303,11 +4827,23 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AccountInput"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AccountInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AccessMutationInput"
+                  }
+                ]
               }
             }
           }
-        }
+        },
+        "description": "Compat legacy writes dual-write graph. Enforce legacy POST returns409; legacy PUT permits only unchanged representable single builtin/no groups/scope with revision. Modern writes require preview receipt and access_version=1; mixed authority fields400. Role is display only.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.create"
+        ]
       }
     },
     "/api/v1/auth/users/{user_id}": {
@@ -4315,35 +4851,45 @@
         "tags": [
           "access"
         ],
-        "summary": "Изменить учётную запись и отозвать сеансы (администратор)",
+        "summary": "PUT /api/v1/auth/users/{user_id}",
         "responses": {
           "200": {
-            "description": "Успех",
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Account"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Account"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AccessApplyResult"
+                    }
+                  ]
                 }
               }
             }
           },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
           "401": {
-            "description": "Требуется вход"
+            "description": "Missing/expired/revoked session or epoch."
           },
           "403": {
-            "description": "Недостаточно прав"
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
           },
           "409": {
-            "description": "Конфликт версии или идентичности"
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
           },
           "422": {
-            "description": "Некорректные данные"
-          },
-          "429": {
-            "description": "Слишком много попыток"
+            "description": "Invalid business input."
           },
           "503": {
-            "description": "Персональный вход не включён"
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
           }
         },
         "requestBody": {
@@ -4351,7 +4897,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AccountInput"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AccountInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AccessMutationInput"
+                  }
+                ]
               }
             }
           }
@@ -4362,10 +4915,67 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "$ref": "#/components/schemas/AccessDecimal"
             }
           }
+        ],
+        "description": "Compat legacy writes dual-write graph. Enforce legacy POST returns409; legacy PUT permits only unchanged representable single builtin/no groups/scope with revision. Modern writes require preview receipt and access_version=1; mixed authority fields400. Role is display only.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.update"
+        ]
+      },
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/users/{user_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.read"
         ]
       }
     },
@@ -4416,7 +5026,11 @@
           "422": {
             "description": "Некорректный запрос"
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.archive"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/restore": {
@@ -4466,7 +5080,11 @@
           "422": {
             "description": "Некорректный запрос"
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.restore"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/history": {
@@ -4505,8 +5123,15 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [
+          "wells.history.read"
+        ]
       }
     },
     "/api/v1/ml/runs/{run_id}/snapshot": {
@@ -4540,8 +5165,15 @@
           },
           "404": {
             "description": "Снимок этой когорты не найден; исторические записи не пересчитываются"
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
           }
-        }
+        },
+        "x-authorization-scope": "PROJ",
+        "x-authorization-permissions": [
+          "cohort.runs.read"
+        ]
       }
     },
     "/api/v1/file-check-capabilities": {
@@ -4595,7 +5227,9 @@
           "410": {
             "$ref": "#/components/responses/FileJob410"
           }
-        }
+        },
+        "x-authorization-scope": "CAPABILITY",
+        "x-authorization-permissions": []
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs": {
@@ -4692,7 +5326,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.run"
+        ]
       },
       "get": {
         "tags": [
@@ -4763,7 +5401,11 @@
           "410": {
             "$ref": "#/components/responses/FileJob410"
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}": {
@@ -4837,7 +5479,11 @@
           "410": {
             "$ref": "#/components/responses/FileJob410"
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/result": {
@@ -4911,7 +5557,11 @@
           "410": {
             "$ref": "#/components/responses/FileJob410"
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.read"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/cancel": {
@@ -5006,7 +5656,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.cancel"
+        ]
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}/review": {
@@ -5089,7 +5743,11 @@
           "410": {
             "$ref": "#/components/responses/FileJob410"
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.read"
+        ]
       },
       "put": {
         "tags": [
@@ -5171,7 +5829,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "filechecks.review"
+        ]
       }
     },
     "/api/v1/ml/cohort-jobs": {
@@ -5269,7 +5931,11 @@
           "503": {
             "description": "Disabled or unavailable"
           }
-        }
+        },
+        "x-authorization-scope": "CJ+FULL100",
+        "x-authorization-permissions": [
+          "cohortjobs.run"
+        ]
       }
     },
     "/api/v1/ml/cohort-jobs/{job_id}": {
@@ -5335,7 +6001,11 @@
           "503": {
             "description": "Disabled or unavailable"
           }
-        }
+        },
+        "x-authorization-scope": "CJ",
+        "x-authorization-permissions": [
+          "cohortjobs.read"
+        ]
       }
     },
     "/api/v1/ml/cohort-jobs/{job_id}/cancel": {
@@ -5422,7 +6092,11 @@
           "503": {
             "description": "Disabled or unavailable"
           }
-        }
+        },
+        "x-authorization-scope": "CJ",
+        "x-authorization-permissions": [
+          "cohortjobs.cancel"
+        ]
       }
     },
     "/api/v1/collection-jobs": {
@@ -5537,7 +6211,11 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "LJ",
+        "x-authorization-permissions": [
+          "collectionjobs.run"
+        ]
       }
     },
     "/api/v1/collection-jobs/{job_id}": {
@@ -5645,6 +6323,10 @@
               "pattern": "^[a-f0-9]{32}$"
             }
           }
+        ],
+        "x-authorization-scope": "LJ",
+        "x-authorization-permissions": [
+          "collectionjobs.read"
         ]
       }
     },
@@ -5764,7 +6446,861 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-scope": "LJ",
+        "x-authorization-permissions": [
+          "collectionjobs.cancel"
+        ]
+      }
+    },
+    "/api/v1/auth/permissions": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/permissions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "roles.read",
+          "groups.read",
+          "users.read"
+        ]
+      }
+    },
+    "/api/v1/auth/organization-options": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/organization-options",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationOptions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.scope.assign"
+        ]
+      }
+    },
+    "/api/v1/auth/roles": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/roles",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRolePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "graph_revision",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "roles.read"
+        ]
+      },
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "POST /api/v1/auth/roles",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "roles.manage"
+        ]
+      }
+    },
+    "/api/v1/auth/roles/{role_id}": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/roles/{role_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "roles.read"
+        ]
+      },
+      "put": {
+        "tags": [
+          "access"
+        ],
+        "summary": "PUT /api/v1/auth/roles/{role_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "roles.manage"
+        ]
+      },
+      "delete": {
+        "tags": [
+          "access"
+        ],
+        "summary": "DELETE /api/v1/auth/roles/{role_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "roles.manage"
+        ]
+      }
+    },
+    "/api/v1/auth/groups": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/groups",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessGroupPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "graph_revision",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "groups.read"
+        ]
+      },
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "POST /api/v1/auth/groups",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "groups.manage"
+        ]
+      }
+    },
+    "/api/v1/auth/groups/{group_id}": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/groups/{group_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessGroup"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "groups.read"
+        ]
+      },
+      "put": {
+        "tags": [
+          "access"
+        ],
+        "summary": "PUT /api/v1/auth/groups/{group_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "groups.manage"
+        ]
+      },
+      "delete": {
+        "tags": [
+          "access"
+        ],
+        "summary": "DELETE /api/v1/auth/groups/{group_id}",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessApplyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessMutationInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        ],
+        "x-authorization-scope": "G",
+        "x-authorization-permissions": [
+          "groups.manage"
+        ]
+      }
+    },
+    "/api/v1/auth/groups/{group_id}/members": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "GET /api/v1/auth/groups/{group_id}/members",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessMemberPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "graph_revision",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "groups.read",
+          "users.read"
+        ]
+      }
+    },
+    "/api/v1/auth/access/preview": {
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "POST /api/v1/auth/access/preview",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+          },
+          "401": {
+            "description": "Missing/expired/revoked session or epoch."
+          },
+          "403": {
+            "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Missing or concealed target."
+          },
+          "409": {
+            "description": "Stale revision/receipt, dependency, last manager or legacy_access_write_unsupported. No partial mutation."
+          },
+          "422": {
+            "description": "Invalid business input."
+          },
+          "503": {
+            "description": "Unavailable in legacy/compat; modern mutation requires enforce."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessPreviewInput"
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "CHANGE",
+        "x-authorization-permissions": []
       }
     }
   },
@@ -7783,7 +9319,22 @@
           "active",
           "revision",
           "created_at",
-          "last_login"
+          "last_login",
+          "access_id",
+          "access_revision",
+          "access_model",
+          "legacy_role",
+          "role_ids",
+          "group_ids",
+          "roles",
+          "direct_roles",
+          "groups",
+          "permission_keys",
+          "permission_sources",
+          "organization_scope",
+          "legacy_scope",
+          "authz_epoch",
+          "graph_revision"
         ],
         "properties": {
           "id": {
@@ -7802,7 +9353,9 @@
               "admin",
               "technologist",
               "viewer"
-            ]
+            ],
+            "deprecated": true,
+            "description": "Non-null compatibility projection, never authorization. Canonical new user identity/revision is access_id/access_revision; existing numeric id/account_id/revision remain unchanged."
           },
           "scope": {
             "$ref": "#/components/schemas/AccessScope"
@@ -7824,6 +9377,98 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "access_id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_model": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "rbac_v1"
+            ]
+          },
+          "legacy_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "technologist",
+                  "viewer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "group_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "direct_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessGroupMembership"
+            }
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permission_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PermissionSource"
+              }
+            }
+          },
+          "organization_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "legacy_scope": {
+            "type": "boolean"
+          },
+          "authz_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
           }
         }
       },
@@ -7886,7 +9531,9 @@
               "admin",
               "technologist",
               "viewer"
-            ]
+            ],
+            "deprecated": true,
+            "description": "Non-null compatibility projection, never authorization. Canonical new user identity/revision is access_id/access_revision; existing numeric id/account_id/revision remain unchanged."
           },
           "scope": {
             "$ref": "#/components/schemas/AccessScope"
@@ -7896,6 +9543,98 @@
           },
           "mechanism": {
             "type": "string"
+          },
+          "access_id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_model": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "rbac_v1"
+            ]
+          },
+          "legacy_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "technologist",
+                  "viewer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "group_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "direct_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessGroupMembership"
+            }
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permission_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PermissionSource"
+              }
+            }
+          },
+          "organization_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "legacy_scope": {
+            "type": "boolean"
+          },
+          "authz_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
           }
         }
       },
@@ -9947,6 +11686,1060 @@
           "code",
           "message",
           "detail"
+        ]
+      },
+      "AccessDecimal": {
+        "type": "string",
+        "pattern": "^-?(0|[1-9][0-9]*)$",
+        "description": "Exact signed int64 decimal string; JSON numbers are rejected."
+      },
+      "OrganizationScope": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "organization",
+              "ngdu",
+              "department"
+            ]
+          },
+          "ngdu_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "department_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "ngdu_id",
+          "department_id"
+        ],
+        "additionalProperties": false
+      },
+      "RoleSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "builtin_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "builtin_key"
+        ]
+      },
+      "AccessRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "builtin_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "builtin_key",
+          "description",
+          "permission_keys"
+        ]
+      },
+      "AccessGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "revision",
+          "role_ids"
+        ]
+      },
+      "AccessGroupMembership": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "role_ids"
+        ]
+      },
+      "PermissionSource": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "role_name": {
+            "type": "string"
+          },
+          "role_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "builtin_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "role_id",
+          "role_name",
+          "role_revision",
+          "builtin_key",
+          "group_id",
+          "group_name"
+        ]
+      },
+      "AccessFields": {
+        "type": "object",
+        "properties": {
+          "access_id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_model": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "rbac_v1"
+            ]
+          },
+          "legacy_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "technologist",
+                  "viewer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "group_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "direct_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessGroupMembership"
+            }
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permission_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PermissionSource"
+              }
+            }
+          },
+          "organization_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "legacy_scope": {
+            "type": "boolean"
+          },
+          "authz_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        },
+        "required": [
+          "access_id",
+          "access_revision",
+          "access_model",
+          "legacy_role",
+          "role_ids",
+          "group_ids",
+          "roles",
+          "direct_roles",
+          "groups",
+          "permission_keys",
+          "permission_sources",
+          "organization_scope",
+          "legacy_scope",
+          "authz_epoch",
+          "graph_revision"
+        ]
+      },
+      "AccessMember": {
+        "$ref": "#/components/schemas/Account"
+      },
+      "AccountAccessPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_visible": {
+            "type": "integer"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor",
+          "total_visible",
+          "graph_revision"
+        ]
+      },
+      "AccessRolePage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessRole"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_visible": {
+            "type": "integer"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor",
+          "total_visible",
+          "graph_revision"
+        ]
+      },
+      "AccessGroupPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessGroup"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_visible": {
+            "type": "integer"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor",
+          "total_visible",
+          "graph_revision"
+        ]
+      },
+      "AccessMemberPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessMember"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_visible": {
+            "type": "integer"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor",
+          "total_visible",
+          "graph_revision"
+        ]
+      },
+      "PermissionDefinition": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "scope_kind": {
+            "type": "string"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "resource",
+          "action",
+          "name",
+          "description",
+          "scope_kind",
+          "requires"
+        ]
+      },
+      "OrganizationOptions": {
+        "type": "object",
+        "properties": {
+          "ngdus": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/AccessDecimal"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "departments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/AccessDecimal"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "pairs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ngdu_id": {
+                  "$ref": "#/components/schemas/AccessDecimal"
+                },
+                "department_id": {
+                  "$ref": "#/components/schemas/AccessDecimal"
+                }
+              },
+              "required": [
+                "ngdu_id",
+                "department_id"
+              ]
+            }
+          },
+          "actor_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ngdus",
+          "departments",
+          "pairs",
+          "actor_scope"
+        ]
+      },
+      "UserAccessChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "login": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "group_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "organization": {
+            "$ref": "#/components/schemas/OrganizationScope"
+          },
+          "reset_password": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "login",
+          "name",
+          "active",
+          "role_ids",
+          "group_ids"
+        ],
+        "description": "Full assignment replacement. Create requires explicit non-none organization; update omits organization to preserve it. Password is separate from preview change. New IDs and revisions accept strings only.",
+        "additionalProperties": false
+      },
+      "RoleAccessChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "delete": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "GroupAccessChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "member_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "delete": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "AccessChange": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserAccessChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleAccessChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GroupAccessChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "description": "Exactly one non-null variant; route target ID/delete flag must match. Password, legacy role/scope and unknown fields are rejected.",
+        "additionalProperties": false
+      },
+      "AccessPreviewInput": {
+        "type": "object",
+        "properties": {
+          "access_version": {
+            "type": "integer",
+            "const": 1
+          },
+          "change": {
+            "$ref": "#/components/schemas/AccessChange"
+          }
+        },
+        "required": [
+          "access_version",
+          "change"
+        ],
+        "additionalProperties": false
+      },
+      "AccessMutationInput": {
+        "type": "object",
+        "properties": {
+          "access_version": {
+            "type": "integer",
+            "const": 1
+          },
+          "change": {
+            "$ref": "#/components/schemas/AccessChange"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "actor_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "access_version",
+          "change",
+          "graph_revision",
+          "actor_epoch",
+          "fingerprint"
+        ],
+        "additionalProperties": false
+      },
+      "AccessSnapshot": {
+        "type": "object",
+        "properties": {
+          "access_id": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "access_model": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "rbac_v1"
+            ]
+          },
+          "legacy_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "technologist",
+                  "viewer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "group_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessDecimal"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "direct_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSummary"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessGroupMembership"
+            }
+          },
+          "permission_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permission_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PermissionSource"
+              }
+            }
+          },
+          "organization_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "legacy_scope": {
+            "type": "boolean"
+          },
+          "authz_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AccessScope"
+          }
+        },
+        "required": [
+          "access_id",
+          "access_revision",
+          "access_model",
+          "legacy_role",
+          "role_ids",
+          "group_ids",
+          "roles",
+          "direct_roles",
+          "groups",
+          "permission_keys",
+          "permission_sources",
+          "organization_scope",
+          "legacy_scope",
+          "authz_epoch",
+          "graph_revision",
+          "active",
+          "scope"
+        ]
+      },
+      "AccessImpact": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "before": {
+            "$ref": "#/components/schemas/AccessSnapshot"
+          },
+          "after": {
+            "$ref": "#/components/schemas/AccessSnapshot"
+          },
+          "retained_by_other_source": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "user",
+          "before",
+          "after",
+          "retained_by_other_source"
+        ]
+      },
+      "AccessPreview": {
+        "type": "object",
+        "properties": {
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "actor_epoch": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "assigned_users": {
+            "type": "integer"
+          },
+          "changed_users": {
+            "type": "integer"
+          },
+          "disabled_users": {
+            "type": "integer"
+          },
+          "self_affected": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessImpact"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "graph_revision",
+          "actor_epoch",
+          "fingerprint",
+          "assigned_users",
+          "changed_users",
+          "disabled_users",
+          "self_affected",
+          "items",
+          "next_cursor"
+        ]
+      },
+      "AccessApplyResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessRole"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "affected_users": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user",
+          "role",
+          "group",
+          "graph_revision",
+          "affected_users"
         ]
       }
     },

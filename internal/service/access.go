@@ -35,6 +35,7 @@ type loginBucket struct {
 	count int
 }
 type Access struct {
+	mode     domain.RBACMode
 	store    AccessStore
 	enabled  bool
 	dummy    []byte
@@ -120,30 +121,34 @@ func (a *Access) Bootstrap(ctx context.Context, in domain.AccountInput) (domain.
 	return a.create(ctx, in, true)
 }
 func (a *Access) create(ctx context.Context, in domain.AccountInput, bootstrap bool) (domain.Account, error) {
+	v, e := a.createView(ctx, in, bootstrap)
+	return v.Account, e
+}
+func (a *Access) createView(ctx context.Context, in domain.AccountInput, bootstrap bool) (domain.AccountAccessView, error) {
 	user, err := normalizeAccount(in, true)
 	if err != nil {
-		return user, err
+		return domain.AccountAccessView{Account: user}, err
 	}
 	if in.Password == nil {
 		if bootstrap {
-			return user, domain.NewError(domain.Invalid, "Укажите пароль первого администратора")
+			return domain.AccountAccessView{Account: user}, domain.NewError(domain.Invalid, "Укажите пароль первого администратора")
 		}
-		return a.store.CreateAccount(ctx, user, "", false)
+		return a.createAccountView(ctx, user, "", false)
 	}
 	if err = validatePassword(*in.Password); err != nil {
-		return user, err
+		return domain.AccountAccessView{Account: user}, err
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(*in.Password), 12)
 	if err != nil {
-		return user, err
+		return domain.AccountAccessView{Account: user}, err
 	}
-	return a.store.CreateAccount(ctx, user, string(hash), bootstrap)
+	return a.createAccountView(ctx, user, string(hash), bootstrap)
 }
 func (a *Access) Accounts(ctx context.Context) ([]domain.Account, error) {
 	if !a.Enabled() {
 		return nil, domain.NewError(domain.Unavailable, "Персональный вход не включён")
 	}
-	if err := requireAccountAdmin(ctx); err != nil {
+	if err := a.requireLegacyManager(ctx); err != nil {
 		return nil, err
 	}
 	return a.store.Accounts(ctx)
@@ -152,39 +157,46 @@ func (a *Access) Create(ctx context.Context, in domain.AccountInput) (domain.Acc
 	if !a.Enabled() {
 		return domain.Account{}, domain.NewError(domain.Unavailable, "Персональный вход не включён")
 	}
-	if err := requireAccountAdmin(ctx); err != nil {
+	if err := a.requireLegacyManager(ctx); err != nil {
 		return domain.Account{}, err
 	}
-	return a.create(ctx, in, false)
+	return a.create(domain.WithRBACMode(ctx, a.mode), in, false)
 }
 func (a *Access) Update(ctx context.Context, id int64, in domain.AccountInput) (domain.Account, error) {
+	v, e := a.updateView(ctx, id, in)
+	return v.Account, e
+}
+func (a *Access) updateView(ctx context.Context, id int64, in domain.AccountInput) (domain.AccountAccessView, error) {
 	if !a.Enabled() {
-		return domain.Account{}, domain.NewError(domain.Unavailable, "Персональный вход не включён")
+		return domain.AccountAccessView{}, domain.NewError(domain.Unavailable, "Персональный вход не включён")
 	}
-	if err := requireAccountAdmin(ctx); err != nil {
-		return domain.Account{}, err
+	if err := a.requireLegacyManager(ctx); err != nil {
+		return domain.AccountAccessView{}, err
 	}
 	if in.Revision < 1 {
-		return domain.Account{}, domain.NewError(domain.Invalid, "Нужна версия учётной записи")
+		return domain.AccountAccessView{}, domain.NewError(domain.Invalid, "Нужна версия учётной записи")
 	}
 	user, err := normalizeAccount(in, false)
 	if err != nil {
-		return user, err
+		return domain.AccountAccessView{Account: user}, err
+	}
+	if a.RBACEnforced() {
+		user.Scope = in.Scope
 	}
 	user.ID = id
 	var hash *string
 	if in.Password != nil {
 		if err = validatePassword(*in.Password); err != nil {
-			return user, err
+			return domain.AccountAccessView{Account: user}, err
 		}
 		raw, err := bcrypt.GenerateFromPassword([]byte(*in.Password), 12)
 		if err != nil {
-			return user, err
+			return domain.AccountAccessView{Account: user}, err
 		}
 		value := string(raw)
 		hash = &value
 	}
-	return a.store.UpdateAccount(ctx, user, hash)
+	return a.updateAccountView(domain.WithRBACMode(ctx, a.mode), user, hash)
 }
 func (a *Access) allowLogin(ip, login string) bool {
 	a.mu.Lock()
@@ -270,6 +282,13 @@ func (a *Access) Identify(ctx context.Context, token string) (domain.Principal, 
 	if token == "" || len(token) > 128 {
 		return domain.Principal{}, domain.NewError(domain.Unauthorized, "Войдите в систему")
 	}
+	if _, ok := a.store.(AccountViewStore); ok {
+		v, e := a.SessionView(ctx, token)
+		if e != nil {
+			return domain.Principal{}, e
+		}
+		return a.ViewPrincipal(v), nil
+	}
 	user, err := a.store.SessionAccount(ctx, sessionDigest(token))
 	var de *domain.Error
 	if errors.As(err, &de) && de.Kind == domain.Missing {
@@ -324,4 +343,12 @@ func (a *Access) BindIdentity(ctx context.Context, provider, subject string, id 
 		return domain.NewError(domain.Invalid, "Некорректная внешняя идентичность")
 	}
 	return a.store.BindIdentity(ctx, provider, subject, id)
+}
+
+func (a *Access) requireLegacyManager(ctx context.Context) error {
+	if !a.RBACEnforced() {
+		return requireAccountAdmin(ctx)
+	}
+	_, e := managementActor(ctx)
+	return e
 }

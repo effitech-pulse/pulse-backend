@@ -47,15 +47,19 @@ func (r *Repository) LoginCredential(ctx context.Context, login string) (domain.
 	return account, hash, err
 }
 func (r *Repository) CreateAccount(ctx context.Context, a domain.Account, hash string, bootstrap bool) (domain.Account, error) {
+	v, e := r.CreateAccountAccessView(ctx, a, hash, bootstrap)
+	return v.Account, e
+}
+func (r *Repository) CreateAccountAccessView(ctx context.Context, a domain.Account, hash string, bootstrap bool) (domain.AccountAccessView, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	defer tx.Rollback(ctx)
 	if _, err = lockAccessGraph(ctx, tx); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	actorID := int64(0)
 	var before accessGraph
@@ -64,66 +68,69 @@ func (r *Repository) CreateAccount(ctx context.Context, a domain.Account, hash s
 			Count int `json:"count"`
 		}](ctx, tx, sqlBuilder.Select("count(*) AS count").From("auth_user"))
 		if e != nil {
-			return domain.Account{}, e
+			return domain.AccountAccessView{}, e
 		}
 		if count.Count != 0 {
-			return domain.Account{}, domain.NewError(domain.Duplicate, "Первый администратор уже создан")
+			return domain.AccountAccessView{}, domain.NewError(domain.Duplicate, "Первый администратор уже создан")
 		}
 		a.Role = "admin"
 		a.Active = true
 		if err = restoreBootstrapRole(ctx, tx); err != nil {
-			return domain.Account{}, err
+			return domain.AccountAccessView{}, err
 		}
 	} else {
+		if domain.RBACEnforced(ctx) {
+			return domain.AccountAccessView{}, domain.NewError(domain.Duplicate, "legacy_access_write_unsupported")
+		}
 		actorID, err = accessActorID(ctx)
 		if err != nil {
-			return domain.Account{}, err
+			return domain.AccountAccessView{}, err
 		}
 		before, err = readAccessGraph(ctx, tx, actorID, "users.create")
 		if err != nil {
-			return domain.Account{}, err
+			return domain.AccountAccessView{}, err
 		}
 	}
 	role, err := one[domain.AccessRole](ctx, tx, sqlBuilder.Select("id,name,description,builtin_key,revision").From("auth_role").Where(sq.Eq{"builtin_key": a.Role}))
 	if err != nil {
-		return domain.Account{}, accessInvalid()
+		return domain.AccountAccessView{}, accessInvalid()
 	}
 	scope, err := json.Marshal(a.Scope)
 	if err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	org := legacyOrganization(a)
 	rawOrg, err := organizationJSON(org)
 	if err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if !bootstrap {
 		keys, e := list[struct {
 			Key domain.Permission `json:"permission_key"`
 		}](ctx, tx, sqlBuilder.Select("permission_key").From("auth_role_permission").Where(sq.Eq{"role_id": role.ID}))
 		if e != nil {
-			return domain.Account{}, e
+			return domain.AccountAccessView{}, e
 		}
 		for _, k := range keys {
 			role.PermissionKeys = append(role.PermissionKeys, k.Key)
 		}
 		proposed := authorizationRow{Account: a, Organization: org, Grants: []accessRoleGrant{{Role: role}}}.snapshot()
 		if !before.Actor.CanManageAccount(proposed) || !before.Actor.CanGrant(role.PermissionKeys) {
-			return domain.Account{}, accessDenied()
+			return domain.AccountAccessView{}, accessDenied()
 		}
 		if e = before.Actor.Require("users.roles.assign"); e != nil {
-			return domain.Account{}, e
+			return domain.AccountAccessView{}, e
 		}
 	}
 	out, err := mutate[domain.Account](ctx, tx, sqlBuilder.Insert("auth_user").Columns("login", "name", "password_hash", "role", "scope", "active", "organization_scope").Values(a.Login, a.Name, hash, a.Role, scope, a.Active, rawOrg).Suffix("RETURNING "+accountColumns))
 	if err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if err = replaceAccessLinks(ctx, tx, "auth_user_role", "user_id", out.ID, "role_id", []int64{role.ID}); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if err = bumpAccessGraph(ctx, tx); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if bootstrap {
 		actorID = out.ID
@@ -131,48 +138,56 @@ func (r *Repository) CreateAccount(ctx context.Context, a domain.Account, hash s
 	}
 	after, err := readAccessGraphUnchecked(ctx, tx, actorID)
 	if err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if err = ensureAccessManager(after); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
 	if err = writeAccessEvent(ctx, tx, actorID, before, after, []int64{out.ID}, domain.AccessChange{}); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
+	}
+	view, err := after.accountView(out.ID)
+	if err != nil {
+		return domain.AccountAccessView{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
-		return domain.Account{}, err
+		return domain.AccountAccessView{}, err
 	}
-	return out, nil
+	return view, nil
 }
 func (r *Repository) UpdateAccount(ctx context.Context, a domain.Account, hash *string) (domain.Account, error) {
+	v, e := r.UpdateAccountAccessView(ctx, a, hash)
+	return v.Account, e
+}
+func (r *Repository) UpdateAccountAccessView(ctx context.Context, a domain.Account, hash *string) (domain.AccountAccessView, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	tx, e := r.pool.Begin(ctx)
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	defer tx.Rollback(ctx)
 	if _, e = lockAccessGraph(ctx, tx); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	actorID, e := accessActorID(ctx)
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	before, e := readAccessGraph(ctx, tx, actorID, "users.update")
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	idx := before.accountIndex(a.ID)
 	if idx < 0 || !before.Actor.CanManageAccount(before.Accounts[idx].snapshot()) {
-		return domain.Account{}, domain.NewError(domain.Missing, "Пользователь не найден")
+		return domain.AccountAccessView{}, domain.NewError(domain.Missing, "Пользователь не найден")
 	}
 	old := before.Accounts[idx]
 	if old.Account.Revision != a.Revision {
-		return domain.Account{}, accessConflict()
+		return domain.AccountAccessView{}, accessConflict()
 	}
 	if len(directAccessRoles(old)) != 1 || len(before.userGroups(a.ID)) != 0 {
-		return domain.Account{}, domain.NewError(domain.Duplicate, "legacy_access_write_unsupported")
+		return domain.AccountAccessView{}, domain.NewError(domain.Duplicate, "legacy_access_write_unsupported")
 	}
 	roleIdx := -1
 	for i, role := range before.Roles {
@@ -182,21 +197,34 @@ func (r *Repository) UpdateAccount(ctx context.Context, a domain.Account, hash *
 		}
 	}
 	if roleIdx < 0 {
-		return domain.Account{}, accessInvalid()
+		return domain.AccountAccessView{}, accessInvalid()
 	}
 	role := before.Roles[roleIdx]
+	if domain.RBACEnforced(ctx) {
+		if domain.LegacyAccessRole(old.snapshot()) == nil || old.Organization == nil || !reflect.DeepEqual(old.Organization, legacyOrganization(old.Account)) || !reflect.DeepEqual(old.Account.Scope, a.Scope) {
+			return domain.AccountAccessView{}, domain.NewError(domain.Duplicate, "legacy_access_write_unsupported")
+		}
+		keys := slices.Clone(role.PermissionKeys)
+		slices.Sort(keys)
+		if !slices.Equal(keys, domain.BuiltinAccessPermissions(a.Role)) {
+			return domain.AccountAccessView{}, domain.NewError(domain.Duplicate, "legacy_access_write_unsupported")
+		}
+	}
 	if !before.Actor.CanGrant(role.PermissionKeys) {
-		return domain.Account{}, accessDenied()
+		return domain.AccountAccessView{}, accessDenied()
 	}
 	if !slices.Equal(directAccessRoles(old), []int64{role.ID}) {
 		if e = before.Actor.Require("users.roles.assign"); e != nil {
-			return domain.Account{}, e
+			return domain.AccountAccessView{}, e
 		}
 	}
 	org := legacyOrganization(a)
+	if domain.RBACEnforced(ctx) {
+		org = old.Organization
+	}
 	if !reflect.DeepEqual(old.Account.Scope, a.Scope) || !reflect.DeepEqual(old.Organization, org) {
 		if e = before.Actor.Require("users.scope.assign"); e != nil {
-			return domain.Account{}, e
+			return domain.AccountAccessView{}, e
 		}
 	}
 	proposed := cloneAccessGraph(before)
@@ -204,50 +232,53 @@ func (r *Repository) UpdateAccount(ctx context.Context, a domain.Account, hash *
 	proposed.Accounts[idx].Organization = org
 	proposed.Accounts[idx].Grants = []accessRoleGrant{{Role: role}}
 	if !before.Actor.CanManageAccount(proposed.Accounts[idx].snapshot()) {
-		return domain.Account{}, accessDenied()
+		return domain.AccountAccessView{}, accessDenied()
 	}
 	if e = ensureAccessManager(proposed); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	if e = lockAccessUsers(ctx, tx, []int64{a.ID}); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	scope, e := json.Marshal(a.Scope)
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	rawOrg, e := organizationJSON(org)
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	changes := sq.Eq{"login": a.Login, "name": a.Name, "role": a.Role, "scope": scope, "active": a.Active, "organization_scope": rawOrg}
 	if hash != nil {
 		changes["password_hash"] = *hash
 	}
 	if _, e = execute(ctx, tx, sqlBuilder.Update("auth_user").SetMap(changes).Where(sq.Eq{"id": a.ID})); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	if e = replaceAccessLinks(ctx, tx, "auth_user_role", "user_id", a.ID, "role_id", []int64{role.ID}); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	if e = bumpAccessUsers(ctx, tx, []int64{a.ID}); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	if e = bumpAccessGraph(ctx, tx); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	after, e := readAccessGraphUnchecked(ctx, tx, actorID)
 	if e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
 	if e = writeAccessEvent(ctx, tx, actorID, before, after, []int64{a.ID}, domain.AccessChange{}); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
-	out := after.Accounts[after.accountIndex(a.ID)].Account
+	view, e := after.accountView(a.ID)
+	if e != nil {
+		return domain.AccountAccessView{}, e
+	}
 	if e = tx.Commit(ctx); e != nil {
-		return domain.Account{}, e
+		return domain.AccountAccessView{}, e
 	}
-	return out, nil
+	return view, nil
 }
 func (r *Repository) CreateSession(ctx context.Context, id int64, revision int64, hash string, expires time.Time) error {
 	tx, err := r.pool.Begin(ctx)

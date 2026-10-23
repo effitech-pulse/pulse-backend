@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,16 +19,23 @@ type authState struct {
 }
 
 func (s *Server) authMe(c *gin.Context) error {
+	c.Header("Cache-Control", "no-store")
+	mode := "legacy"
+	if s.Access.Enabled() {
+		mode = "local"
+	}
+	if raw, ok := c.Get("account_access_view"); ok {
+		v := raw.(domain.AccountAccessView)
+		return writeJSON(c, 200, struct {
+			Mode      string       `json:"mode"`
+			Principal principalDTO `json:"principal"`
+		}{mode, principalViewDTO(v, s.Access.RBACEnforced())})
+	}
 	p, ok := domain.CurrentPrincipal(c.Request.Context())
 	var principal *domain.Principal
 	if ok {
 		principal = &p
 	}
-	mode := "legacy"
-	if s.Access.Enabled() {
-		mode = "local"
-	}
-	c.Header("Cache-Control", "no-store")
 	return writeJSON(c, 200, authState{mode, principal})
 }
 func (s *Server) cookie(c *gin.Context, token string, age int) {
@@ -41,14 +49,20 @@ func (s *Server) authLogin(c *gin.Context) error {
 	if err := readJSON(c, &in); err != nil {
 		return err
 	}
-	user, token, err := s.Access.Login(c.Request.Context(), in.Login, in.Password, c.RemoteIP())
+	_, token, err := s.Access.Login(c.Request.Context(), in.Login, in.Password, c.RemoteIP())
+	if err != nil {
+		return err
+	}
+	view, err := s.Access.SessionView(c.Request.Context(), token)
 	if err != nil {
 		return err
 	}
 	s.cookie(c, token, 8*3600)
 	c.Header("Cache-Control", "no-store")
-	p := domain.AccountPrincipal(user)
-	return writeJSON(c, 200, authState{"local", &p})
+	return writeJSON(c, 200, struct {
+		Mode      string       `json:"mode"`
+		Principal principalDTO `json:"principal"`
+	}{"local", principalViewDTO(view, s.Access.RBACEnforced())})
 }
 func (s *Server) authLogout(c *gin.Context) error {
 	token, _ := c.Cookie(sessionCookie)
@@ -60,28 +74,76 @@ func (s *Server) authLogout(c *gin.Context) error {
 	return nil
 }
 func (s *Server) authUsers(c *gin.Context) error {
-	v, e := s.Access.Accounts(c.Request.Context())
-	return respond(c, 200, v, e)
-}
-func (s *Server) authCreate(c *gin.Context) error {
-	var in domain.AccountInput
-	if e := readJSON(c, &in); e != nil {
+	if version := c.Query("access_version"); version != "" && version != "1" {
+		return validation("Неизвестная версия доступа")
+	}
+	q, e := accessQuery(c)
+	if e != nil {
 		return e
 	}
-	v, e := s.Access.Create(c.Request.Context(), in)
-	return respond(c, 201, v, e)
+	v, e := s.Access.AccountViews(c.Request.Context(), q)
+	if e != nil {
+		return e
+	}
+	items := []accountDTO{}
+	for _, view := range v.Items {
+		items = append(items, accountViewDTO(view, s.Access.RBACEnforced()))
+	}
+	if c.Query("access_version") == "1" {
+		return writeJSON(c, 200, accessPageDTO[accountDTO]{items, v.NextCursor, v.TotalVisible, decimal(v.GraphRevision)})
+	}
+	// Preserve the original unpaginated array protocol while sourcing every item coherently.
+	for v.NextCursor != nil {
+		q.Cursor = *v.NextCursor
+		v, e = s.Access.AccountViews(c.Request.Context(), q)
+		if e != nil {
+			return e
+		}
+		for _, view := range v.Items {
+			items = append(items, accountViewDTO(view, s.Access.RBACEnforced()))
+		}
+	}
+	return writeJSON(c, 200, items)
+}
+func (s *Server) authCreate(c *gin.Context) error {
+	in, modern, e := readAccountWrite(c)
+	if e != nil {
+		var invalid *domain.Error
+		if errors.As(e, &invalid) {
+			return e
+		}
+		return badAccessBody(c)
+	}
+	if modern != nil {
+		return s.applyMutation(c, *modern)
+	}
+	v, e := s.Access.CreateView(c.Request.Context(), in)
+	if e != nil {
+		return e
+	}
+	return writeJSON(c, 201, accountViewDTO(v, s.Access.RBACEnforced()))
 }
 func (s *Server) authUpdate(c *gin.Context) error {
 	n, e := id(c, "user_id")
 	if e != nil {
 		return e
 	}
-	var in domain.AccountInput
-	if e = readJSON(c, &in); e != nil {
+	in, modern, e := readAccountWrite(c)
+	if e != nil {
+		var invalid *domain.Error
+		if errors.As(e, &invalid) {
+			return e
+		}
+		return badAccessBody(c)
+	}
+	if modern != nil {
+		return s.applyMutation(c, *modern)
+	}
+	v, e := s.Access.UpdateView(c.Request.Context(), n, in)
+	if e != nil {
 		return e
 	}
-	v, e := s.Access.Update(c.Request.Context(), n, in)
-	return respond(c, 200, v, e)
+	return writeJSON(c, 200, accountViewDTO(v, s.Access.RBACEnforced()))
 }
 func (s *Server) allowedOrigin(c *gin.Context) bool {
 	origin := c.GetHeader("Origin")
@@ -102,7 +164,7 @@ func (s *Server) allowedOrigin(c *gin.Context) bool {
 	}
 	return false
 }
-func (s *Server) personalAuthorization(c *gin.Context) {
+func (s *Server) compatibilityAuthorization(c *gin.Context) {
 	c.Header("Cache-Control", "no-store")
 	path := c.FullPath()
 	if !strings.HasPrefix(c.Request.URL.Path, s.Config.Prefix+"/") {
@@ -119,7 +181,7 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 		return
 	}
 	token, _ := c.Cookie(sessionCookie)
-	p, err := s.Access.Identify(c.Request.Context(), token)
+	view, err := s.Access.SessionView(c.Request.Context(), token)
 	if err != nil {
 		if path == s.Config.Prefix+"/auth/me" && token == "" {
 			c.Next()
@@ -128,8 +190,30 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 		deny(err)
 		return
 	}
+	p := s.Access.ViewPrincipal(view)
+	c.Set("account_access_view", view)
 	c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), p))
 	if path == s.Config.Prefix+"/auth/me" || path == s.Config.Prefix+"/auth/logout" {
+		c.Next()
+		return
+	}
+
+	relativeAuth := strings.TrimPrefix(path, s.Config.Prefix)
+	if relativeAuth == "/auth/access/preview" || ((strings.HasPrefix(relativeAuth, "/auth/roles") || strings.HasPrefix(relativeAuth, "/auth/groups")) && c.Request.Method != "GET") {
+		deny(domain.NewError(domain.Unavailable, "Изменение доступа недоступно до включения RBAC"))
+		return
+	}
+	if relativeAuth == "/auth/permissions" || relativeAuth == "/auth/organization-options" || strings.HasPrefix(relativeAuth, "/auth/roles") || strings.HasPrefix(relativeAuth, "/auth/groups") || relativeAuth == "/auth/users/:user_id" && c.Request.Method == "GET" {
+		policy, known := authorizationPolicy(c.Request.Method, relativeAuth)
+		p.Authorization = &view.Authorization
+		if !known {
+			deny(domain.NewError(domain.Forbidden, "Маршрут не разрешён"))
+			return
+		}
+		if e := s.routePermission(p, policy); e != nil {
+			deny(e)
+			return
+		}
 		c.Next()
 		return
 	}
@@ -175,6 +259,58 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 			deny(e)
 			return
 		}
+	}
+	c.Next()
+}
+
+func (s *Server) personalAuthorization(c *gin.Context) {
+	if !s.Access.RBACEnforced() {
+		s.compatibilityAuthorization(c)
+		return
+	}
+	c.Header("Cache-Control", "no-store")
+	path := c.FullPath()
+	// Gin owns unregistered method/path responses (404/405); CORS owns OPTIONS.
+	if path == "" {
+		c.Next()
+		return
+	}
+	relative := strings.TrimPrefix(path, s.Config.Prefix)
+	policy, known := authorizationPolicy(c.Request.Method, relative)
+	if !strings.HasPrefix(path, s.Config.Prefix+"/") {
+		relative = path
+		policy, known = authorizationPolicy(c.Request.Method, relative)
+	}
+	deny := func(e error) { writeError(c, e); c.Abort() }
+	if c.Request.Method != "GET" && !s.allowedOrigin(c) {
+		deny(domain.NewError(domain.Forbidden, "Недопустимый источник запроса"))
+		return
+	}
+	if known && policy.Public && relative != "/auth/me" {
+		c.Next()
+		return
+	}
+	token, _ := c.Cookie(sessionCookie)
+	if known && relative == "/auth/me" && token == "" {
+		c.Next()
+		return
+	}
+	view, e := s.Access.SessionView(c.Request.Context(), token)
+	if e != nil {
+		deny(e)
+		return
+	}
+	p := s.Access.ViewPrincipal(view)
+	ctx := domain.WithRBACMode(domain.WithPrincipal(c.Request.Context(), p), domain.RBACEnforce)
+	c.Request = c.Request.WithContext(ctx)
+	c.Set("account_access_view", view)
+	if !known {
+		deny(domain.NewError(domain.Forbidden, "Маршрут не разрешён"))
+		return
+	}
+	if e = s.routePermission(p, policy); e != nil {
+		deny(e)
+		return
 	}
 	c.Next()
 }
