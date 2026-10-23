@@ -541,6 +541,9 @@ func (r *Repository) PreviewAccessChange(ctx context.Context, id int64, c domain
 			if !g.Actor.CanManageAccount(i.After) {
 				return accessDenied()
 			}
+			if !matchesAccessSearch(q, i.User.Login, i.User.Name) {
+				continue
+			}
 			if i.User.ID <= last && i.User.ID != -1 {
 				continue
 			}

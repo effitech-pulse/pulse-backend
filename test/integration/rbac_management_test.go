@@ -624,3 +624,79 @@ func TestRBACAuditAffectedOnly(t *testing.T) {
 		t.Fatal(payload, e)
 	}
 }
+
+func TestRBACPreviewSearch(t *testing.T) {
+	p := testDB(t)
+	ctx := context.Background()
+	r := postgres.New(p)
+	actor := rbacManager(t, p)
+	first := rbacReadUser(t, p, "alpha-member", `{"kind":"organization","ngdu_id":null,"department_id":null}`)
+	second := rbacReadUser(t, p, "beta-member", `{"kind":"organization","ngdu_id":null,"department_id":null}`)
+	if _, e := p.Exec(ctx, "UPDATE auth_user SET name='ALPHA Name' WHERE id=$1", second); e != nil {
+		t.Fatal(e)
+	}
+	role := rbacApply(t, r, actor, domain.AccessChange{Role: &domain.RoleAccessChange{Name: "search role", PermissionKeys: []domain.Permission{"wells.read"}}}).Role
+	group := rbacApply(t, r, actor, domain.AccessChange{Group: &domain.GroupAccessChange{Name: "search group", RoleIDs: []int64{role.ID}, MemberIDs: []int64{actor, first, second}}}).Group
+	if _, e := p.Exec(ctx, "UPDATE auth_user SET active=false WHERE id=$1", second); e != nil {
+		t.Fatal(e)
+	}
+	change := domain.AccessChange{Group: &domain.GroupAccessChange{ID: &group.ID, Revision: group.Revision, Delete: true}}
+	all, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{})
+	if e != nil || len(all.Items) != 3 || all.AssignedUsers != 3 || all.ChangedUsers != 2 || all.DisabledUsers != 1 || !all.SelfAffected {
+		t.Fatal(all, e)
+	}
+	assertStable := func(v domain.AccessPreview) {
+		t.Helper()
+		if v.Fingerprint != all.Fingerprint || v.GraphRevision != all.GraphRevision || v.ActorEpoch != all.ActorEpoch || v.AssignedUsers != 3 || v.ChangedUsers != 2 || v.DisabledUsers != 1 || !v.SelfAffected {
+			t.Fatal("search/page changed receipt or impact counts", v)
+		}
+	}
+	page, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "aLpHa", Limit: 1})
+	if e != nil {
+		t.Fatal(e)
+	}
+	assertStable(page)
+	if len(page.Items) != 1 || page.Items[0].User.ID != first || page.NextCursor == nil {
+		t.Fatal("search must filter login/name before pagination", page)
+	}
+	next, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "aLpHa", Limit: 1, Cursor: *page.NextCursor})
+	if e != nil {
+		t.Fatal(e)
+	}
+	assertStable(next)
+	if len(next.Items) != 1 || next.Items[0].User.ID != second || next.NextCursor != nil {
+		t.Fatal("second matching name page missing", next)
+	}
+	empty, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "no-match", Limit: 1})
+	if e != nil {
+		t.Fatal(e)
+	}
+	assertStable(empty)
+	if empty.Items == nil || len(empty.Items) != 0 || empty.NextCursor != nil {
+		t.Fatal("unmatched search returned impacts", empty)
+	}
+	_, e = r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "ALPHA", Limit: 1, Cursor: *page.NextCursor})
+	rbacReadErrorKind(t, e, domain.Duplicate)
+	if _, e = p.Exec(ctx, "UPDATE auth_rbac_state SET revision=revision+1"); e != nil {
+		t.Fatal(e)
+	}
+	_, e = r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "aLpHa", Limit: 1, Cursor: *page.NextCursor})
+	rbacReadErrorKind(t, e, domain.Duplicate)
+	current, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "aLpHa", Limit: 1})
+	if e != nil || current.NextCursor == nil {
+		t.Fatal(current, e)
+	}
+	if _, e = p.Exec(ctx, "UPDATE auth_user SET authz_epoch=authz_epoch+1 WHERE id=$1", actor); e != nil {
+		t.Fatal(e)
+	}
+	_, e = r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "aLpHa", Limit: 1, Cursor: *current.NextCursor})
+	rbacReadErrorKind(t, e, domain.Duplicate)
+	receipt, e := r.PreviewAccessChange(ctx, actor, change, domain.AccessPageQuery{Search: "no-match"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	result, e := r.ApplyAccessChange(ctx, actor, domain.AccessApply{Change: change, GraphRevision: receipt.GraphRevision, ActorEpoch: receipt.ActorEpoch, Fingerprint: receipt.Fingerprint}, nil)
+	if e != nil || result.AffectedUsers != 3 {
+		t.Fatal("filtered receipt must apply full change", result, e)
+	}
+}
