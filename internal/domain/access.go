@@ -32,15 +32,19 @@ type AccountInput struct {
 	Password *string     `json:"password"`
 }
 type Principal struct {
-	AccountID     *int64      `json:"account_id"`
-	Name          string      `json:"name"`
-	Role          string      `json:"role"`
-	Scope         AccessScope `json:"scope"`
-	Authenticated bool        `json:"authenticated"`
-	Mechanism     string      `json:"mechanism"`
+	Authorization *AuthorizationSnapshot `json:"authorization,omitempty"`
+	AccountID     *int64                 `json:"account_id"`
+	Name          string                 `json:"name"`
+	Role          string                 `json:"role"`
+	Scope         AccessScope            `json:"scope"`
+	Authenticated bool                   `json:"authenticated"`
+	Mechanism     string                 `json:"mechanism"`
 }
 
 func (p Principal) Allows(well Well) bool {
+	if p.Authorization != nil {
+		return p.Authorization.AllowsWell(well)
+	}
 	if p.Role == "admin" {
 		return true
 	}
