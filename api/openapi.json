@@ -3461,6 +3461,16 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "404": {
+            "description": "Source or typed target binding is missing or unavailable; unknown and foreign targets are concealed. No records are written.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileJobError"
+                }
+              }
+            }
           }
         },
         "requestBody": {

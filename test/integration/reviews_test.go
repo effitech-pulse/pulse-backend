@@ -104,7 +104,7 @@ func TestConcurrentReviewHasOneWinnerAndHistoryIsPaged(t *testing.T) {
 		t.Fatal(counts)
 	}
 	for revision := int64(1); revision <= 52; revision++ {
-		_, err := app.http.Reviews.Update(context.Background(), "check", "check_001", ptr(int64(1)), domain.ReviewInput{RequestID: fmt.Sprintf("history-request-%03d", revision), Revision: revision, Status: "in_progress", Owner: "Технолог", Comment: "Контроль"}, domain.ReviewActor{Name: "Тест"})
+		_, err := app.http.Reviews.Update(legacyResearchFixtureContext(), "check", "check_001", ptr(int64(1)), domain.ReviewInput{RequestID: fmt.Sprintf("history-request-%03d", revision), Revision: revision, Status: "in_progress", Owner: "Технолог", Comment: "Контроль"}, domain.ReviewActor{Name: "Тест"})
 		if err != nil {
 			t.Fatal(err)
 		}

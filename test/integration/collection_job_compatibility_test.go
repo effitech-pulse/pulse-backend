@@ -293,7 +293,7 @@ func TestCollectionSourceOtherSourceCannotOverwriteProtectedKey(t *testing.T) {
 	if _, e := r.ApplyCollectionCapture(ctx, c.Lease()); e != nil {
 		t.Fatal(e)
 	}
-	other, e := mutateSourceFixture(ctx, r, domain.SourceCreate, domain.TelemetrySource{ID: "other-source", Kind: "json_push", Status: "running", IntervalSeconds: 60})
+	other, e := mutateSourceFixture(domain.WithSystemPrincipal(ctx), r, domain.SourceCreate, domain.TelemetrySource{ID: "other-source", Kind: "json_push", Status: "running", IntervalSeconds: 60})
 	if e != nil {
 		t.Fatal(e)
 	}

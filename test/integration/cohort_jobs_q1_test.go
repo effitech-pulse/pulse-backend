@@ -20,11 +20,6 @@ func cohortWithFilePolicy(t *testing.T) (*pgxpool.Pool, context.Context, *postgr
 	if _, e := pool.Exec(ctx, "UPDATE well SET unitek_id=9007199254740993,armits_id=42 WHERE id=1"); e != nil {
 		t.Fatal(e)
 	}
-	a, e := r.Account(ctx, 1)
-	if e != nil {
-		t.Fatal(e)
-	}
-	ctx = domain.WithPrincipal(ctx, domain.AccountPrincipal(a))
 	checks := savedService(t, pool, &savedScorer{expectedPin: savedPin()}, savedPin(), domain.DefaultFileInputLimits())
 	input := prepareSaved(t, checks, ctx, "q1-with-q2-000001")
 	spec := savedSpec()
@@ -38,10 +33,10 @@ func cohortWithFilePolicy(t *testing.T) (*pgxpool.Pool, context.Context, *postgr
 	p.CohortManifestSHA256 = v.Fixture.CohortManifestSHA256
 	p.AllowedAccountIDs = []int64{1}
 	p.AllowedInputs = []domain.FileJobAllowedInput{{WellID: 1, RawSHA256: input.RawSHA256, Format: "csv", ClientSpecJSON: specJSON, ClientSpecSHA256: domain.FileSHA256(specJSON), ExecutionPin: savedPin()}}
-	if _, e = pool.Exec(ctx, `INSERT INTO file_job_pilot_guard(id,run_id,manifest_sha256,synthetic_only) VALUES(true,$1,$2,true)`, p.RunID, p.ManifestSHA256); e != nil {
+	if _, e := pool.Exec(ctx, `INSERT INTO file_job_pilot_guard(id,run_id,manifest_sha256,synthetic_only) VALUES(true,$1,$2,true)`, p.RunID, p.ManifestSHA256); e != nil {
 		t.Fatal(e)
 	}
-	r, e = r.WithFileJobPolicy(p)
+	r, e := r.WithFileJobPolicy(p)
 	if e != nil {
 		t.Fatal(e)
 	}

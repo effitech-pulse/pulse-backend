@@ -272,7 +272,7 @@ func TestFileJobGuardStartupAndUnlistedAccount(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	other := domain.WithPrincipal(ctx, domain.AccountPrincipal(a))
+	other := fileJobFixtureSession(t, ctx, store, a)
 	v := prepareSaved(t, checks, other, "q1-unlisted-request")
 	if _, e = store.AcceptFileJob(other, domain.FileJobPrepared{Input: v, Start: time.Now(), End: time.Now().Add(time.Hour), PointsCount: 2}); e == nil {
 		t.Fatal("unlisted direct store admitted")
@@ -294,7 +294,7 @@ func TestFileJobActorLegacyNamespace(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	sibling := domain.WithPrincipal(ctx, domain.AccountPrincipal(other))
+	sibling := fileJobFixtureSession(t, ctx, store, other)
 	second := v
 	second.Input = prepareSaved(t, checks, sibling, v.Input.RequestKey)
 	if _, e = store.AcceptFileJob(sibling, second); e != nil {
@@ -351,4 +351,22 @@ func rbacFixtureManagerContext(t *testing.T, pool *pgxpool.Pool) context.Context
 		t.Fatal(e)
 	}
 	return domain.WithPrincipal(ctx, domain.AccountPrincipal(account))
+}
+
+// fileJobFixtureSession preserves a real persisted actor and its current expected epoch.
+func fileJobFixtureSession(t *testing.T, ctx context.Context, store *postgres.Repository, a domain.Account) context.Context {
+	t.Helper()
+	auth, e := store.Authorization(ctx, a.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	p := domain.AccountPrincipal(a)
+	p.Authorization = &auth
+	if !domain.RBACEnforced(ctx) {
+		p = domain.TrustedCompatibilityPrincipal(p)
+	}
+	if p.Authorization.Require("filechecks.run") != nil {
+		t.Fatal("positive fixture lacks filechecks.run")
+	}
+	return domain.WithPrincipal(ctx, p)
 }

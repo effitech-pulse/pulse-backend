@@ -126,7 +126,12 @@ func TestIntegrationMapsArmitsOrPulseIDBeforeStoring(t *testing.T) {
 			external = 1
 		}
 		call(t, h, "POST", "/api/v1/integrations/"+id+"/ingest", fmt.Sprintf(`{"records":[{"well_id":%d,"timestamp":"2025-01-0%dT00:00:00Z","f":0}]}`, external, i+1), 200)
-		call(t, h, "POST", "/api/v1/integrations/"+id+"/ingest", `{"records":[{"well_id":999,"timestamp":"2025-01-03T00:00:00Z","f":100}]}`, 422)
+		call(t, h, "POST", "/api/v1/integrations/"+id+"/ingest", `{"records":[{"well_id":999,"timestamp":"2025-01-03T00:00:00Z","f":100}]}`, 404)
+	}
+	// Explicit typed source targets must prove a Pulse binding; unknown999 must not write.
+	var unknown, valid int
+	if e := pool.QueryRow(legacyResearchFixtureContext(), `SELECT count(*) FILTER (WHERE well_id IN ('999','pulse:999')),count(*) FILTER (WHERE well_id='pulse:1') FROM telemetry_measurement`).Scan(&unknown, &valid); e != nil || unknown != 0 || valid != 2 {
+		t.Fatal(unknown, valid, e)
 	}
 	result := call(t, h, "GET", "/api/v1/wells/1/telemetry?start=2024-12-31T00:00:00Z&end=2025-01-04T00:00:00Z", "", 200).(map[string]any)
 	points := result["points"].([]any)

@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
@@ -102,14 +101,14 @@ func TestWellRevisionSerializesEditsAndArchiveAndPagesHistory(t *testing.T) {
 	if !((a == 200 && b == 409) || (a == 409 && b == 200)) {
 		t.Fatal(a, b)
 	}
-	well, err := app.store.Well(context.Background(), 1)
+	well, err := app.store.Well(legacyResearchFixtureContext(), 1)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if well.ArchivedAt != nil {
 		call(t, h, "POST", "/api/v1/wells/1/restore", `{"revision":2,"reason":"Продолжение теста"}`, 200)
 	}
-	well, err = app.store.Well(context.Background(), 1)
+	well, err = app.store.Well(legacyResearchFixtureContext(), 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,9 +128,9 @@ func TestWellRevisionSerializesEditsAndArchiveAndPagesHistory(t *testing.T) {
 	}
 	call(t, h, "PATCH", "/api/v1/wells/1", `{"revision":1,"responsible":"Старая форма"}`, 409)
 	// В совместимом PATCH отсутствие revision допускается, но также увеличивает версию и оставляет историю.
-	before, _ := app.store.Well(context.Background(), 1)
+	before, _ := app.store.Well(legacyResearchFixtureContext(), 1)
 	call(t, h, "PATCH", "/api/v1/wells/1", `{"responsible":null}`, 200)
-	after, _ := app.store.Well(context.Background(), 1)
+	after, _ := app.store.Well(legacyResearchFixtureContext(), 1)
 	if after.Revision != before.Revision+1 || after.Responsible != nil {
 		t.Fatal(before, after)
 	}

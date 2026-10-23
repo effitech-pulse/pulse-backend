@@ -190,7 +190,7 @@ func TestCollectionIntentAndCaptureImmutable(t *testing.T) {
 	if e = pool.QueryRow(ctx, "SELECT intent FROM collection_job WHERE id=$1", s.ID).Scan(&raw); e != nil {
 		t.Fatal(e)
 	}
-	if e = json.Unmarshal(raw, &intent); e != nil || intent.SourceProfileVersion != 1 {
+	if e = json.Unmarshal(raw, &intent); e != nil || intent.SourceProfileVersion != source.ProfileVersion {
 		t.Fatal(intent, e)
 	}
 }
