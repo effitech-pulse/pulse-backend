@@ -141,7 +141,7 @@ func (r *Repository) CreateSession(ctx context.Context, id int64, revision int64
 	if _, err = execute(ctx, tx, sqlBuilder.Delete("auth_session").Where(sq.Expr("expires_at <= now()"))); err != nil {
 		return err
 	}
-	if _, err = execute(ctx, tx, sqlBuilder.Insert("auth_session").Columns("token_hash", "user_id", "expires_at").Values(hash, id, expires)); err != nil {
+	if _, err = execute(ctx, tx, sqlBuilder.Insert("auth_session").Columns("token_hash", "user_id", "expires_at", "authz_epoch").Values(hash, id, expires, sq.Expr("(SELECT authz_epoch FROM auth_user WHERE id=?)", id))); err != nil {
 		return err
 	}
 	if _, err = execute(ctx, tx, sqlBuilder.Update("auth_user").Set("last_login", sq.Expr("now()")).Where(sq.Eq{"id": id})); err != nil {

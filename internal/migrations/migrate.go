@@ -54,8 +54,11 @@ var cohortJobsSchema string
 //go:embed collection_jobs.sql
 var collectionJobsSchema string
 
+//go:embed rbac.sql
+var rbacSchema string
+
 // CurrentVersion соответствует последней additive migration.
-const CurrentVersion = 15
+const CurrentVersion = 16
 
 // Apply создаёт схему новой БД или принимает БД на проверенном Alembic head.
 func Apply(ctx context.Context, pool *pgxpool.Pool) error {
@@ -142,6 +145,15 @@ func Apply(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 	if _, err = tx.Exec(ctx, collectionJobsSchema); err != nil {
 		return err
+	}
+	var hasRBAC bool
+	if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM backend_schema_migration WHERE version=16)").Scan(&hasRBAC); err != nil {
+		return err
+	}
+	if !hasRBAC {
+		if _, err = tx.Exec(ctx, rbacSchema); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }
