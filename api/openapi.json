@@ -7300,7 +7300,50 @@
           }
         },
         "x-authorization-scope": "CHANGE",
-        "x-authorization-permissions": []
+        "x-authorization-permissions": [],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Search context bound to the opaque preview cursor. The current preview does not filter affected-user items or counts by this value; repeat it unchanged when paginating."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Maximum number of affected-user items on this preview page; aggregate counts cover the complete authorized impact. Invalid values return 422."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque next_cursor from the same change preview, actor/epoch, graph revision and search context. Stale or mismatched context returns 409; malformed cursor returns 422."
+          },
+          {
+            "name": "graph_revision",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "description": "Optional expected graph revision as a canonical positive decimal int64 string (maximum 9223372036854775807). A different current revision returns 409; malformed/out-of-range input returns 422. This query parameter is separate from the receipt returned in the response."
+          }
+        ]
       }
     }
   },
