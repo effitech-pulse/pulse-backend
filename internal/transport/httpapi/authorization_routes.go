@@ -12,6 +12,7 @@ type RoutePolicy struct {
 }
 
 var authorizationPolicies = []RoutePolicy{
+	{Method: "GET", Path: "/people/organization/tree", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "SELF"},
 	{Method: "GET", Path: "/people", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "SELF"},
 	{Method: "GET", Path: "/people/:account_id", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "SELF"},
 	{Method: "GET", Path: "/health", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "PUBLIC", Public: true},

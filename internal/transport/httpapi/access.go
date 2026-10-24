@@ -199,7 +199,7 @@ func (s *Server) compatibilityAuthorization(c *gin.Context) {
 	}
 
 	relativeAuth := strings.TrimPrefix(path, s.Config.Prefix)
-	if relativeAuth == "/people" || relativeAuth == "/people/:account_id" {
+	if relativeAuth == "/people" || relativeAuth == "/people/:account_id" || relativeAuth == "/people/organization/tree" {
 		c.Next()
 		return
 	}

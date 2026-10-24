@@ -7486,6 +7486,147 @@
           }
         }
       }
+    },
+    "/api/v1/people/organization/tree": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "summary": "Read a complete derived organization tree from one read-only snapshot",
+        "description": "Active personal local session in compat/enforce, including zero-permission accounts. Search matches employees by literal case-insensitive name/job_title/workplace substring before grouping; inactive excluded unless requested. Exact nullable stored paths, UTF8 byte ordering (null last); employees by name then numeric ID. No Account, manager graph, roles or well scope fields. Safety policy: <=5000 matching employees, <=8388608 encoded UTF8 JSON bytes including final newline, 5s shared read deadline; exceeding bounds never returns partial200. Cache-Control: no-store. No pagination or cross-request snapshot promise.",
+        "security": [
+          {
+            "PulseSession": []
+          }
+        ],
+        "x-authorization-scope": "SELF",
+        "x-required-permissions": [],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": ""
+            }
+          },
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete filtered snapshot; counts describe only the matching employees.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationTree"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed/invalid UTF8, duplicate, unknown query or noncanonical boolean; cursor and limit unsupported.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "detail": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "detail"
+                  ]
+                },
+                "example": {
+                  "code": "invalid",
+                  "message": "Некорректный запрос структуры",
+                  "detail": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session missing/expired or actor epoch revoked."
+          },
+          "403": {
+            "description": "Personal local account required; shared-key/legacy forbidden."
+          },
+          "503": {
+            "description": "Safety employee/byte bound or deadline. No partial response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "detail": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "detail"
+                  ]
+                },
+                "examples": {
+                  "too_large": {
+                    "value": {
+                      "code": "external_service_error",
+                      "message": "organization_tree_too_large",
+                      "detail": null
+                    }
+                  },
+                  "timeout": {
+                    "value": {
+                      "code": "external_service_error",
+                      "message": "organization_tree_timeout",
+                      "detail": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Safe internal error for unexpected SQL/encoding failures."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13203,6 +13344,166 @@
         "type": "string",
         "pattern": "^(0|[1-9][0-9]*)$",
         "description": "Create exactly zero, edit positive expected profile revision; maximum signed int64."
+      },
+      "OrganizationEmployee": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/EmployeeDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "job_title",
+          "active"
+        ]
+      },
+      "DepartmentNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "base64url without padding of compact JSON typed full nullable path; server ordering/key must be retained."
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "employee_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "employees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationEmployee"
+            },
+            "maxItems": 5000
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "employee_count",
+          "employees"
+        ]
+      },
+      "DivisionNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "base64url without padding of compact JSON typed full nullable path; server ordering/key must be retained."
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "employee_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "departments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepartmentNode"
+            },
+            "maxItems": 5000
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "employee_count",
+          "departments"
+        ]
+      },
+      "OrganizationNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "base64url without padding of compact JSON typed full nullable path; server ordering/key must be retained."
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "employee_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "divisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DivisionNode"
+            },
+            "maxItems": 5000
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "employee_count",
+          "divisions"
+        ]
+      },
+      "OrganizationTree": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "complete": {
+            "type": "boolean",
+            "const": true
+          },
+          "employee_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "organizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationNode"
+            },
+            "maxItems": 5000
+          }
+        },
+        "required": [
+          "complete",
+          "employee_count",
+          "organizations"
+        ]
       }
     },
     "securitySchemes": {

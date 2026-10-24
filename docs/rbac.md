@@ -226,3 +226,45 @@ error envelope. Нет automatic replay или business idempotency: после 
 колонки сохраняются, автоматического down/DROP нет. Восстановление pre17 backup
 теряет последующие записи. Старый frontend без profile сохраняет сведения;
 новый frontend выпускается после profile-capable API.
+
+## Производная структура организации
+
+`GET /api/v1/people/organization/tree?search=&include_inactive=false` возвращает
+целое read-only дерево organization→division→department→employees из профилей.
+Это место работы, не reporting line руководителей и не scope скважин. Отдельных
+оргединиц/CRUD/миграции нет. Ответ: `complete:true`, `employee_count`, `organizations`;
+каждый branch содержит key/value/employee_count и дочерний массив. Employee leaf
+содержит только string id, name, nullable job_title, active. Counts относятся только
+к найденным сотрудникам; это не штатная численность. Пустой ответ имеет пустой массив.
+
+В одном RepeatableRead/read-only snapshot перечитываются active/epoch actor и
+matched rows. Доступ совпадает с people: активный персональный local session в
+compat/enforce, включая zero permissions; shared-key403, anonymous/revoked401.
+`Cache-Control: no-store`. Список и его cursor API не меняются; дерево не собирается
+из одной страницы или последовательности страниц. После изменения профиля нужен
+новый запрос; directory revision/live subscriptions не добавлены.
+
+Query принимает только одиночные search (trim, ≤200 Unicode) и include_inactive
+(true/false, default false). Поиск literal case-insensitive по собственным name/
+job_title/трём workplace strings, до группировки; `%`, `_` и backslash буквальные.
+Malformed encoding/UTF8/duplicate/unknown/cursor/limit →400 с code `invalid`,
+message `Некорректный запрос структуры`, detail:null. Совпавшие листья сохраняют
+всех предков. При include_inactive=true видны active и inactive.
+
+Равенство путей точное, без case/NFC merge. Null на каждом уровне — отдельный
+узел, отличный от любого реального текста placeholder; пропущенные уровни не
+удаляются. key — base64url без padding от compact JSON typed full path:
+`["organization",org]`, `["division",org,division]`,
+`["department",org,division,department]`. Одноимённые отделы под разными родителями
+не сливаются. Реальные значения сортируются по UTF8 bytes, null последним;
+листья по name, затем numeric ID. Клиент сохраняет серверные ключи/порядок.
+
+Safety policy: максимум5000 matching employees, SELECT LIMIT5001 без manager
+join/N+1, общий deadline5s для acquisition/actor/SELECT, максимум8388608 bytes
+конечного UTF8 JSON **вместе с завершающим newline**. Это защитные пределы, не
+измеренная production capacity. Marshal и проверка byte bound выполняются до
+отправки headers/body. Превышение row/byte bound даёт503 `external_service_error` /
+`organization_tree_too_large` / detail:null; deadline —503 с тем же code и
+`organization_tree_timeout`. Частичного200/неполных totals нет. Ошибки не раскрывают
+SQL. Клиент может сузить поиск или вернуться к списку;404/405/501 старого сервера
+означают unsupported, без автоматического cursor-all fallback.

@@ -343,7 +343,17 @@ func TestCohortPhysicalSessionLossAbortsTransaction(t *testing.T) {
 			defer claim.Close()
 			var checkpoint domain.CohortCheckpoint
 			if stage == "final" {
+				// This setup manually performs the worker loop. Keep its lease alive at
+				// the worker's 10s cadence so slow preparation tests physical loss, not TTL.
+				nextRenewal := time.Now().Add(10 * time.Second)
 				for i := 0; i < 100; i++ {
+					if !time.Now().Before(nextRenewal) {
+						if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
+							t.Fatal(e)
+						}
+						nextRenewal = time.Now().Add(10 * time.Second)
+					}
+
 					x, e := r.NextCohortMember(ctx, claim.Lease())
 					if e != nil || x == nil {
 						t.Fatal(e)
@@ -367,6 +377,13 @@ func TestCohortPhysicalSessionLossAbortsTransaction(t *testing.T) {
 					checkpoint = cohortScoredCheckpoint(t, *x)
 				} else {
 					checkpoint = cohortMarkerCheckpoint(t, *x)
+				}
+			}
+			if stage == "final" {
+				// Stop preparation renewal here; the in-flight physical-session abort
+				// below retains all original fencing and no-partial-publication checks.
+				if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
+					t.Fatal(e)
 				}
 			}
 			blocker, e := pool.Begin(ctx)
