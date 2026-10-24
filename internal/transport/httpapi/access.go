@@ -89,7 +89,7 @@ func (s *Server) authUsers(c *gin.Context) error {
 	for _, view := range v.Items {
 		items = append(items, accountViewDTO(view, s.Access.RBACEnforced()))
 	}
-	if c.Query("access_version") == "1" {
+	if c.Query("access_version") == "1" || tableQueryRequested(c) {
 		return writeJSON(c, 200, accessPageDTO[accountDTO]{items, v.NextCursor, v.TotalVisible, decimal(v.GraphRevision)})
 	}
 	// Preserve the original unpaginated array protocol while sourcing every item coherently.

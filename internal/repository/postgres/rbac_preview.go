@@ -548,6 +548,11 @@ func (r *Repository) PreviewAccessChange(ctx context.Context, id int64, c domain
 		if e != nil {
 			return e
 		}
+		if q.Table != nil {
+			var err error
+			out, err = previewTablePage(g, c, ev, q)
+			return err
+		}
 		fingerprint := accessFingerprint(c, g)
 		limit, last, e := pageBounds(g, q, "preview:"+fingerprint)
 		if e != nil {

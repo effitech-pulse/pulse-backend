@@ -83,6 +83,9 @@ func writeError(c *gin.Context, err error) {
 	switch e.Kind {
 	case domain.Invalid:
 		status = 422
+		if e.Message == "invalid_table_query" || e.Message == "invalid_table_cursor" {
+			status = 400
+		}
 	case domain.Missing:
 		status = 404
 	case domain.Duplicate:

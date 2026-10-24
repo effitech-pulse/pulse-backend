@@ -205,7 +205,7 @@ func WriteRuns(input []domain.RunEvent) ([]byte, error) {
 	return encode("runs", []string{"execution_date", "dag_id", "run_id", "well_id", "ngdu", "department", "status_type", "severity", "source", "message"}, rows)
 }
 
-// WritePulseWells выгружает реестр с внутренними ID, без ID внешних компаний.
+// WriteLifecycleWells выгружает реестр с точными текстовыми Pulse ID.
 func WriteLifecycleWells(wells []domain.Well) ([]byte, error) {
 	rows := make([][]any, 0, len(wells))
 	for _, w := range wells {
@@ -213,7 +213,7 @@ func WriteLifecycleWells(wells []domain.Well) ([]byte, error) {
 		if w.ArchivedAt != nil {
 			archived = w.ArchivedAt.Format(time.RFC3339Nano)
 		}
-		rows = append(rows, []any{w.ID, nullable(w.WellNumber), w.NGDU, w.Department, w.Active, archived, nullable(w.Responsible), w.Revision})
+		rows = append(rows, []any{strconv.FormatInt(w.ID, 10), nullable(w.WellNumber), w.NGDU, w.Department, w.Active, archived, nullable(w.Responsible), w.Revision})
 	}
 	return encode("wells", []string{"PULSE_ID", "WELL_NUMBER", "NGDU", "CEX", "ACTIVE", "ARCHIVED_AT", "RESPONSIBLE", "REVISION"}, rows)
 }
@@ -222,7 +222,7 @@ func WriteLifecycleWells(wells []domain.Well) ([]byte, error) {
 func WritePulseWells(wells []domain.Well) ([]byte, error) {
 	rows := make([][]any, 0, len(wells))
 	for _, w := range wells {
-		rows = append(rows, []any{w.ID, nullable(w.WellNumber), w.NGDU, w.Department})
+		rows = append(rows, []any{strconv.FormatInt(w.ID, 10), nullable(w.WellNumber), w.NGDU, w.Department})
 	}
 	return encode("wells", []string{"PULSE_ID", "WELL_NUMBER", "NGDU", "CEX"}, rows)
 }

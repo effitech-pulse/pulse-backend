@@ -33,6 +33,7 @@ func TestCohortOwnedProgressSurvivesBriefCapacityGateContention(t *testing.T) {
 			}
 			if operation == "final" {
 				for i := 0; i < 100; i++ {
+					renewCohortFixture(t, ctx, store, claim.Lease(), i)
 					execution, err := store.NextCohortMember(ctx, claim.Lease())
 					if err != nil || execution == nil {
 						t.Fatal(i, err)

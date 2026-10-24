@@ -25,6 +25,14 @@ func (s *Server) wellHistory(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
+	if tableQueryRequested(c) {
+		raw, size, cursor, err := tableQueryParams(c)
+		if err != nil {
+			return err
+		}
+		page, err := s.Catalog.WellHistoryTable(c.Request.Context(), n, raw, size, cursor)
+		return respond(c, 200, page, err)
+	}
 	before, err := reviewBefore(c)
 	if err != nil {
 		return err

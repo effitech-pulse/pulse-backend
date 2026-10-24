@@ -149,6 +149,30 @@ func eventRequestTarget(c *gin.Context) error {
 	return nil
 }
 func (s *Server) listEvents(c *gin.Context) error {
+	if tableQueryRequested(c) {
+		raw, size, cursor, e := tableQueryParams(c)
+		if e != nil {
+			return e
+		}
+		for key := range c.Request.URL.Query() {
+			if key != "table_query" && key != "page_size" && key != "cursor" {
+				return validation("invalid_table_query")
+			}
+		}
+		page, e := s.Events.ListTable(c.Request.Context(), raw, size, cursor)
+		if e != nil {
+			return e
+		}
+		items := make([]eventSummaryDTO, 0, len(page.Items))
+		for _, item := range page.Items {
+			items = append(items, toEventSummaryDTO(item))
+		}
+		return eventResponse(c, struct {
+			Items      []eventSummaryDTO `json:"items"`
+			NextCursor *string           `json:"next_cursor"`
+			HasMore    bool              `json:"has_more"`
+		}{items, page.NextCursor, page.NextCursor != nil})
+	}
 	if e := eventRequestTarget(c); e != nil {
 		return e
 	}

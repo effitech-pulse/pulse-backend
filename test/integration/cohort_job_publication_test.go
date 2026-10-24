@@ -68,6 +68,7 @@ func TestCohortPublicationPreservesAlertReset(t *testing.T) {
 			t.Fatal(e)
 		}
 		for i := 0; i < 100; i++ {
+			renewCohortFixture(t, ctx, r, claim.Lease(), i)
 			x, e := r.NextCohortMember(ctx, claim.Lease())
 			if e != nil || x == nil {
 				claim.Close()

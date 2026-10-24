@@ -148,6 +148,7 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 	}
 	defer claim.Close()
 	for i := 0; i < 100; i++ {
+		renewCohortFixture(t, ctx, r, claim.Lease(), i)
 		x, e := r.NextCohortMember(ctx, claim.Lease())
 		if e != nil || x == nil {
 			t.Fatal(i, e)
@@ -183,5 +184,15 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 	raw, _ := json.Marshal(snapshot)
 	if len(raw) == 0 {
 		t.Fatal("empty")
+	}
+}
+
+// Ручной цикл воспроизводит heartbeat worker; runtime TTL и lease-fence assertions не меняются.
+func renewCohortFixture(t *testing.T, ctx context.Context, store *postgres.Repository, lease domain.CohortJobLease, progress int) {
+	t.Helper()
+	if progress%10 == 0 {
+		if err := store.RenewCohortJob(ctx, lease); err != nil {
+			t.Fatalf("fixture heartbeat before member %d: %v", progress, err)
+		}
 	}
 }

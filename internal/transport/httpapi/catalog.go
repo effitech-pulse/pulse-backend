@@ -179,6 +179,14 @@ func (s *Server) runEvents(c *gin.Context) error {
 }
 
 func (s *Server) audit(c *gin.Context) error {
+	if tableQueryRequested(c) {
+		raw, size, cursor, err := tableQueryParams(c)
+		if err != nil {
+			return err
+		}
+		page, err := s.Catalog.AuditTable(c.Request.Context(), raw, size, cursor)
+		return respond(c, 200, page, err)
+	}
 	count, err := limit(c, 200, 1000)
 	if err != nil {
 		return err
