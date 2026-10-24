@@ -169,3 +169,9 @@ additive before/after profile в auth_access_event. Account/access mutation
 API schema readiness требует17; explicit migration добавляет nullable metadata
 и отдельную profile revision, без изменений migration16 или worker payloads.
 Точные DTO, ошибки, совместимость и rollback ограничения: [RBAC](rbac.md#профили-сотрудников).
+## Предметная история Events
+
+`Events` объединяет existing manual_check, check/alert review_event и well_event
+за consumer-defined read store. ACL/cohort fence применяются внутри read-only RR
+до UNION/keyset/limit+1. HTTP использует собственные закрытые string-int64 DTO.
+[Live consistency, exact detail, бюджеты и rollback](events.md).

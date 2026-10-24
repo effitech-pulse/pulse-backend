@@ -1,0 +1,1139 @@
+{
+  "contract_version": "f3.events.v1",
+  "fixture_notice": "Synthetic wire examples only; not runtime, scientific or production evidence. Copy into each product test fixture; standalone builds must not read external task files.",
+  "frozen_design_sha256": "9400e811267a53bcca333a50eae4275a82e2b7ebc00faebf56e6d992a9c9d16d",
+  "wire_rules": {
+    "int64": "Decimal strings, including nested revisions/counts/well codes; signed metadata allowed. Positive route IDs/revisions<=9223372036854775807; review before revision0 permitted.",
+    "timestamps": "UTC RFC3339, six fractional digits; original source time, not commit order.",
+    "summary_keys": [
+      "event_id",
+      "event_type",
+      "occurred_at",
+      "well",
+      "target",
+      "actor",
+      "outcome"
+    ],
+    "cursor": "Opaque non-replayable mock in this fixture; do not decode, regenerate or assume it is accepted by a live API. Actual cursor is process-key AEAD output from List.",
+    "limits": {
+      "default_limit": 25,
+      "min_limit": 1,
+      "max_limit": 100,
+      "locator_bytes": 2048,
+      "cursor_bytes": 2048,
+      "decoded_cursor_json_bytes": 2048,
+      "escaped_request_target_bytes": 4096,
+      "detail_json_bytes": 16777216,
+      "request_seconds": 5,
+      "statement_seconds": 3,
+      "cursor_ttl_seconds": 1800
+    },
+    "detail_discriminator": "detail.kind:check|review|well; review_kind:check|alert; change_kind:metadata|archive|restore",
+    "json_null_policy": "Nullable keys remain present with null. Native empty review strings remain empty. No omitempty for defined nullable wire fields.",
+    "error_copy": "Error code/status/detail shapes are frozen; middleware/localized message wording may vary. Frontend branches on status/code/detail only."
+  },
+  "requests": {
+    "canonical_urls": {
+      "list": "/api/v1/events?archive=all&limit=25&types=manual_check.saved.v1%2Creview.alert.recorded.v1%2Creview.check.recorded.v1%2Cwell.archived.v1%2Cwell.metadata_changed.v1%2Cwell.restored.v1&well_id=9223372036854775807",
+      "continuation": "/api/v1/events?archive=all&cursor=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4v&limit=25&types=manual_check.saved.v1%2Creview.alert.recorded.v1%2Creview.check.recorded.v1%2Cwell.archived.v1%2Cwell.metadata_changed.v1%2Cwell.restored.v1&well_id=9223372036854775807",
+      "exact_api": "/api/v1/events/e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ",
+      "event_spa": "/events/e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ",
+      "well_exact": "/wells/9223372036854775807?event=e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ&tab=checks"
+    },
+    "query_defaults": {
+      "limit": 25,
+      "types": [
+        "manual_check.saved.v1",
+        "review.alert.recorded.v1",
+        "review.check.recorded.v1",
+        "well.archived.v1",
+        "well.metadata_changed.v1",
+        "well.restored.v1"
+      ],
+      "archive": "all",
+      "well_id": null,
+      "from": null,
+      "to": null
+    }
+  },
+  "responses": {
+    "list_all_types": {
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "items": [
+          {
+            "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjkiXQ",
+            "event_type": "well.restored.v1",
+            "occurred_at": "2026-10-22T12:00:06.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "well",
+              "id": "9223372036854775807",
+              "revision": "9"
+            },
+            "actor": {
+              "kind": "person",
+              "id": "user:41",
+              "name": null,
+              "authenticated": true
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": null,
+              "conclusion": null
+            }
+          },
+          {
+            "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjgiXQ",
+            "event_type": "well.archived.v1",
+            "occurred_at": "2026-10-22T12:00:05.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "well",
+              "id": "9223372036854775807",
+              "revision": "8"
+            },
+            "actor": {
+              "kind": "service",
+              "id": "service",
+              "name": "Сервис",
+              "authenticated": false
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": null,
+              "conclusion": null
+            }
+          },
+          {
+            "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjciXQ",
+            "event_type": "well.metadata_changed.v1",
+            "occurred_at": "2026-10-22T12:00:04.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "well",
+              "id": "9223372036854775807",
+              "revision": "7"
+            },
+            "actor": {
+              "kind": "unknown",
+              "id": null,
+              "name": null,
+              "authenticated": null
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": null,
+              "conclusion": null
+            }
+          },
+          {
+            "event_id": "e1.WyJyZXZpZXdfZXZlbnQiLCJhbGVydCIsIjkyMjMzNzIwMzY4NTQ3NzU4MDciLCI5MjIzMzcyMDM2ODU0Nzc1ODA3Il0",
+            "event_type": "review.alert.recorded.v1",
+            "occurred_at": "2026-10-22T12:00:03.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "alert",
+              "id": "9223372036854775807",
+              "revision": "9223372036854775807"
+            },
+            "actor": {
+              "kind": "shared",
+              "id": "shared",
+              "name": "Общий API-ключ",
+              "authenticated": false
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": "closed",
+              "conclusion": "inconclusive"
+            }
+          },
+          {
+            "event_id": "e1.WyJyZXZpZXdfZXZlbnQiLCJjaGVjayIsInExX9C40YHRgtC-0YDQuNGH0LXRgdC60LjQuS_Qn9C10YDQuNC-0LQgMDE_eD0wICslIyIsIjIiXQ",
+            "event_type": "review.check.recorded.v1",
+            "occurred_at": "2026-10-22T12:00:02.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "check",
+              "id": "q1_исторический/Период 01?x=0 +%#",
+              "revision": "2"
+            },
+            "actor": {
+              "kind": "person",
+              "id": "user:41",
+              "name": "Технолог тестовой выборки",
+              "authenticated": true
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": "in_progress",
+              "conclusion": null
+            }
+          },
+          {
+            "event_id": "e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ",
+            "event_type": "manual_check.saved.v1",
+            "occurred_at": "2026-10-22T12:00:01.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "check",
+              "id": "q1_исторический/Период 01?x=0 +%#",
+              "revision": null
+            },
+            "actor": {
+              "kind": "unknown",
+              "id": null,
+              "name": null,
+              "authenticated": null
+            },
+            "outcome": {
+              "verdict": "insufficient",
+              "review_status": null,
+              "conclusion": null
+            }
+          }
+        ],
+        "has_more": false,
+        "next_cursor": null
+      }
+    },
+    "list_continuation_example": {
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "items": [
+          {
+            "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjkiXQ",
+            "event_type": "well.restored.v1",
+            "occurred_at": "2026-10-22T12:00:06.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "well",
+              "id": "9223372036854775807",
+              "revision": "9"
+            },
+            "actor": {
+              "kind": "person",
+              "id": "user:41",
+              "name": null,
+              "authenticated": true
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": null,
+              "conclusion": null
+            }
+          },
+          {
+            "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjgiXQ",
+            "event_type": "well.archived.v1",
+            "occurred_at": "2026-10-22T12:00:05.123456Z",
+            "well": {
+              "id": "9223372036854775807",
+              "well_number": "101",
+              "active": false,
+              "archived_at": null
+            },
+            "target": {
+              "kind": "well",
+              "id": "9223372036854775807",
+              "revision": "8"
+            },
+            "actor": {
+              "kind": "service",
+              "id": "service",
+              "name": "Сервис",
+              "authenticated": false
+            },
+            "outcome": {
+              "verdict": null,
+              "review_status": null,
+              "conclusion": null
+            }
+          }
+        ],
+        "has_more": true,
+        "next_cursor": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4v"
+      }
+    },
+    "list_empty": {
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "items": [],
+        "has_more": false,
+        "next_cursor": null
+      }
+    },
+    "details": [
+      {
+        "name": "manual_check.saved.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJtYW51YWxfY2hlY2siLCJxMV_QuNGB0YLQvtGA0LjRh9C10YHQutC40Lkv0J_QtdGA0LjQvtC0IDAxP3g9MCArJSMiXQ",
+              "event_type": "manual_check.saved.v1",
+              "occurred_at": "2026-10-22T12:00:01.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "check",
+                "id": "q1_исторический/Период 01?x=0 +%#",
+                "revision": null
+              },
+              "actor": {
+                "kind": "unknown",
+                "id": null,
+                "name": null,
+                "authenticated": null
+              },
+              "outcome": {
+                "verdict": "insufficient",
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "check",
+              "check": {
+                "id": "q1_исторический/Период 01?x=0 +%#",
+                "well_id": "9223372036854775807",
+                "created_at": "2026-10-22T12:00:01.123456Z",
+                "start": "2026-10-01T00:00:00.000000Z",
+                "end": "2026-10-15T00:00:00.000000Z"
+              },
+              "result": {
+                "provenance": null,
+                "decision_rule": null,
+                "model_name": null,
+                "model_version": null,
+                "model_saved_at": null,
+                "verdict": "insufficient",
+                "n_windows": "0",
+                "channels_used": "0",
+                "features_total": "0",
+                "windows_running": "0",
+                "features_unavailable": "0",
+                "windows_above_watch": "0",
+                "windows_above_alert": "0",
+                "latest_risk": 0,
+                "peak_risk": 0,
+                "peak_window_end": "",
+                "timeline": [],
+                "contributions": [],
+                "span_days": "0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "review.check.recorded.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJyZXZpZXdfZXZlbnQiLCJjaGVjayIsInExX9C40YHRgtC-0YDQuNGH0LXRgdC60LjQuS_Qn9C10YDQuNC-0LQgMDE_eD0wICslIyIsIjIiXQ"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJyZXZpZXdfZXZlbnQiLCJjaGVjayIsInExX9C40YHRgtC-0YDQuNGH0LXRgdC60LjQuS_Qn9C10YDQuNC-0LQgMDE_eD0wICslIyIsIjIiXQ",
+              "event_type": "review.check.recorded.v1",
+              "occurred_at": "2026-10-22T12:00:02.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "check",
+                "id": "q1_исторический/Период 01?x=0 +%#",
+                "revision": "2"
+              },
+              "actor": {
+                "kind": "person",
+                "id": "user:41",
+                "name": "Технолог тестовой выборки",
+                "authenticated": true
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": "in_progress",
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "review",
+              "review_kind": "check",
+              "revision": "2",
+              "created_at": "2026-10-22T12:00:02.123456Z",
+              "before": {
+                "revision": "1",
+                "status": "new",
+                "owner": "",
+                "conclusion": "",
+                "updated_at": "2026-10-21T12:00:00.000000Z"
+              },
+              "after": {
+                "revision": "2",
+                "status": "in_progress",
+                "owner": "Тестовый ответственный",
+                "conclusion": "",
+                "updated_at": "2026-10-22T12:00:02.123456Z"
+              },
+              "comment": "Проверка принята в работу в изолированной фикстуре."
+            }
+          }
+        }
+      },
+      {
+        "name": "review.alert.recorded.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJyZXZpZXdfZXZlbnQiLCJhbGVydCIsIjkyMjMzNzIwMzY4NTQ3NzU4MDciLCI5MjIzMzcyMDM2ODU0Nzc1ODA3Il0"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJyZXZpZXdfZXZlbnQiLCJhbGVydCIsIjkyMjMzNzIwMzY4NTQ3NzU4MDciLCI5MjIzMzcyMDM2ODU0Nzc1ODA3Il0",
+              "event_type": "review.alert.recorded.v1",
+              "occurred_at": "2026-10-22T12:00:03.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "alert",
+                "id": "9223372036854775807",
+                "revision": "9223372036854775807"
+              },
+              "actor": {
+                "kind": "shared",
+                "id": "shared",
+                "name": "Общий API-ключ",
+                "authenticated": false
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": "closed",
+                "conclusion": "inconclusive"
+              }
+            },
+            "detail": {
+              "kind": "review",
+              "review_kind": "alert",
+              "revision": "9223372036854775807",
+              "created_at": "2026-10-22T12:00:03.123456Z",
+              "before": {
+                "revision": "9223372036854775806",
+                "status": "in_progress",
+                "owner": "Тестовый ответственный",
+                "conclusion": "",
+                "updated_at": "2026-10-21T12:00:00.000000Z"
+              },
+              "after": {
+                "revision": "9223372036854775807",
+                "status": "closed",
+                "owner": "Тестовый ответственный",
+                "conclusion": "inconclusive",
+                "updated_at": "2026-10-22T12:00:03.123456Z"
+              },
+              "comment": "Недостаточно данных для подтверждения в изолированной фикстуре."
+            }
+          }
+        }
+      },
+      {
+        "name": "well.metadata_changed.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjciXQ"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjciXQ",
+              "event_type": "well.metadata_changed.v1",
+              "occurred_at": "2026-10-22T12:00:04.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "well",
+                "id": "9223372036854775807",
+                "revision": "7"
+              },
+              "actor": {
+                "kind": "unknown",
+                "id": null,
+                "name": null,
+                "authenticated": null
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "well",
+              "revision": "7",
+              "created_at": "2026-10-22T12:00:04.123456Z",
+              "change_kind": "metadata",
+              "before": {
+                "revision": "6",
+                "archived_at": null,
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": null,
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "after": {
+                "revision": "7",
+                "archived_at": null,
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": "101",
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "reason": "Тестовое изменение номера."
+            }
+          }
+        }
+      },
+      {
+        "name": "well.archived.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjgiXQ"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjgiXQ",
+              "event_type": "well.archived.v1",
+              "occurred_at": "2026-10-22T12:00:05.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "well",
+                "id": "9223372036854775807",
+                "revision": "8"
+              },
+              "actor": {
+                "kind": "service",
+                "id": "service",
+                "name": "Сервис",
+                "authenticated": false
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "well",
+              "revision": "8",
+              "created_at": "2026-10-22T12:00:05.123456Z",
+              "change_kind": "archive",
+              "before": {
+                "revision": "7",
+                "archived_at": null,
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": "101",
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "after": {
+                "revision": "8",
+                "archived_at": "2026-10-22T12:00:05.123456Z",
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": "101",
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "reason": "Тестовое архивирование."
+            }
+          }
+        }
+      },
+      {
+        "name": "well.restored.v1",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjkiXQ"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJ3ZWxsX2V2ZW50IiwiOTIyMzM3MjAzNjg1NDc3NTgwNyIsIjkiXQ",
+              "event_type": "well.restored.v1",
+              "occurred_at": "2026-10-22T12:00:06.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "well",
+                "id": "9223372036854775807",
+                "revision": "9"
+              },
+              "actor": {
+                "kind": "person",
+                "id": "user:41",
+                "name": null,
+                "authenticated": true
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "well",
+              "revision": "9",
+              "created_at": "2026-10-22T12:00:06.123456Z",
+              "change_kind": "restore",
+              "before": {
+                "revision": "8",
+                "archived_at": "2026-10-22T12:00:05.123456Z",
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": "101",
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "after": {
+                "revision": "9",
+                "archived_at": null,
+                "responsible": null,
+                "fund_type": "presentation",
+                "unitek_id": null,
+                "armits_id": "0",
+                "well_number": "101",
+                "ngdu": "-900",
+                "department": "0",
+                "active": false,
+                "id": "9223372036854775807"
+              },
+              "reason": "Тестовое восстановление."
+            }
+          }
+        }
+      }
+    ],
+    "manual_variants": [
+      {
+        "name": "manual_norm",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfbm9ybSJd"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfbm9ybSJd",
+              "event_type": "manual_check.saved.v1",
+              "occurred_at": "2026-10-22T12:00:01.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "check",
+                "id": "legacy_norm",
+                "revision": null
+              },
+              "actor": {
+                "kind": "unknown",
+                "id": null,
+                "name": null,
+                "authenticated": null
+              },
+              "outcome": {
+                "verdict": "norm",
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "check",
+              "check": {
+                "id": "legacy_norm",
+                "well_id": "9223372036854775807",
+                "created_at": "2026-10-22T12:00:01.123456Z",
+                "start": "2026-10-01T00:00:00.000000Z",
+                "end": "2026-10-15T00:00:00.000000Z"
+              },
+              "result": {
+                "provenance": {
+                  "envelope_version": "fixture-v1",
+                  "snapshot_id": "fixture-snapshot",
+                  "computed_at": "2026-10-22T12:00:01.000000Z",
+                  "model_name": "synthetic-fixture-model",
+                  "model_version": "fixture-v1",
+                  "model_saved_at": null,
+                  "context_version": null,
+                  "input_sha256": null,
+                  "input_snapshot_id": null,
+                  "as_of": null,
+                  "feature_recipe_sha256": null,
+                  "feature_schema_sha256": null,
+                  "runtime_manifest_sha256": null,
+                  "source_manifest_sha256": null,
+                  "runtime_manifest": [
+                    {
+                      "name": "synthetic-fixture-runtime",
+                      "version": null,
+                      "sha256": null
+                    }
+                  ],
+                  "source_manifest": [],
+                  "input_kind": "fixture",
+                  "context_completeness": "fixture",
+                  "provenance_status": "fixture"
+                },
+                "decision_rule": {
+                  "context_version": "fixture-v1",
+                  "policy_id": "fixture-policy",
+                  "rule_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "watch": {
+                    "scale": "raw_score",
+                    "comparison": ">=",
+                    "threshold": 0.7,
+                    "k_windows": "1",
+                    "lookback_days": null
+                  },
+                  "high": null,
+                  "high_enabled": false
+                },
+                "model_name": "synthetic-fixture-model",
+                "model_version": "fixture-v1",
+                "model_saved_at": null,
+                "verdict": "norm",
+                "n_windows": "1",
+                "channels_used": "1",
+                "features_total": "1",
+                "windows_running": "0",
+                "features_unavailable": "0",
+                "windows_above_watch": "0",
+                "windows_above_alert": "0",
+                "latest_risk": 0,
+                "peak_risk": 0,
+                "peak_window_end": "",
+                "timeline": [
+                  {
+                    "raw_score": null,
+                    "watch_fired": false,
+                    "high_fired": null,
+                    "window_end": "2026-10-14T23:00:00.000000Z",
+                    "risk": 0
+                  }
+                ],
+                "contributions": [
+                  {
+                    "value_source": null,
+                    "feature": "F_out",
+                    "value": 0,
+                    "shap": 0,
+                    "label": "Частота"
+                  }
+                ],
+                "span_days": "14"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "manual_unknown",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfdW5rbm93biJd"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfdW5rbm93biJd",
+              "event_type": "manual_check.saved.v1",
+              "occurred_at": "2026-10-22T12:00:01.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "check",
+                "id": "legacy_unknown",
+                "revision": null
+              },
+              "actor": {
+                "kind": "unknown",
+                "id": null,
+                "name": null,
+                "authenticated": null
+              },
+              "outcome": {
+                "verdict": "unknown",
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "check",
+              "check": {
+                "id": "legacy_unknown",
+                "well_id": "9223372036854775807",
+                "created_at": "2026-10-22T12:00:01.123456Z",
+                "start": "2026-10-01T00:00:00.000000Z",
+                "end": "2026-10-15T00:00:00.000000Z"
+              },
+              "result": {
+                "provenance": null,
+                "decision_rule": null,
+                "model_name": null,
+                "model_version": null,
+                "model_saved_at": null,
+                "verdict": "future_saved_verdict",
+                "n_windows": "0",
+                "channels_used": "0",
+                "features_total": "0",
+                "windows_running": "0",
+                "features_unavailable": "0",
+                "windows_above_watch": "0",
+                "windows_above_alert": "0",
+                "latest_risk": 0,
+                "peak_risk": 0,
+                "peak_window_end": "",
+                "timeline": [],
+                "contributions": [],
+                "span_days": "0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "manual_null",
+        "request": {
+          "method": "GET",
+          "path": "/api/v1/events/e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfbnVsbCJd"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "event": {
+              "event_id": "e1.WyJtYW51YWxfY2hlY2siLCJsZWdhY3lfbnVsbCJd",
+              "event_type": "manual_check.saved.v1",
+              "occurred_at": "2026-10-22T12:00:01.123456Z",
+              "well": {
+                "id": "9223372036854775807",
+                "well_number": "101",
+                "active": false,
+                "archived_at": null
+              },
+              "target": {
+                "kind": "check",
+                "id": "legacy_null",
+                "revision": null
+              },
+              "actor": {
+                "kind": "unknown",
+                "id": null,
+                "name": null,
+                "authenticated": null
+              },
+              "outcome": {
+                "verdict": null,
+                "review_status": null,
+                "conclusion": null
+              }
+            },
+            "detail": {
+              "kind": "check",
+              "check": {
+                "id": "legacy_null",
+                "well_id": "9223372036854775807",
+                "created_at": "2026-10-22T12:00:01.123456Z",
+                "start": "2026-10-01T00:00:00.000000Z",
+                "end": "2026-10-15T00:00:00.000000Z"
+              },
+              "result": {
+                "provenance": null,
+                "decision_rule": null,
+                "model_name": null,
+                "model_version": null,
+                "model_saved_at": null,
+                "verdict": null,
+                "n_windows": "0",
+                "channels_used": "0",
+                "features_total": "0",
+                "windows_running": "0",
+                "features_unavailable": "0",
+                "windows_above_watch": "0",
+                "windows_above_alert": "0",
+                "latest_risk": 0,
+                "peak_risk": 0,
+                "peak_window_end": "",
+                "timeline": [],
+                "contributions": [],
+                "span_days": "0"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "errors": [
+      {
+        "name": "unauthorized",
+        "response": {
+          "status": 401,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "unauthorized",
+            "message": "Требуется вход.",
+            "detail": null
+          }
+        }
+      },
+      {
+        "name": "forbidden",
+        "response": {
+          "status": 403,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "forbidden",
+            "message": "Недостаточно прав.",
+            "detail": null
+          }
+        }
+      },
+      {
+        "name": "missing_or_hidden",
+        "response": {
+          "status": 404,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "not_found",
+            "message": "Событие недоступно.",
+            "detail": null
+          }
+        }
+      },
+      {
+        "name": "invalid_query_or_locator",
+        "response": {
+          "status": 422,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "validation_error",
+            "message": "Некорректный запрос.",
+            "detail": null
+          }
+        }
+      },
+      {
+        "name": "cursor_any_rejection",
+        "response": {
+          "status": 422,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "validation_error",
+            "message": "История изменилась. Обновите список.",
+            "detail": "cursor_restart_required"
+          }
+        }
+      },
+      {
+        "name": "policy_db_or_emission_unavailable",
+        "response": {
+          "status": 503,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "external_service_error",
+            "message": "История временно недоступна.",
+            "detail": null
+          }
+        }
+      },
+      {
+        "name": "safe_internal",
+        "response": {
+          "status": 500,
+          "headers": {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "code": "internal_error",
+            "message": "Internal server error",
+            "detail": null
+          }
+        }
+      }
+    ]
+  },
+  "proxy_limit_case": {
+    "status": 414,
+    "api_envelope": false,
+    "body_not_frozen": true,
+    "note": "Arbitrarily oversized request-line may be rejected before Go. Emitted canonical URLs must fit application budget and pass proxy runtime tests."
+  }
+}

@@ -233,7 +233,7 @@ func (s *Server) compatibilityAuthorization(c *gin.Context) {
 			allowed = p.Role == "technologist"
 		case "/ml/runs", "/ml/runs/:run_id/snapshot":
 			allowed = s.ML != nil && s.ML.IsCohort()
-		case "/incidents/stats", "/wells", "/wells/export", "/ngdu", "/departments", "/parameters", "/ml/wells", "/ml/wells/:well_id/explain", "/ml/wells/:well_id/history", "/ml/alerts/:alert_id/review", "/presentation/summary":
+		case "/events", "/events/:event_id", "/incidents/stats", "/wells", "/wells/export", "/ngdu", "/departments", "/parameters", "/ml/wells", "/ml/wells/:well_id/explain", "/ml/wells/:well_id/history", "/ml/alerts/:alert_id/review", "/presentation/summary":
 			allowed = true
 		case "/wells/:well_id/history", "/wells/:well_id", "/wells/:well_id/telemetry", "/wells/:well_id/telemetry/bounds", "/wells/:well_id/checks", "/wells/:well_id/checks/:check_id", "/wells/:well_id/checks/:check_id/review", "/wells/:well_id/risk", "/wells/:well_id/risk/history", "/wells/:well_id/predictions", "/wells/:well_id/predictions/export", "/wells/:well_id/complications", "/wells/:well_id/classification", "/wells/:well_id/incidents":
 			allowed = true

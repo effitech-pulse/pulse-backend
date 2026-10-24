@@ -92,6 +92,12 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		return nil, err
 	}
 	server.Access = server.Access.WithRBACMode(mode)
+	server.Events, err = service.NewEvents(store, scope, service.EventsOptions{Mode: c.AppScope, Prefix: c.Prefix})
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
 	server.Checks = service.NewChecks(store, server.Integrations).WithScope(scope)
 	server.Reviews = service.NewReviews(store).WithCatalog(store).WithScope(scope)
 	server.Presentation = service.NewPresentation(store).WithSource(archive).WithScope(scope)

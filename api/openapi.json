@@ -7486,6 +7486,397 @@
           }
         }
       }
+    },
+    "/api/v1/events": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа.",
+        "summary": "История сохранённых ordinary событий",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Page size, no clamp."
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CSV of six exact allowlisted types, no duplicates; default all6."
+          },
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "description": "Canonical positive int64 decimal≤9223372036854775807; hidden/unknown404."
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Inclusive RFC3339 offset→UTC, fractional precision≤6."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Exclusive RFC3339, precision≤6; from<to."
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "current",
+                "archived"
+              ],
+              "default": "all"
+            },
+            "description": "Current well archived_at; inactive history remains visible."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "description": "Server-issued opaque continuation token; same normalized filters/limit required."
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Требуется вход.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Событие недоступно; hidden и отсутствующий target не различаются.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректный запрос. Все причины отклонения cursor: detail=cursor_restart_required.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "История временно недоступна: policy/cohort/DB/timeout/emission budget.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Безопасная internal_error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Closed typed projection; all int64 wire values decimal strings; null/false/0 preserved.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPageDTO"
+                }
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [
+          [
+            "checks.read"
+          ],
+          [
+            "alerts.read"
+          ],
+          [
+            "wells.history.read"
+          ]
+        ]
+      }
+    },
+    "/api/v1/events/{event_id}": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа.",
+        "summary": "Точное сохранённое основание события",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048,
+              "pattern": "^e1\\.[A-Za-z0-9_-]+$"
+            },
+            "description": "Canonical e1. compact JSON locator encoded as unpadded base64url. Stable across process restart; locator is not an access grant."
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Требуется вход.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Событие недоступно; hidden и отсутствующий target не различаются.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректный запрос. Все причины отклонения cursor: detail=cursor_restart_required.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "История временно недоступна: policy/cohort/DB/timeout/emission budget.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Безопасная internal_error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Closed typed projection; all int64 wire values decimal strings; null/false/0 preserved.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailDTO"
+                }
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [
+          [
+            "checks.read"
+          ],
+          [
+            "alerts.read"
+          ],
+          [
+            "wells.history.read"
+          ]
+        ]
+      }
     }
   },
   "components": {
@@ -13203,6 +13594,1076 @@
         "type": "string",
         "pattern": "^(0|[1-9][0-9]*)$",
         "description": "Create exactly zero, edit positive expected profile revision; maximum signed int64."
+      },
+      "EventManifestEntryDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "version",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventProvenanceDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "envelope_version",
+          "snapshot_id",
+          "computed_at",
+          "model_name",
+          "model_version",
+          "model_saved_at",
+          "context_version",
+          "input_sha256",
+          "input_snapshot_id",
+          "as_of",
+          "feature_recipe_sha256",
+          "feature_schema_sha256",
+          "runtime_manifest_sha256",
+          "source_manifest_sha256",
+          "runtime_manifest",
+          "source_manifest",
+          "input_kind",
+          "context_completeness",
+          "provenance_status"
+        ],
+        "properties": {
+          "envelope_version": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "computed_at": {
+            "type": "string"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_saved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "context_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_recipe_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_schema_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventManifestEntryDTO"
+            }
+          },
+          "source_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventManifestEntryDTO"
+            }
+          },
+          "input_kind": {
+            "type": "string"
+          },
+          "context_completeness": {
+            "type": "string"
+          },
+          "provenance_status": {
+            "type": "string"
+          }
+        }
+      },
+      "EventThresholdRuleDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scale",
+          "comparison",
+          "threshold",
+          "k_windows",
+          "lookback_days"
+        ],
+        "properties": {
+          "scale": {
+            "type": "string"
+          },
+          "comparison": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "k_windows": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "lookback_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventDecisionRuleDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "context_version",
+          "policy_id",
+          "rule_sha256",
+          "watch",
+          "high",
+          "high_enabled"
+        ],
+        "properties": {
+          "context_version": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "rule_sha256": {
+            "type": "string"
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventThresholdRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventThresholdRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EventTimelinePointDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "raw_score",
+          "watch_fired",
+          "high_fired",
+          "window_end",
+          "risk"
+        ],
+        "properties": {
+          "raw_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "watch_fired": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_fired": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "window_end": {
+            "type": "string"
+          },
+          "risk": {
+            "type": "number"
+          }
+        }
+      },
+      "EventContributionDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value_source",
+          "feature",
+          "value",
+          "shap",
+          "label"
+        ],
+        "properties": {
+          "value_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "shap": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "EventUploadResultDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provenance",
+          "decision_rule",
+          "model_name",
+          "model_version",
+          "model_saved_at",
+          "verdict",
+          "n_windows",
+          "channels_used",
+          "features_total",
+          "windows_running",
+          "features_unavailable",
+          "windows_above_watch",
+          "windows_above_alert",
+          "latest_risk",
+          "peak_risk",
+          "peak_window_end",
+          "timeline",
+          "contributions",
+          "span_days"
+        ],
+        "properties": {
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventProvenanceDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventDecisionRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_saved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n_windows": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "channels_used": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "features_total": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_running": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "features_unavailable": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_above_watch": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_above_alert": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "latest_risk": {
+            "type": "number"
+          },
+          "peak_risk": {
+            "type": "number"
+          },
+          "peak_window_end": {
+            "type": "string"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventTimelinePointDTO"
+            }
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventContributionDTO"
+            }
+          },
+          "span_days": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          }
+        }
+      },
+      "EventWellDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "revision",
+          "archived_at",
+          "responsible",
+          "fund_type",
+          "unitek_id",
+          "armits_id",
+          "well_number",
+          "ngdu",
+          "department",
+          "active",
+          "id"
+        ],
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "responsible": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fund_type": {
+            "type": "string"
+          },
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ngdu": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "department": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          }
+        }
+      },
+      "EventReviewStateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "revision",
+          "status",
+          "owner",
+          "conclusion",
+          "updated_at"
+        ],
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "status": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "conclusion": {
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventWellHeaderDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "well_number",
+          "active",
+          "archived_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventTargetDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "revision"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "description": "Original manual/check text or canonical positive int64 decimal alert/well ID."
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventActorDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "name",
+          "authenticated"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(user:[1-9][0-9]*|shared|service)$",
+                "description": "Saved actor namespace marker: user:<canonical positive int64>, shared, or service. Missing/unknown actor id is null; this marker is not a numeric wire ID."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authenticated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventOutcomeDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "review_status",
+          "conclusion"
+        ],
+        "properties": {
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conclusion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventSummaryDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type",
+          "occurred_at",
+          "well",
+          "target",
+          "actor",
+          "outcome"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "manual_check.saved.v1",
+              "review.check.recorded.v1",
+              "review.alert.recorded.v1",
+              "well.metadata_changed.v1",
+              "well.archived.v1",
+              "well.restored.v1"
+            ]
+          },
+          "occurred_at": {
+            "type": "string"
+          },
+          "well": {
+            "$ref": "#/components/schemas/EventWellHeaderDTO"
+          },
+          "target": {
+            "$ref": "#/components/schemas/EventTargetDTO"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/EventActorDTO"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/EventOutcomeDTO"
+          }
+        }
+      },
+      "EventPageDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "has_more",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventSummaryDTO"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventCheckHeaderDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "well_id",
+          "created_at",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Original saved manual_check text ID."
+          },
+          "well_id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      },
+      "EventCheckDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "check",
+          "result"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "check": {
+            "$ref": "#/components/schemas/EventCheckHeaderDTO"
+          },
+          "result": {
+            "$ref": "#/components/schemas/EventUploadResultDTO"
+          }
+        }
+      },
+      "EventReviewDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "review_kind",
+          "revision",
+          "created_at",
+          "before",
+          "after",
+          "comment"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "review_kind": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EventReviewStateDTO"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EventReviewStateDTO"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "EventWellDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "revision",
+          "created_at",
+          "change_kind",
+          "before",
+          "after",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "change_kind": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EventWellDTO"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EventWellDTO"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "EventDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event",
+          "detail"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/components/schemas/EventSummaryDTO"
+          },
+          "detail": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EventCheckDetailDTO"
+              },
+              {
+                "$ref": "#/components/schemas/EventReviewDetailDTO"
+              },
+              {
+                "$ref": "#/components/schemas/EventWellDetailDTO"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "kind"
+            }
+          }
+        }
+      },
+      "EventError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "cursor_restart_required"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -13335,6 +14796,10 @@
     {
       "name": "run-archive",
       "description": "Pipeline run events."
+    },
+    {
+      "name": "events",
+      "description": "История сохранённых предметных фактов; технический audit/Q1/Q2 отдельно."
     }
   ]
 }
