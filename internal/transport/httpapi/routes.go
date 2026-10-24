@@ -43,6 +43,8 @@ func (s *Server) routes() *gin.Engine {
 	api.POST("/auth/logout", s.wrap(s.authLogout))
 	api.GET("/auth/permissions", s.wrap(s.authPermissions))
 	api.GET("/auth/organization-options", s.wrap(s.authOrganizations))
+	api.GET("/people", s.wrap(s.people))
+	api.GET("/people/:account_id", s.wrap(s.people))
 	api.GET("/auth/users/:user_id", s.wrap(s.authAccount))
 	api.GET("/auth/roles", s.wrap(s.authRoles))
 	api.GET("/auth/roles/:role_id", s.wrap(s.authRoles))

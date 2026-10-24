@@ -149,3 +149,23 @@ SQL строится Squirrel и выполняется pgx. Динамичес�
 Периодический сбор через JSON и запуск модели — разные сценарии. Коллектор сохраняет измерения и watermark; ручная проверка передаёт выбранный период в ML и сохраняет результат с версией модели. В локальном Docker автоматический прогон выключен. Сценарии генератора не присваивают риск и ярус.
 
 Keycloak/OIDC пока является целевым расширением. В локальном запуске действует legacy-доступ, персональный вход доступен при отдельной настройке local. Подключённого SSO и работающей почтовой рассылки схемы не заявляют.
+
+
+## Профили сотрудников · schema17
+
+Существующий Access seam обслуживает отдельный safe directory DTO и typed
+EmployeeProfileStore. HTTP → Access service → PostgreSQL: allowlist projection
+не сериализует Account. Read-only repeatable-read snapshot перечитывает active/
+epoch actor и получает сотрудников с однократной проекцией manager.
+
+Optional профиль расширяет существующий AccessChange, Preview и Apply.
+Graph singleton → sorted users locks сериализуют также reporting links;
+проверка manager chain с visited-set предотвращает self/циклы и concurrent
+A→B/B→A. Profile-only mutation меняет только profile_revision и записывает
+additive before/after profile в auth_access_event. Account/access mutation
+сохраняет прежний bump/revoke и единый atomic audit. Поля workplace никогда
+не участвуют в authorization. Новых containers/components/dependencies нет.
+
+API schema readiness требует17; explicit migration добавляет nullable metadata
+и отдельную profile revision, без изменений migration16 или worker payloads.
+Точные DTO, ошибки, совместимость и rollback ограничения: [RBAC](rbac.md#профили-сотрудников).

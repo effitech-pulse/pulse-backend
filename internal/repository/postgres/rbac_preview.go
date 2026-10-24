@@ -18,11 +18,14 @@ import (
 var managerPermissions = []domain.Permission{"users.read", "users.create", "users.update", "users.roles.assign", "users.groups.assign", "users.scope.assign", "roles.read", "roles.manage", "groups.read", "groups.manage", "access.manage_global"}
 
 type accessEvaluation struct {
-	Before, After accessGraph
-	Affected      []int64
-	Impacts       []domain.AccessImpact
-	Assigned      int
-	Change        domain.AccessChange
+	Before, After  accessGraph
+	Affected       []int64
+	Impacts        []domain.AccessImpact
+	Assigned       int
+	ProfileChange  *domain.ProfileChangeSummary
+	ProfileChanged bool
+	MetadataOnly   bool
+	Change         domain.AccessChange
 }
 
 func accessConflict() error {
@@ -51,6 +54,21 @@ func canonicalAccessChange(c domain.AccessChange) domain.AccessChange {
 		}
 		if u.GroupIDs == nil {
 			u.GroupIDs = []int64{}
+		}
+		if u.Profile.Present && !u.Profile.Null {
+			p := service.NormalizeProfile(u.Profile.Value)
+			u.Profile.Value.JobTitle.Value = ""
+			normalize := func(f *domain.Field[string], v *string) {
+				f.Null = v == nil
+				f.Value = ""
+				if v != nil {
+					f.Value = *v
+				}
+			}
+			normalize(&u.Profile.Value.JobTitle, p.JobTitle)
+			normalize(&u.Profile.Value.Workplace.Value.Organization, p.Workplace.Organization)
+			normalize(&u.Profile.Value.Workplace.Value.Division, p.Workplace.Division)
+			normalize(&u.Profile.Value.Workplace.Value.Department, p.Workplace.Department)
 		}
 		slices.Sort(u.RoleIDs)
 		slices.Sort(u.GroupIDs)
@@ -296,8 +314,16 @@ func evaluateAccessChange(ctx context.Context, conn db, g accessGraph, c domain.
 		if !g.Actor.CanManageAccount(after.Accounts[idx].snapshot()) {
 			return ev, accessDenied()
 		}
-		affected[id] = true
-		impacted[id] = true
+		var e error
+		ev.ProfileChange, ev.ProfileChanged, e = evaluateProfile(ctx, conn, u)
+		if e != nil {
+			return ev, e
+		}
+		ev.MetadataOnly = metadataOnly(g, u)
+		if !ev.MetadataOnly {
+			affected[id] = true
+			impacted[id] = true
+		}
 		ev.Assigned = 1
 	}
 	if role := c.Role; role != nil {
@@ -527,7 +553,10 @@ func (r *Repository) PreviewAccessChange(ctx context.Context, id int64, c domain
 		if e != nil {
 			return e
 		}
-		out = domain.AccessPreview{GraphRevision: g.Revision, ActorEpoch: g.Actor.Epoch, Fingerprint: fingerprint, AssignedUsers: ev.Assigned, ChangedUsers: 0, Items: []domain.AccessImpact{}}
+		out = domain.AccessPreview{GraphRevision: g.Revision, ActorEpoch: g.Actor.Epoch, Fingerprint: fingerprint, AssignedUsers: ev.Assigned, ChangedUsers: 0, Items: []domain.AccessImpact{}, ProfileChange: ev.ProfileChange, SessionEffect: "none"}
+		if len(ev.Affected) > 0 && !(c.User != nil && c.User.ID == nil) {
+			out.SessionEffect = "revoke_on_apply"
+		}
 		for _, i := range ev.Impacts {
 			if !samePermissionSet(i.Before.Permissions, i.After.Permissions) || !reflect.DeepEqual(i.Before.Organization, i.After.Organization) || !reflect.DeepEqual(i.Before.LegacyScope, i.After.LegacyScope) || i.Before.Active != i.After.Active {
 				out.ChangedUsers++

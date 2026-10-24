@@ -145,7 +145,8 @@ func viewFields(v domain.AccountAccessView, enforce bool) accessFields {
 type accountDTO struct {
 	domain.Account
 	accessFields
-	Role string `json:"role"`
+	Role    string                 `json:"role"`
+	Profile *domain.ManagedProfile `json:"profile,omitempty"`
 }
 
 func accountViewDTO(v domain.AccountAccessView, enforce bool) accountDTO {
@@ -156,7 +157,7 @@ func accountViewDTO(v domain.AccountAccessView, enforce bool) accountDTO {
 			role = *key
 		}
 	}
-	return accountDTO{v.Account, viewFields(v, enforce), role}
+	return accountDTO{v.Account, viewFields(v, enforce), role, v.Profile}
 }
 
 type principalDTO struct {
@@ -347,6 +348,7 @@ func (s *Server) authOrganizations(c *gin.Context) error {
 }
 
 type userChangeDTO struct {
+	Profile       domain.Field[profileInputDTO] `json:"profile"`
 	ID            *decimal                      `json:"id"`
 	Login         string                        `json:"login"`
 	Name          string                        `json:"name"`
@@ -384,7 +386,7 @@ func (c changeDTO) value() domain.AccessChange {
 	out := domain.AccessChange{}
 	if u := c.User; u != nil {
 		org := domain.Field[domain.OrganizationScope]{Present: u.Organization.Present, Null: u.Organization.Null, Value: u.Organization.Value.value()}
-		out.User = &domain.UserAccessChange{ID: integerPtr(u.ID), Login: u.Login, Name: u.Name, Active: u.Active, Revision: int64(u.Revision), RoleIDs: integers(u.RoleIDs), GroupIDs: integers(u.GroupIDs), Organization: org, ResetPassword: u.ResetPassword}
+		out.User = &domain.UserAccessChange{ID: integerPtr(u.ID), Login: u.Login, Name: u.Name, Active: u.Active, Revision: int64(u.Revision), RoleIDs: integers(u.RoleIDs), GroupIDs: integers(u.GroupIDs), Organization: org, ResetPassword: u.ResetPassword, Profile: domain.Field[domain.ProfileInput]{Present: u.Profile.Present, Null: u.Profile.Null, Value: u.Profile.Value.value()}}
 	}
 	if r := c.Role; r != nil {
 		out.Role = &domain.RoleAccessChange{ID: integerPtr(r.ID), Revision: int64(r.Revision), Name: r.Name, Description: r.Description, PermissionKeys: r.PermissionKeys, Delete: r.Delete}
@@ -458,16 +460,18 @@ func (s *Server) authPreview(c *gin.Context) error {
 		RetainedByOtherSource []domain.Permission `json:"retained_by_other_source"`
 	}
 	out := struct {
-		GraphRevision decimal  `json:"graph_revision"`
-		ActorEpoch    decimal  `json:"actor_epoch"`
-		Fingerprint   string   `json:"fingerprint"`
-		AssignedUsers int      `json:"assigned_users"`
-		ChangedUsers  int      `json:"changed_users"`
-		DisabledUsers int      `json:"disabled_users"`
-		SelfAffected  bool     `json:"self_affected"`
-		Items         []impact `json:"items"`
-		NextCursor    *string  `json:"next_cursor"`
-	}{decimal(v.GraphRevision), decimal(v.ActorEpoch), v.Fingerprint, v.AssignedUsers, v.ChangedUsers, v.DisabledUsers, v.SelfAffected, []impact{}, v.NextCursor}
+		GraphRevision decimal                      `json:"graph_revision"`
+		ActorEpoch    decimal                      `json:"actor_epoch"`
+		Fingerprint   string                       `json:"fingerprint"`
+		AssignedUsers int                          `json:"assigned_users"`
+		ChangedUsers  int                          `json:"changed_users"`
+		DisabledUsers int                          `json:"disabled_users"`
+		SelfAffected  bool                         `json:"self_affected"`
+		Items         []impact                     `json:"items"`
+		NextCursor    *string                      `json:"next_cursor"`
+		ProfileChange *domain.ProfileChangeSummary `json:"profile_change"`
+		SessionEffect string                       `json:"session_effect"`
+	}{decimal(v.GraphRevision), decimal(v.ActorEpoch), v.Fingerprint, v.AssignedUsers, v.ChangedUsers, v.DisabledUsers, v.SelfAffected, []impact{}, v.NextCursor, v.ProfileChange, v.SessionEffect}
 	for _, i := range v.Items {
 		before := domain.AccountAccessView{Account: i.User, Authorization: i.Before}
 		after := domain.AccountAccessView{Account: i.User, Authorization: i.After}
@@ -517,7 +521,8 @@ func (s *Server) applyMutation(c *gin.Context, in mutationDTO) error {
 		Group         *groupDTO   `json:"group"`
 		GraphRevision decimal     `json:"graph_revision"`
 		AffectedUsers int         `json:"affected_users"`
-	}{GraphRevision: decimal(v.GraphRevision), AffectedUsers: v.AffectedUsers}
+		SessionEffect string      `json:"session_effect"`
+	}{GraphRevision: decimal(v.GraphRevision), AffectedUsers: v.AffectedUsers, SessionEffect: v.SessionEffect}
 	if v.UserView != nil {
 		a := accountViewDTO(*v.UserView, true)
 		out.User = &a

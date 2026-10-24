@@ -7355,6 +7355,137 @@
           }
         ]
       }
+    },
+    "/api/v1/people": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "summary": "Search colleagues by name, job title and workplace (literal % and _; ID ascending live keyset)",
+        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store.",
+        "security": [
+          {
+            "PulseSession": []
+          }
+        ],
+        "x-authorization-scope": "SELF",
+        "x-required-permissions": [],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": ""
+            }
+          },
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe employee profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeoplePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed query, cursor or ID"
+          },
+          "401": {
+            "description": "Personal session expired or missing"
+          },
+          "403": {
+            "description": "Personal local account required"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{account_id}": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "summary": "Read colleague, including inactive employees",
+        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store.",
+        "security": [
+          {
+            "PulseSession": []
+          }
+        ],
+        "x-authorization-scope": "SELF",
+        "x-required-permissions": [],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmployeeDecimal"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe employee profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed query, cursor or ID"
+          },
+          "401": {
+            "description": "Personal session expired or missing"
+          },
+          "403": {
+            "description": "Personal local account required"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9522,6 +9653,9 @@
           },
           "graph_revision": {
             "$ref": "#/components/schemas/AccessDecimal"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ManagedProfile"
           }
         }
       },
@@ -12369,6 +12503,9 @@
           },
           "reset_password": {
             "type": "boolean"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileInput"
           }
         },
         "required": [
@@ -12733,6 +12870,23 @@
                 "type": "null"
               }
             ]
+          },
+          "profile_change": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileChangeSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_effect": {
+            "type": "string",
+            "enum": [
+              "none",
+              "revoke_on_apply"
+            ]
           }
         },
         "required": [
@@ -12744,7 +12898,9 @@
           "disabled_users",
           "self_affected",
           "items",
-          "next_cursor"
+          "next_cursor",
+          "profile_change",
+          "session_effect"
         ]
       },
       "AccessApplyResult": {
@@ -12785,6 +12941,13 @@
           },
           "affected_users": {
             "type": "integer"
+          },
+          "session_effect": {
+            "type": "string",
+            "enum": [
+              "none",
+              "revoked"
+            ]
           }
         },
         "required": [
@@ -12792,8 +12955,254 @@
           "role",
           "group",
           "graph_revision",
-          "affected_users"
+          "affected_users",
+          "session_effect"
         ]
+      },
+      "Workplace": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organization": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "division": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "organization",
+          "division",
+          "department"
+        ]
+      },
+      "ManagedProfile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "$ref": "#/components/schemas/EmployeeDecimal"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "workplace": {
+            "$ref": "#/components/schemas/Workplace"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "revision",
+          "job_title",
+          "workplace",
+          "manager_id"
+        ]
+      },
+      "ProfileInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "$ref": "#/components/schemas/ProfileRevisionInput"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "workplace": {
+            "$ref": "#/components/schemas/Workplace"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "revision",
+          "job_title",
+          "workplace",
+          "manager_id"
+        ],
+        "description": "Full replacement. Every key required; nullable metadata clears fields. Create revision=\"0\", edit positive canonical decimal. Omission of whole profile preserves existing metadata; profile:null invalid."
+      },
+      "ColleagueRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/EmployeeDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "job_title",
+          "active"
+        ]
+      },
+      "EmployeeProfile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/EmployeeDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "workplace": {
+            "$ref": "#/components/schemas/Workplace"
+          },
+          "manager": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ColleagueRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "active",
+          "job_title",
+          "workplace",
+          "manager"
+        ]
+      },
+      "PeoplePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeProfile"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "NamedProfile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ManagedProfile"
+          }
+        },
+        "required": [
+          "name",
+          "profile"
+        ]
+      },
+      "ProfileChangeSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NamedProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "after": {
+            "$ref": "#/components/schemas/NamedProfile"
+          }
+        },
+        "required": [
+          "before",
+          "after"
+        ]
+      },
+      "EmployeeDecimal": {
+        "type": "string",
+        "pattern": "^[1-9][0-9]*$",
+        "description": "Canonical positive int64 decimal string; JSON numbers rejected."
+      },
+      "ProfileRevisionInput": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]*)$",
+        "description": "Create exactly zero, edit positive expected profile revision; maximum signed int64."
       }
     },
     "securitySchemes": {

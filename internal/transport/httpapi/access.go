@@ -199,6 +199,10 @@ func (s *Server) compatibilityAuthorization(c *gin.Context) {
 	}
 
 	relativeAuth := strings.TrimPrefix(path, s.Config.Prefix)
+	if relativeAuth == "/people" || relativeAuth == "/people/:account_id" {
+		c.Next()
+		return
+	}
 	if relativeAuth == "/auth/access/preview" || ((strings.HasPrefix(relativeAuth, "/auth/roles") || strings.HasPrefix(relativeAuth, "/auth/groups")) && c.Request.Method != "GET") {
 		deny(domain.NewError(domain.Unavailable, "Изменение доступа недоступно до включения RBAC"))
 		return

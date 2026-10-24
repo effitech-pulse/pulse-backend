@@ -97,7 +97,7 @@ func TestRBACMigrationScopeTruthTable(t *testing.T) {
 		}
 
 		var unchanged bool
-		if e = p.QueryRow(ctx, `SELECT (to_jsonb(u)-'organization_scope'-'authz_epoch')=$1::jsonb FROM auth_user u WHERE id=$2`, before[i], id).Scan(&unchanged); e != nil || !unchanged {
+		if e = p.QueryRow(ctx, `SELECT (to_jsonb(u)-'organization_scope'-'authz_epoch'-'job_title'-'workplace_organization'-'workplace_division'-'workplace_department'-'manager_account_id'-'profile_revision')=$1::jsonb FROM auth_user u WHERE id=$2`, before[i], id).Scan(&unchanged); e != nil || !unchanged {
 			t.Fatal("original account fields changed", i, e)
 		}
 		var old struct {

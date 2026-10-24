@@ -45,6 +45,11 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		pool.Close()
 		return nil, err
 	}
+	if err := store.ValidateEmployeeProfiles(ctx); err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
 	var scope service.FundScope
 	if c.AppScope != "research" {
 		scope, err = service.NewFundScope(ctx, store, c.CohortVersion)

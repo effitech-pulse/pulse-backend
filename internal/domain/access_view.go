@@ -24,6 +24,7 @@ type AccessAssignments struct {
 }
 
 type AccountAccessView struct {
+	Profile       *ManagedProfile       `json:"profile,omitempty"`
 	Account       Account               `json:"account"`
 	Authorization AuthorizationSnapshot `json:"authorization"`
 }

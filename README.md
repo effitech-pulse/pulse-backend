@@ -91,7 +91,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию16 (additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения16 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию17 (профили сотрудников поверх additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения17 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -106,6 +106,7 @@ curl http://127.0.0.1:8000/health
 
 | Раздел | Маршруты | Возможности |
 |---|---|---|
+| Сотрудники | `/api/v1/people`, `/api/v1/people/{account_id}` | Безопасный справочник коллег для персональных сеансов; [профили](docs/rbac.md#профили-сотрудников) |
 | Доступ | `/api/v1/auth/*` | Сеансы, роли и область доступа; подготовлен адаптерный интерфейс SSO |
 | Скважины | `/api/v1/wells` | CRUD, импорт и экспорт XLSX |
 | Структура | `/api/v1/ngdu`, `/api/v1/departments` | НГДУ и цеха |

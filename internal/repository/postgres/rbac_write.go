@@ -50,7 +50,12 @@ type accessAuditUser struct {
 	RoleIDs       []int64                      `json:"role_ids"`
 	GroupIDs      []int64                      `json:"group_ids"`
 }
+type profileAudit struct {
+	AccountID int64 `json:"account_id"`
+	domain.ManagedProfile
+}
 type accessAuditState struct {
+	Profile *profileAudit        `json:"profile,omitempty"`
 	Users   []accessAuditUser    `json:"users"`
 	Roles   []domain.AccessRole  `json:"roles"`
 	Groups  []domain.AccessGroup `json:"groups"`
@@ -99,7 +104,7 @@ func auditAccessState(g accessGraph, ids []int64, change domain.AccessChange) ac
 	}
 	return out
 }
-func writeAccessEvent(ctx context.Context, tx pgx.Tx, actorID int64, before, after accessGraph, ids []int64, change domain.AccessChange) error {
+func writeAccessEvent(ctx context.Context, tx pgx.Tx, actorID int64, before, after accessGraph, ids []int64, change domain.AccessChange, profile ...*domain.ProfileChangeSummary) error {
 	roles := []accessRoleGrant{}
 	if ai := before.accountIndex(actorID); ai >= 0 {
 		roles = before.Accounts[ai].Grants
@@ -110,11 +115,19 @@ func writeAccessEvent(ctx context.Context, tx pgx.Tx, actorID int64, before, aft
 	if e != nil {
 		return e
 	}
-	b, e := json.Marshal(auditAccessState(before, ids, change))
+	beforeState, afterState := auditAccessState(before, ids, change), auditAccessState(after, ids, change)
+	if len(profile) > 0 && profile[0] != nil {
+		p := profile[0]
+		if p.Before != nil {
+			beforeState.Profile = &profileAudit{ids[0], p.Before.Profile}
+		}
+		afterState.Profile = &profileAudit{ids[0], p.After.Profile}
+	}
+	b, e := json.Marshal(beforeState)
 	if e != nil {
 		return e
 	}
-	c, e := json.Marshal(auditAccessState(after, ids, change))
+	c, e := json.Marshal(afterState)
 	if e != nil {
 		return e
 	}
@@ -161,7 +174,16 @@ func (r *Repository) ApplyAccessChange(ctx context.Context, actorID int64, in do
 	if e != nil {
 		return out, e
 	}
-	if e = lockAccessUsers(ctx, tx, ev.Affected); e != nil {
+	lockIDs := append([]int64{actorID}, ev.Affected...)
+	if u := in.Change.User; u != nil {
+		if u.ID != nil {
+			lockIDs = append(lockIDs, *u.ID)
+		}
+		if u.Profile.Present && !u.Profile.Value.ManagerID.Null {
+			lockIDs = append(lockIDs, u.Profile.Value.ManagerID.Value)
+		}
+	}
+	if e = lockAccessUsers(ctx, tx, lockIDs); e != nil {
 		return out, e
 	}
 	// Reload after locks: sessions/workers never lock the graph, but hold user rows.
@@ -177,6 +199,32 @@ func (r *Repository) ApplyAccessChange(ctx context.Context, actorID int64, in do
 		return out, accessInvalid()
 	}
 	ids := ev.Affected
+	out.SessionEffect = "none"
+	if ev.MetadataOnly {
+		target := *in.Change.User.ID
+		if ev.ProfileChanged {
+			if e = writeProfile(ctx, tx, target, ev.ProfileChange.After.Profile); e != nil {
+				return out, e
+			}
+			if e = writeAccessEvent(ctx, tx, actorID, g, g, []int64{target}, in.Change, ev.ProfileChange); e != nil {
+				return out, e
+			}
+		}
+		view, err := g.accountView(target)
+		if err != nil {
+			return out, err
+		}
+		p, err := managedProfile(ctx, tx, target)
+		if err != nil {
+			return out, err
+		}
+		view.Profile = &p
+		out.UserView = &view
+		out.User = &view.Account
+		out.GraphRevision = revision
+		e = tx.Commit(ctx)
+		return
+	}
 	if u := in.Change.User; u != nil {
 		if u.ID == nil {
 			proposed := ev.After.Accounts[ev.After.accountIndex(-1)]
@@ -265,6 +313,11 @@ func (r *Repository) ApplyAccessChange(ctx context.Context, actorID int64, in do
 			out.Group = &value
 		}
 	}
+	if ev.ProfileChange != nil && (ev.ProfileChanged || in.Change.User.ID == nil) {
+		if e = writeProfile(ctx, tx, ids[0], ev.ProfileChange.After.Profile); e != nil {
+			return out, e
+		}
+	}
 	// New users begin at epoch/revision1. Existing impacted users increment exactly once.
 	existing := ids
 	if in.Change.User != nil && in.Change.User.ID == nil {
@@ -291,7 +344,7 @@ func (r *Repository) ApplyAccessChange(ctx context.Context, actorID int64, in do
 		value.ID = &out.Group.ID
 		auditChange.Group = &value
 	}
-	if e = writeAccessEvent(ctx, tx, actorID, g, after, ids, auditChange); e != nil {
+	if e = writeAccessEvent(ctx, tx, actorID, g, after, ids, auditChange, ev.ProfileChange); e != nil {
 		return out, e
 	}
 	if u := in.Change.User; u != nil {
@@ -304,10 +357,18 @@ func (r *Repository) ApplyAccessChange(ctx context.Context, actorID int64, in do
 		if e != nil {
 			return out, e
 		}
+		p, err := managedProfile(ctx, tx, a.ID)
+		if err != nil {
+			return out, err
+		}
+		view.Profile = &p
 		out.UserView = &view
 	}
 	out.GraphRevision = revision + 1
 	out.AffectedUsers = len(ids)
+	if len(existing) > 0 {
+		out.SessionEffect = "revoked"
+	}
 	e = tx.Commit(ctx)
 	return
 }

@@ -53,6 +53,9 @@ func ValidateAccessChange(c domain.AccessChange) error {
 		return true
 	}
 	if u := c.User; u != nil {
+		if e := ValidateProfile(u); e != nil {
+			return e
+		}
 		if !name(u.Name) || !accountLogin.MatchString(u.Login) || !ids(u.RoleIDs, 100) || !ids(u.GroupIDs, 100) || (u.ID != nil && (*u.ID < 1 || u.Revision < 1)) {
 			return invalid()
 		}

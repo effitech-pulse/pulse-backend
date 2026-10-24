@@ -145,6 +145,11 @@ func readAccessGraph(ctx context.Context, conn db, actorID int64, permission dom
 	if !found || !g.Actor.Active {
 		return g, domain.NewError(domain.Unauthorized, "Войдите в систему")
 	}
+	if p, ok := domain.CurrentPrincipal(ctx); ok {
+		if !p.Authenticated || p.AccountID == nil || *p.AccountID != actorID || p.Authorization != nil && p.Authorization.Epoch != g.Actor.Epoch {
+			return g, domain.NewError(domain.Unauthorized, "Сеанс истёк; войдите снова")
+		}
+	}
 	if e = g.Actor.Require(permission); e != nil {
 		return g, e
 	}

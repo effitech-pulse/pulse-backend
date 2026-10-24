@@ -174,3 +174,55 @@ permissions retain their fixed adapter while their persisted personal scope stil
 applies separately. An account audit snapshot making a collection intent exceed
 65536 bytes returns HTTP400 (`code=invalid`, fixed
 `message=collection_intent_too_large`, `detail=null`) with no job/hold/outbox writes.
+
+
+## Профили сотрудников
+
+Schema17 добавляет nullable должность, организацию, подразделение, отдел и
+ссылку на аккаунт руководителя. Это информационные сведения: они не меняют
+фонды, область скважин, роли, группы и worker authority. Уровни места работы
+могут быть неизвестны независимо. Руководитель может быть отключён; self и
+циклы запрещены. Строки trim → пустое в null, максимум200 Unicode-символов.
+
+`GET /api/v1/people` и `GET /api/v1/people/{account_id}` доступны действующим
+персональным local-сеансам в compat/enforce, включая аккаунты без users.read.
+Legacy/shared-key получает403, anonymous401. Ответ содержит только id/name/
+active/job_title/workplace/manager; manager — однократная безопасная ссылка.
+Login, роли, scope, даты входа и security fields отсутствуют. Неактивная цель
+доступна напрямую; список по умолчанию содержит только active. Все ответы
+имеют Cache-Control: no-store. Административные user endpoints сохраняют свои
+управленческие проверки и concealed targets.
+
+Поиск идёт по имени, должности и трём строкам места работы (до200 Unicode),
+без login. `%` и `_` трактуются буквально. `include_inactive=true|false`,
+`limit=1..100` (default25), `cursor` до1024 байт. ID ascending keyset привязан
+к SHA256 нормализованного поиска и флагу include_inactive; смена фильтров требует первой страницы. Между
+страницами список live. Неизвестные/некорректные query дают400.
+
+Запись выполняется только через существующий modern Preview/Apply. Optional
+`change.user.profile` — полная замена revision/job_title/workplace/manager_id;
+внутри workplace обязательны organization/division/department. Nullable поля
+очищаются явным null, whole profile:null запрещён, отсутствие profile сохраняет
+сведения. Revision и manager_id — canonical decimal string; create revision="0",
+edit — текущая positive revision. Managed detail и apply user возвращают profile.
+
+Preview включает `profile_change` и `session_effect=none|revoke_on_apply`;
+apply — `session_effect=none|revoked`. Profile-only повышает только profile.revision,
+сохраняет account revision, authz_epoch, graph_revision, сеансы и worker authority.
+No-op не повышает revision. Изменение name/login/active/password/assignments/scope
+сохраняет существующий отзыв сеансов. Запрос без profile сохраняет прежнюю
+семантику. Общий create/access/profile/audit commit атомарен; manager/revision/
+management recheck выполняется под graph serializer и sorted user locks.
+Stale profile даёт409 с безопасным message `profile_revision_conflict` в прежнем
+error envelope. Нет automatic replay или business idempotency: после потери
+ответа сначала перечитать managed account/profile.
+
+Миграция17 выполняется явно после backup/restore проверки. Старые записи
+получают profile revision1 и null metadata без scope backfill; повтор Apply
+не перетирает данные. Новый API binary проверяет marker17 и наличие колонок
+при запуске. Worker readiness/authority остаётся schema16. Рабочая БД и activation
+при source/test проверках не переключаются. Возврат к предыдущему RBAC binary
+допускается только после отдельной проверки его readiness на schema17; новые
+колонки сохраняются, автоматического down/DROP нет. Восстановление pre17 backup
+теряет последующие записи. Старый frontend без profile сохраняет сведения;
+новый frontend выпускается после profile-capable API.

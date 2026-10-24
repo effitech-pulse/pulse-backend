@@ -31,7 +31,7 @@ func checkedViewActor(ctx context.Context, g accessGraph, id int64) error {
 	}
 	return nil
 }
-func (r *Repository) withAccountViews(ctx context.Context, actor int64, fn func(accessGraph) error) error {
+func (r *Repository) withAccountViews(ctx context.Context, actor int64, fn func(db, accessGraph) error) error {
 	tx, e := r.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if e != nil {
 		return e
@@ -44,13 +44,13 @@ func (r *Repository) withAccountViews(ctx context.Context, actor int64, fn func(
 	if e = checkedViewActor(ctx, g, actor); e != nil {
 		return e
 	}
-	if e = fn(g); e != nil {
+	if e = fn(tx, g); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
 }
 func (r *Repository) AccountAccessView(ctx context.Context, actor, target int64) (out domain.AccountAccessView, e error) {
-	e = r.withAccountViews(ctx, actor, func(g accessGraph) error {
+	e = r.withAccountViews(ctx, actor, func(conn db, g accessGraph) error {
 		v, e := g.accountView(target)
 		if e != nil {
 			return e
@@ -63,13 +63,18 @@ func (r *Repository) AccountAccessView(ctx context.Context, actor, target int64)
 				return domain.NewError(domain.Missing, "Пользователь не найден")
 			}
 		}
+		p, e := managedProfile(ctx, conn, target)
+		if e != nil {
+			return e
+		}
+		v.Profile = &p
 		out = v
 		return nil
 	})
 	return
 }
 func (r *Repository) ListManagedAccountViews(ctx context.Context, actor int64, q domain.AccessPageQuery) (out domain.AccountAccessViewPage, e error) {
-	e = r.withAccountViews(ctx, actor, func(g accessGraph) error {
+	e = r.withAccountViews(ctx, actor, func(conn db, g accessGraph) error {
 		if e := g.Actor.Require("users.read"); e != nil {
 			return e
 		}
@@ -91,7 +96,7 @@ func (r *Repository) ListManagedAccountViews(ctx context.Context, actor int64, q
 }
 
 func (r *Repository) ListAccessGroupMemberViews(ctx context.Context, actor, groupID int64, q domain.AccessPageQuery) (out domain.AccountAccessViewPage, e error) {
-	e = r.withAccountViews(ctx, actor, func(g accessGraph) error {
+	e = r.withAccountViews(ctx, actor, func(conn db, g accessGraph) error {
 		if e := g.Actor.Require("groups.read", "users.read"); e != nil {
 			return e
 		}

@@ -560,7 +560,22 @@ func TestRBACWorkerGraphPublicationOrder(t *testing.T) {
 	change.Name = "changed during compute"
 	change.Login = "worker"
 	payload := domain.AccessChange{User: &change}
-	preview, err := r.PreviewAccessChange(ctx, root, payload, domain.AccessPageQuery{})
+	// Management and compute have different actors. A worker principal cannot
+	// stand in for the manager merely by passing the manager's account ID.
+	_, err = r.PreviewAccessChange(ctx, root, payload, domain.AccessPageQuery{})
+	rbacReadErrorKind(t, err, domain.Unauthorized)
+	managerAccount, err := r.Account(work, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	managerAuth, err := r.Authorization(work, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	managerPrincipal := domain.AccountPrincipal(managerAccount)
+	managerPrincipal.Authorization = &managerAuth
+	managerCtx := domain.WithPrincipal(work, managerPrincipal)
+	preview, err := r.PreviewAccessChange(managerCtx, root, payload, domain.AccessPageQuery{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -577,7 +592,7 @@ func TestRBACWorkerGraphPublicationOrder(t *testing.T) {
 	edits := make(chan error, 1)
 	publication := make(chan error, 1)
 	go func() {
-		_, e := r.ApplyAccessChange(bounded, root, domain.AccessApply{Change: payload, GraphRevision: preview.GraphRevision, ActorEpoch: preview.ActorEpoch, Fingerprint: preview.Fingerprint}, nil)
+		_, e := r.ApplyAccessChange(domain.WithPrincipal(bounded, managerPrincipal), root, domain.AccessApply{Change: payload, GraphRevision: preview.GraphRevision, ActorEpoch: preview.ActorEpoch, Fingerprint: preview.Fingerprint}, nil)
 		edits <- e
 	}()
 	go func() { _, e := r.FinishFileJob(bounded, *lease, &result, nil); publication <- e }()
