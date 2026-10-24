@@ -239,12 +239,30 @@ type PassportInstallation struct {
 	PredecessorID *PassportID                `json:"predecessor_id"`
 	Attributes    PassportAttributes         `json:"attributes"`
 }
+
+// PassportChangeProvenance — сохранённое происхождение материального изменения.
+type PassportChangeProvenance struct {
+	Source           PassportSource     `json:"source"`
+	Actor            PassportActor      `json:"actor"`
+	RecordedAt       time.Time          `json:"recorded_at"`
+	SourceReference  *string            `json:"source_reference"`
+	ReceiptID        PassportID         `json:"receipt_id"`
+	SourceFileSHA256 *string            `json:"source_file_sha256"`
+	TemplateVersion  *string            `json:"template_version"`
+	SourceRow        *PassportRowSource `json:"source_row"`
+}
+type PassportSlotProvenance struct {
+	Slot       PassportSlot             `json:"slot"`
+	LastChange PassportChangeProvenance `json:"last_change"`
+}
+
 type PassportView struct {
-	WellID       PassportID             `json:"well_id"`
-	WellRevision PassportRevision       `json:"well_revision"`
-	PassportID   *PassportID            `json:"passport_id"`
-	Revision     PassportRevision       `json:"revision"`
-	Slots        []PassportInstallation `json:"slots"`
+	Provenance   []PassportSlotProvenance `json:"provenance"`
+	WellID       PassportID               `json:"well_id"`
+	WellRevision PassportRevision         `json:"well_revision"`
+	PassportID   *PassportID              `json:"passport_id"`
+	Revision     PassportRevision         `json:"revision"`
+	Slots        []PassportInstallation   `json:"slots"`
 }
 type PassportBasis struct {
 	Well          Well
@@ -329,20 +347,26 @@ type PassportReceipt struct {
 	Rows             []PassportReceiptRow   `json:"rows"`
 }
 type PassportEvent struct {
-	ID              PassportID       `json:"id"`
-	WellID          PassportID       `json:"well_id"`
-	Revision        PassportRevision `json:"revision"`
-	RowKey          string           `json:"row_key"`
-	Action          PassportAction   `json:"action"`
-	Slot            PassportSlot     `json:"slot"`
-	RecordedAt      time.Time        `json:"recorded_at"`
-	Actor           PassportActor    `json:"actor"`
-	Source          PassportSource   `json:"source"`
-	SourceReference *string          `json:"source_reference"`
-	Reason          string           `json:"reason"`
-	Diff            PassportDiff     `json:"diff"`
+	ReceiptID        PassportID         `json:"receipt_id"`
+	SourceFileSHA256 *string            `json:"source_file_sha256"`
+	TemplateVersion  *string            `json:"template_version"`
+	SourceRow        *PassportRowSource `json:"source_row"`
+	ID               PassportID         `json:"id"`
+	WellID           PassportID         `json:"well_id"`
+	Revision         PassportRevision   `json:"revision"`
+	RowKey           string             `json:"row_key"`
+	Action           PassportAction     `json:"action"`
+	Slot             PassportSlot       `json:"slot"`
+	RecordedAt       time.Time          `json:"recorded_at"`
+	Actor            PassportActor      `json:"actor"`
+	Source           PassportSource     `json:"source"`
+	SourceReference  *string            `json:"source_reference"`
+	Reason           string             `json:"reason"`
+	Diff             PassportDiff       `json:"diff"`
 }
 type PassportWorkbook struct {
+	Rows []PassportRowSource
+
 	ChangeSet  PassportChangeSet
 	FileSHA256 string
 }
@@ -371,4 +395,37 @@ type PassportExport struct {
 type PassportPolicy struct {
 	AppScope      string
 	CohortVersion string
+}
+
+// PassportError сохраняет feature code и issues без изменения общего mapper.
+type PassportError struct {
+	Err    *Error
+	Code   string
+	Issues []PassportIssue
+}
+
+func (e *PassportError) Error() string { return e.Err.Error() }
+func (e *PassportError) Unwrap() error { return e.Err }
+
+// PassportEnrollmentInput — stdin maintenance intent, не session claims.
+type PassportEnrollmentInput struct {
+	RequestID               string           `json:"request_id"`
+	TargetAccountID         PassportID       `json:"target_account_id"`
+	ExpectedAccountRevision PassportRevision `json:"expected_account_revision"`
+	ExpectedEpoch           PassportRevision `json:"expected_epoch"`
+	ExpectedGraphRevision   PassportRevision `json:"expected_graph_revision"`
+	PermissionKeys          []Permission     `json:"permission_keys"`
+}
+type PassportEnrollmentReceipt struct {
+	RequestID       string                `json:"request_id"`
+	ActorKind       string                `json:"actor_kind"`
+	TargetAccountID PassportID            `json:"target_account_id"`
+	Before          AuthorizationSnapshot `json:"before"`
+	After           AuthorizationSnapshot `json:"after"`
+	Digest          string                `json:"digest"`
+	RecordedAt      time.Time             `json:"recorded_at"`
+}
+
+func NewPassportError(kind Kind, code, message string, issues []PassportIssue) error {
+	return &PassportError{Err: &Error{Kind: kind, Message: message}, Code: code, Issues: issues}
 }

@@ -43,6 +43,11 @@ func wellChangesExpression() string {
 func tableDefinition(dataset string) (tableDataset, error) {
 	d := tableDataset{stable: "id", defaults: []domain.TableSort{{Field: "created_at", Direction: "desc"}}}
 	switch dataset {
+	case "equipmenthistory":
+		d.stable = "e.id"
+		d.defaults = []domain.TableSort{{Field: "recorded_at", Direction: "desc"}}
+		d.columns = map[string]tableColumn{"recorded_at": {"e.recorded_at", "time", ""}, "action": {"e.action", "text", ""}, "slot": {"e.slot", "text", ""}, "source": {"e.source", "text", ""}, "actor_name": {"e.actor_name", "text", ""}, "reason": {"e.reason", "text", ""}, "changes": {"e.diff::text", "text", ""}}
+
 	case "events":
 		return eventTableDefinition(), nil
 	case "people":

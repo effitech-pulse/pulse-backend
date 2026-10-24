@@ -12,6 +12,7 @@ import (
 	"io"
 	"math/big"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -27,6 +28,7 @@ type tableField struct {
 }
 
 var tableFields = map[string]map[string]tableField{
+	"equipmenthistory":          {"recorded_at": {"time", "range"}, "action": {"text", "in"}, "slot": {"text", "in"}, "source": {"text", "in"}, "actor_name": {"text", "contains"}, "reason": {"text", "contains"}, "changes": {"text", "contains"}},
 	"access_ngdu_options":       {"name": {"text", "contains"}},
 	"access_department_options": {"name": {"text", "contains"}},
 	"access_role_options":       {"name": {"text", "contains"}},
@@ -214,6 +216,24 @@ func parseTableRequest(ctx context.Context, dataset string, parent int64, raw st
 				norm, err := tableValue(v, field.kind)
 				if err != nil {
 					return req, err
+				}
+				if dataset == "equipmenthistory" {
+					var value string
+					if json.Unmarshal(norm, &value) != nil {
+						return req, tableInvalid()
+					}
+					allowed := ""
+					switch f.Field {
+					case "action":
+						allowed = "register update replace correct close void"
+					case "slot":
+						allowed = "pump motor control_station"
+					case "source":
+						allowed = "manual excel"
+					}
+					if allowed != "" && !slices.Contains(strings.Fields(allowed), value) {
+						return req, tableInvalid()
+					}
 				}
 				f.Values[j] = norm
 			}
