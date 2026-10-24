@@ -78,6 +78,9 @@ func buildPermissionRegistry() []PermissionDefinition {
 	}
 	add("wells.read", "", "organization", "Скважины")
 	add("wells.create wells.update wells.import wells.export wells.archive wells.restore wells.delete wells.history.read", "wells.read", "organization", "Скважины")
+	add("equipment_passports.read", "wells.read", "organization", "Паспорт оборудования")
+	add("equipment_passports.update equipment_passports.history.read equipment_passports.export", "equipment_passports.read", "organization", "Паспорт оборудования")
+	add("equipment_passports.import", "equipment_passports.update", "organization", "Импорт паспорта оборудования")
 	add("telemetry.read", "wells.read", "organization", "Телеметрия")
 	add("telemetry.import telemetry.compat.read", "telemetry.read", "organization", "Телеметрия")
 	add("telemetry.compat.score", "telemetry.compat.read checks.run", "organization", "Проверка телеметрии по внешнему идентификатору")

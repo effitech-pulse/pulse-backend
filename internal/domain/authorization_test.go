@@ -322,3 +322,39 @@ func TestRBACUnknownRolePermissionFailsClosed(t *testing.T) {
 		t.Fatal("invalid target accepted for local delegation")
 	}
 }
+
+func TestEquipmentPassportPermissions(t *testing.T) {
+	deps := map[Permission][]Permission{
+		"equipment_passports.read":         {"wells.read"},
+		"equipment_passports.update":       {"equipment_passports.read"},
+		"equipment_passports.history.read": {"equipment_passports.read"},
+		"equipment_passports.import":       {"equipment_passports.update"},
+		"equipment_passports.export":       {"equipment_passports.read"},
+	}
+	for key, want := range deps {
+		var found bool
+		for _, d := range PermissionCatalog() {
+			if d.Key == key {
+				found = true
+				if !reflect.DeepEqual(d.Requires, want) {
+					t.Fatalf("%s requires %v", key, d.Requires)
+				}
+			}
+		}
+		if !found {
+			t.Fatalf("missing %s", key)
+		}
+		keys := []Permission{"wells.read", "equipment_passports.read", "equipment_passports.update", key}
+		a := rbacSnapshot(keys...)
+		if a.Require(key) != nil {
+			t.Fatalf("closure denied %s", key)
+		}
+		a.Permissions = []Permission{key}
+		rbacForbidden(t, a.Require(key))
+		for _, role := range []string{"admin", "operator", "viewer"} {
+			if slices.Contains(BuiltinAccessPermissions(role), key) {
+				t.Fatalf("%s automatically granted %s", role, key)
+			}
+		}
+	}
+}
