@@ -344,6 +344,7 @@ func TestCohortPhysicalSessionLossAbortsTransaction(t *testing.T) {
 			var checkpoint domain.CohortCheckpoint
 			if stage == "final" {
 				for i := 0; i < 100; i++ {
+					renewCohortFixture(t, ctx, r, claim.Lease(), i)
 					x, e := r.NextCohortMember(ctx, claim.Lease())
 					if e != nil || x == nil {
 						t.Fatal(e)

@@ -175,3 +175,10 @@ API schema readiness требует17; explicit migration добавляет nul
 за consumer-defined read store. ACL/cohort fence применяются внутри read-only RR
 до UNION/keyset/limit+1. HTTP использует собственные закрытые string-int64 DTO.
 [Live consistency, exact detail, бюджеты и rollback](events.md).
+
+## Query-режим таблиц
+
+Двенадцать существующих списков поддерживают opt-in TableQuery v1: typed transport/service
+передают закрытые поля/операторы адаптерам, SQL keyset выполняется до LIMIT,
+полный authorized accessGraph фильтруется до slice. Legacy paths сохранены.
+[Параметры, временные типы и курсоры](table-query.md).

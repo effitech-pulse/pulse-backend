@@ -20,6 +20,7 @@ func TestCohortCancelAfterSuccessReturnsActualTerminalDTO(t *testing.T) {
 	}
 	defer claim.Close()
 	for i := 0; i < 100; i++ {
+		renewCohortFixture(t, ctx, store, claim.Lease(), i)
 		execution, err := store.NextCohortMember(ctx, claim.Lease())
 		if err != nil || execution == nil {
 			t.Fatal(i, err)

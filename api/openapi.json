@@ -2338,6 +2338,35 @@
               ],
               "title": "X-Api-Key"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -2346,11 +2375,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuditRead"
-                  },
-                  "title": "Response List Audit Api V1 Audit Get"
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuditRead"
+                      },
+                      "title": "Response List Audit Api V1 Audit Get"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableAuditPage"
+                    }
+                  ]
                 }
               }
             }
@@ -2367,12 +2403,24 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "FULL",
         "x-authorization-permissions": [
           "audit.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "ts": "range:naive datetime; timezone unspecified; no offset",
+          "actor": "contains/in(nullable text)",
+          "method": "in(text)",
+          "path": "contains(text)",
+          "status_code": "range(number)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged. action_log.ts is TIMESTAMP WITHOUT TIME ZONE; historical zone unknown. ts range uses YYYY-MM-DDTHH:mm:ss[.fraction up to6] without offset, comparison and sort preserve wall clock. No timezone is invented; retention remains7days."
       }
     },
     "/api/v1/ml/wells/refresh": {
@@ -3251,10 +3299,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TelemetryCollectionLog"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TelemetryCollectionLog"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableCollectionLogPage"
+                    }
+                  ]
                 }
               }
             }
@@ -3267,12 +3322,56 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "integrations.logs.read"
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "x-table-query-fields": {
+          "timestamp": "range(datetime)",
+          "source_id": "in(text)",
+          "accepted": "range(number)",
+          "duplicates": "range(number)",
+          "rejected": "range(number)",
+          "message": "contains(text)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/integrations/{source_id}": {
@@ -4121,7 +4220,7 @@
           "telemetry"
         ],
         "summary": "История ручных проверок скважины по ID Pulse",
-        "description": "До 25 записей в порядке created_at DESC, id DESC. Следующая страница — before последней записи. История содержит успешные ответы ML, в том числе insufficient. Ошибки расчёта не создают успешную проверку.",
+        "description": "До 25 записей в порядке created_at DESC, id DESC. Следующая страница — before последней записи. История содержит успешные ответы ML, в том числе insufficient. Ошибки расчёта не создают успешную проверку. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "parameters": [
           {
             "name": "well_id",
@@ -4139,6 +4238,35 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -4147,10 +4275,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ManualCheck"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ManualCheck"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableManualCheckPage"
+                    }
+                  ]
                 }
               }
             }
@@ -4160,12 +4295,22 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "checks.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "period": "overlap(start_at,end_at);sort=start_at",
+          "verdict": "in(result.verdict)",
+          "model_name": "contains(result.model_name)"
+        },
+        "x-table-query-version": 1
       },
       "post": {
         "tags": [
@@ -4720,7 +4865,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -4780,12 +4925,44 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "users.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "login": "contains(text)",
+          "role_ids": "in(decimal int64)",
+          "group_ids": "in(decimal int64)",
+          "organization_kind": "in(nullable enum)",
+          "ngdu_id": "in(nullable decimal int64)",
+          "department_id": "in(nullable decimal int64)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -5121,6 +5298,35 @@
               "format": "int64",
               "minimum": 1
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -5129,19 +5335,38 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WellHistory"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WellHistory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableWellHistoryPage"
+                    }
+                  ]
                 }
               }
             }
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "wells.history.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "kind": "in(text)",
+          "actor_name": "contains(actor.name)",
+          "changes": "contains(derived display text)",
+          "reason": "contains(text)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/ml/runs/{run_id}/snapshot": {
@@ -5347,7 +5572,7 @@
           "file-check-jobs"
         ],
         "summary": "Owner metadata history, fixed25, private cursor",
-        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "security": [
           {
             "SessionCookie": []
@@ -5371,6 +5596,35 @@
               "type": "string",
               "pattern": "^[a-f0-9]{32}$"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -5379,7 +5633,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FileJobPage"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FileJobPage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableFileJobPage"
+                    }
+                  ]
                 }
               }
             }
@@ -5410,12 +5671,21 @@
           },
           "410": {
             "$ref": "#/components/responses/FileJob410"
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "PRIVATE",
         "x-authorization-permissions": [
           "filechecks.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "state": "in(text)",
+          "model_name": "contains(execution.model_name)"
+        },
+        "x-table-query-version": 1
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}": {
@@ -6576,7 +6846,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -6625,12 +6895,40 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "roles.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "description": "contains(text)",
+          "permission_keys": "in(text)",
+          "permission_count": "range(number)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -6885,7 +7183,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -6934,12 +7232,39 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "groups.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "description": "contains(text)",
+          "role_ids": "in(decimal int64)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -7194,7 +7519,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -7251,13 +7576,45 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "groups.read",
           "users.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "login": "contains(text)",
+          "role_ids": "in(decimal int64)",
+          "group_ids": "in(decimal int64)",
+          "organization_kind": "in(nullable enum)",
+          "ngdu_id": "in(nullable decimal int64)",
+          "department_id": "in(nullable decimal int64)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/auth/access/preview": {
@@ -7278,7 +7635,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -7352,8 +7709,41 @@
               "pattern": "^[1-9][0-9]*$"
             },
             "description": "Optional expected graph revision as a canonical positive decimal int64 string (maximum 9223372036854775807). A different current revision returns 409; malformed/out-of-range input returns 422. This query parameter is separate from the receipt returned in the response."
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
-        ]
+        ],
+        "x-table-query-fields": {
+          "user_name": "contains(text)",
+          "before_organization": "contains(text)",
+          "after_organization": "contains(text)",
+          "before_active": "in(boolean)",
+          "after_active": "in(boolean)",
+          "added_permissions": "in(text)",
+          "removed_permissions": "in(text)",
+          "source_role_ids": "in(decimal int64)",
+          "source_group_ids": "in(decimal int64)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/people": {
@@ -7362,7 +7752,7 @@
           "people"
         ],
         "summary": "Search colleagues by name, job title and workplace (literal % and _; ID ascending live keyset)",
-        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store.",
+        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "security": [
           {
             "PulseSession": []
@@ -7409,6 +7799,26 @@
               "type": "string",
               "maxLength": 1024
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "responses": {
@@ -7423,7 +7833,7 @@
             }
           },
           "400": {
-            "description": "Malformed query, cursor or ID"
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Personal session expired or missing"
@@ -7434,7 +7844,17 @@
           "404": {
             "description": "Employee not found"
           }
-        }
+        },
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "job_title": "contains(text)",
+          "workplace_organization": "contains(text)",
+          "workplace_division": "contains(text)",
+          "workplace_department": "contains(text)",
+          "manager_name": "contains(text)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1
       }
     },
     "/api/v1/people/{account_id}": {
@@ -7492,7 +7912,7 @@
         "tags": [
           "events"
         ],
-        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа.",
+        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "summary": "История сохранённых ordinary событий",
         "parameters": [
           {
@@ -7570,6 +7990,26 @@
               "maxLength": 2048
             },
             "description": "Server-issued opaque continuation token; same normalized filters/limit required."
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "responses": {
@@ -7698,6 +8138,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
@@ -7712,7 +8155,20 @@
           [
             "wells.history.read"
           ]
-        ]
+        ],
+        "x-table-query-fields": {
+          "event_type": "in(six existing event types)",
+          "well_id": "contains(canonical positive int64 decimal text)",
+          "well_number": "contains(text)",
+          "archive": "in(current/archived)",
+          "occurred_at": "range(datetime)",
+          "actor_name": "contains(normalized actor.name)",
+          "actor_kind": "in(person/shared/service/unknown)",
+          "verdict": "in(nullable normalized enum)",
+          "review_status": "in(nullable normalized enum)",
+          "conclusion": "in(nullable normalized enum)"
+        },
+        "x-table-query-version": 1
       }
     },
     "/api/v1/events/{event_id}": {
@@ -7876,6 +8332,157 @@
             "wells.history.read"
           ]
         ]
+      }
+    },
+    "/api/v1/auth/users/filter-options": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Bounded role/group summary options of currently manageable users",
+        "description": "Requires users.read. Uses current CanManageAccount scope; no roles.read/groups.read permission or definition disclosure. Cursor binds graph revision/actor/query. Organization code facets derive only current visible AccountAccessView.Organization, require no users.scope.assign and retain signed/zero int64 codes with ID N labels.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.read"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "role_ids",
+                "group_ids",
+                "ngdu_id",
+                "department_id"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized summary options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessFilterOptionsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selector/cursor"
+          },
+          "401": {
+            "description": "Session required"
+          },
+          "403": {
+            "description": "users.read required"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/groups/filter-options": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Bounded role ID options of currently visible groups",
+        "description": "Requires groups.read only; distinct role_ids from current groupVisible projection, labels ID N, no role definitions or users graph disclosure.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "groups.read"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "role_ids"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized summary options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessFilterOptionsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selector/cursor"
+          },
+          "401": {
+            "description": "Session required"
+          },
+          "403": {
+            "description": "users.read required"
+          }
+        }
       }
     }
   },
@@ -13278,6 +13885,10 @@
               "none",
               "revoke_on_apply"
             ]
+          },
+          "table_filter_options": {
+            "$ref": "#/components/schemas/AccessPreviewTableFilterOptions",
+            "description": "Query mode only; full authorized impacts AFTER.Sources before table filters/page. Legacy response omits it; receipt/counts unchanged."
           }
         },
         "required": [
@@ -14662,6 +15273,485 @@
                 "type": "null"
               }
             ]
+          }
+        }
+      },
+      "TableSort": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "direction"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      },
+      "TableFilter": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op",
+              "value"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "contains"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 120
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op",
+              "values"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "in"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "range"
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "to"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "overlap"
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "to"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "TableQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "filters": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "$ref": "#/components/schemas/TableFilter"
+            },
+            "default": []
+          },
+          "sort": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "$ref": "#/components/schemas/TableSort"
+            },
+            "default": []
+          }
+        },
+        "description": "Closed per-route field/operator allowlist. AND across filters; OR within in. Empty in disables condition. Inclusive range/overlap. Sort array priority remains ordered, followed by stable unique key; null last in both directions. Exact int64 selectors use decimal strings. Numeric ranges accept canonical decimal strings without float64 conversion. Time bounds must be exactly representable at PostgreSQL microsecond precision; submicrosecond nonzero digits are rejected400, trailing zero digits allowed."
+      },
+      "TableCollectionLog": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TelemetryCollectionLog"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$",
+                "description": "Actual stable telemetry_collection_log DB ID, never a page offset."
+              }
+            }
+          }
+        ]
+      },
+      "TableWellEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WellEvent"
+          },
+          {
+            "type": "object",
+            "required": [
+              "changes"
+            ],
+            "properties": {
+              "changes": {
+                "type": "string",
+                "description": "Canonical display text derived from before/after, LF separated. Null —; boolean Да/Нет; existing Russian field labels."
+              }
+            }
+          }
+        ]
+      },
+      "TableAuditPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditRead"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableCollectionLogPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCollectionLog"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableManualCheckPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualCheck"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableFileJobPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileJobStatus"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableWellHistoryPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableWellEvent"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AccessFilterOptionsPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "graph_revision"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^(0|-?[1-9][0-9]*)$"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        }
+      },
+      "AccessPreviewTableFilterOptions": {
+        "type": "object",
+        "required": [
+          "source_role_ids",
+          "source_group_ids"
+        ],
+        "properties": {
+          "source_role_ids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?[1-9][0-9]*$",
+                  "description": "Exact int64 role/group ID; draft new object may use -1."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Name already present in AFTER permission sources of visible impact."
+                }
+              }
+            }
+          },
+          "source_group_ids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?[1-9][0-9]*$",
+                  "description": "Exact int64 role/group ID; draft new object may use -1."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Name already present in AFTER permission sources of visible impact."
+                }
+              }
+            }
           }
         }
       }

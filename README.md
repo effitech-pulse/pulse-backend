@@ -120,6 +120,8 @@ curl http://127.0.0.1:8000/health
 
 Настройка персонального входа, ограничения scope, будущий Keycloak/OIDC и общие фильтры: [интеграции и рабочие сценарии](docs/telemetry-integrations.md).
 
+Фильтры колонок и множественная сортировка: [query-режим таблиц](docs/table-query.md).
+
 Полный HTTP-контракт: [api/openapi.json](api/openapi.json), доступен также по `/openapi.json`.
 
 ## Разработка

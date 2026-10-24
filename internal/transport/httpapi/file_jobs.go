@@ -290,6 +290,21 @@ func (s *Server) listFileJobs(c *gin.Context) error {
 	if e != nil {
 		return e
 	}
+	if tableQueryRequested(c) {
+		raw, size, cursor, e := tableQueryParams(c)
+		if e != nil {
+			return e
+		}
+		page, e := s.FileJobs.ListTable(c.Request.Context(), well, raw, size, cursor)
+		if e != nil {
+			return writeFileJobError(c, e)
+		}
+		items := make([]fileJobStatusDTO, 0, len(page.Items))
+		for _, job := range page.Items {
+			items = append(items, s.fileJobDTO(job))
+		}
+		return writeJSON(c, 200, domain.TablePage[fileJobStatusDTO]{Items: items, NextCursor: page.NextCursor})
+	}
 	v, e := s.FileJobs.List(c.Request.Context(), well, c.Query("before"))
 	if e != nil {
 		return writeFileJobError(c, e)

@@ -260,6 +260,9 @@ func matchesAccessSearch(q domain.AccessPageQuery, values ...string) bool {
 	return false
 }
 func accountPage(g accessGraph, q domain.AccessPageQuery, kind string, groupID *int64) (domain.AccountPage, error) {
+	if q.Table != nil {
+		return accountTablePage(g, q, kind, groupID)
+	}
 	out := domain.AccountPage{Items: make([]domain.Account, 0), GraphRevision: g.Revision}
 	limit, last, e := pageBounds(g, q, kind)
 	if e != nil {
@@ -311,6 +314,11 @@ func (r *Repository) ManagedAccount(ctx context.Context, actorID, targetID int64
 }
 func (r *Repository) ListAccessRoles(ctx context.Context, id int64, q domain.AccessPageQuery) (out domain.RolePage, e error) {
 	e = r.withAccessGraph(ctx, id, "roles.read", func(_ db, g accessGraph) error {
+		if q.Table != nil {
+			var err error
+			out, err = roleTablePage(g, q)
+			return err
+		}
 		out = domain.RolePage{Items: make([]domain.AccessRole, 0), GraphRevision: g.Revision}
 		limit, last, e := pageBounds(g, q, "roles")
 		if e != nil {
@@ -348,6 +356,11 @@ func (r *Repository) AccessRole(ctx context.Context, actorID, roleID int64) (out
 }
 func (r *Repository) ListAccessGroups(ctx context.Context, id int64, q domain.AccessPageQuery) (out domain.GroupPage, e error) {
 	e = r.withAccessGraph(ctx, id, "groups.read", func(_ db, g accessGraph) error {
+		if q.Table != nil {
+			var err error
+			out, err = groupTablePage(g, q)
+			return err
+		}
 		out = domain.GroupPage{Items: make([]domain.AccessGroup, 0), GraphRevision: g.Revision}
 		limit, last, e := pageBounds(g, q, "groups")
 		if e != nil {

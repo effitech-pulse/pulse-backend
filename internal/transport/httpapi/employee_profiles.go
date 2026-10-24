@@ -74,6 +74,19 @@ func (s *Server) people(c *gin.Context) error {
 		}
 		return writeJSON(c, 200, v)
 	}
+	if tableQueryRequested(c) {
+		raw, size, cursor, e := tableQueryParams(c)
+		if e != nil {
+			return e
+		}
+		for key := range c.Request.URL.Query() {
+			if key != "table_query" && key != "page_size" && key != "cursor" {
+				return validation("invalid_table_query")
+			}
+		}
+		page, e := s.Access.ListPeopleTable(c.Request.Context(), raw, size, cursor)
+		return respond(c, 200, page, e)
+	}
 	values, err := url.ParseQuery(c.Request.URL.RawQuery)
 	if err != nil {
 		c.JSON(400, gin.H{"code": "invalid", "message": "Некорректный запрос справочника"})

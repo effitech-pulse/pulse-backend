@@ -12,6 +12,8 @@ type RoutePolicy struct {
 }
 
 var authorizationPolicies = []RoutePolicy{
+	{Method: "GET", Path: "/auth/groups/filter-options", All: []domain.Permission{"groups.read"}, ScopeRule: "M"},
+	{Method: "GET", Path: "/auth/users/filter-options", All: []domain.Permission{"users.read"}, ScopeRule: "M"},
 	{Method: "GET", Path: "/events", Any: [][]domain.Permission{{"checks.read"}, {"alerts.read"}, {"wells.history.read"}}, ScopeRule: "W"},
 	{Method: "GET", Path: "/events/:event_id", Any: [][]domain.Permission{{"checks.read"}, {"alerts.read"}, {"wells.history.read"}}, ScopeRule: "W"},
 	{Method: "GET", Path: "/people", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "SELF"},

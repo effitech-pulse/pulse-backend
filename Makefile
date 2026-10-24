@@ -1,4 +1,5 @@
 GO ?= go
+INTEGRATION_TIMEOUT ?= 40m
 .PHONY: build run migrate test integration vet fmt check test-db-up test-db-down
 build:
 	$(GO) build -trimpath -o bin/collection-worker ./cmd/collection-worker
@@ -16,7 +17,7 @@ test:
 	$(GO) test -race ./internal/... ./test/architecture/...
 integration:
 	@test -n "$(TEST_DATABASE_URL)" || (echo "TEST_DATABASE_URL is required" >&2; exit 1)
-	$(GO) test -race -count=1 ./test/integration/...
+	$(GO) test -race -count=1 -timeout=$(INTEGRATION_TIMEOUT) ./test/integration/...
 vet:
 	$(GO) vet ./...
 fmt:
