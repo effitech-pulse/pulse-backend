@@ -89,12 +89,7 @@ func (r *Repository) ListPeople(ctx context.Context, actor int64, q domain.Peopl
 			query = query.Where(sq.Eq{"u.active": true})
 		}
 		if q.Search != "" {
-			pattern := "%" + strings.NewReplacer(`\`, `\\`, "%", `\%`, "_", `\_`).Replace(q.Search) + "%"
-			terms := sq.Or{}
-			for _, col := range []string{"u.name", "u.job_title", "u.workplace_organization", "u.workplace_division", "u.workplace_department"} {
-				terms = append(terms, sq.ILike{col: pattern})
-			}
-			query = query.Where(terms)
+			query = query.Where(peopleSearch(q.Search))
 		}
 		items, err := list[domain.EmployeeProfile](ctx, conn, query)
 		if err != nil {
@@ -218,4 +213,14 @@ func (r *Repository) ValidateEmployeeProfiles(ctx context.Context) error {
 		return domain.NewError(domain.Unavailable, "employee_profiles_schema_required")
 	}
 	return nil
+}
+
+// peopleSearch сохраняет literal LIKE semantics для всех safe directory projections.
+func peopleSearch(search string) sq.Or {
+	pattern := "%" + strings.NewReplacer(`\`, `\\`, "%", `\%`, "_", `\_`).Replace(search) + "%"
+	terms := sq.Or{}
+	for _, col := range []string{"u.name", "u.job_title", "u.workplace_organization", "u.workplace_division", "u.workplace_department"} {
+		terms = append(terms, sq.ILike{col: pattern})
+	}
+	return terms
 }
