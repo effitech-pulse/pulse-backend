@@ -1,0 +1,5 @@
+{
+  "code": "validation_error",
+  "message": "daily_flow_invalid_query",
+  "detail": "daily_flow_invalid_query"
+}

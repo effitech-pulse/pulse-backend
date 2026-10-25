@@ -1,0 +1,306 @@
+{
+  "enabled": true,
+  "schema_version": "daily-flow-v1",
+  "well_id": "1004",
+  "start_date": "2026-09-25",
+  "end_date": "2026-10-24",
+  "calendar_timezone": "Europe/Moscow",
+  "quantity": "liquid_rate",
+  "unit": "m3/day",
+  "dataset_version": "prep100-daily-v1",
+  "view_id": "13c92b38cb81a9e38bfd1c43f35e890a292b8cda243a0c1552189803ef73fdff",
+  "source": {
+    "kind": "test_generated",
+    "synthetic": true,
+    "label": "Тестовые данные",
+    "expected_definition": "synthetic_reference",
+    "scenario_code": "gaps",
+    "recipe_version": "daily-liquid-synthetic-v1",
+    "manifest_sha256": "e4663d57442bacdf49dc207e4db965e77ac76b7fbced18a7e25fa94ee2789418",
+    "dataset_sha256": "4124916953c1344c001ab123b18cfc4b0cbc5efde8f7eaf7b024e0b367ac0b83"
+  },
+  "available": {
+    "start_date": "2026-07-27",
+    "end_date": "2026-10-24"
+  },
+  "coverage": {
+    "calendar_days": 30,
+    "recorded_days": 27,
+    "actual_days": 20,
+    "expected_days": 21,
+    "paired_days": 17,
+    "comparable_percent_days": 17
+  },
+  "rows": [
+    {
+      "date": "2026-09-25",
+      "actual": null,
+      "expected": 99.81,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_actual"
+    },
+    {
+      "date": "2026-09-26",
+      "actual": 100.92,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_expected"
+    },
+    {
+      "date": "2026-09-27",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-28",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-29",
+      "actual": 100.8,
+      "expected": 100.4,
+      "delta": 0.4,
+      "delta_percent": 0.4,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-30",
+      "actual": 100.88,
+      "expected": 100.44,
+      "delta": 0.44,
+      "delta_percent": 0.44,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-01",
+      "actual": 100.72,
+      "expected": 100.36,
+      "delta": 0.36,
+      "delta_percent": 0.36,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-02",
+      "actual": 101,
+      "expected": 100.5,
+      "delta": 0.5,
+      "delta_percent": 0.5,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-03",
+      "actual": 100.38,
+      "expected": 100.19,
+      "delta": 0.19,
+      "delta_percent": 0.19,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-04",
+      "actual": 99.18,
+      "expected": 99.59,
+      "delta": -0.41,
+      "delta_percent": -0.41,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-05",
+      "actual": null,
+      "expected": 99.59,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_actual"
+    },
+    {
+      "date": "2026-10-06",
+      "actual": 99.48,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_expected"
+    },
+    {
+      "date": "2026-10-07",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-08",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-09",
+      "actual": 100.66,
+      "expected": 100.33,
+      "delta": 0.33,
+      "delta_percent": 0.33,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-10",
+      "actual": 100.22,
+      "expected": 100.11,
+      "delta": 0.11,
+      "delta_percent": 0.11,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-11",
+      "actual": 100.56,
+      "expected": 100.28,
+      "delta": 0.28,
+      "delta_percent": 0.28,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-12",
+      "actual": 99.88,
+      "expected": 99.94,
+      "delta": -0.06,
+      "delta_percent": -0.06,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-13",
+      "actual": 99.26,
+      "expected": 99.63,
+      "delta": -0.37,
+      "delta_percent": -0.37,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-14",
+      "actual": 100.18,
+      "expected": 100.09,
+      "delta": 0.09,
+      "delta_percent": 0.09,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-15",
+      "actual": null,
+      "expected": 100.08,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_actual"
+    },
+    {
+      "date": "2026-10-16",
+      "actual": 99.16,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_expected"
+    },
+    {
+      "date": "2026-10-17",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-18",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-19",
+      "actual": 100.02,
+      "expected": 100.01,
+      "delta": 0.01,
+      "delta_percent": 0.01,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-20",
+      "actual": 100.52,
+      "expected": 100.26,
+      "delta": 0.26,
+      "delta_percent": 0.26,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-21",
+      "actual": 100,
+      "expected": 100,
+      "delta": 0,
+      "delta_percent": 0,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-22",
+      "actual": 100.96,
+      "expected": 100.48,
+      "delta": 0.48,
+      "delta_percent": 0.48,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-23",
+      "actual": 99.78,
+      "expected": 99.89,
+      "delta": -0.11,
+      "delta_percent": -0.11,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-24",
+      "actual": null,
+      "expected": 99.93,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "present",
+      "comparison_status": "missing_actual"
+    }
+  ]
+}

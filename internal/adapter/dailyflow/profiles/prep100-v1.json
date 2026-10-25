@@ -1,0 +1,712 @@
+{
+  "dataset_version": "prep100-daily-v1",
+  "recipe_version": "daily-liquid-synthetic-v1",
+  "seed": "pulse-wo-g-20261025",
+  "canonicalization": "daily-flow-canonical-v1",
+  "cohort_version": "presentation-v1",
+  "cohort_manifest_sha256": "ffb6aafa9ba22548f6ffdb17e0b172d4f0582655f133fbc3a6385af83413b1cb",
+  "start_date": "2026-07-27",
+  "end_date": "2026-10-24",
+  "members": [
+    {
+      "well_id": 1001,
+      "unitek_id": -900000,
+      "armits_id": -900000,
+      "ordinal": 0,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1002,
+      "unitek_id": -900001,
+      "armits_id": -900001,
+      "ordinal": 1,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1003,
+      "unitek_id": -900002,
+      "armits_id": -900002,
+      "ordinal": 2,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1004,
+      "unitek_id": -900003,
+      "armits_id": -900003,
+      "ordinal": 3,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1005,
+      "unitek_id": -900004,
+      "armits_id": -900004,
+      "ordinal": 4,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1006,
+      "unitek_id": -900005,
+      "armits_id": -900005,
+      "ordinal": 5,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1007,
+      "unitek_id": -900006,
+      "armits_id": -900006,
+      "ordinal": 6,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1008,
+      "unitek_id": -900007,
+      "armits_id": -900007,
+      "ordinal": 7,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1009,
+      "unitek_id": -900008,
+      "armits_id": -900008,
+      "ordinal": 8,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1010,
+      "unitek_id": -900009,
+      "armits_id": -900009,
+      "ordinal": 9,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1011,
+      "unitek_id": -900010,
+      "armits_id": -900010,
+      "ordinal": 10,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1012,
+      "unitek_id": -900011,
+      "armits_id": -900011,
+      "ordinal": 11,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1013,
+      "unitek_id": -900012,
+      "armits_id": -900012,
+      "ordinal": 12,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1014,
+      "unitek_id": -900013,
+      "armits_id": -900013,
+      "ordinal": 13,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1015,
+      "unitek_id": -900014,
+      "armits_id": -900014,
+      "ordinal": 14,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1016,
+      "unitek_id": -900015,
+      "armits_id": -900015,
+      "ordinal": 15,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1017,
+      "unitek_id": -900016,
+      "armits_id": -900016,
+      "ordinal": 16,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1018,
+      "unitek_id": -900017,
+      "armits_id": -900017,
+      "ordinal": 17,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1019,
+      "unitek_id": -900018,
+      "armits_id": -900018,
+      "ordinal": 18,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1020,
+      "unitek_id": -900019,
+      "armits_id": -900019,
+      "ordinal": 19,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1021,
+      "unitek_id": -900020,
+      "armits_id": -900020,
+      "ordinal": 20,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1022,
+      "unitek_id": -900021,
+      "armits_id": -900021,
+      "ordinal": 21,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1023,
+      "unitek_id": -900022,
+      "armits_id": -900022,
+      "ordinal": 22,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1024,
+      "unitek_id": -900023,
+      "armits_id": -900023,
+      "ordinal": 23,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1025,
+      "unitek_id": -900024,
+      "armits_id": -900024,
+      "ordinal": 24,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1026,
+      "unitek_id": -900025,
+      "armits_id": -900025,
+      "ordinal": 25,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1027,
+      "unitek_id": -900026,
+      "armits_id": -900026,
+      "ordinal": 26,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1028,
+      "unitek_id": -900027,
+      "armits_id": -900027,
+      "ordinal": 27,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1029,
+      "unitek_id": -900028,
+      "armits_id": -900028,
+      "ordinal": 28,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1030,
+      "unitek_id": -900029,
+      "armits_id": -900029,
+      "ordinal": 29,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1031,
+      "unitek_id": -900030,
+      "armits_id": -900030,
+      "ordinal": 30,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1032,
+      "unitek_id": -900031,
+      "armits_id": -900031,
+      "ordinal": 31,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1033,
+      "unitek_id": -900032,
+      "armits_id": -900032,
+      "ordinal": 32,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1034,
+      "unitek_id": -900033,
+      "armits_id": -900033,
+      "ordinal": 33,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1035,
+      "unitek_id": -900034,
+      "armits_id": -900034,
+      "ordinal": 34,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1036,
+      "unitek_id": -900035,
+      "armits_id": -900035,
+      "ordinal": 35,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1037,
+      "unitek_id": -900036,
+      "armits_id": -900036,
+      "ordinal": 36,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1038,
+      "unitek_id": -900037,
+      "armits_id": -900037,
+      "ordinal": 37,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1039,
+      "unitek_id": -900038,
+      "armits_id": -900038,
+      "ordinal": 38,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1040,
+      "unitek_id": -900039,
+      "armits_id": -900039,
+      "ordinal": 39,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1041,
+      "unitek_id": -900040,
+      "armits_id": -900040,
+      "ordinal": 40,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1042,
+      "unitek_id": -900041,
+      "armits_id": -900041,
+      "ordinal": 41,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1043,
+      "unitek_id": -900042,
+      "armits_id": -900042,
+      "ordinal": 42,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1044,
+      "unitek_id": -900043,
+      "armits_id": -900043,
+      "ordinal": 43,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1045,
+      "unitek_id": -900044,
+      "armits_id": -900044,
+      "ordinal": 44,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1046,
+      "unitek_id": -900045,
+      "armits_id": -900045,
+      "ordinal": 45,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1047,
+      "unitek_id": -900046,
+      "armits_id": -900046,
+      "ordinal": 46,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1048,
+      "unitek_id": -900047,
+      "armits_id": -900047,
+      "ordinal": 47,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1049,
+      "unitek_id": -900048,
+      "armits_id": -900048,
+      "ordinal": 48,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1050,
+      "unitek_id": -900049,
+      "armits_id": -900049,
+      "ordinal": 49,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1051,
+      "unitek_id": -900050,
+      "armits_id": -900050,
+      "ordinal": 50,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1052,
+      "unitek_id": -900051,
+      "armits_id": -900051,
+      "ordinal": 51,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1053,
+      "unitek_id": -900052,
+      "armits_id": -900052,
+      "ordinal": 52,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1054,
+      "unitek_id": -900053,
+      "armits_id": -900053,
+      "ordinal": 53,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1055,
+      "unitek_id": -900054,
+      "armits_id": -900054,
+      "ordinal": 54,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1056,
+      "unitek_id": -900055,
+      "armits_id": -900055,
+      "ordinal": 55,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1057,
+      "unitek_id": -900056,
+      "armits_id": -900056,
+      "ordinal": 56,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1058,
+      "unitek_id": -900057,
+      "armits_id": -900057,
+      "ordinal": 57,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1059,
+      "unitek_id": -900058,
+      "armits_id": -900058,
+      "ordinal": 58,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1060,
+      "unitek_id": -900059,
+      "armits_id": -900059,
+      "ordinal": 59,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1061,
+      "unitek_id": -900060,
+      "armits_id": -900060,
+      "ordinal": 60,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1062,
+      "unitek_id": -900061,
+      "armits_id": -900061,
+      "ordinal": 61,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1063,
+      "unitek_id": -900062,
+      "armits_id": -900062,
+      "ordinal": 62,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1064,
+      "unitek_id": -900063,
+      "armits_id": -900063,
+      "ordinal": 63,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1065,
+      "unitek_id": -900064,
+      "armits_id": -900064,
+      "ordinal": 64,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1066,
+      "unitek_id": -900065,
+      "armits_id": -900065,
+      "ordinal": 65,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1067,
+      "unitek_id": -900066,
+      "armits_id": -900066,
+      "ordinal": 66,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1068,
+      "unitek_id": -900067,
+      "armits_id": -900067,
+      "ordinal": 67,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1069,
+      "unitek_id": -900068,
+      "armits_id": -900068,
+      "ordinal": 68,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1070,
+      "unitek_id": -900069,
+      "armits_id": -900069,
+      "ordinal": 69,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1071,
+      "unitek_id": -900070,
+      "armits_id": -900070,
+      "ordinal": 70,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1072,
+      "unitek_id": -900071,
+      "armits_id": -900071,
+      "ordinal": 71,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1073,
+      "unitek_id": -900072,
+      "armits_id": -900072,
+      "ordinal": 72,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1074,
+      "unitek_id": -900073,
+      "armits_id": -900073,
+      "ordinal": 73,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1075,
+      "unitek_id": -900074,
+      "armits_id": -900074,
+      "ordinal": 74,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1076,
+      "unitek_id": -900075,
+      "armits_id": -900075,
+      "ordinal": 75,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1077,
+      "unitek_id": -900076,
+      "armits_id": -900076,
+      "ordinal": 76,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1078,
+      "unitek_id": -900077,
+      "armits_id": -900077,
+      "ordinal": 77,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1079,
+      "unitek_id": -900078,
+      "armits_id": -900078,
+      "ordinal": 78,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1080,
+      "unitek_id": -900079,
+      "armits_id": -900079,
+      "ordinal": 79,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1081,
+      "unitek_id": -900080,
+      "armits_id": -900080,
+      "ordinal": 80,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1082,
+      "unitek_id": -900081,
+      "armits_id": -900081,
+      "ordinal": 81,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1083,
+      "unitek_id": -900082,
+      "armits_id": -900082,
+      "ordinal": 82,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1084,
+      "unitek_id": -900083,
+      "armits_id": -900083,
+      "ordinal": 83,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1085,
+      "unitek_id": -900084,
+      "armits_id": -900084,
+      "ordinal": 84,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1086,
+      "unitek_id": -900085,
+      "armits_id": -900085,
+      "ordinal": 85,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1087,
+      "unitek_id": -900086,
+      "armits_id": -900086,
+      "ordinal": 86,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1088,
+      "unitek_id": -900087,
+      "armits_id": -900087,
+      "ordinal": 87,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1089,
+      "unitek_id": -900088,
+      "armits_id": -900088,
+      "ordinal": 88,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1090,
+      "unitek_id": -900089,
+      "armits_id": -900089,
+      "ordinal": 89,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1091,
+      "unitek_id": -900090,
+      "armits_id": -900090,
+      "ordinal": 90,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1092,
+      "unitek_id": -900091,
+      "armits_id": -900091,
+      "ordinal": 91,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1093,
+      "unitek_id": -900092,
+      "armits_id": -900092,
+      "ordinal": 92,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1094,
+      "unitek_id": -900093,
+      "armits_id": -900093,
+      "ordinal": 93,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1095,
+      "unitek_id": -900094,
+      "armits_id": -900094,
+      "ordinal": 94,
+      "scenario_code": "zero_expected"
+    },
+    {
+      "well_id": 1096,
+      "unitek_id": -900095,
+      "armits_id": -900095,
+      "ordinal": 95,
+      "scenario_code": "steady"
+    },
+    {
+      "well_id": 1097,
+      "unitek_id": -900096,
+      "armits_id": -900096,
+      "ordinal": 96,
+      "scenario_code": "decline"
+    },
+    {
+      "well_id": 1098,
+      "unitek_id": -900097,
+      "armits_id": -900097,
+      "ordinal": 97,
+      "scenario_code": "zero_actual"
+    },
+    {
+      "well_id": 1099,
+      "unitek_id": -900098,
+      "armits_id": -900098,
+      "ordinal": 98,
+      "scenario_code": "gaps"
+    },
+    {
+      "well_id": 1100,
+      "unitek_id": -900099,
+      "armits_id": -900099,
+      "ordinal": 99,
+      "scenario_code": "zero_expected"
+    }
+  ]
+}

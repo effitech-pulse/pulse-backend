@@ -1,0 +1,306 @@
+{
+  "enabled": true,
+  "schema_version": "daily-flow-v1",
+  "well_id": "1001",
+  "start_date": "2026-09-25",
+  "end_date": "2026-10-24",
+  "calendar_timezone": "Europe/Moscow",
+  "quantity": "liquid_rate",
+  "unit": "m3/day",
+  "dataset_version": "prep100-daily-v1",
+  "view_id": "22b02c6957b982ad7ad5357c19b0c4a40eea1271be35509170b349f0e2b80f45",
+  "source": {
+    "kind": "test_generated",
+    "synthetic": true,
+    "label": "Тестовые данные",
+    "expected_definition": "synthetic_reference",
+    "scenario_code": "steady",
+    "recipe_version": "daily-liquid-synthetic-v1",
+    "manifest_sha256": "e4663d57442bacdf49dc207e4db965e77ac76b7fbced18a7e25fa94ee2789418",
+    "dataset_sha256": "4124916953c1344c001ab123b18cfc4b0cbc5efde8f7eaf7b024e0b367ac0b83"
+  },
+  "available": {
+    "start_date": "2026-07-27",
+    "end_date": "2026-10-24"
+  },
+  "coverage": {
+    "calendar_days": 30,
+    "recorded_days": 0,
+    "actual_days": 0,
+    "expected_days": 0,
+    "paired_days": 0,
+    "comparable_percent_days": 0
+  },
+  "rows": [
+    {
+      "date": "2026-09-25",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-26",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-27",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-28",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-29",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-09-30",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-01",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-02",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-03",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-04",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-05",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-06",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-07",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-08",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-09",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-10",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-11",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-12",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-13",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-14",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-15",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-16",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-17",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-18",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-19",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-20",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-21",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-22",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-23",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    },
+    {
+      "date": "2026-10-24",
+      "actual": null,
+      "expected": null,
+      "delta": null,
+      "delta_percent": null,
+      "record_state": "missing_day",
+      "comparison_status": "missing_both"
+    }
+  ]
+}

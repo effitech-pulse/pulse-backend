@@ -1,0 +1,306 @@
+{
+  "enabled": true,
+  "schema_version": "daily-flow-v1",
+  "well_id": "1001",
+  "start_date": "2026-09-25",
+  "end_date": "2026-10-24",
+  "calendar_timezone": "Europe/Moscow",
+  "quantity": "liquid_rate",
+  "unit": "m3/day",
+  "dataset_version": "prep100-daily-v1",
+  "view_id": "24163d3278c9ff9965146a13a0fe8d85e058f806caf52a22e8b3896a4b07477b",
+  "source": {
+    "kind": "test_generated",
+    "synthetic": true,
+    "label": "Тестовые данные",
+    "expected_definition": "synthetic_reference",
+    "scenario_code": "steady",
+    "recipe_version": "daily-liquid-synthetic-v1",
+    "manifest_sha256": "e4663d57442bacdf49dc207e4db965e77ac76b7fbced18a7e25fa94ee2789418",
+    "dataset_sha256": "4124916953c1344c001ab123b18cfc4b0cbc5efde8f7eaf7b024e0b367ac0b83"
+  },
+  "available": {
+    "start_date": "2026-07-27",
+    "end_date": "2026-10-24"
+  },
+  "coverage": {
+    "calendar_days": 30,
+    "recorded_days": 30,
+    "actual_days": 30,
+    "expected_days": 30,
+    "paired_days": 30,
+    "comparable_percent_days": 30
+  },
+  "rows": [
+    {
+      "date": "2026-09-25",
+      "actual": 99.94,
+      "expected": 99.97,
+      "delta": -0.03,
+      "delta_percent": -0.03,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-26",
+      "actual": 100.96,
+      "expected": 100.48,
+      "delta": 0.48,
+      "delta_percent": 0.48,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-27",
+      "actual": 99.48,
+      "expected": 99.74,
+      "delta": -0.26,
+      "delta_percent": -0.26,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-28",
+      "actual": 100.06,
+      "expected": 100.03,
+      "delta": 0.03,
+      "delta_percent": 0.03,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-29",
+      "actual": 100.84,
+      "expected": 100.42,
+      "delta": 0.42,
+      "delta_percent": 0.42,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-09-30",
+      "actual": 99.96,
+      "expected": 99.98,
+      "delta": -0.02,
+      "delta_percent": -0.02,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-01",
+      "actual": 99.46,
+      "expected": 99.73,
+      "delta": -0.27,
+      "delta_percent": -0.27,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-02",
+      "actual": 99.2,
+      "expected": 99.6,
+      "delta": -0.4,
+      "delta_percent": -0.4,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-03",
+      "actual": 99.46,
+      "expected": 99.73,
+      "delta": -0.27,
+      "delta_percent": -0.27,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-04",
+      "actual": 99.4,
+      "expected": 99.7,
+      "delta": -0.3,
+      "delta_percent": -0.3,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-05",
+      "actual": 99.04,
+      "expected": 99.52,
+      "delta": -0.48,
+      "delta_percent": -0.48,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-06",
+      "actual": 99.74,
+      "expected": 99.87,
+      "delta": -0.13,
+      "delta_percent": -0.13,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-07",
+      "actual": 101,
+      "expected": 100.5,
+      "delta": 0.5,
+      "delta_percent": 0.5,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-08",
+      "actual": 100.22,
+      "expected": 100.11,
+      "delta": 0.11,
+      "delta_percent": 0.11,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-09",
+      "actual": 100.68,
+      "expected": 100.34,
+      "delta": 0.34,
+      "delta_percent": 0.34,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-10",
+      "actual": 99.36,
+      "expected": 99.68,
+      "delta": -0.32,
+      "delta_percent": -0.32,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-11",
+      "actual": 99.68,
+      "expected": 99.84,
+      "delta": -0.16,
+      "delta_percent": -0.16,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-12",
+      "actual": 100.84,
+      "expected": 100.42,
+      "delta": 0.42,
+      "delta_percent": 0.42,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-13",
+      "actual": 99.72,
+      "expected": 99.86,
+      "delta": -0.14,
+      "delta_percent": -0.14,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-14",
+      "actual": 100.84,
+      "expected": 100.42,
+      "delta": 0.42,
+      "delta_percent": 0.42,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-15",
+      "actual": 100.34,
+      "expected": 100.17,
+      "delta": 0.17,
+      "delta_percent": 0.17,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-16",
+      "actual": 100.42,
+      "expected": 100.21,
+      "delta": 0.21,
+      "delta_percent": 0.21,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-17",
+      "actual": 99.22,
+      "expected": 99.61,
+      "delta": -0.39,
+      "delta_percent": -0.39,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-18",
+      "actual": 99.66,
+      "expected": 99.83,
+      "delta": -0.17,
+      "delta_percent": -0.17,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-19",
+      "actual": 100.56,
+      "expected": 100.28,
+      "delta": 0.28,
+      "delta_percent": 0.28,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-20",
+      "actual": 99.72,
+      "expected": 99.86,
+      "delta": -0.14,
+      "delta_percent": -0.14,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-21",
+      "actual": 100.34,
+      "expected": 100.17,
+      "delta": 0.17,
+      "delta_percent": 0.17,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-22",
+      "actual": 100.5,
+      "expected": 100.25,
+      "delta": 0.25,
+      "delta_percent": 0.25,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-23",
+      "actual": 99.42,
+      "expected": 99.71,
+      "delta": -0.29,
+      "delta_percent": -0.29,
+      "record_state": "present",
+      "comparison_status": "paired"
+    },
+    {
+      "date": "2026-10-24",
+      "actual": 100.44,
+      "expected": 100.22,
+      "delta": 0.22,
+      "delta_percent": 0.22,
+      "record_state": "present",
+      "comparison_status": "paired"
+    }
+  ]
+}
