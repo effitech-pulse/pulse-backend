@@ -65,17 +65,18 @@ type AccessImpact struct {
 }
 
 type AccessPreview struct {
-	ProfileChange *ProfileChangeSummary `json:"profile_change"`
-	SessionEffect string                `json:"session_effect"`
-	GraphRevision int64                 `json:"graph_revision"`
-	ActorEpoch    int64                 `json:"actor_epoch"`
-	Fingerprint   string                `json:"fingerprint"`
-	AssignedUsers int                   `json:"assigned_users"`
-	ChangedUsers  int                   `json:"changed_users"`
-	DisabledUsers int                   `json:"disabled_users"`
-	SelfAffected  bool                  `json:"self_affected"`
-	Items         []AccessImpact        `json:"items"`
-	NextCursor    *string               `json:"next_cursor"`
+	TableFilterOptions *AccessPreviewFilterOptions `json:"table_filter_options,omitempty"`
+	ProfileChange      *ProfileChangeSummary       `json:"profile_change"`
+	SessionEffect      string                      `json:"session_effect"`
+	GraphRevision      int64                       `json:"graph_revision"`
+	ActorEpoch         int64                       `json:"actor_epoch"`
+	Fingerprint        string                      `json:"fingerprint"`
+	AssignedUsers      int                         `json:"assigned_users"`
+	ChangedUsers       int                         `json:"changed_users"`
+	DisabledUsers      int                         `json:"disabled_users"`
+	SelfAffected       bool                        `json:"self_affected"`
+	Items              []AccessImpact              `json:"items"`
+	NextCursor         *string                     `json:"next_cursor"`
 }
 
 type AccessApply struct {
@@ -96,6 +97,7 @@ type AccessApplyResult struct {
 }
 
 type AccessPageQuery struct {
+	Table         *TableRequest
 	Search        string
 	Limit         int
 	Cursor        string

@@ -10,6 +10,14 @@ func (s *Server) manualChecks(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
+	if tableQueryRequested(c) {
+		raw, size, cursor, err := tableQueryParams(c)
+		if err != nil {
+			return err
+		}
+		page, err := s.Checks.ListTable(c.Request.Context(), well.ID, raw, size, cursor)
+		return respond(c, 200, page, err)
+	}
 	v, err := s.Checks.List(c.Request.Context(), well.ID, c.Query("before"))
 	return respond(c, 200, v, err)
 }

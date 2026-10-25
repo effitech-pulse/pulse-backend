@@ -67,16 +67,8 @@ func TestCohortPublicationPreservesAlertReset(t *testing.T) {
 		if e != nil || claim == nil {
 			t.Fatal(e)
 		}
-		// This manual worker preparation must renew at the worker's 10s cadence.
-		nextRenewal := time.Now().Add(10 * time.Second)
 		for i := 0; i < 100; i++ {
-			if !time.Now().Before(nextRenewal) {
-				if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-					claim.Close()
-					t.Fatal(e)
-				}
-				nextRenewal = time.Now().Add(10 * time.Second)
-			}
+			renewCohortFixture(t, ctx, r, claim.Lease(), i)
 			x, e := r.NextCohortMember(ctx, claim.Lease())
 			if e != nil || x == nil {
 				claim.Close()
@@ -93,10 +85,6 @@ func TestCohortPublicationPreservesAlertReset(t *testing.T) {
 				t.Fatal(e)
 			}
 		}
-		if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-			claim.Close()
-			t.Fatal(e)
-		}
 		if iteration == 0 {
 			if _, e = pool.Exec(ctx, `CREATE FUNCTION q2_fail_after_alert() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN RAISE EXCEPTION 'after-alert';END$$;CREATE TRIGGER q2_fault BEFORE INSERT ON ml_run_snapshot FOR EACH ROW EXECUTE FUNCTION q2_fail_after_alert()`); e != nil {
 				t.Fatal(e)
@@ -111,10 +99,6 @@ func TestCohortPublicationPreservesAlertReset(t *testing.T) {
 				t.Fatal("partial alert leak", count)
 			}
 			_, _ = pool.Exec(ctx, "DROP TRIGGER q2_fault ON ml_run_snapshot")
-		}
-		if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-			claim.Close()
-			t.Fatal(e)
 		}
 		if _, e = r.FinishCohortJob(ctx, claim.Lease(), nil); e != nil {
 			claim.Close()

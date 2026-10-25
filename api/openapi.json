@@ -2338,6 +2338,35 @@
               ],
               "title": "X-Api-Key"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -2346,11 +2375,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuditRead"
-                  },
-                  "title": "Response List Audit Api V1 Audit Get"
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuditRead"
+                      },
+                      "title": "Response List Audit Api V1 Audit Get"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableAuditPage"
+                    }
+                  ]
                 }
               }
             }
@@ -2367,12 +2403,24 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "FULL",
         "x-authorization-permissions": [
           "audit.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "ts": "range:naive datetime; timezone unspecified; no offset",
+          "actor": "contains/in(nullable text)",
+          "method": "in(text)",
+          "path": "contains(text)",
+          "status_code": "range(number)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged. action_log.ts is TIMESTAMP WITHOUT TIME ZONE; historical zone unknown. ts range uses YYYY-MM-DDTHH:mm:ss[.fraction up to6] without offset, comparison and sort preserve wall clock. No timezone is invented; retention remains7days."
       }
     },
     "/api/v1/ml/wells/refresh": {
@@ -3251,10 +3299,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TelemetryCollectionLog"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TelemetryCollectionLog"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableCollectionLogPage"
+                    }
+                  ]
                 }
               }
             }
@@ -3267,12 +3322,56 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "integrations.logs.read"
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "x-table-query-fields": {
+          "timestamp": "range(datetime)",
+          "source_id": "in(text)",
+          "accepted": "range(number)",
+          "duplicates": "range(number)",
+          "rejected": "range(number)",
+          "message": "contains(text)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/integrations/{source_id}": {
@@ -4121,7 +4220,7 @@
           "telemetry"
         ],
         "summary": "История ручных проверок скважины по ID Pulse",
-        "description": "До 25 записей в порядке created_at DESC, id DESC. Следующая страница — before последней записи. История содержит успешные ответы ML, в том числе insufficient. Ошибки расчёта не создают успешную проверку.",
+        "description": "До 25 записей в порядке created_at DESC, id DESC. Следующая страница — before последней записи. История содержит успешные ответы ML, в том числе insufficient. Ошибки расчёта не создают успешную проверку. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "parameters": [
           {
             "name": "well_id",
@@ -4139,6 +4238,35 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -4147,10 +4275,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ManualCheck"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ManualCheck"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableManualCheckPage"
+                    }
+                  ]
                 }
               }
             }
@@ -4160,12 +4295,22 @@
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "checks.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "period": "overlap(start_at,end_at);sort=start_at",
+          "verdict": "in(result.verdict)",
+          "model_name": "contains(result.model_name)"
+        },
+        "x-table-query-version": 1
       },
       "post": {
         "tags": [
@@ -4720,7 +4865,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -4780,12 +4925,44 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "users.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "login": "contains(text)",
+          "role_ids": "in(decimal int64)",
+          "group_ids": "in(decimal int64)",
+          "organization_kind": "in(nullable enum)",
+          "ngdu_id": "in(nullable decimal int64)",
+          "department_id": "in(nullable decimal int64)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -5121,6 +5298,35 @@
               "format": "int64",
               "minimum": 1
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -5129,19 +5335,38 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WellHistory"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WellHistory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableWellHistoryPage"
+                    }
+                  ]
                 }
               }
             }
           },
           "403": {
             "description": "Missing current operation permission/prerequisite/grant authority."
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "W",
         "x-authorization-permissions": [
           "wells.history.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "kind": "in(text)",
+          "actor_name": "contains(actor.name)",
+          "changes": "contains(derived display text)",
+          "reason": "contains(text)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/ml/runs/{run_id}/snapshot": {
@@ -5347,7 +5572,7 @@
           "file-check-jobs"
         ],
         "summary": "Owner metadata history, fixed25, private cursor",
-        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads.",
+        "description": "Synthetic-only, default off. Requires current owner session and well/cohort scope. Cache-Control: no-store. Broker/ML never serve metadata reads. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "security": [
           {
             "SessionCookie": []
@@ -5371,6 +5596,35 @@
               "type": "string",
               "pattern": "^[a-f0-9]{32}$"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
           }
         ],
         "responses": {
@@ -5379,7 +5633,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FileJobPage"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FileJobPage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TableFileJobPage"
+                    }
+                  ]
                 }
               }
             }
@@ -5410,12 +5671,21 @@
           },
           "410": {
             "$ref": "#/components/responses/FileJob410"
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           }
         },
         "x-authorization-scope": "PRIVATE",
         "x-authorization-permissions": [
           "filechecks.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "created_at": "range(datetime)",
+          "state": "in(text)",
+          "model_name": "contains(execution.model_name)"
+        },
+        "x-table-query-version": 1
       }
     },
     "/api/v1/wells/{well_id}/file-check-jobs/{job_id}": {
@@ -6576,7 +6846,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -6625,12 +6895,40 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "roles.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "description": "contains(text)",
+          "permission_keys": "in(text)",
+          "permission_count": "range(number)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -6885,7 +7183,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -6934,12 +7232,39 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "groups.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "description": "contains(text)",
+          "role_ids": "in(decimal int64)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       },
       "post": {
         "tags": [
@@ -7194,7 +7519,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -7251,13 +7576,45 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "x-authorization-scope": "M",
         "x-authorization-permissions": [
           "groups.read",
           "users.read"
-        ]
+        ],
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "login": "contains(text)",
+          "role_ids": "in(decimal int64)",
+          "group_ids": "in(decimal int64)",
+          "organization_kind": "in(nullable enum)",
+          "ngdu_id": "in(nullable decimal int64)",
+          "department_id": "in(nullable decimal int64)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/auth/access/preview": {
@@ -7278,7 +7635,7 @@
             }
           },
           "400": {
-            "description": "Malformed, mixed modern/legacy authority fields or non-string new IDs."
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Missing/expired/revoked session or epoch."
@@ -7352,8 +7709,41 @@
               "pattern": "^[1-9][0-9]*$"
             },
             "description": "Optional expected graph revision as a canonical positive decimal int64 string (maximum 9223372036854775807). A different current revision returns 409; malformed/out-of-range input returns 422. This query parameter is separate from the receipt returned in the response."
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
-        ]
+        ],
+        "x-table-query-fields": {
+          "user_name": "contains(text)",
+          "before_organization": "contains(text)",
+          "after_organization": "contains(text)",
+          "before_active": "in(boolean)",
+          "after_active": "in(boolean)",
+          "added_permissions": "in(text)",
+          "removed_permissions": "in(text)",
+          "source_role_ids": "in(decimal int64)",
+          "source_group_ids": "in(decimal int64)"
+        },
+        "x-table-query-version": 1,
+        "description": " Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged."
       }
     },
     "/api/v1/people": {
@@ -7362,7 +7752,7 @@
           "people"
         ],
         "summary": "Search colleagues by name, job title and workplace (literal % and _; ID ascending live keyset)",
-        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store.",
+        "description": "Active authenticated local session, including zero-permission accounts. Legacy/shared-key forbidden. Safe allowlist; no management or security fields. Cache-Control: no-store. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
         "security": [
           {
             "PulseSession": []
@@ -7409,6 +7799,26 @@
               "type": "string",
               "maxLength": 1024
             }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
           }
         ],
         "responses": {
@@ -7423,7 +7833,7 @@
             }
           },
           "400": {
-            "description": "Malformed query, cursor or ID"
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
           },
           "401": {
             "description": "Personal session expired or missing"
@@ -7434,7 +7844,17 @@
           "404": {
             "description": "Employee not found"
           }
-        }
+        },
+        "x-table-query-fields": {
+          "name": "contains(text)",
+          "job_title": "contains(text)",
+          "workplace_organization": "contains(text)",
+          "workplace_division": "contains(text)",
+          "workplace_department": "contains(text)",
+          "manager_name": "contains(text)",
+          "active": "in(boolean)"
+        },
+        "x-table-query-version": 1
       }
     },
     "/api/v1/people/{account_id}": {
@@ -7483,6 +7903,1904 @@
           },
           "404": {
             "description": "Employee not found"
+          }
+        }
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа. Opt-in table_query filters/sorts the complete currently authorized dataset before pagination; every listed field is sortable. Empty-sort defaults remain documented legacy order. No snapshot guarantee across requests for mutable data. ASCII/Russian/Tatar explicit lowercase fold, Unicode scalar ordinal ordering, NULLS LAST in both directions. Invalid table_query/cursor returns400; legacy validation unchanged.",
+        "summary": "История сохранённых ordinary событий",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Page size, no clamp."
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CSV of six exact allowlisted types, no duplicates; default all6."
+          },
+          {
+            "name": "well_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "description": "Canonical positive int64 decimal≤9223372036854775807; hidden/unknown404."
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Inclusive RFC3339 offset→UTC, fractional precision≤6."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Exclusive RFC3339, precision≤6; from<to."
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "current",
+                "archived"
+              ],
+              "default": "all"
+            },
+            "description": "Current well archived_at; inactive history remains visible."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "description": "Server-issued opaque continuation token; same normalized filters/limit required."
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Opt-in JSON encoded TableQuery v1 (schema components/TableQuery). Without this parameter, legacy behavior remains. Cannot combine with before or limit.",
+            "example": "{\"version\":1,\"filters\":[],\"sort\":[]}"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Требуется вход.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Событие недоступно; hidden и отсутствующий target не различаются.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректный запрос. Все причины отклонения cursor: detail=cursor_restart_required.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "История временно недоступна: policy/cohort/DB/timeout/emission budget.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Безопасная internal_error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Closed typed projection; all int64 wire values decimal strings; null/false/0 preserved.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPageDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid table query/cursor. Existing validation_error code; message invalid_table_query or invalid_table_cursor. No SQL/token details."
+          }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [
+          [
+            "checks.read"
+          ],
+          [
+            "alerts.read"
+          ],
+          [
+            "wells.history.read"
+          ]
+        ],
+        "x-table-query-fields": {
+          "event_type": "in(six existing event types)",
+          "well_id": "contains(canonical positive int64 decimal text)",
+          "well_number": "contains(text)",
+          "archive": "in(current/archived)",
+          "occurred_at": "range(datetime)",
+          "actor_name": "contains(normalized actor.name)",
+          "actor_kind": "in(person/shared/service/unknown)",
+          "verdict": "in(nullable normalized enum)",
+          "review_status": "in(nullable normalized enum)",
+          "conclusion": "in(nullable normalized enum)"
+        },
+        "x-table-query-version": 1
+      }
+    },
+    "/api/v1/events/{event_id}": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "description": "Read-only ordinary source projection; current ACL and cohort fence before keyset. No ML calls/writes. Cache-Control:no-store on every response. Live pages ordered DESC by source time/rank/target C text/revision; no shared snapshot or total. Opaque process-key AES-GCM cursor TTL30min, bound to normalized filters+limit and current principal/scope/mode/cohort. Token/locator≤2048 ASCII bytes; decoded cursor JSON≤2048; escaped request-target≤4096 bytes. Oversized source/emission→whole response503; proxy may reject arbitrary request-line414 before Go. Request5s, transaction statement_timeout3s. Exact detail encoded≤16MiB before response write. See docs/events.md. Источники пересекаются с текущими checks.read / alerts.read / wells.history.read до пагинации; имя роли не расширяет область доступа.",
+        "summary": "Точное сохранённое основание события",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048,
+              "pattern": "^e1\\.[A-Za-z0-9_-]+$"
+            },
+            "description": "Canonical e1. compact JSON locator encoded as unpadded base64url. Stable across process restart; locator is not an access grant."
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Требуется вход.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Событие недоступно; hidden и отсутствующий target не различаются.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Некорректный запрос. Все причины отклонения cursor: detail=cursor_restart_required.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "История временно недоступна: policy/cohort/DB/timeout/emission budget.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Безопасная internal_error.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Closed typed projection; all int64 wire values decimal strings; null/false/0 preserved.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailDTO"
+                }
+              }
+            }
+          }
+        },
+        "x-authorization-scope": "W",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [
+          [
+            "checks.read"
+          ],
+          [
+            "alerts.read"
+          ],
+          [
+            "wells.history.read"
+          ]
+        ]
+      }
+    },
+    "/api/v1/auth/users/filter-options": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Bounded role/group summary options of currently manageable users",
+        "description": "Requires users.read. Uses current CanManageAccount scope; no roles.read/groups.read permission or definition disclosure. Cursor binds graph revision/actor/query. Organization code facets derive only current visible AccountAccessView.Organization, require no users.scope.assign and retain signed/zero int64 codes with ID N labels.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "users.read"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "role_ids",
+                "group_ids",
+                "ngdu_id",
+                "department_id"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized summary options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessFilterOptionsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selector/cursor"
+          },
+          "401": {
+            "description": "Session required"
+          },
+          "403": {
+            "description": "users.read required"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/groups/filter-options": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Bounded role ID options of currently visible groups",
+        "description": "Requires groups.read only; distinct role_ids from current groupVisible projection, labels ID N, no role definitions or users graph disclosure.",
+        "x-authorization-scope": "M",
+        "x-authorization-permissions": [
+          "groups.read"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "role_ids"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 16384
+            },
+            "description": "Signed process-scoped opaque cursor bound to endpoint/query/current principal+scope/parent/page size. API restart invalidates it. Invalid/mismatched token:400 message invalid_table_cursor; restart from first page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized summary options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessFilterOptionsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selector/cursor"
+          },
+          "401": {
+            "description": "Session required"
+          },
+          "403": {
+            "description": "users.read required"
+          }
+        }
+      }
+    },
+    "/api/v1/wells/{well_id}/equipment-passport": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassport",
+        "operationId": "readEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportView"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/wells/{well_id}/equipment-passport/history": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportHistory",
+        "operationId": "readEquipmentPassportHistory",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.history.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportHistoryPage"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "TableQuery v1 JSON; fields recorded_at datetime/range; action/slot/source enum/in; actor_name/reason/changes text/contains. Default recorded_at desc,id desc. Applied before keyset/limit."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque current actor/epoch/scope/well fingerprint."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Alias for page_size only without table_query/page_size."
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/previews": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "prepareEquipmentPassport",
+        "operationId": "prepareEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.update"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportChangeSet"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/import/previews": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "importEquipmentPassport",
+        "operationId": "importEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.import"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Single XLSX file <=2MiB. Total multipart body<=2MiB+64KiB. No extra parts."
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/previews/{preview_id}": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportPreview",
+        "operationId": "readEquipmentPassportPreview",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "cancelEquipmentPassportPreview",
+        "operationId": "cancelEquipmentPassportPreview",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Cancelled without subject writes."
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/previews/{preview_id}/commit": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "commitEquipmentPassport",
+        "operationId": "commitEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.update"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Canonical UUID. Actor+operation scoped; retry same body/key after timeout. New key on consumed preview returns410."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportCommitRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/receipts/{receipt_id}": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportReceipt",
+        "operationId": "readEquipmentPassportReceipt",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "receipt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/template": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "downloadEquipmentPassportTemplate",
+        "operationId": "downloadEquipmentPassportTemplate",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.import"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportTemplateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/export": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "exportEquipmentPassports",
+        "operationId": "exportEquipmentPassports",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md. History mode additionally requires equipment_passports.history.read, <=1000 events; no truncation. Fully buffered bounded output, no partial XLSX on error.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.export"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportExportRequest"
+              }
+            }
           }
         }
       }
@@ -13028,6 +15346,10 @@
               "none",
               "revoke_on_apply"
             ]
+          },
+          "table_filter_options": {
+            "$ref": "#/components/schemas/AccessPreviewTableFilterOptions",
+            "description": "Query mode only; full authorized impacts AFTER.Sources before table filters/page. Legacy response omits it; receipt/counts unchanged."
           }
         },
         "required": [
@@ -13345,33 +15667,2825 @@
         "pattern": "^(0|[1-9][0-9]*)$",
         "description": "Create exactly zero, edit positive expected profile revision; maximum signed int64."
       },
-      "OrganizationEmployee": {
+      "EventManifestEntryDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "version",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventProvenanceDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "envelope_version",
+          "snapshot_id",
+          "computed_at",
+          "model_name",
+          "model_version",
+          "model_saved_at",
+          "context_version",
+          "input_sha256",
+          "input_snapshot_id",
+          "as_of",
+          "feature_recipe_sha256",
+          "feature_schema_sha256",
+          "runtime_manifest_sha256",
+          "source_manifest_sha256",
+          "runtime_manifest",
+          "source_manifest",
+          "input_kind",
+          "context_completeness",
+          "provenance_status"
+        ],
+        "properties": {
+          "envelope_version": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "computed_at": {
+            "type": "string"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_saved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "context_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_recipe_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_schema_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventManifestEntryDTO"
+            }
+          },
+          "source_manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventManifestEntryDTO"
+            }
+          },
+          "input_kind": {
+            "type": "string"
+          },
+          "context_completeness": {
+            "type": "string"
+          },
+          "provenance_status": {
+            "type": "string"
+          }
+        }
+      },
+      "EventThresholdRuleDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scale",
+          "comparison",
+          "threshold",
+          "k_windows",
+          "lookback_days"
+        ],
+        "properties": {
+          "scale": {
+            "type": "string"
+          },
+          "comparison": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "k_windows": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "lookback_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventDecisionRuleDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "context_version",
+          "policy_id",
+          "rule_sha256",
+          "watch",
+          "high",
+          "high_enabled"
+        ],
+        "properties": {
+          "context_version": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "rule_sha256": {
+            "type": "string"
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventThresholdRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventThresholdRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EventTimelinePointDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "raw_score",
+          "watch_fired",
+          "high_fired",
+          "window_end",
+          "risk"
+        ],
+        "properties": {
+          "raw_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "watch_fired": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_fired": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "window_end": {
+            "type": "string"
+          },
+          "risk": {
+            "type": "number"
+          }
+        }
+      },
+      "EventContributionDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value_source",
+          "feature",
+          "value",
+          "shap",
+          "label"
+        ],
+        "properties": {
+          "value_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "shap": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "EventUploadResultDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provenance",
+          "decision_rule",
+          "model_name",
+          "model_version",
+          "model_saved_at",
+          "verdict",
+          "n_windows",
+          "channels_used",
+          "features_total",
+          "windows_running",
+          "features_unavailable",
+          "windows_above_watch",
+          "windows_above_alert",
+          "latest_risk",
+          "peak_risk",
+          "peak_window_end",
+          "timeline",
+          "contributions",
+          "span_days"
+        ],
+        "properties": {
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventProvenanceDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventDecisionRuleDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_saved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n_windows": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "channels_used": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "features_total": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_running": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "features_unavailable": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_above_watch": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "windows_above_alert": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "latest_risk": {
+            "type": "number"
+          },
+          "peak_risk": {
+            "type": "number"
+          },
+          "peak_window_end": {
+            "type": "string"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventTimelinePointDTO"
+            }
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventContributionDTO"
+            }
+          },
+          "span_days": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          }
+        }
+      },
+      "EventWellDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "revision",
+          "archived_at",
+          "responsible",
+          "fund_type",
+          "unitek_id",
+          "armits_id",
+          "well_number",
+          "ngdu",
+          "department",
+          "active",
+          "id"
+        ],
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "responsible": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fund_type": {
+            "type": "string"
+          },
+          "unitek_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "armits_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ngdu": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "department": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          }
+        }
+      },
+      "EventReviewStateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "revision",
+          "status",
+          "owner",
+          "conclusion",
+          "updated_at"
+        ],
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "status": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "conclusion": {
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventWellHeaderDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "well_number",
+          "active",
+          "archived_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "well_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventTargetDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "revision"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "description": "Original manual/check text or canonical positive int64 decimal alert/well ID."
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)$",
+                "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventActorDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "name",
+          "authenticated"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(user:[1-9][0-9]*|shared|service)$",
+                "description": "Saved actor namespace marker: user:<canonical positive int64>, shared, or service. Missing/unknown actor id is null; this marker is not a numeric wire ID."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authenticated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventOutcomeDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "review_status",
+          "conclusion"
+        ],
+        "properties": {
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conclusion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventSummaryDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type",
+          "occurred_at",
+          "well",
+          "target",
+          "actor",
+          "outcome"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "manual_check.saved.v1",
+              "review.check.recorded.v1",
+              "review.alert.recorded.v1",
+              "well.metadata_changed.v1",
+              "well.archived.v1",
+              "well.restored.v1"
+            ]
+          },
+          "occurred_at": {
+            "type": "string"
+          },
+          "well": {
+            "$ref": "#/components/schemas/EventWellHeaderDTO"
+          },
+          "target": {
+            "$ref": "#/components/schemas/EventTargetDTO"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/EventActorDTO"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/EventOutcomeDTO"
+          }
+        }
+      },
+      "EventPageDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "has_more",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventSummaryDTO"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EventCheckHeaderDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "well_id",
+          "created_at",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Original saved manual_check text ID."
+          },
+          "well_id": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      },
+      "EventCheckDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "check",
+          "result"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "check": {
+            "$ref": "#/components/schemas/EventCheckHeaderDTO"
+          },
+          "result": {
+            "$ref": "#/components/schemas/EventUploadResultDTO"
+          }
+        }
+      },
+      "EventReviewDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "review_kind",
+          "revision",
+          "created_at",
+          "before",
+          "after",
+          "comment"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "review_kind": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EventReviewStateDTO"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EventReviewStateDTO"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "EventWellDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "revision",
+          "created_at",
+          "change_kind",
+          "before",
+          "after",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$",
+            "description": "Decimal int64 string; positive route IDs/revisions ≤9223372036854775807; before review revision may be0. Source check IDs are opaque text."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "change_kind": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EventWellDTO"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EventWellDTO"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "EventDetailDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event",
+          "detail"
+        ],
+        "properties": {
+          "event": {
+            "$ref": "#/components/schemas/EventSummaryDTO"
+          },
+          "detail": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EventCheckDetailDTO"
+              },
+              {
+                "$ref": "#/components/schemas/EventReviewDetailDTO"
+              },
+              {
+                "$ref": "#/components/schemas/EventWellDetailDTO"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "kind"
+            }
+          }
+        }
+      },
+      "EventError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "cursor_restart_required"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableSort": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "direction"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      },
+      "TableFilter": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op",
+              "value"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "contains"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 120
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op",
+              "values"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "in"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "range"
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "to"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "op"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": [
+                  "overlap"
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "from"
+                ]
+              },
+              {
+                "required": [
+                  "to"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "TableQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "filters": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "$ref": "#/components/schemas/TableFilter"
+            },
+            "default": []
+          },
+          "sort": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "$ref": "#/components/schemas/TableSort"
+            },
+            "default": []
+          }
+        },
+        "description": "Closed per-route field/operator allowlist. AND across filters; OR within in. Empty in disables condition. Inclusive range/overlap. Sort array priority remains ordered, followed by stable unique key; null last in both directions. Exact int64 selectors use decimal strings. Numeric ranges accept canonical decimal strings without float64 conversion. Time bounds must be exactly representable at PostgreSQL microsecond precision; submicrosecond nonzero digits are rejected400, trailing zero digits allowed."
+      },
+      "TableCollectionLog": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TelemetryCollectionLog"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$",
+                "description": "Actual stable telemetry_collection_log DB ID, never a page offset."
+              }
+            }
+          }
+        ]
+      },
+      "TableWellEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WellEvent"
+          },
+          {
+            "type": "object",
+            "required": [
+              "changes"
+            ],
+            "properties": {
+              "changes": {
+                "type": "string",
+                "description": "Canonical display text derived from before/after, LF separated. Null —; boolean Да/Нет; existing Russian field labels."
+              }
+            }
+          }
+        ]
+      },
+      "TableAuditPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditRead"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableCollectionLogPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCollectionLog"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableManualCheckPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualCheck"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableFileJobPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileJobStatus"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TableWellHistoryPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableWellEvent"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AccessFilterOptionsPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "graph_revision"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^(0|-?[1-9][0-9]*)$"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "graph_revision": {
+            "$ref": "#/components/schemas/AccessDecimal"
+          }
+        }
+      },
+      "AccessPreviewTableFilterOptions": {
+        "type": "object",
+        "required": [
+          "source_role_ids",
+          "source_group_ids"
+        ],
+        "properties": {
+          "source_role_ids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?[1-9][0-9]*$",
+                  "description": "Exact int64 role/group ID; draft new object may use -1."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Name already present in AFTER permission sources of visible impact."
+                }
+              }
+            }
+          },
+          "source_group_ids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?[1-9][0-9]*$",
+                  "description": "Exact int64 role/group ID; draft new object may use -1."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Name already present in AFTER permission sources of visible impact."
+                }
+              }
+            }
+          }
+        }
+      },
+      "PassportID": {
+        "type": "string",
+        "pattern": "^[1-9][0-9]{0,18}$",
+        "description": "Exact positive signed int64 decimal string; <=9223372036854775807. JSON numbers are rejected.",
+        "example": "9007199254740993"
+      },
+      "PassportRevision": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Exact nonnegative signed int64 decimal string. Zero means absent passport."
+      },
+      "PassportDecimal": {
+        "type": "string",
+        "pattern": "^[0-9]+(\\.[0-9]+)?$",
+        "description": "Canonical decimal string, precision<=15, scale<=6, <=1000000000. Positive except control minimum frequency may be zero. No exponent/float."
+      },
+      "PassportDate": {
+        "type": "string",
+        "format": "date",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+        "description": "Calendar date YYYY-MM-DD, not future in configured server timezone. Never a UTC timestamp."
+      },
+      "PassportSlot": {
+        "type": "string",
+        "enum": [
+          "pump",
+          "motor",
+          "control_station"
+        ]
+      },
+      "PassportAction": {
+        "type": "string",
+        "enum": [
+          "register",
+          "update",
+          "replace",
+          "correct",
+          "close",
+          "void"
+        ]
+      },
+      "PassportSource": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "excel"
+        ],
+        "readOnly": true
+      },
+      "PassportAttributes": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manufacturer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_flow_m3_day": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_head_m": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_nominal_frequency_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_min_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_max_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_stage_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "model",
+          "manufacturer",
+          "serial_number",
+          "pump_nominal_flow_m3_day",
+          "pump_nominal_head_m",
+          "motor_rated_power_kw",
+          "motor_rated_voltage_v",
+          "motor_rated_current_a",
+          "motor_nominal_frequency_hz",
+          "control_rated_power_kw",
+          "control_rated_voltage_v",
+          "control_rated_current_a",
+          "control_output_frequency_min_hz",
+          "control_output_frequency_max_hz",
+          "pump_stage_count"
+        ]
+      },
+      "PassportMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "expected_well_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "expected_passport_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "component_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "linked_installation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manufacturer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_flow_m3_day": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_head_m": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_nominal_frequency_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_min_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_max_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_stage_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "removed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "replacement_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "change_reason": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "expected_well_revision",
+          "expected_passport_revision",
+          "slot",
+          "action"
+        ],
+        "description": "Flat PATCH: omission=no change; null=explicit clear; value=set. Register/replace omitted values become null. Replace requires replacement_on value/null, not installed_on. Correct linked boundary uses predecessor target + linked_installation_id + replacement_on. Close requires removed_on value/null; void only IDs and reason. Material update and replace/correct/close/void require change_reason. Actor/source/recorded_at/unknown keys rejected."
+      },
+      "PassportChangeSet": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "equipment-passport-v1"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportMutation"
+            },
+            "maxItems": 300,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "schema_version",
+          "rows"
+        ]
+      },
+      "PassportInstallation": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "id": {
-            "$ref": "#/components/schemas/EmployeeDecimal"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
-          "name": {
-            "type": "string"
+          "component_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
-          "job_title": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "maxLength": 200
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
           },
-          "active": {
-            "type": "boolean"
+          "status": {
+            "type": "string",
+            "enum": [
+              "current",
+              "closed",
+              "voided"
+            ]
+          },
+          "installed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "removed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "predecessor_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/PassportAttributes"
           }
         },
         "required": [
           "id",
-          "name",
-          "job_title",
-          "active"
+          "component_id",
+          "slot",
+          "status",
+          "installed_on",
+          "removed_on",
+          "predecessor_id",
+          "attributes"
         ]
+      },
+      "PassportActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id",
+          "name"
+        ]
+      },
+      "PassportRowSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "sheet": {
+            "type": "string",
+            "const": "components"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 2
+          }
+        },
+        "required": [
+          "row_key",
+          "sheet",
+          "index"
+        ]
+      },
+      "PassportChangeProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_row": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportRowSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "source",
+          "actor",
+          "recorded_at",
+          "source_reference",
+          "receipt_id",
+          "source_file_sha256",
+          "template_version",
+          "source_row"
+        ]
+      },
+      "PassportSlotProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "last_change": {
+            "$ref": "#/components/schemas/PassportChangeProvenance"
+          }
+        },
+        "required": [
+          "slot",
+          "last_change"
+        ]
+      },
+      "PassportView": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "well_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "passport_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            },
+            "maxItems": 3
+          },
+          "provenance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportSlotProvenance"
+            },
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "well_id",
+          "well_revision",
+          "passport_id",
+          "revision",
+          "slots",
+          "provenance"
+        ]
+      },
+      "PassportDiff": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "before": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            }
+          },
+          "after": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            }
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "slot",
+          "action",
+          "before",
+          "after"
+        ]
+      },
+      "PassportIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "row_key",
+          "field",
+          "severity",
+          "code",
+          "message"
+        ]
+      },
+      "PassportProblem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "issues": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PassportIssue"
+                }
+              }
+            },
+            "required": []
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ]
+      },
+      "PassportPreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "commands": {
+            "$ref": "#/components/schemas/PassportChangeSet"
+          },
+          "diff": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportDiff"
+            },
+            "maxItems": 300
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportIssue"
+            }
+          },
+          "changed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unchanged_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "digest",
+          "expires_at",
+          "commands",
+          "diff",
+          "issues",
+          "changed_count",
+          "unchanged_count"
+        ]
+      },
+      "PassportCommitRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "acknowledge_warnings": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "digest"
+        ]
+      },
+      "PassportWellRevision": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "before_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "after_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          }
+        },
+        "required": [
+          "well_id",
+          "before_revision",
+          "after_revision"
+        ]
+      },
+      "PassportReceiptRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "component_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "installation_id": {
+            "$ref": "#/components/schemas/PassportID"
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "component_id",
+          "installation_id"
+        ]
+      },
+      "PassportReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "changed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unchanged_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "wells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportWellRevision"
+            },
+            "maxItems": 100
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportReceiptRow"
+            },
+            "maxItems": 300
+          }
+        },
+        "required": [
+          "id",
+          "request_id",
+          "recorded_at",
+          "actor",
+          "source",
+          "source_file_sha256",
+          "changed_count",
+          "unchanged_count",
+          "wells",
+          "rows"
+        ]
+      },
+      "PassportEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "diff": {
+            "$ref": "#/components/schemas/PassportDiff"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_row": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportRowSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "well_id",
+          "revision",
+          "row_key",
+          "action",
+          "slot",
+          "reason",
+          "diff",
+          "source",
+          "actor",
+          "recorded_at",
+          "source_reference",
+          "receipt_id",
+          "source_file_sha256",
+          "template_version",
+          "source_row"
+        ]
+      },
+      "PassportHistoryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportEvent"
+            },
+            "maxItems": 50
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "PassportTemplateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportID"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "well_ids"
+        ]
+      },
+      "PassportExportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportID"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "current_components",
+              "history"
+            ]
+          },
+          "query": {
+            "$ref": "#/components/schemas/TableQuery"
+          }
+        },
+        "required": [
+          "well_ids",
+          "mode"
+        ]
+      },
+      "PassportAuthProblem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "issues": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PassportIssue"
+                    }
+                  }
+                },
+                "required": []
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ],
+        "description": "Inherited personal authorization middleware may return detail:null; passport handler errors use an object."
       },
       "DepartmentNode": {
         "type": "object",
@@ -13441,6 +18555,34 @@
           "value",
           "employee_count",
           "departments"
+        ]
+      },
+      "OrganizationEmployee": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/EmployeeDecimal"
+          },
+          "name": {
+            "type": "string"
+          },
+          "job_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "job_title",
+          "active"
         ]
       },
       "OrganizationNode": {
@@ -13636,6 +18778,10 @@
     {
       "name": "run-archive",
       "description": "Pipeline run events."
+    },
+    {
+      "name": "events",
+      "description": "История сохранённых предметных фактов; технический audit/Q1/Q2 отдельно."
     }
   ]
 }

@@ -60,8 +60,11 @@ var rbacSchema string
 //go:embed employee_profiles.sql
 var employeeProfilesSchema string
 
+//go:embed equipment_passports.sql
+var equipmentPassportsSchema string
+
 // CurrentVersion соответствует последней additive migration.
-const CurrentVersion = 17
+const CurrentVersion = 18
 
 // Apply создаёт схему новой БД или принимает БД на проверенном Alembic head.
 func Apply(ctx context.Context, pool *pgxpool.Pool) error {
@@ -164,6 +167,15 @@ func Apply(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 	if !hasProfiles {
 		if _, err = tx.Exec(ctx, employeeProfilesSchema); err != nil {
+			return err
+		}
+	}
+	var hasPassports bool
+	if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM backend_schema_migration WHERE version=18)").Scan(&hasPassports); err != nil {
+		return err
+	}
+	if !hasPassports {
+		if _, err = tx.Exec(ctx, equipmentPassportsSchema); err != nil {
 			return err
 		}
 	}

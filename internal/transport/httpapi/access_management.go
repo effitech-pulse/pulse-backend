@@ -205,6 +205,9 @@ type accessPageDTO[T any] struct {
 }
 
 func accessQuery(c *gin.Context) (domain.AccessPageQuery, error) {
+	if tableQueryRequested(c) {
+		return accessTableQuery(c)
+	}
 	n, e := limit(c, 50, 100)
 	if e != nil {
 		return domain.AccessPageQuery{}, e
@@ -460,18 +463,19 @@ func (s *Server) authPreview(c *gin.Context) error {
 		RetainedByOtherSource []domain.Permission `json:"retained_by_other_source"`
 	}
 	out := struct {
-		GraphRevision decimal                      `json:"graph_revision"`
-		ActorEpoch    decimal                      `json:"actor_epoch"`
-		Fingerprint   string                       `json:"fingerprint"`
-		AssignedUsers int                          `json:"assigned_users"`
-		ChangedUsers  int                          `json:"changed_users"`
-		DisabledUsers int                          `json:"disabled_users"`
-		SelfAffected  bool                         `json:"self_affected"`
-		Items         []impact                     `json:"items"`
-		NextCursor    *string                      `json:"next_cursor"`
-		ProfileChange *domain.ProfileChangeSummary `json:"profile_change"`
-		SessionEffect string                       `json:"session_effect"`
-	}{decimal(v.GraphRevision), decimal(v.ActorEpoch), v.Fingerprint, v.AssignedUsers, v.ChangedUsers, v.DisabledUsers, v.SelfAffected, []impact{}, v.NextCursor, v.ProfileChange, v.SessionEffect}
+		TableFilterOptions *domain.AccessPreviewFilterOptions `json:"table_filter_options,omitempty"`
+		GraphRevision      decimal                            `json:"graph_revision"`
+		ActorEpoch         decimal                            `json:"actor_epoch"`
+		Fingerprint        string                             `json:"fingerprint"`
+		AssignedUsers      int                                `json:"assigned_users"`
+		ChangedUsers       int                                `json:"changed_users"`
+		DisabledUsers      int                                `json:"disabled_users"`
+		SelfAffected       bool                               `json:"self_affected"`
+		Items              []impact                           `json:"items"`
+		NextCursor         *string                            `json:"next_cursor"`
+		ProfileChange      *domain.ProfileChangeSummary       `json:"profile_change"`
+		SessionEffect      string                             `json:"session_effect"`
+	}{v.TableFilterOptions, decimal(v.GraphRevision), decimal(v.ActorEpoch), v.Fingerprint, v.AssignedUsers, v.ChangedUsers, v.DisabledUsers, v.SelfAffected, []impact{}, v.NextCursor, v.ProfileChange, v.SessionEffect}
 	for _, i := range v.Items {
 		before := domain.AccountAccessView{Account: i.User, Authorization: i.Before}
 		after := domain.AccountAccessView{Account: i.User, Authorization: i.After}

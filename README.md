@@ -91,7 +91,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию17 (профили сотрудников поверх additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения17 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию18 (паспорт оборудования поверх профилей сотрудников поверх additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения17 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -106,6 +106,7 @@ curl http://127.0.0.1:8000/health
 
 | Раздел | Маршруты | Возможности |
 |---|---|---|
+| Оборудование | `/api/v1/wells/{id}/equipment-passport`, `/api/v1/equipment-passports/*` | Ручной ввод, private preview/commit, XLSX и история; local/enforce, explicit grant; [контракт и эксплуатация](docs/equipment-passports.md) |
 | Сотрудники | `/api/v1/people`, `/api/v1/people/{account_id}` | Безопасный справочник коллег для персональных сеансов; [профили](docs/rbac.md#профили-сотрудников) |
 | Доступ | `/api/v1/auth/*` | Сеансы, роли и область доступа; подготовлен адаптерный интерфейс SSO |
 | Скважины | `/api/v1/wells` | CRUD, импорт и экспорт XLSX |
@@ -119,6 +120,8 @@ curl http://127.0.0.1:8000/health
 | Аналитика | `/api/v1/analytics/*` | Подписанные Metabase URL |
 
 Настройка персонального входа, ограничения scope, будущий Keycloak/OIDC и общие фильтры: [интеграции и рабочие сценарии](docs/telemetry-integrations.md).
+
+Фильтры колонок и множественная сортировка: [query-режим таблиц](docs/table-query.md).
 
 Полный HTTP-контракт: [api/openapi.json](api/openapi.json), доступен также по `/openapi.json`.
 
@@ -200,3 +203,8 @@ Q1 сохранённые file jobs реализованы отдельным de
 Настройка не переключает существующий `/ml/upload` или рабочий Compose;
 real-file enable запрещён startup validation. Synthetic proof не является
 научной приёмкой модели или production deployment.
+
+Предметная история сохранённых ordinary событий: `GET /api/v1/events` и exact
+`GET /api/v1/events/{event_id}`. [Контракт, права и ограничения](docs/events.md).
+
+Паспорт оборудования требует явной schema18 и отдельного maintenance enrollment: миграция и запуск API новых прав не выдают. Source/test готовность не переключает PREP/live; границы, rollback и limits описаны в [standalone runbook](docs/equipment-passports.md).

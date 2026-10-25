@@ -216,7 +216,7 @@ func TestRBACManagementBoundary(t *testing.T) {
 }
 
 func TestRBACCatalog(t *testing.T) {
-	expected := strings.Fields(`wells.read wells.create wells.update wells.import wells.export wells.archive wells.restore wells.delete wells.history.read telemetry.read telemetry.import telemetry.compat.read telemetry.compat.score risks.read risks.explain risks.export risks.external.read checks.read checks.run checks.review filechecks.read filechecks.run filechecks.cancel filechecks.review filechecks.legacy.run alerts.read alerts.review incidents.read incidents.create incidents.delete references.read parameters.read references.create references.update references.delete runs.read runs.export runs.start cohort.runs.read services.read metrics.read analytics.read audit.read presentation.scenario.read integrations.read integrations.create integrations.update integrations.check integrations.status integrations.logs.read integrations.collect integrations.ingest collectionjobs.read collectionjobs.run collectionjobs.cancel cohortjobs.read cohortjobs.run cohortjobs.cancel users.read users.update users.scope.assign users.create roles.read groups.read users.roles.assign users.groups.assign roles.manage groups.manage access.manage_global`)
+	expected := strings.Fields(`equipment_passports.read equipment_passports.update equipment_passports.import equipment_passports.export equipment_passports.history.read wells.read wells.create wells.update wells.import wells.export wells.archive wells.restore wells.delete wells.history.read telemetry.read telemetry.import telemetry.compat.read telemetry.compat.score risks.read risks.explain risks.export risks.external.read checks.read checks.run checks.review filechecks.read filechecks.run filechecks.cancel filechecks.review filechecks.legacy.run alerts.read alerts.review incidents.read incidents.create incidents.delete references.read parameters.read references.create references.update references.delete runs.read runs.export runs.start cohort.runs.read services.read metrics.read analytics.read audit.read presentation.scenario.read integrations.read integrations.create integrations.update integrations.check integrations.status integrations.logs.read integrations.collect integrations.ingest collectionjobs.read collectionjobs.run collectionjobs.cancel cohortjobs.read cohortjobs.run cohortjobs.cancel users.read users.update users.scope.assign users.create roles.read groups.read users.roles.assign users.groups.assign roles.manage groups.manage access.manage_global`)
 	slices.Sort(expected)
 	catalog := PermissionCatalog()
 	got := []string{}
@@ -320,5 +320,41 @@ func TestRBACUnknownRolePermissionFailsClosed(t *testing.T) {
 	actor := rbacSnapshot("wells.read")
 	if actor.CanManageAccount(a) {
 		t.Fatal("invalid target accepted for local delegation")
+	}
+}
+
+func TestEquipmentPassportPermissions(t *testing.T) {
+	deps := map[Permission][]Permission{
+		"equipment_passports.read":         {"wells.read"},
+		"equipment_passports.update":       {"equipment_passports.read"},
+		"equipment_passports.history.read": {"equipment_passports.read"},
+		"equipment_passports.import":       {"equipment_passports.update"},
+		"equipment_passports.export":       {"equipment_passports.read"},
+	}
+	for key, want := range deps {
+		var found bool
+		for _, d := range PermissionCatalog() {
+			if d.Key == key {
+				found = true
+				if !reflect.DeepEqual(d.Requires, want) {
+					t.Fatalf("%s requires %v", key, d.Requires)
+				}
+			}
+		}
+		if !found {
+			t.Fatalf("missing %s", key)
+		}
+		keys := []Permission{"wells.read", "equipment_passports.read", "equipment_passports.update", key}
+		a := rbacSnapshot(keys...)
+		if a.Require(key) != nil {
+			t.Fatalf("closure denied %s", key)
+		}
+		a.Permissions = []Permission{key}
+		rbacForbidden(t, a.Require(key))
+		for _, role := range []string{"admin", "operator", "viewer"} {
+			if slices.Contains(BuiltinAccessPermissions(role), key) {
+				t.Fatalf("%s automatically granted %s", role, key)
+			}
+		}
 	}
 }

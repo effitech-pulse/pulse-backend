@@ -32,15 +32,8 @@ func TestCohortOwnedProgressSurvivesBriefCapacityGateContention(t *testing.T) {
 				checkpoint = cohortMarkerCheckpoint(t, *execution)
 			}
 			if operation == "final" {
-				// This manual worker preparation must renew at the worker's 10s cadence.
-				nextRenewal := time.Now().Add(10 * time.Second)
 				for i := 0; i < 100; i++ {
-					if !time.Now().Before(nextRenewal) {
-						if err = store.RenewCohortJob(ctx, claim.Lease()); err != nil {
-							t.Fatal(err)
-						}
-						nextRenewal = time.Now().Add(10 * time.Second)
-					}
+					renewCohortFixture(t, ctx, store, claim.Lease(), i)
 					execution, err := store.NextCohortMember(ctx, claim.Lease())
 					if err != nil || execution == nil {
 						t.Fatal(i, err)
@@ -48,11 +41,6 @@ func TestCohortOwnedProgressSurvivesBriefCapacityGateContention(t *testing.T) {
 					if err = store.CheckpointCohortMember(ctx, claim.Lease(), cohortMarkerCheckpoint(t, *execution)); err != nil {
 						t.Fatal(i, err)
 					}
-				}
-			}
-			if operation == "final" {
-				if err = store.RenewCohortJob(ctx, claim.Lease()); err != nil {
-					t.Fatal(err)
 				}
 			}
 			holder, err := pool.Begin(ctx)

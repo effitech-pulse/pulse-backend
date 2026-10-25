@@ -19,10 +19,11 @@ import (
 )
 
 type Application struct {
-	HTTP   *httpapi.Server
-	ML     *service.ML
-	pool   *pgxpool.Pool
-	client *grpcml.GRPCClient
+	HTTP            *httpapi.Server
+	ML              *service.ML
+	pool            *pgxpool.Pool
+	client          *grpcml.GRPCClient
+	closePassportGC func()
 }
 
 func New(ctx context.Context, c config.Config) (*Application, error) {
@@ -92,6 +93,12 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		return nil, err
 	}
 	server.Access = server.Access.WithRBACMode(mode)
+	server.Events, err = service.NewEvents(store, scope, service.EventsOptions{Mode: c.AppScope, Prefix: c.Prefix})
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
 	server.Checks = service.NewChecks(store, server.Integrations).WithScope(scope)
 	server.Reviews = service.NewReviews(store).WithCatalog(store).WithScope(scope)
 	server.Presentation = service.NewPresentation(store).WithSource(archive).WithScope(scope)
@@ -122,10 +129,20 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 	if scope != nil {
 		ml.WithCohort(scope, server.Integrations, store)
 	}
-	return &Application{HTTP: server, ML: ml, pool: pool, client: client}, nil
+	var closePassportGC func()
+	server.EquipmentPassports, closePassportGC, err = buildEquipmentPassports(ctx, c, store, scope)
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
+	return &Application{HTTP: server, ML: ml, pool: pool, client: client, closePassportGC: closePassportGC}, nil
 }
 
 func (a *Application) Close() {
+	if a.closePassportGC != nil {
+		a.closePassportGC()
+	}
 	a.ML.Wait()
 	_ = a.client.Close()
 	a.pool.Close()

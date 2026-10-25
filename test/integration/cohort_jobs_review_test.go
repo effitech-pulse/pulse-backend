@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
 )
@@ -20,15 +19,8 @@ func TestCohortCancelAfterSuccessReturnsActualTerminalDTO(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer claim.Close()
-	// This manual worker preparation must renew at the worker's 10s cadence.
-	nextRenewal := time.Now().Add(10 * time.Second)
 	for i := 0; i < 100; i++ {
-		if !time.Now().Before(nextRenewal) {
-			if err = store.RenewCohortJob(ctx, claim.Lease()); err != nil {
-				t.Fatal(err)
-			}
-			nextRenewal = time.Now().Add(10 * time.Second)
-		}
+		renewCohortFixture(t, ctx, store, claim.Lease(), i)
 		execution, err := store.NextCohortMember(ctx, claim.Lease())
 		if err != nil || execution == nil {
 			t.Fatal(i, err)
@@ -36,9 +28,6 @@ func TestCohortCancelAfterSuccessReturnsActualTerminalDTO(t *testing.T) {
 		if err = store.CheckpointCohortMember(ctx, claim.Lease(), cohortMarkerCheckpoint(t, *execution)); err != nil {
 			t.Fatal(i, err)
 		}
-	}
-	if err = store.RenewCohortJob(ctx, claim.Lease()); err != nil {
-		t.Fatal(err)
 	}
 	completed, err := store.FinishCohortJob(ctx, claim.Lease(), nil)
 	if err != nil {

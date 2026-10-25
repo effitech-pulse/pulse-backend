@@ -17,16 +17,19 @@ func (s *Server) routes() *gin.Engine {
 	router.HandleMethodNotAllowed = true
 	router.MaxMultipartMemory = 2 * 1024 * 1024
 	_ = router.SetTrustedProxies(nil)
-	router.Use(s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
+	router.Use(s.eventsHeaders(), s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
 		s.corsMiddleware(), s.authorizeMiddleware())
 	router.GET("/health", s.wrap(s.health))
 	router.GET("/openapi.json", func(c *gin.Context) {
 		c.Data(http.StatusOK, "application/json", openAPI)
 	})
 	api := router.Group(s.Config.Prefix)
+	s.registerEquipmentPassportRoutes(api)
 	api.POST("/collection-jobs", s.wrap(s.submitCollectionJob))
 	api.GET("/collection-jobs/:job_id", s.wrap(s.getCollectionJob))
 	api.POST("/collection-jobs/:job_id/cancel", s.wrap(s.cancelCollectionJob))
+	api.GET("/events", s.eventWrap(s.listEvents))
+	api.GET("/events/:event_id", s.eventWrap(s.getEvent))
 	api.POST("/ml/cohort-jobs", s.wrap(s.submitCohortJob))
 	api.GET("/ml/cohort-jobs/:job_id", s.wrap(s.getCohortJob))
 	api.POST("/ml/cohort-jobs/:job_id/cancel", s.wrap(s.cancelCohortJob))
@@ -46,6 +49,7 @@ func (s *Server) routes() *gin.Engine {
 	api.GET("/people/organization/tree", s.wrap(s.organizationTree))
 	api.GET("/people", s.wrap(s.people))
 	api.GET("/people/:account_id", s.wrap(s.people))
+	api.GET("/auth/users/filter-options", s.wrap(s.authUserFilterOptions))
 	api.GET("/auth/users/:user_id", s.wrap(s.authAccount))
 	api.GET("/auth/roles", s.wrap(s.authRoles))
 	api.GET("/auth/roles/:role_id", s.wrap(s.authRoles))
@@ -53,6 +57,7 @@ func (s *Server) routes() *gin.Engine {
 	api.PUT("/auth/roles/:role_id", s.wrap(s.authMutation))
 	api.DELETE("/auth/roles/:role_id", s.wrap(s.authMutation))
 	api.GET("/auth/groups", s.wrap(s.authGroups))
+	api.GET("/auth/groups/filter-options", s.wrap(s.authGroupFilterOptions))
 	api.GET("/auth/groups/:group_id", s.wrap(s.authGroups))
 	api.GET("/auth/groups/:group_id/members", s.wrap(s.authMembers))
 	api.POST("/auth/groups", s.wrap(s.authMutation))

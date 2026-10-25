@@ -25,19 +25,21 @@ import (
 var openAPI = api.Specification
 
 type Server struct {
-	CollectionJobs *service.CollectionJobs
-	CohortJobs     *service.CohortJobs
-	FileJobs       *service.FileJobs
-	Config         config.Config
-	Access         *service.Access
-	Catalog        *service.Catalog
-	ML             *service.ML
-	Parameters     *service.Parameters
-	Analytics      service.Analytics
-	Integrations   *service.Integrations
-	Checks         *service.Checks
-	Reviews        *service.Reviews
-	Presentation   *service.Presentation
+	EquipmentPassports *service.EquipmentPassports
+	Events             *service.Events
+	CollectionJobs     *service.CollectionJobs
+	CohortJobs         *service.CohortJobs
+	FileJobs           *service.FileJobs
+	Config             config.Config
+	Access             *service.Access
+	Catalog            *service.Catalog
+	ML                 *service.ML
+	Parameters         *service.Parameters
+	Analytics          service.Analytics
+	Integrations       *service.Integrations
+	Checks             *service.Checks
+	Reviews            *service.Reviews
+	Presentation       *service.Presentation
 }
 
 func (s *Server) wrap(fn handler) gin.HandlerFunc {
@@ -82,6 +84,9 @@ func writeError(c *gin.Context, err error) {
 	switch e.Kind {
 	case domain.Invalid:
 		status = 422
+		if e.Message == "invalid_table_query" || e.Message == "invalid_table_cursor" {
+			status = 400
+		}
 	case domain.Missing:
 		status = 404
 	case domain.Duplicate:

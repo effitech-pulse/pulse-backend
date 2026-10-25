@@ -454,8 +454,8 @@ func restoreBootstrapRole(ctx context.Context, tx pgx.Tx) error {
 	if e != nil {
 		return e
 	}
-	for _, d := range domain.PermissionCatalog() {
-		if _, e = execute(ctx, tx, sqlBuilder.Insert("auth_role_permission").Columns("role_id", "permission_key").Values(role.ID, d.Key)); e != nil {
+	for _, key := range domain.BuiltinAccessPermissions("admin") {
+		if _, e = execute(ctx, tx, sqlBuilder.Insert("auth_role_permission").Columns("role_id", "permission_key").Values(role.ID, key)); e != nil {
 			return e
 		}
 	}

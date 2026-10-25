@@ -147,15 +147,8 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer claim.Close()
-	// This manual worker preparation must renew at the worker's 10s cadence.
-	nextRenewal := time.Now().Add(10 * time.Second)
 	for i := 0; i < 100; i++ {
-		if !time.Now().Before(nextRenewal) {
-			if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-				t.Fatal(e)
-			}
-			nextRenewal = time.Now().Add(10 * time.Second)
-		}
+		renewCohortFixture(t, ctx, r, claim.Lease(), i)
 		x, e := r.NextCohortMember(ctx, claim.Lease())
 		if e != nil || x == nil {
 			t.Fatal(i, e)
@@ -163,9 +156,6 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 		if e = r.CheckpointCohortMember(ctx, claim.Lease(), cohortMarkerCheckpoint(t, *x)); e != nil {
 			t.Fatal(i, e)
 		}
-	}
-	if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-		t.Fatal(e)
 	}
 	x, e := r.NextCohortMember(ctx, claim.Lease())
 	if e != nil || x != nil {
@@ -179,9 +169,6 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 		t.Fatal("publication accepted before commit")
 	}
 	_, _ = pool.Exec(ctx, `DROP TRIGGER fail_q2 ON ml_run_snapshot`)
-	if e = r.RenewCohortJob(ctx, claim.Lease()); e != nil {
-		t.Fatal(e)
-	}
 	d, e := r.FinishCohortJob(ctx, claim.Lease(), nil)
 	if e != nil || d.Status.State != domain.CohortJobSucceeded {
 		t.Fatal(d, e)
@@ -197,5 +184,15 @@ func TestCohortAtomicPublicationReplay(t *testing.T) {
 	raw, _ := json.Marshal(snapshot)
 	if len(raw) == 0 {
 		t.Fatal("empty")
+	}
+}
+
+// Ручной цикл воспроизводит heartbeat worker; runtime TTL и lease-fence assertions не меняются.
+func renewCohortFixture(t *testing.T, ctx context.Context, store *postgres.Repository, lease domain.CohortJobLease, progress int) {
+	t.Helper()
+	if progress%10 == 0 {
+		if err := store.RenewCohortJob(ctx, lease); err != nil {
+			t.Fatalf("fixture heartbeat before member %d: %v", progress, err)
+		}
 	}
 }
