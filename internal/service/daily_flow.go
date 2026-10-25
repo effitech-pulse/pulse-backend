@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -84,7 +85,8 @@ func (s *DailyFlow) read(ctx context.Context, id int64, q domain.DailyFlowQuery)
 	}
 	w, err := s.catalog.RequireWell(ctx, "telemetry.read", id)
 	if err != nil {
-		if ctx.Err() != nil {
+		var guard *domain.Error
+		if ctx.Err() != nil || !errors.As(err, &guard) {
 			return fail(dailyUnavailable())
 		}
 		return fail(err)

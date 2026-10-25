@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -207,5 +208,52 @@ func TestDailyFlowDeadlineAndJSONBounds(t *testing.T) {
 	}
 	if time.Since(start) > time.Second {
 		t.Fatal("cancellation did not propagate")
+	}
+}
+
+type dailyFailingCatalog struct {
+	Store
+	err error
+}
+
+func (s dailyFailingCatalog) Well(context.Context, int64) (domain.Well, error) {
+	return domain.Well{}, s.err
+}
+func TestDailyFlowCatalogDependencyError(t *testing.T) {
+	s, _, _ := dailySetup(t)
+	for _, kind := range []domain.Kind{domain.Unauthorized, domain.Forbidden, domain.Missing, domain.Unavailable} {
+		s.catalog = NewCatalog(dailyFailingCatalog{err: domain.NewError(kind, "guard")})
+		_, e := s.Read(internalFixtureContext(), 1001, domain.DailyFlowQuery{DatasetVersion: "wrong"})
+		var de *domain.Error
+		if !errors.As(e, &de) || de.Kind != kind {
+			t.Fatalf("domain kind lost: %v", e)
+		}
+	}
+	for _, err := range []error{errors.New("private database unavailable"), context.Canceled, context.DeadlineExceeded} {
+		s.catalog = NewCatalog(dailyFailingCatalog{err: err})
+		_, e := s.Read(internalFixtureContext(), 1001, domain.DailyFlowQuery{DatasetVersion: "wrong"})
+		var de *domain.Error
+		if !errors.As(e, &de) || de.Kind != domain.Unavailable || de.Message != "daily_flow_unavailable" {
+			t.Fatalf("dependency must be controlled503, got %v", e)
+		}
+	}
+}
+
+type dailyFailingScope struct {
+	FundScope
+	err error
+}
+
+func (s dailyFailingScope) RequireWell(context.Context, int64) (domain.Well, error) {
+	return domain.Well{}, s.err
+}
+func TestDailyFlowScopeDependencyError(t *testing.T) {
+	s, _, f := dailySetup(t)
+	scope := dailyFailingScope{FundScope: s.scope, err: errors.New("private cohort query")}
+	s.catalog = NewCatalog(f).WithScope(scope)
+	_, e := s.Read(internalFixtureContext(), 1001, domain.DailyFlowQuery{DatasetVersion: "wrong"})
+	var de *domain.Error
+	if !errors.As(e, &de) || de.Kind != domain.Unavailable || de.Message != "daily_flow_unavailable" {
+		t.Fatalf("cohort must be controlled503: %v", e)
 	}
 }
