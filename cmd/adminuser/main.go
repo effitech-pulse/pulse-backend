@@ -30,7 +30,14 @@ func run() error {
 	login := flag.String("login", "", "Логин первого администратора")
 	name := flag.String("name", "", "Имя администратора")
 	activate := flag.Bool("activate-rbac", false, "Активировать RBAC после остановки и drain")
+	enroll := flag.Bool("enroll-equipment-permissions", false, "Явная выдача прав паспорта оборудования: bounded JSON stdin")
 	flag.Parse()
+	if e := passportEnrollmentFlags(*enroll, *login, *name, *activate, flag.NArg()); e != nil {
+		return e
+	}
+	if *enroll {
+		return runPassportEnrollment()
+	}
 	if *activate {
 		if *login != "" || *name != "" || flag.NArg() != 0 {
 			return errors.New("-activate-rbac не совместим с bootstrap flags")
