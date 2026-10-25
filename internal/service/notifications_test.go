@@ -137,7 +137,7 @@ func TestNotificationCapabilitiesAndSafeErrors(t *testing.T) {
 	f := &notificationFake{}
 	s := notificationService(t, f, nil)
 	v, e := s.Capabilities(notificationContext())
-	if e != nil || v.Enabled || v.Reason != "no_families" || v.Families == nil {
+	if e != nil || !v.Enabled || v.Reason != "no_families" || v.Families == nil {
 		t.Fatal(v, e)
 	}
 	s.enabled = false
@@ -220,5 +220,15 @@ func TestNotificationCursorBindsCohort(t *testing.T) {
 	scope.ids[99] = 101
 	if _, e = s.List(notificationContext(), "unread", 1, *p.NextCursor); e == nil {
 		t.Fatal("changed membership accepted")
+	}
+}
+
+func TestNotificationUIOffHidesAvailableFamilies(t *testing.T) {
+	f := &notificationFake{families: []domain.NotificationFamily{domain.NotificationFamilyAlerts, domain.NotificationFamilyCollection}, reason: "enabled"}
+	s := notificationService(t, f, nil)
+	s.enabled = false
+	v, e := s.Capabilities(notificationContext())
+	if e != nil || v.Enabled || v.Reason != "feature_off" || v.Families == nil || len(v.Families) != 0 {
+		t.Fatalf("UI-off capability: %+v, %v", v, e)
 	}
 }

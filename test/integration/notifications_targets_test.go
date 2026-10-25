@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"encoding/json"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -76,5 +77,105 @@ func TestNotificationCohortExactSavedOutcome(t *testing.T) {
 	target.WellID = 2
 	if _, e = r.ReadNotificationAlert(ctx, s, target); e == nil {
 		t.Fatal("wrong cohort well accepted")
+	}
+}
+
+// Oversized opaque identities must fail in the repository, before service/DTO projection.
+func TestNotificationOversizedPGProjections(t *testing.T) {
+	p := testDB(t)
+	r := postgres.New(p)
+	ctx := context.Background()
+	s := notificationScope(t, p, r, `{"kind":"organization","ngdu_id":null,"department_id":null}`, "integrations.read")
+	eventsExec(t, p, `UPDATE auth_user SET scope='{"funds":["operational","presentation"]}' WHERE id=$1`, *s.Principal.AccountID)
+	eventsExec(t, p, `UPDATE notification_activation SET activation_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',activated_at=clock_timestamp();
+ INSERT INTO telemetry_source(id,config,error)VALUES(repeat('x',65536),'{"name":"safe","kind":"postgres","status":"running","interval_seconds":60,"config":{"secret":"CANARY"}}','CANARY');
+ INSERT INTO telemetry_collection_log(source_id,accepted,duplicates,rejected,message,outcome,attempt_profile_version,attempt_generation,attempt_token_sha256) SELECT repeat('x',65536),0,0,0,'CANARY','failed',1,g,repeat('a',64)FROM generate_series(1,26)g;
+ INSERT INTO notification_fact(activation_id,kind,collection_log_id,source_id,code)SELECT 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','collection.failed.v1',id,source_id,'collection_failed'FROM telemetry_collection_log`)
+	t.Run("list fails before retaining IDs", func(t *testing.T) {
+		var before, after runtime.MemStats
+		runtime.GC()
+		runtime.ReadMemStats(&before)
+		page, e := r.ReadNotificationPage(ctx, domain.NotificationQuery{Scope: s, State: domain.NotificationStateAll, Limit: 25})
+		runtime.ReadMemStats(&after)
+		t.Logf("retained records=%d total allocated bytes=%d", len(page.Items), after.TotalAlloc-before.TotalAlloc)
+		if after.TotalAlloc-before.TotalAlloc > 1024*1024 {
+			t.Errorf("oversized ID allocation reached %d bytes", after.TotalAlloc-before.TotalAlloc)
+		}
+		if e == nil {
+			t.Fatalf("repository retained %d oversized IDs", len(page.Items))
+		}
+		rbacReadErrorKind(t, e, domain.Unavailable)
+		if len(page.Items) != 0 {
+			t.Fatal("partial list on resource failure")
+		}
+	})
+	t.Run("safe source fails before projection", func(t *testing.T) {
+		v, e := r.ReadNotificationSource(ctx, s, strings.Repeat("x", 65536))
+		if e == nil {
+			t.Fatal("repository loaded oversized source", len(v.ID))
+		}
+		rbacReadErrorKind(t, e, domain.Unavailable)
+		if v.ID != "" {
+			t.Fatal("partial source projection")
+		}
+	})
+	t.Run("count keeps oversized facts", func(t *testing.T) {
+		count, e := r.CountUnreadNotifications(ctx, s)
+		if e != nil || count.Value != 26 {
+			t.Fatal(count, e)
+		}
+	})
+	t.Run("mark needs no opaque payload", func(t *testing.T) {
+		var id int64
+		if e := p.QueryRow(ctx, `SELECT min(id) FROM notification_fact`).Scan(&id); e != nil {
+			t.Fatal(e)
+		}
+		if _, e := r.MarkNotificationRead(ctx, s, id); e != nil {
+			t.Fatal(e)
+		}
+	})
+}
+
+func TestNotificationPageProjectionBudget(t *testing.T) {
+	p := testDB(t)
+	r := postgres.New(p)
+	ctx := context.Background()
+	s := notificationScope(t, p, r, `{"kind":"organization","ngdu_id":null,"department_id":null}`, "integrations.read")
+	eventsExec(t, p, `UPDATE auth_user SET scope='{"funds":["operational","presentation"]}' WHERE id=$1`, *s.Principal.AccountID)
+	eventsExec(t, p, `UPDATE notification_activation SET activation_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',activated_at=clock_timestamp();
+ INSERT INTO telemetry_source(id,config)VALUES(repeat('x',4000),'{"name":"safe","kind":"postgres","status":"running","interval_seconds":60}');
+ INSERT INTO telemetry_collection_log(source_id,accepted,duplicates,rejected,message,outcome,attempt_profile_version,attempt_generation,attempt_token_sha256) SELECT repeat('x',4000),0,0,0,'failed','failed',1,g,repeat('a',64)FROM generate_series(1,101)g;
+ INSERT INTO notification_fact(activation_id,kind,collection_log_id,source_id,code)SELECT 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','collection.failed.v1',id,source_id,'collection_failed'FROM telemetry_collection_log`)
+	page, e := r.ReadNotificationPage(ctx, domain.NotificationQuery{Scope: s, State: domain.NotificationStateAll, Limit: 100})
+	if e == nil {
+		t.Fatal("page retained more than256KiB IDs", len(page.Items))
+	}
+	rbacReadErrorKind(t, e, domain.Unavailable)
+	if len(page.Items) != 0 {
+		t.Fatal("partial oversized page")
+	}
+	small, e := r.ReadNotificationPage(ctx, domain.NotificationQuery{Scope: s, State: domain.NotificationStateAll, Limit: 1})
+	if e != nil || len(small.Items) != 2 || small.Items[0].Collection.SourceID != strings.Repeat("x", 4000) {
+		t.Fatal("opaque identity changed or hidden", len(small.Items), e)
+	}
+}
+
+func TestNotificationOversizedSnapshotProjection(t *testing.T) {
+	p := testDB(t)
+	r := postgres.New(p)
+	ctx := context.Background()
+	s := notificationScope(t, p, r, `{"kind":"organization","ngdu_id":null,"department_id":null}`, "alerts.read", "risks.read", "wells.read")
+	notificationSeed(t, p)
+	eventsExec(t, p, `ALTER TABLE ml_run_snapshot ALTER COLUMN snapshot_id SET COMPRESSION lz4;
+ INSERT INTO app_cohort(version,manifest_sha256)VALUES('oversized',repeat('a',64));
+ UPDATE ml_run SET profile='cohort',cohort_version='oversized' WHERE id=9007199254740995;
+ INSERT INTO ml_run_snapshot(run_id,snapshot_id,format_version,cohort_version,as_of,provenance_status,output_sha256,snapshot) VALUES(9007199254740995,repeat('x',300000),1,'oversized',now(),'partial',repeat('a',64),'{"outcomes":[{"app_well_id":9007199254740993,"status":"scored","result":{"verdict":"watch"}}]}')`)
+	got, e := r.ReadNotificationAlert(ctx, s, domain.NotificationAlertLocator{WellID: 9007199254740993, RunID: 9007199254740995, AlertID: 9007199254740997})
+	if e == nil {
+		t.Fatal("repository retained oversized snapshot identity", len(*got.SnapshotID))
+	}
+	rbacReadErrorKind(t, e, domain.Unavailable)
+	if got.SnapshotID != nil || got.SavedResult != nil {
+		t.Fatal("partial oversized saved context")
 	}
 }

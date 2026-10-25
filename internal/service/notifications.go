@@ -141,8 +141,9 @@ func (s *Notifications) capabilities(ctx context.Context, scope domain.Notificat
 	if !s.enabled || v.Reason == "feature_off" {
 		v.Enabled = false
 		v.Reason = "feature_off"
+		v.Families = []domain.NotificationFamily{}
 	} else if len(v.Families) == 0 {
-		v.Enabled = false
+		v.Enabled = true
 		v.Reason = "no_families"
 	} else {
 		v.Enabled = true

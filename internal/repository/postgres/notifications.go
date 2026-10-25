@@ -11,6 +11,21 @@ import (
 	"github.com/effitech-pulse/pulse-backend/internal/service"
 )
 
+// An identity larger than any permitted target URL cannot be returned by F4.
+// This bounds projection only; opaque identities in storage are not modified.
+const notificationSourceIdentityByteBudget = 4096
+const notificationProjectionByteBudget = 256 * 1024
+
+func notificationProjectionUnavailable() error {
+	return domain.NewError(domain.Unavailable, "Уведомления временно недоступны.")
+}
+func notificationStringBytes(value *string) int {
+	if value == nil {
+		return 0
+	}
+	return len(*value)
+}
+
 var _ service.NotificationStore = (*Repository)(nil)
 
 func (r *Repository) NotificationCapabilities(ctx context.Context, s domain.NotificationScope) (domain.NotificationCapabilities, error) {
@@ -41,7 +56,7 @@ func (f notificationReadFrame) unread(q sq.SelectBuilder) sq.SelectBuilder {
 	return q.Where(sq.Expr("NOT EXISTS(SELECT 1 FROM notification_read nr WHERE nr.account_id=? AND nr.notification_id=f.id)", f.boundary.AccountID))
 }
 func notificationRowsQuery(q sq.SelectBuilder, account int64) sq.SelectBuilder {
-	return q.Columns("f.recorded_at", "f.kind", "f.code", "nr.read_at", "w.id", "left(w.well_number,256)", "w.active", "w.archived_at", "a.run_id", "a.id", "a.risk", "a.window_end AT TIME ZONE 'UTC'", "s.id", "left(COALESCE(s.config->>'name',''),256)", "f.collection_log_id").LeftJoin("notification_read nr ON nr.notification_id=f.id AND nr.account_id=?", account).LeftJoin("ml_alert a ON a.id=f.alert_id").LeftJoin("well w ON w.id=f.well_id").LeftJoin("telemetry_source s ON s.id=f.source_id")
+	return q.Columns("f.recorded_at", "f.kind", "f.code", "nr.read_at", "w.id", "left(w.well_number,256)", "w.active", "w.archived_at", "a.run_id", "a.id", "a.risk", "a.window_end AT TIME ZONE 'UTC'").Column(sq.Expr("CASE WHEN octet_length(s.id)<=? THEN s.id ELSE NULL END", notificationSourceIdentityByteBudget)).Columns("left(COALESCE(s.config->>'name',''),256)", "f.collection_log_id").Column(sq.Expr("COALESCE(octet_length(s.id)>?,false)", notificationSourceIdentityByteBudget)).LeftJoin("notification_read nr ON nr.notification_id=f.id AND nr.account_id=?", account).LeftJoin("ml_alert a ON a.id=f.alert_id").LeftJoin("well w ON w.id=f.well_id").LeftJoin("telemetry_source s ON s.id=f.source_id")
 }
 func readNotificationRows(ctx context.Context, tx pgx.Tx, q sq.SelectBuilder, account int64) ([]domain.NotificationRecord, error) {
 	q = notificationRowsQuery(q, account)
@@ -55,6 +70,7 @@ func readNotificationRows(ctx context.Context, tx pgx.Tx, q sq.SelectBuilder, ac
 	}
 	defer rows.Close()
 	out := []domain.NotificationRecord{}
+	projectionBytes := 0
 	for rows.Next() {
 		var n domain.NotificationRecord
 		var well, run, alert, log *int64
@@ -62,8 +78,18 @@ func readNotificationRows(ctx context.Context, tx pgx.Tx, q sq.SelectBuilder, ac
 		var active *bool
 		var archived, end *time.Time
 		var risk *float64
-		if e = rows.Scan(&n.Key.ID, &n.Key.RecordedAt, &n.Kind, &n.Code, &n.ReadAt, &well, &number, &active, &archived, &run, &alert, &risk, &end, &source, &name, &log); e != nil {
+		var oversized bool
+		if e = rows.Scan(&n.Key.ID, &n.Key.RecordedAt, &n.Kind, &n.Code, &n.ReadAt, &well, &number, &active, &archived, &run, &alert, &risk, &end, &source, &name, &log, &oversized); e != nil {
 			return nil, e
+		}
+		// Reject the sentinel before a NULL ID could be mistaken for a missing target.
+		if oversized {
+			return nil, notificationProjectionUnavailable()
+		}
+		// Include fixed record/field overhead as well as projected variable bytes.
+		projectionBytes += 512 + notificationStringBytes(number) + notificationStringBytes(source) + notificationStringBytes(name)
+		if projectionBytes > notificationProjectionByteBudget {
+			return nil, notificationProjectionUnavailable()
 		}
 		if n.Kind == domain.NotificationKindAlertCreated && well != nil && run != nil && alert != nil && active != nil {
 			n.Alert = &domain.NotificationAlertTarget{Well: domain.NotificationWell{ID: *well, Number: number, Active: *active, ArchivedAt: archived}, RunID: *run, AlertID: *alert, Risk: risk, WindowEnd: end}
@@ -156,13 +182,12 @@ func (r *Repository) MarkNotificationRead(ctx context.Context, s domain.Notifica
 	}
 	// First find only the authorized target, then lock target before immutable fact.
 	var well *int64
-	var source *string
-	query, args, e := build(f.feedQuery().Columns("f.well_id", "f.source_id").Where(sq.Eq{"f.id": id}))
+	query, args, e := build(f.feedQuery().Columns("f.well_id").Where(sq.Eq{"f.id": id}))
 	if e != nil {
 		return out, e
 	}
 	var found int64
-	e = f.tx.QueryRow(ctx, query, args...).Scan(&found, &well, &source)
+	e = f.tx.QueryRow(ctx, query, args...).Scan(&found, &well)
 	if e == pgx.ErrNoRows {
 		return out, notificationMissing()
 	}
@@ -172,8 +197,8 @@ func (r *Repository) MarkNotificationRead(ctx context.Context, s domain.Notifica
 	if well != nil {
 		e = f.tx.QueryRow(ctx, `SELECT id FROM well WHERE id=$1 FOR SHARE`, *well).Scan(&found)
 	} else {
-		var locked string
-		e = f.tx.QueryRow(ctx, `SELECT id FROM telemetry_source WHERE id=$1 FOR SHARE`, *source).Scan(&locked)
+		// Lock by the fact relationship without transferring opaque source text to Go.
+		e = f.tx.QueryRow(ctx, `SELECT 1 FROM telemetry_source s JOIN notification_fact f ON f.source_id=s.id WHERE f.id=$1 FOR SHARE OF s`, id).Scan(&found)
 	}
 	if e == pgx.ErrNoRows {
 		return out, notificationMissing()
