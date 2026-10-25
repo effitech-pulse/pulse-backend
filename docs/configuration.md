@@ -203,3 +203,10 @@ startup schema policy, восстановления и rollback. Примене�
 `DAILY_FLOW_MODE=off|synthetic`, default `off`. Synthetic требует local auth,
 cohort scope и exact `presentation-v1`; `real` запрещён. [Профиль, API,
 recipe/golden и rollback](daily-flow.md). Миграции/seed и новые grants не нужны.
+
+## Персональные уведомления
+
+`NOTIFICATIONS_UI_ENABLED=false` — default. Boolean включает только персональную
+выдачу; capture читает однократную persisted activation независимо от UI.
+Требуются local sessions и готовая schema19 даже при UI-off; startup только
+проверяет готовность. [Контракт и ограничения](notifications.md).

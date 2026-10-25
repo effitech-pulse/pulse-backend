@@ -25,7 +25,9 @@ import (
 var openAPI = api.Specification
 
 type Server struct {
-	DailyFlow          *service.DailyFlow
+	DailyFlow *service.DailyFlow
+
+	Notifications      *service.Notifications
 	EquipmentPassports *service.EquipmentPassports
 	Events             *service.Events
 	CollectionJobs     *service.CollectionJobs
@@ -71,6 +73,9 @@ func respond[T any](c *gin.Context, status int, value T, err error) error {
 }
 
 func writeError(c *gin.Context, err error) {
+	if private, _ := c.Get("notification_private"); private == true {
+		err = notificationHTTPError(err)
+	}
 	var e *domain.Error
 	if !errors.As(err, &e) {
 		slog.ErrorContext(c.Request.Context(), "request failed", "error_code", "internal_error")

@@ -160,25 +160,53 @@ func (l *lease) Persist(ctx context.Context, id int64, snapshot domain.Snapshot)
 	if err != nil {
 		return err
 	}
+	var terminal string
+	if err = tx.QueryRow(ctx, "SELECT status FROM ml_run WHERE id=$1 FOR UPDATE", id).Scan(&terminal); err != nil {
+		return err
+	}
+	if terminal != "running" {
+		return domain.NewError(domain.Duplicate, "Прогон уже завершён")
+	}
 	allowUnbound := frame.Profile == "research" && l.repository.legacyResearchUnboundAllowed(ctx, frame.Kind, a, "runs.start")
+	externalIDs := []int64{}
+	for _, risk := range snapshot.Wells {
+		if risk.UnitekID != nil {
+			externalIDs = append(externalIDs, *risk.UnitekID)
+		} else if !allowUnbound {
+			return domain.NewError(domain.Missing, "well_missing")
+		}
+	}
+	wells, e := list[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"unitek_id": externalIDs}).OrderBy("id").Suffix("FOR SHARE"))
+	if e != nil {
+		return e
+	}
+	mapped := map[int64]domain.Well{}
+	for _, w := range wells {
+		mapped[*w.UnitekID] = w
+	}
+	seen := map[int64]bool{}
 	for _, risk := range snapshot.Wells {
 		if risk.UnitekID == nil {
+			continue
+		}
+		w, exists := mapped[*risk.UnitekID]
+		if !exists {
 			if allowUnbound {
 				continue
 			}
 			return domain.NewError(domain.Missing, "well_missing")
 		}
-		w, e := one[domain.Well](ctx, tx, sqlBuilder.Select(wellColumns).From("well").Where(sq.Eq{"unitek_id": risk.UnitekID}).Suffix("FOR SHARE"))
-		if e != nil {
-			var de *domain.Error
-			if allowUnbound && errors.As(e, &de) && de.Kind == domain.Missing {
-				continue
-			}
-			return e
+		if seen[w.ID] {
+			return domain.NewError(domain.Duplicate, "duplicate mapped well")
 		}
+		seen[w.ID] = true
 		if !a.AllowsWell(w) || !w.Active || w.ArchivedAt != nil {
 			return domain.NewError(domain.Forbidden, "access_revoked")
 		}
+	}
+	activation, err := notificationActivationTx(ctx, tx)
+	if err != nil {
+		return err
 	}
 	previousRun := latestCompletedRun().Where(sq.NotEq{"id": id})
 	alerts := 0
@@ -194,7 +222,15 @@ func (l *lease) Persist(ctx context.Context, id int64, snapshot domain.Snapshot)
 			Columns("run_id", "ml_well_id", "unitek_id", "app_well_id", "oilfield", "risk", "window_end", "status").
 			Values(id, w.WellID, w.UnitekID, sq.Expr("(?)", appWell), w.Oilfield, w.Risk,
 				sq.Expr("?::timestamp", w.WindowEnd), sq.Expr("COALESCE((?), ?)", previousStatus, "new"))
-		if _, err = execute(ctx, tx, insert); err != nil {
+		q, args, e := build(insert.Suffix("RETURNING id"))
+		if e != nil {
+			return e
+		}
+		var alertID int64
+		if err = tx.QueryRow(ctx, q, args...).Scan(&alertID); err != nil {
+			return err
+		}
+		if err = appendAlertNotificationTx(ctx, tx, activation, alertID); err != nil {
 			return err
 		}
 		alerts++
@@ -203,16 +239,20 @@ func (l *lease) Persist(ctx context.Context, id int64, snapshot domain.Snapshot)
 		Set("status", "done").Set("finished_at", sq.Expr("now()")).
 		Set("wells_scored", len(snapshot.Wells)).Set("alerts_count", alerts).
 		Set("drift_verdict", snapshot.DriftVerdict).Set("drift_psi_max", snapshot.DriftPsiMax).
-		Set("drift_top", snapshot.DriftTop).Where(sq.Eq{"id": id})
-	if _, err = execute(ctx, tx, finish); err != nil {
+		Set("drift_top", snapshot.DriftTop).Where(sq.Eq{"id": id, "status": "running"})
+	tag, err := execute(ctx, tx, finish)
+	if err != nil {
 		return err
+	}
+	if tag.RowsAffected() != 1 {
+		return domain.NewError(domain.Duplicate, "Прогон уже завершён")
 	}
 	return tx.Commit(ctx)
 }
 
 func (l *lease) Fail(ctx context.Context, id int64, message string) error {
 	query := sqlBuilder.Update("ml_run").Set("status", "error").Set("finished_at", sq.Expr("now()")).
-		Set("error", message).Where(sq.Eq{"id": id}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
+		Set("error", message).Where(sq.Eq{"id": id, "status": "running"}).Where("NOT EXISTS (SELECT 1 FROM cohort_job WHERE cohort_job.run_id=ml_run.id)")
 	_, err := execute(ctx, l.conn, query)
 	return err
 }

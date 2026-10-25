@@ -89,6 +89,10 @@ func persistCohortTx(ctx context.Context, tx pgx.Tx, id int64, s domain.CohortSn
 	if len(ids) != 100 {
 		return domain.NewError(domain.Invalid, "Неполный состав когорты")
 	}
+	activation, err := notificationActivationTx(ctx, tx)
+	if err != nil {
+		return err
+	}
 	seen := map[int64]bool{}
 	alerts := 0
 	for _, o := range s.Outcomes {
@@ -122,7 +126,15 @@ func persistCohortTx(ctx context.Context, tx pgx.Tx, id int64, s domain.CohortSn
 			end = &o.Result.Timeline[n-1].WindowEnd
 		}
 		insert := sqlBuilder.Insert("ml_alert").Columns("run_id", "ml_well_id", "unitek_id", "app_well_id", "risk", "window_end", "status").Values(id, nil, o.Metadata.UnitekID, o.AppWellID, o.Result.LatestRisk, sq.Expr("?::timestamp", end), sq.Expr("COALESCE((?), ?)", previous, "new"))
-		if _, err = execute(ctx, tx, insert); err != nil {
+		q, args, e := build(insert.Suffix("RETURNING id"))
+		if e != nil {
+			return e
+		}
+		var alertID int64
+		if err = tx.QueryRow(ctx, q, args...).Scan(&alertID); err != nil {
+			return err
+		}
+		if err = appendAlertNotificationTx(ctx, tx, activation, alertID); err != nil {
 			return err
 		}
 		alerts++

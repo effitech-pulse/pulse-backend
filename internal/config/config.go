@@ -16,7 +16,10 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
-	DailyFlowMode                string
+	DailyFlowMode string
+
+	NotificationsUIEnabled bool
+
 	CollectionJobMode            string
 	CollectionJobManifest        string
 	CollectionJobManifestSHA256  string
@@ -125,6 +128,13 @@ func Load() (Config, error) {
 	if err := ValidateDailyFlow(c); err != nil {
 		return c, err
 	}
+
+	var notificationsErr error
+	c.NotificationsUIEnabled, notificationsErr = strconv.ParseBool(env("NOTIFICATIONS_UI_ENABLED", "false"))
+	if notificationsErr != nil {
+		return c, fmt.Errorf("NOTIFICATIONS_UI_ENABLED: %w", notificationsErr)
+	}
+
 	if err := validateCollectionJobConfig(c); err != nil {
 		return c, err
 	}

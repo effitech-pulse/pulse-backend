@@ -106,6 +106,12 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 		pool.Close()
 		return nil, err
 	}
+	server.Notifications, err = buildNotifications(ctx, c, store, scope)
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
 	server.Checks = service.NewChecks(store, server.Integrations).WithScope(scope)
 	server.Reviews = service.NewReviews(store).WithCatalog(store).WithScope(scope)
 	server.Presentation = service.NewPresentation(store).WithSource(archive).WithScope(scope)

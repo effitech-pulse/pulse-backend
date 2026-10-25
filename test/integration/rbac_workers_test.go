@@ -337,6 +337,17 @@ func TestRBACLegacyCollectEpoch(t *testing.T) {
 	if err != nil || lease == nil {
 		t.Fatal(lease, err)
 	}
+	// Capture only the persisted lease frame and error; no unauthorized cleanup may mutate them.
+	sourceFrame := func() string {
+		t.Helper()
+		var frame string
+		if e := p.QueryRow(context.Background(), `SELECT jsonb_build_object('generation',writer_generation,'profile',writer_profile_version,'token',writer_token_sha256,'actor',writer_execution_actor,'authority',writer_authorization,'until',lease_until,'error',error)::text FROM telemetry_source WHERE id=$1`, source.ID).Scan(&frame); e != nil {
+			t.Fatal(e)
+		}
+		return frame
+	}
+	originalFrame := sourceFrame()
+	eventsExec(t, p, `UPDATE notification_activation SET activation_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',activated_at=clock_timestamp()`)
 	if _, err = p.Exec(ctx, `UPDATE auth_user SET authz_epoch=authz_epoch+1 WHERE id=$1`, id); err != nil {
 		t.Fatal(err)
 	}
@@ -346,12 +357,56 @@ func TestRBACLegacyCollectEpoch(t *testing.T) {
 	if collectionCount(t, p, "telemetry_collection_log") != 0 {
 		t.Fatal("successful receipt after revoke")
 	}
-	if err = r.FailCollection(ctx, *lease, "access_revoked"); err != nil {
+	rbacReadErrorKind(t, r.FailCollection(ctx, *lease, "access_revoked"), domain.Forbidden)
+	for _, table := range []string{"telemetry_measurement", "telemetry_collection_log", "notification_fact"} {
+		if collectionCount(t, p, table) != 0 {
+			t.Fatal("revoked actor published", table)
+		}
+	}
+	if sourceFrame() != originalFrame {
+		t.Fatal("revoked actor changed source error or released its persisted lease")
+	}
+
+	// A new session with the current epoch still waits for the ordinary lease expiry.
+	current, err := r.Authorization(context.Background(), id)
+	if err != nil {
 		t.Fatal(err)
 	}
+	fresh := domain.AccountPrincipal(account)
+	fresh.Authorization = &current
+	freshCtx := domain.WithRBACMode(domain.WithPrincipal(context.Background(), fresh), domain.RBACEnforce)
+	pending, err := r.ClaimSource(freshCtx, source.ID, false)
+	if err != nil || pending != nil {
+		t.Fatal("new actor bypassed unexpired lease", err)
+	}
+	if sourceFrame() != originalFrame {
+		t.Fatal("unexpired lease was changed by rejected claim")
+	}
+	// Move only the test lease deadline into the past, without release/cleanup writes.
+	eventsExec(t, p, `UPDATE telemetry_source SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1`, source.ID)
+	recovered, err := r.ClaimSource(freshCtx, source.ID, false)
+	if err != nil || recovered == nil {
+		t.Fatal("authorized actor could not recover expired lease", err)
+	}
+	if recovered.Fence <= lease.Fence || recovered.Token == lease.Token || recovered.Authorization == nil || recovered.Authorization.Epoch != current.Epoch {
+		t.Fatal("recovery did not issue a new generation and authority")
+	}
+	recoveredFrame := sourceFrame()
+	rbacReadErrorKind(t, r.FailCollection(ctx, *lease, "late_old_failure"), domain.Forbidden)
+	if sourceFrame() != recoveredFrame {
+		t.Fatal("revoked old actor touched recovered lease")
+	}
+	if _, err = r.CommitTelemetry(freshCtx, domain.TelemetryWrite{SourceID: source.ID, ProfileVersion: source.ProfileVersion, Lease: recovered, Release: true}); err != nil {
+		t.Fatal(err)
+	}
+	var completed int
+	var sourceError string
 	var released bool
-	if err = p.QueryRow(ctx, `SELECT writer_token_sha256 IS NULL AND writer_execution_actor IS NULL AND writer_authorization IS NULL FROM telemetry_source WHERE id=$1`, source.ID).Scan(&released); err != nil || !released {
-		t.Fatal(released, err)
+	if err = p.QueryRow(freshCtx, `SELECT error,writer_token_sha256 IS NULL AND writer_execution_actor IS NULL AND writer_authorization IS NULL,(SELECT count(*) FROM telemetry_collection_log WHERE outcome='completed') FROM telemetry_source WHERE id=$1`, source.ID).Scan(&sourceError, &released, &completed); err != nil || sourceError != "" || !released || completed != 1 {
+		t.Fatal("authorized recovery did not complete cleanly", err)
+	}
+	if collectionCount(t, p, "notification_fact") != 0 {
+		t.Fatal("authorized success invented failure fact")
 	}
 }
 

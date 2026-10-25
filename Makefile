@@ -2,6 +2,7 @@ GO ?= go
 INTEGRATION_TIMEOUT ?= 40m
 .PHONY: build run migrate test integration vet fmt check test-db-up test-db-down
 build:
+	$(GO) build -trimpath -o bin/notifications-activate ./cmd/notifications-activate
 	$(GO) build -trimpath -o bin/collection-worker ./cmd/collection-worker
 	$(GO) build -trimpath -o bin/cohort-worker ./cmd/cohort-worker
 	$(GO) build -trimpath -o bin/worker ./cmd/worker

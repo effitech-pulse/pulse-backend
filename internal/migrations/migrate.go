@@ -63,8 +63,11 @@ var employeeProfilesSchema string
 //go:embed equipment_passports.sql
 var equipmentPassportsSchema string
 
+//go:embed notifications.sql
+var notificationsSchema string
+
 // CurrentVersion соответствует последней additive migration.
-const CurrentVersion = 18
+const CurrentVersion = 19
 
 // Apply создаёт схему новой БД или принимает БД на проверенном Alembic head.
 func Apply(ctx context.Context, pool *pgxpool.Pool) error {
@@ -176,6 +179,15 @@ func Apply(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 	if !hasPassports {
 		if _, err = tx.Exec(ctx, equipmentPassportsSchema); err != nil {
+			return err
+		}
+	}
+	var hasNotifications bool
+	if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM backend_schema_migration WHERE version=19)").Scan(&hasNotifications); err != nil {
+		return err
+	}
+	if !hasNotifications {
+		if _, err = tx.Exec(ctx, notificationsSchema); err != nil {
 			return err
 		}
 	}

@@ -182,3 +182,13 @@ API schema readiness требует17; explicit migration добавляет nul
 передают закрытые поля/операторы адаптерам, SQL keyset выполняется до LIMIT,
 полный authorized accessGraph фильтруется до slice. Legacy paths сохранены.
 [Параметры, временные типы и курсоры](table-query.md).
+
+## Персональные уведомления F4
+
+HTTP → Notifications → NotificationStore в существующем PostgreSQL adapter.
+Закрытые transport DTO отделяют exact alert и safe source projections от raw
+моделей. Все шесть store методов проверяют fresh authority/cohort; scope применяется
+до keyset/count. Facts/reads/activation находятся в одной операционной БД.
+Writers публикуют факт в исходной транзакции, доставки/fanout нет. Cursor AES-GCM
+живёт30min и привязан к текущей boundary; service5s/statement3s. C4 containers
+и межсервисные контракты сохраняются. [Подробности](notifications.md).
