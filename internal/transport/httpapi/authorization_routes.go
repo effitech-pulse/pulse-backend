@@ -18,6 +18,7 @@ var authorizationPolicies = []RoutePolicy{
 	{Method: "PUT", Path: "/notifications/:notification_id/read", ScopeRule: "SELF"},
 	{Method: "GET", Path: "/wells/:well_id/runs/:run_id/alerts/:alert_id", All: []domain.Permission{"alerts.read"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/notification-targets/source", All: []domain.Permission{"integrations.read"}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/people/organization/tree", All: []domain.Permission{}, Any: [][]domain.Permission{}, ScopeRule: "SELF"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport/history", All: []domain.Permission{"equipment_passports.history.read"}, ScopeRule: "PRIVATE"},
 	{Method: "POST", Path: "/equipment-passports/previews", All: []domain.Permission{"equipment_passports.update"}, ScopeRule: "PRIVATE"},

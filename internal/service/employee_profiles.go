@@ -9,6 +9,7 @@ import (
 )
 
 type EmployeeProfileStore interface {
+	OrganizationTreePeople(context.Context, int64, domain.OrganizationTreeQuery) ([]domain.OrganizationTreePerson, error)
 	ListPeople(context.Context, int64, domain.PeopleQuery) (domain.PeoplePage, error)
 	EmployeeProfile(context.Context, int64, int64) (domain.EmployeeProfile, error)
 }

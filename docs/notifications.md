@@ -53,7 +53,8 @@ Target readers доступны независимо от UI flag.
 
 Порядок будущего maintenance: backup schema18 → явная schema19 migration →
 сверка исторических ID/results/reviews/RBAC → запуск всех новых writers →
-drained activation barrier через `bin/notifications-activate`. CLI генерирует
+drained activation barrier через `bin/notifications-activate` (в runtime Docker image —
+`/app/notifications-activate`, вызывается оператором с явным override entrypoint). CLI генерирует
 случайную activation identity. Startup `ValidateNotifications` проверяет
 schema/constraints/seed и не выполняет DDL или activation. Отсутствующая
 готовность — ошибка запуска даже при выключенном UI.

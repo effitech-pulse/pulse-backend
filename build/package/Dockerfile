@@ -11,13 +11,15 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     CGO_ENABLED=0 go build -trimpath -o /out/api ./cmd/api && \
     CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate && \
     CGO_ENABLED=0 go build -trimpath -o /out/adminuser ./cmd/adminuser && \
-    CGO_ENABLED=0 go build -trimpath -o /out/cohort ./cmd/cohort
+    CGO_ENABLED=0 go build -trimpath -o /out/cohort ./cmd/cohort && \
+    CGO_ENABLED=0 go build -trimpath -o /out/notifications-activate ./cmd/notifications-activate
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/api /app/api
 COPY --from=build /out/migrate /app/migrate
 COPY --from=build /out/adminuser /app/adminuser
 COPY --from=build /out/cohort /app/cohort
+COPY --from=build /out/notifications-activate /app/notifications-activate
 ENV HTTP_ADDR=:8000
 EXPOSE 8000
 ENTRYPOINT ["/app/api"]
