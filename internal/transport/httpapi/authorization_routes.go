@@ -12,6 +12,12 @@ type RoutePolicy struct {
 }
 
 var authorizationPolicies = []RoutePolicy{
+	{Method: "GET", Path: "/notifications/capabilities", ScopeRule: "CAPABILITY"},
+	{Method: "GET", Path: "/notifications", Any: [][]domain.Permission{{"alerts.read"}, {"integrations.read"}}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/notifications/unread-count", Any: [][]domain.Permission{{"alerts.read"}, {"integrations.read"}}, ScopeRule: "PRIVATE"},
+	{Method: "PUT", Path: "/notifications/:notification_id/read", ScopeRule: "SELF"},
+	{Method: "GET", Path: "/wells/:well_id/runs/:run_id/alerts/:alert_id", All: []domain.Permission{"alerts.read"}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/notification-targets/source", All: []domain.Permission{"integrations.read"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport/history", All: []domain.Permission{"equipment_passports.history.read"}, ScopeRule: "PRIVATE"},
 	{Method: "POST", Path: "/equipment-passports/previews", All: []domain.Permission{"equipment_passports.update"}, ScopeRule: "PRIVATE"},

@@ -9804,6 +9804,832 @@
           }
         }
       }
+    },
+    "/api/v1/notifications/capabilities": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationCapabilities",
+        "operationId": "notification_NotificationCapabilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationCapabilities"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "CAPABILITY",
+        "x-authorization-permissions": []
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationPage",
+        "operationId": "notification_NotificationPage",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unread",
+                "all"
+              ],
+              "default": "unread"
+            },
+            "description": "Single nonempty value only."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Single nonempty value only."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "description": "Single nonempty value only."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [["alerts.read"], ["integrations.read"]]
+      }
+    },
+    "/api/v1/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationCount",
+        "operationId": "notification_NotificationCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationCount"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [],
+        "x-authorization-any": [["alerts.read"], ["integrations.read"]]
+      }
+    },
+    "/api/v1/notifications/{notification_id}/read": {
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationRead",
+        "operationId": "notification_NotificationRead",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^nf1_[1-9][0-9]{0,18}$",
+              "description": "Stable fact namespace nf1_; suffix positive signed int64 <=9223372036854775807."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRead"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "SELF",
+        "x-authorization-permissions": []
+      }
+    },
+    "/api/v1/wells/{well_id}/runs/{run_id}/alerts/{alert_id}": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationAlertContext",
+        "operationId": "notification_NotificationAlertContext",
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/NotificationDecimalID"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/NotificationDecimalID"
+            }
+          },
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/NotificationDecimalID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationAlertContext"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "alerts.read"
+        ]
+      }
+    },
+    "/api/v1/notification-targets/source": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "NotificationSourceOverview",
+        "operationId": "notification_NotificationSourceOverview",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Single opaque source ID, percent decoded once. Encode slash, literal percent, question, plus and Unicode with query encoder."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSourceOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired personal session.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing effective permissions or available families.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hidden, absent or deleted target. Same safe response.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid query/body/ID/cursor. No detail.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database, deadline, feature off or response budget unavailable. Never false zero.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Local personal session required. Cache-Control no-store on success and all errors. Strict query: unknown, duplicate, empty or malformed encoding rejected; body must contain exactly zero bytes. Closed allowlist DTO, all new bigint IDs strings; UTC six fractional digit times. Response <=256KiB including newline, safe display text <=256 codepoints. Targets independent of UI flag. List cursor AES-GCM, TTL30min, <=4096 bytes, bound to account/current authority/cohort/activation/state/limit; restart invalidates cursors only.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "integrations.read"
+        ]
+      }
     }
   },
   "components": {
@@ -18345,6 +19171,576 @@
           "detail"
         ],
         "description": "Inherited personal authorization middleware may return detail:null; passport handler errors use an object."
+      },
+      "NotificationDecimalID": {
+        "type": "string",
+        "pattern": "^[1-9][0-9]{0,18}$",
+        "description": "Canonical positive signed int64 decimal, maximum 9223372036854775807; never a JSON number."
+      },
+      "NotificationCapabilities": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "feature_off",
+              "no_families"
+            ]
+          },
+          "families": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "alerts",
+                "collection"
+              ]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "enabled",
+          "reason",
+          "families"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationWell": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/NotificationDecimalID"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "active",
+          "archived_at"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationAlertTarget": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "alert"
+          },
+          "well": {
+            "$ref": "#/components/schemas/NotificationWell"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/NotificationDecimalID"
+          },
+          "alert_id": {
+            "$ref": "#/components/schemas/NotificationDecimalID"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "window_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "well",
+          "run_id",
+          "alert_id",
+          "risk",
+          "window_end"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationCollectionTarget": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "collection"
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Opaque exact source ID; no normalization or double decoding."
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "collection_log_id": {
+            "$ref": "#/components/schemas/NotificationDecimalID"
+          }
+        },
+        "required": [
+          "kind",
+          "source_id",
+          "source_name",
+          "collection_log_id"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationAlertItem": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "string",
+            "pattern": "^nf1_[1-9][0-9]{0,18}$",
+            "description": "Stable fact namespace nf1_; suffix positive signed int64 <=9223372036854775807."
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "const": "alert.created.v1"
+          },
+          "code": {
+            "const": "alert_created"
+          },
+          "text": {
+            "const": "Тревога нового прогона"
+          },
+          "target": {
+            "$ref": "#/components/schemas/NotificationAlertTarget"
+          }
+        },
+        "required": [
+          "notification_id",
+          "recorded_at",
+          "read_at",
+          "kind",
+          "code",
+          "text",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationCollectionItem": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "string",
+            "pattern": "^nf1_[1-9][0-9]{0,18}$",
+            "description": "Stable fact namespace nf1_; suffix positive signed int64 <=9223372036854775807."
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "const": "collection.failed.v1"
+          },
+          "code": {
+            "const": "collection_failed"
+          },
+          "text": {
+            "const": "Попытка сбора завершилась ошибкой"
+          },
+          "target": {
+            "$ref": "#/components/schemas/NotificationCollectionTarget"
+          }
+        },
+        "required": [
+          "notification_id",
+          "recorded_at",
+          "read_at",
+          "kind",
+          "code",
+          "text",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationItem": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/NotificationAlertItem"
+          },
+          {
+            "$ref": "#/components/schemas/NotificationCollectionItem"
+          }
+        ]
+      },
+      "NotificationPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/NotificationItem"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationCount": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "capped": {
+            "type": "boolean",
+            "description": "True for >=100 unread; value is 99."
+          }
+        },
+        "required": [
+          "value",
+          "capped"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationRead": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "string",
+            "pattern": "^nf1_[1-9][0-9]{0,18}$",
+            "description": "Stable fact namespace nf1_; suffix positive signed int64 <=9223372036854775807."
+          },
+          "read_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+          }
+        },
+        "required": [
+          "notification_id",
+          "read_at"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationAlertContext": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/NotificationAlertTarget"
+          },
+          "run": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/NotificationDecimalID"
+              },
+              "profile": {
+                "type": "string",
+                "enum": [
+                  "research",
+                  "cohort"
+                ]
+              },
+              "started_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              "finished_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "profile",
+              "started_at",
+              "finished_at"
+            ],
+            "additionalProperties": false
+          },
+          "alert_status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "confirmed",
+              "false_positive",
+              "unknown"
+            ]
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "saved_result": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "watch",
+                      "alert"
+                    ]
+                  },
+                  "model_name": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "model_version": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "verdict",
+                  "model_name",
+                  "model_version"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "target",
+          "run",
+          "alert_status",
+          "snapshot_id",
+          "saved_result"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationSourceOverview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "json_pull",
+              "json_push",
+              "clickhouse",
+              "postgres",
+              "mysql",
+              "file",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "running",
+              "paused",
+              "error",
+              "unknown"
+            ]
+          },
+          "interval_seconds": {
+            "type": "integer"
+          },
+          "last_received": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_measured": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "collection_failed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "status",
+          "interval_seconds",
+          "last_received",
+          "last_measured",
+          "error_code"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "unauthorized",
+              "forbidden",
+              "not_found",
+              "validation_error",
+              "external_service_error"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Требуется вход.",
+              "Недостаточно прав.",
+              "Уведомление недоступно.",
+              "Некорректный запрос.",
+              "Уведомления временно недоступны."
+            ]
+          },
+          "detail": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ],
+        "additionalProperties": false
       }
     },
     "securitySchemes": {

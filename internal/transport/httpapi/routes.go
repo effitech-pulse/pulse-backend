@@ -17,7 +17,7 @@ func (s *Server) routes() *gin.Engine {
 	router.HandleMethodNotAllowed = true
 	router.MaxMultipartMemory = 2 * 1024 * 1024
 	_ = router.SetTrustedProxies(nil)
-	router.Use(s.eventsHeaders(), s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
+	router.Use(s.notificationsHeaders(), s.eventsHeaders(), s.observationMiddleware(), s.auditMiddleware(), gin.CustomRecoveryWithWriter(io.Discard, s.recoverPanic),
 		s.corsMiddleware(), s.authorizeMiddleware())
 	router.GET("/health", s.wrap(s.health))
 	router.GET("/openapi.json", func(c *gin.Context) {
@@ -28,6 +28,12 @@ func (s *Server) routes() *gin.Engine {
 	api.POST("/collection-jobs", s.wrap(s.submitCollectionJob))
 	api.GET("/collection-jobs/:job_id", s.wrap(s.getCollectionJob))
 	api.POST("/collection-jobs/:job_id/cancel", s.wrap(s.cancelCollectionJob))
+	api.GET("/notifications/capabilities", s.wrap(s.notificationCapabilities))
+	api.GET("/notifications", s.wrap(s.listNotifications))
+	api.GET("/notifications/unread-count", s.wrap(s.notificationUnreadCount))
+	api.PUT("/notifications/:notification_id/read", s.wrap(s.markNotificationRead))
+	api.GET("/wells/:well_id/runs/:run_id/alerts/:alert_id", s.wrap(s.notificationAlert))
+	api.GET("/notification-targets/source", s.wrap(s.notificationSource))
 	api.GET("/events", s.eventWrap(s.listEvents))
 	api.GET("/events/:event_id", s.eventWrap(s.getEvent))
 	api.POST("/ml/cohort-jobs", s.wrap(s.submitCohortJob))

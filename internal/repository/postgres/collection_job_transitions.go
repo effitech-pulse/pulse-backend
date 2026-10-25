@@ -231,7 +231,7 @@ func (r *Repository) ApplyCollectionCapture(ctx context.Context, l domain.Collec
 		if _, e = execute(ctx, tx, sqlBuilder.Insert("collection_job_coverage").Columns("job_id", "source_id", "binding_sha256", "data_revision", "start_at", "end_at", "state", "maximum_measured_at").Values(j.ID, j.Intent.Binding.SourceID, j.Intent.BindingSHA256, c.Provenance.DataRevision, j.Intent.Start, j.Intent.End, state, maximum)); e != nil {
 			return e
 		}
-		if _, e = execute(ctx, tx, sqlBuilder.Insert("telemetry_collection_log").Columns("source_id", "accepted", "duplicates", "rejected", "message").Values(j.Intent.Binding.SourceID, inserted, identical, 0, "collection_committed")); e != nil {
+		if _, e = execute(ctx, tx, sqlBuilder.Insert("telemetry_collection_log").Columns("source_id", "accepted", "duplicates", "rejected", "message", "outcome").Values(j.Intent.Binding.SourceID, inserted, identical, 0, "collection_committed", "completed")); e != nil {
 			return e
 		}
 		if _, e = execute(ctx, tx, sqlBuilder.Update("telemetry_source").Set("last_received", now).Set("error", "").Where(sq.Eq{"id": j.Intent.Binding.SourceID})); e != nil {

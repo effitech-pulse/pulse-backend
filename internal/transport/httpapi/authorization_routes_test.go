@@ -218,3 +218,50 @@ func TestEquipmentPassportRoutePolicies(t *testing.T) {
 func rbacRoutePassportSnapshot() domain.AuthorizationSnapshot {
 	return domain.AuthorizationSnapshot{Active: true, Permissions: []domain.Permission{"equipment_passports.import"}}
 }
+func TestNotificationCompatibilityUsesEffectivePermissions(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	store := &routeSessionStore{view: domain.AccountAccessView{Account: domain.Account{ID: 7, Role: "viewer", Active: true}, Authorization: domain.AuthorizationSnapshot{AccountID: 7, Active: true, Epoch: 1, Permissions: []domain.Permission{"wells.read", "risks.read", "alerts.read"}}}}
+	access, e := service.NewAccess(store, true)
+	if e != nil {
+		t.Fatal(e)
+	}
+	access.WithRBACMode(domain.RBACCompat)
+	facts := &notificationHTTPStore{families: []domain.NotificationFamily{domain.NotificationFamilyAlerts}}
+	svc, e := service.NewNotifications(facts, nil, service.NotificationsOptions{AuthMode: "local", Mode: "research", Prefix: "/api/v1", UIEnabled: true})
+	if e != nil {
+		t.Fatal(e)
+	}
+	s := &Server{Config: config.Config{Prefix: "/api/v1"}, Access: access, Notifications: svc}
+	router := s.routes()
+	request := func(method, path string, cookie bool) int {
+		r := httptest.NewRequest(method, path, nil)
+		if cookie {
+			r.AddCookie(&http.Cookie{Name: sessionCookie, Value: "valid"})
+		}
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+		if w.Header().Get("Cache-Control") != "no-store" {
+			t.Fatal("private cache header")
+		}
+		return w.Code
+	}
+	if got := request("GET", "/api/v1/notifications", true); got != 200 {
+		t.Fatalf("non-admin effective rights: %d", got)
+	}
+	store.view.Account.Role = "admin"
+	store.view.Authorization.Permissions = []domain.Permission{}
+	facts.families = nil
+	if got := request("GET", "/api/v1/notifications", true); got != 403 {
+		t.Fatalf("admin bypass: %d", got)
+	}
+	if got := request("GET", "/api/v1/notifications/capabilities", true); got != 200 {
+		t.Fatalf("no family capability: %d", got)
+	}
+	facts.err = domain.NewError(domain.Missing, "hidden")
+	if got := request("PUT", "/api/v1/notifications/nf1_1/read", true); got != 404 {
+		t.Fatalf("hidden mark: %d", got)
+	}
+	if got := request("GET", "/api/v1/notifications/capabilities", false); got != 401 {
+		t.Fatalf("anonymous: %d", got)
+	}
+}

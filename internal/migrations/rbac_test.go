@@ -170,15 +170,15 @@ func TestRBACMigrationIdempotent(t *testing.T) {
 		t.Fatal(e)
 	}
 	var n int
-	if e := p.QueryRow(ctx, `SELECT count(*) FROM auth_role_permission p JOIN auth_role r ON r.id=p.role_id WHERE builtin_key='admin'`).Scan(&n); e != nil || n != len(domain.PermissionCatalog()) {
+	if e := p.QueryRow(ctx, `SELECT count(*) FROM auth_role_permission p JOIN auth_role r ON r.id=p.role_id WHERE builtin_key='admin'`).Scan(&n); e != nil || n != len(domain.BuiltinAccessPermissions("admin")) {
 		t.Fatal(n, e)
 	}
 
 	viewer := strings.Fields("alerts.read checks.read cohort.runs.read incidents.read parameters.read references.read risks.explain risks.export risks.read telemetry.read wells.export wells.history.read wells.read")
 	technologist := append(slices.Clone(viewer), strings.Fields("checks.run checks.review alerts.review incidents.create filechecks.read filechecks.run filechecks.cancel filechecks.review")...)
 	admin := make([]string, 0)
-	for _, key := range domain.PermissionCatalog() {
-		admin = append(admin, string(key.Key))
+	for _, key := range domain.BuiltinAccessPermissions("admin") {
+		admin = append(admin, string(key))
 	}
 	for key, want := range map[string][]string{"admin": admin, "viewer": viewer, "technologist": technologist} {
 		var got []string

@@ -221,6 +221,22 @@ func (s *Server) compatibilityAuthorization(c *gin.Context) {
 		c.Next()
 		return
 	}
+	// F4 uses effective current permissions in both local RBAC profiles.
+	if private, _ := c.Get("notification_private"); private == true {
+		p.Authorization = &view.Authorization
+		c.Request = c.Request.WithContext(domain.WithPrincipal(c.Request.Context(), p))
+		policy, known := authorizationPolicy(c.Request.Method, relativeAuth)
+		if !known {
+			deny(domain.NewError(domain.Forbidden, "Недостаточно прав."))
+			return
+		}
+		if e := s.routePermission(p, policy); e != nil {
+			deny(e)
+			return
+		}
+		c.Next()
+		return
+	}
 	if p.Role == "admin" {
 		c.Next()
 		return

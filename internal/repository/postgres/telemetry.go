@@ -261,6 +261,15 @@ func checkTelemetryWriter(ctx context.Context, tx pgx.Tx, w domain.TelemetryWrit
 	if held || status != "running" || profile != w.ProfileVersion {
 		return domain.NewError(domain.Duplicate, "stale_lease")
 	}
+	if w.Release && w.Lease != nil {
+		var terminal bool
+		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM telemetry_collection_log WHERE source_id=$1 AND attempt_profile_version=$2 AND attempt_generation=$3)`, w.SourceID, w.Lease.ProfileVersion, w.Lease.Fence).Scan(&terminal); err != nil {
+			return err
+		}
+		if terminal {
+			return domain.NewError(domain.Duplicate, "stale_lease")
+		}
+	}
 	if w.Release {
 		l := w.Lease
 		if l == nil || l.SourceID != w.SourceID || l.ProfileVersion != profile || l.Fence != generation || token == nil || *token != telemetryTokenSHA(l.Token) || !until.After(now) {
@@ -293,7 +302,18 @@ func (r *Repository) CommitTelemetry(ctx context.Context, w domain.TelemetryWrit
 	if err = checkTelemetryWriter(ctx, tx, w); err != nil {
 		return log, err
 	}
-	if _, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_collection_log").Columns("timestamp", "source_id", "accepted", "duplicates", "rejected", "message").Values(log.Timestamp, w.SourceID, log.Accepted, log.Duplicates, w.Rejected, w.Message)); err != nil {
+	receipt := sqlBuilder.Insert("telemetry_collection_log").Columns("timestamp", "source_id", "accepted", "duplicates", "rejected", "message", "outcome", "attempt_profile_version", "attempt_generation", "attempt_token_sha256")
+	var profile *int
+	var generation *int64
+	var token *string
+	if w.Release && w.Lease != nil {
+		profile = &w.Lease.ProfileVersion
+		generation = &w.Lease.Fence
+		sha := telemetryTokenSHA(w.Lease.Token)
+		token = &sha
+	}
+	receipt = receipt.Values(log.Timestamp, w.SourceID, log.Accepted, log.Duplicates, w.Rejected, w.Message, "completed", profile, generation, token)
+	if _, err = execute(ctx, tx, receipt); err != nil {
 		return log, err
 	}
 	if w.SourceID != "manual" {
@@ -322,13 +342,25 @@ func (r *Repository) FailCollection(ctx context.Context, l domain.TelemetrySourc
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if err = checkTelemetryWriter(ctx, tx, domain.TelemetryWrite{SourceID: l.SourceID, ProfileVersion: l.ProfileVersion, Lease: &l, Release: true}); err != nil {
+	if err = r.telemetryWriteAuthority(ctx, tx, domain.TelemetryWrite{SourceID: l.SourceID, ProfileVersion: l.ProfileVersion, Lease: &l, Release: true}); err != nil {
+		return err
+	}
+	activation, err := notificationActivationTx(ctx, tx)
+	if err != nil {
 		return err
 	}
 	if _, err = execute(ctx, tx, sqlBuilder.Update("telemetry_source").Set("error", message).Set("lease_until", sq.Expr("'-infinity'::timestamptz")).Set("writer_token_sha256", nil).Set("writer_profile_version", nil).Set("writer_execution_actor", nil).Set("writer_authorization", nil).Set("next_poll", sq.Expr("clock_timestamp()+interval '60 seconds'")).Where(sq.Eq{"id": l.SourceID})); err != nil {
 		return err
 	}
-	if _, err = execute(ctx, tx, sqlBuilder.Insert("telemetry_collection_log").Columns("source_id", "accepted", "duplicates", "rejected", "message").Values(l.SourceID, 0, 0, 0, message)); err != nil {
+	q, args, err := build(sqlBuilder.Insert("telemetry_collection_log").Columns("source_id", "accepted", "duplicates", "rejected", "message", "outcome", "attempt_profile_version", "attempt_generation", "attempt_token_sha256").Values(l.SourceID, 0, 0, 0, message, "failed", l.ProfileVersion, l.Fence, telemetryTokenSHA(l.Token)).Suffix("RETURNING id"))
+	if err != nil {
+		return err
+	}
+	var logID int64
+	if err = tx.QueryRow(ctx, q, args...).Scan(&logID); err != nil {
+		return err
+	}
+	if err = appendCollectionNotificationTx(ctx, tx, activation, logID); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
@@ -392,8 +424,8 @@ func (r *Repository) telemetryWriteAuthority(ctx context.Context, tx pgx.Tx, w d
 		if e != nil {
 			return e
 		}
-		kind = frame.Kind
-		a, err = executionAuthorityTx(ctx, tx, frame.Kind, frame.Authorization, "integrations.collect", domain.ExecutionSystemCollect)
+		kind = w.Lease.ExecutionActor
+		a, err = executionAuthorityTx(ctx, tx, kind, w.Lease.Authorization, "integrations.collect", domain.ExecutionSystemCollect)
 		if err != nil {
 			return err
 		}

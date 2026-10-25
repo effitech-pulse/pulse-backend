@@ -91,7 +91,7 @@ make build
 ./bin/api
 ```
 
-Миграции выполняются явно; текущая Go-схема имеет версию18 (паспорт оборудования поверх профилей сотрудников поверх additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения17 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
+Миграции выполняются явно; текущая Go-схема имеет версию19 (персональные уведомления поверх schema18 паспорта оборудования поверх профилей сотрудников поверх additive RBAC и persisted worker authority поверх collection schema15, Q2-C1 schema14, Q1 schema13 и Q0 schema12). PostgreSQL server —16; версия схемы приложения19 — отдельный счётчик миграций. Source/test migration не активирует её на actual PREP. Старый Alembic baseline принимается с `0012_ml_run_drift`, существующие Go-версии обновляются аддитивно. Перед запуском cohort нужно выполнить backup, миграции, `bin/cohort -version presentation-v1` и bootstrap первого администратора через защищённый stdin. См. [изолированный PREP запуск](docs/readiness-runtime.md) и [миграции](docs/operations.md#миграции).
 
 Проверьте доступность:
 
@@ -208,3 +208,7 @@ real-file enable запрещён startup validation. Synthetic proof не яв�
 `GET /api/v1/events/{event_id}`. [Контракт, права и ограничения](docs/events.md).
 
 Паспорт оборудования требует явной schema18 и отдельного maintenance enrollment: миграция и запуск API новых прав не выдают. Source/test готовность не переключает PREP/live; границы, rollback и limits описаны в [standalone runbook](docs/equipment-passports.md).
+
+Персональные уведомления F4: [HTTP, права и эксплуатация](docs/notifications.md).
+Подготовленный source требует явную schema19; UI default-off, capture activation
+выполняется отдельно оператором. Рабочий PREP автоматически не переключается.

@@ -331,3 +331,13 @@ full-span resources/canary/ML0/exact teardown VERIFIED. Publication PASS отд�
 Точный code/binary binding, per-case durations/caveats и non-production scope — в
 runtime guide. PostgreSQL16 и app schema15 различаются; C2 не продвигает legacy
 last_measured. Root выполнил handbook sync/build/validate/source-check и independent extracted ZIP validation после docs review.
+
+## Персональные уведомления · schema19
+
+F4 source подготавливает schema19 поверх18; запуск не выполняет DDL/activation.
+Для будущего maintenance обязательны backup18, explicit migration, сверка старых
+IDs/results/reviews/RBAC, обновление всех publishers и drained однократная
+activation через `bin/notifications-activate`. UI default-off не выключает capture.
+Restore согласованного snapshot сохраняет cutoff/fact IDs/first read_at/attempts.
+Rollback старого binary требует остановки всех затронутых публикаций; selective
+reset read/cutoff не предусмотрен. [Полный протокол](notifications.md).

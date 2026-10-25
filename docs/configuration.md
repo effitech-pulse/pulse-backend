@@ -197,3 +197,10 @@ compat после activation запрещён при старте API и все�
 См. [RBAC runbook](rbac.md) для backup/drain, `bin/adminuser -activate-rbac`,
 startup schema policy, восстановления и rollback. Применение миграции16 само
 не активирует RBAC и не меняет default-off feature flags.
+
+## Персональные уведомления
+
+`NOTIFICATIONS_UI_ENABLED=false` — default. Boolean включает только персональную
+выдачу; capture читает однократную persisted activation независимо от UI.
+Требуются local sessions и готовая schema19 даже при UI-off; startup только
+проверяет готовность. [Контракт и ограничения](notifications.md).
