@@ -12,6 +12,8 @@ type RoutePolicy struct {
 }
 
 var authorizationPolicies = []RoutePolicy{
+	{Method: "GET", Path: "/wells/:well_id/daily-flow", All: []domain.Permission{"telemetry.read"}, ScopeRule: "W"},
+	{Method: "GET", Path: "/wells/:well_id/daily-flow/export", All: []domain.Permission{"telemetry.read"}, ScopeRule: "W"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/wells/:well_id/equipment-passport/history", All: []domain.Permission{"equipment_passports.history.read"}, ScopeRule: "PRIVATE"},
 	{Method: "POST", Path: "/equipment-passports/previews", All: []domain.Permission{"equipment_passports.update"}, ScopeRule: "PRIVATE"},

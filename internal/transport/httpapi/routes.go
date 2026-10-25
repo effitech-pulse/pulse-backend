@@ -25,6 +25,8 @@ func (s *Server) routes() *gin.Engine {
 	})
 	api := router.Group(s.Config.Prefix)
 	s.registerEquipmentPassportRoutes(api)
+	api.GET("/wells/:well_id/daily-flow", s.wrap(s.dailyFlowRead))
+	api.GET("/wells/:well_id/daily-flow/export", s.wrap(s.dailyFlowExport))
 	api.POST("/collection-jobs", s.wrap(s.submitCollectionJob))
 	api.GET("/collection-jobs/:job_id", s.wrap(s.getCollectionJob))
 	api.POST("/collection-jobs/:job_id/cancel", s.wrap(s.cancelCollectionJob))

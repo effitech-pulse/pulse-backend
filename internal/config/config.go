@@ -16,6 +16,7 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
+	DailyFlowMode                string
 	CollectionJobMode            string
 	CollectionJobManifest        string
 	CollectionJobManifestSHA256  string
@@ -83,6 +84,7 @@ func envInt(key string, fallback int) (int, error) {
 func Load() (Config, error) {
 	_ = godotenv.Load(".env")
 	c := Config{
+		DailyFlowMode:                env("DAILY_FLOW_MODE", "off"),
 		CollectionJobMode:            env("COLLECTION_JOB_MODE", "off"),
 		CollectionJobManifest:        env("COLLECTION_JOB_MANIFEST", ""),
 		CollectionJobManifestSHA256:  env("COLLECTION_JOB_MANIFEST_SHA256", ""),
@@ -120,6 +122,9 @@ func Load() (Config, error) {
 		MetabaseSecret:           env("METABASE_EMBED_SECRET", ""),
 	}
 
+	if err := ValidateDailyFlow(c); err != nil {
+		return c, err
+	}
 	if err := validateCollectionJobConfig(c); err != nil {
 		return c, err
 	}
@@ -243,6 +248,20 @@ func validateCollectionJobConfig(c Config) error {
 		if e != nil || (u.Scheme != "amqp" && u.Scheme != "amqps") || u.Host == "" || u.Path != "/pulse-q2c2-synthetic" || u.RawQuery != "" || u.Fragment != "" {
 			return fmt.Errorf("synthetic collection requires isolated AMQP URLs")
 		}
+	}
+	return nil
+}
+
+// ValidateDailyFlow разрешает только фиксированный тестовый профиль.
+func ValidateDailyFlow(c Config) error {
+	if c.DailyFlowMode == "" || c.DailyFlowMode == "off" {
+		return nil
+	}
+	if c.DailyFlowMode != "synthetic" {
+		return fmt.Errorf("DAILY_FLOW_MODE must be off or synthetic")
+	}
+	if c.AuthMode != "local" || c.AppScope != "cohort" || c.CohortVersion != "presentation-v1" {
+		return fmt.Errorf("DAILY_FLOW_MODE synthetic requires local cohort presentation-v1")
 	}
 	return nil
 }

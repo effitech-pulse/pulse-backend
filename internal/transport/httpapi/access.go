@@ -165,7 +165,7 @@ func (s *Server) allowedOrigin(c *gin.Context) bool {
 	return false
 }
 func (s *Server) compatibilityAuthorization(c *gin.Context) {
-	c.Header("Cache-Control", "no-store")
+	s.sessionCacheControl(c)
 	path := c.FullPath()
 	if !strings.HasPrefix(c.Request.URL.Path, s.Config.Prefix+"/") {
 		c.Next()
@@ -235,7 +235,7 @@ func (s *Server) compatibilityAuthorization(c *gin.Context) {
 			allowed = s.ML != nil && s.ML.IsCohort()
 		case "/events", "/events/:event_id", "/incidents/stats", "/wells", "/wells/export", "/ngdu", "/departments", "/parameters", "/ml/wells", "/ml/wells/:well_id/explain", "/ml/wells/:well_id/history", "/ml/alerts/:alert_id/review", "/presentation/summary":
 			allowed = true
-		case "/wells/:well_id/history", "/wells/:well_id", "/wells/:well_id/telemetry", "/wells/:well_id/telemetry/bounds", "/wells/:well_id/checks", "/wells/:well_id/checks/:check_id", "/wells/:well_id/checks/:check_id/review", "/wells/:well_id/risk", "/wells/:well_id/risk/history", "/wells/:well_id/predictions", "/wells/:well_id/predictions/export", "/wells/:well_id/complications", "/wells/:well_id/classification", "/wells/:well_id/incidents":
+		case "/wells/:well_id/daily-flow", "/wells/:well_id/daily-flow/export", "/wells/:well_id/history", "/wells/:well_id", "/wells/:well_id/telemetry", "/wells/:well_id/telemetry/bounds", "/wells/:well_id/checks", "/wells/:well_id/checks/:check_id", "/wells/:well_id/checks/:check_id/review", "/wells/:well_id/risk", "/wells/:well_id/risk/history", "/wells/:well_id/predictions", "/wells/:well_id/predictions/export", "/wells/:well_id/complications", "/wells/:well_id/classification", "/wells/:well_id/incidents":
 			allowed = true
 		}
 	} else if p.Role == "technologist" {
@@ -272,7 +272,7 @@ func (s *Server) personalAuthorization(c *gin.Context) {
 		s.compatibilityAuthorization(c)
 		return
 	}
-	c.Header("Cache-Control", "no-store")
+	s.sessionCacheControl(c)
 	path := c.FullPath()
 	// Gin owns unregistered method/path responses (404/405); CORS owns OPTIONS.
 	if path == "" {

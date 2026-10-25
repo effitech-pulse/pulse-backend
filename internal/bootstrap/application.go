@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -85,6 +86,12 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 			TTL:        c.TokenTTL,
 			Dashboards: dashboards,
 		},
+	}
+	server.DailyFlow, err = buildDailyFlow(ctx, c, server.Catalog, scope, time.Now())
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
 	}
 	server.Access, err = service.NewAccess(store, c.AuthMode == "local")
 	if err != nil {

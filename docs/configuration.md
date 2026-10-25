@@ -197,3 +197,9 @@ compat после activation запрещён при старте API и все�
 См. [RBAC runbook](rbac.md) для backup/drain, `bin/adminuser -activate-rbac`,
 startup schema policy, восстановления и rollback. Применение миграции16 само
 не активирует RBAC и не меняет default-off feature flags.
+
+## Суточный тестовый дебит
+
+`DAILY_FLOW_MODE=off|synthetic`, default `off`. Synthetic требует local auth,
+cohort scope и exact `presentation-v1`; `real` запрещён. [Профиль, API,
+recipe/golden и rollback](daily-flow.md). Миграции/seed и новые grants не нужны.
