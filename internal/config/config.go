@@ -16,6 +16,8 @@ import (
 
 // Config описывает операционный API; модель и данные остаются в Python-сервисе.
 type Config struct {
+	NotificationsUIEnabled bool
+
 	CollectionJobMode            string
 	CollectionJobManifest        string
 	CollectionJobManifestSHA256  string
@@ -118,6 +120,12 @@ func Load() (Config, error) {
 		MLKey:                    env("ML_SERVICE_API_KEY", ""),
 		MetabaseURL:              strings.TrimRight(env("METABASE_SITE_URL", ""), "/"),
 		MetabaseSecret:           env("METABASE_EMBED_SECRET", ""),
+	}
+
+	var notificationsErr error
+	c.NotificationsUIEnabled, notificationsErr = strconv.ParseBool(env("NOTIFICATIONS_UI_ENABLED", "false"))
+	if notificationsErr != nil {
+		return c, fmt.Errorf("NOTIFICATIONS_UI_ENABLED: %w", notificationsErr)
 	}
 
 	if err := validateCollectionJobConfig(c); err != nil {
