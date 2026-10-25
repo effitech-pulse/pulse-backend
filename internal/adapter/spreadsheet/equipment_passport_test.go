@@ -593,3 +593,37 @@ func TestPassportWorkbookSTXstring(t *testing.T) {
 		}
 	})
 }
+
+func TestPassportWorkbookBlankReplacementBoundary(t *testing.T) {
+	raw := passportFixture(t, func(f *excelize.File) {
+		for cell, v := range map[string]string{"F2": "replace", "G2": "11", "H2": "21", "K2": "physical replacement"} {
+			_ = f.SetCellStr("components", cell, v)
+		}
+	})
+	got, e := (PassportCodec{}).Decode(context.Background(), bytes.NewReader(raw))
+	if e != nil {
+		t.Fatal(e)
+	}
+	row := got.ChangeSet.Rows[0]
+	if !row.ReplacementOn.Present || !row.ReplacementOn.Null {
+		t.Fatalf("blank replacement must explicitly assert unknown boundary: %+v", row.ReplacementOn)
+	}
+	id, component := domain.PassportID(21), domain.PassportID(11)
+	installed := domain.PassportDate("2020-01-01")
+	prepared, e := domain.PreparePassportChanges(got.ChangeSet, []domain.PassportBasis{{Well: domain.Well{ID: 9007199254740993, Revision: 1}, Installations: []domain.PassportInstallation{{ID: &id, ComponentID: &component, Slot: domain.PassportSlotPump, Status: domain.PassportStatusCurrent, InstalledOn: &installed}}}}, "2026-10-25")
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, issue := range prepared.Issues {
+		if issue.Severity == "error" {
+			t.Fatalf("unknown boundary blocked: %+v", issue)
+		}
+	}
+	if prepared.ChangedCount != 1 || len(prepared.Diff) != 1 || len(prepared.Diff[0].After) != 2 {
+		t.Fatalf("replacement diff: %+v", prepared)
+	}
+	after := prepared.Diff[0].After
+	if after[0].RemovedOn != nil || after[1].InstalledOn != nil {
+		t.Fatal("unknown replacement boundary was invented")
+	}
+}

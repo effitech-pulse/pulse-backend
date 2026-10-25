@@ -210,6 +210,9 @@ func (PassportCodec) Decode(ctx context.Context, input io.Reader) (domain.Passpo
 		if action == "replace" && values["installed_on"] != "" {
 			return empty, rowFailure("replace installed date")
 		}
+		if action == "replace" && values["replacement_on"] == "" {
+			wire["replacement_on"] = nil
+		}
 		if values["clear_fields"] != "" {
 			if action != "update" {
 				return empty, rowFailure("clear action")

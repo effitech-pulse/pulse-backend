@@ -127,7 +127,7 @@ func passportPreflight(ctx context.Context, raw []byte) (map[string]passportShee
 				switch s.Name.Local {
 				case "f":
 					return passportFailure("formula_forbidden", nil)
-				case "mergeCell", "mergeCells", "oleObject", "externalLink", "externalReference", "definedName":
+				case "mergeCell", "mergeCells", "oleObject", "externalLink", "externalReference", "definedName", "rPh":
 					return passportFailure("workbook_structure", nil)
 				}
 				if passportAttr(s, "TargetMode") == "External" || passportAttr(s, "hidden") == "1" || passportAttr(s, "hidden") == "true" || s.Name.Local == "sheet" && passportAttr(s, "state") != "" && passportAttr(s, "state") != "visible" {

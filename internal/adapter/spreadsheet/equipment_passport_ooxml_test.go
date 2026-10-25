@@ -124,3 +124,46 @@ func TestPassportOOXMLCellBudget(t *testing.T) {
 		t.Fatalf("cell budget: %v", e)
 	}
 }
+
+func TestPassportOOXMLPhoneticIdentity(t *testing.T) {
+	for _, inline := range []bool{false, true} {
+		name := "shared"
+		if inline {
+			name = "inline"
+		}
+		t.Run(name, func(t *testing.T) {
+			raw := passportRewriteZIP(t, passportFixture(t, nil), func(parts map[string][]byte) {
+				if inline {
+					part := parts["xl/worksheets/sheet2.xml"]
+					start := bytes.Index(part, []byte(`<c r="B2"`))
+					if start < 0 {
+						t.Fatal("missing fixture ID cell")
+					}
+					end := bytes.Index(part[start:], []byte(`</c>`))
+					if end < 0 {
+						t.Fatal("missing fixture ID cell end")
+					}
+					end += start + len(`</c>`)
+					replacement := []byte(`<c r="B2" t="inlineStr"><is><t>9007199254740993</t><rPh sb="0" eb="1"><t>4</t></rPh></is></c>`)
+					parts["xl/worksheets/sheet2.xml"] = append(append(append([]byte{}, part[:start]...), replacement...), part[end:]...)
+				} else {
+					parts["xl/sharedStrings.xml"] = bytes.Replace(parts["xl/sharedStrings.xml"], []byte(`<t>9007199254740993</t>`), []byte(`<t>9007199254740993</t><rPh sb="0" eb="1"><t>4</t></rPh>`), 1)
+				}
+			})
+			f, e := excelize.OpenReader(bytes.NewReader(raw))
+			if e != nil {
+				t.Fatal(e)
+			}
+			defer f.Close()
+			visible, e := f.GetCellValue("components", "B2")
+			if e != nil || visible != "9007199254740993" {
+				t.Fatalf("visible ID changed: %q %v", visible, e)
+			}
+			got, e := (PassportCodec{}).Decode(context.Background(), bytes.NewReader(raw))
+			var feature *domain.PassportError
+			if !errors.As(e, &feature) || feature.Code != "workbook_structure" || len(got.ChangeSet.Rows) != 0 {
+				t.Fatalf("unsupported phonetic annotation must fail closed without commands: %+v %v", got, e)
+			}
+		})
+	}
+}
