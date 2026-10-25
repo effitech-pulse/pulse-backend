@@ -6,13 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"slices"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
 )
+
+// Accept exactly the lowercase canonical UUID syntax; versions/variants and the
+// nil UUID retain their prior acceptance semantics.
+var passportCommitKey = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
 type PassportOptions struct {
 	Scope         FundScope
@@ -156,8 +159,7 @@ func (s *EquipmentPassports) Commit(ctx context.Context, in domain.PassportCommi
 	if e := passportServiceAuthority(ctx, "equipment_passports.read"); e != nil {
 		return domain.PassportReceipt{}, e
 	}
-	u, e := uuid.Parse(in.IdempotencyKey)
-	if e != nil || u.String() != in.IdempotencyKey || in.PreviewID <= 0 {
+	if !passportCommitKey.MatchString(in.IdempotencyKey) || in.PreviewID <= 0 {
 		return domain.PassportReceipt{}, domain.NewError(domain.Invalid, "invalid_commit_identity")
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)

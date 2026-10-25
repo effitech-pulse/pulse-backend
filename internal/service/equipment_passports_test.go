@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"io"
 	"reflect"
 	"strings"
@@ -33,6 +34,7 @@ type passportTestStore struct {
 	EquipmentPassportStore
 	sources    []domain.PassportSource
 	provenance []domain.PassportProvenance
+	commits    []domain.PassportCommitInput
 }
 
 func (s *passportTestStore) PreparePassport(_ context.Context, _ domain.PassportPolicy, in domain.PassportChangeSet, source domain.PassportProvenance, today domain.PassportDate) (domain.PassportPreview, error) {
@@ -128,5 +130,58 @@ func TestEquipmentPassportHistoryEnumsRequireExactValue(t *testing.T) {
 		if _, e := parseTableRequest(passportServiceActor(1), "equipmenthistory", 1, raw, 25, ""); e != nil {
 			t.Fatalf("exact %s enum rejected: %v", tt.field, e)
 		}
+	}
+}
+
+func (s *passportTestStore) CommitPassport(_ context.Context, _ domain.PassportPolicy, in domain.PassportCommitInput, _ domain.PassportDate) (domain.PassportReceipt, error) {
+	s.commits = append(s.commits, in)
+	return domain.PassportReceipt{ID: 1, RequestID: in.IdempotencyKey}, nil
+}
+
+func TestEquipmentPassportCommitCanonicalIdentity(t *testing.T) {
+	// Preserve the previous uuid.Parse + String equality semantics, including the
+	// nil UUID and non-RFC version/variant bytes: this seam validates syntax only.
+	canonical := "01234567-89ab-cdef-0123-456789abcdef"
+	for _, tt := range []struct {
+		name, key string
+		id        domain.PassportID
+		valid     bool
+	}{
+		{"canonical", canonical, 1, true},
+		{"nil-uuid", "00000000-0000-0000-0000-000000000000", 1, true},
+		{"all-hex", "ffffffff-ffff-ffff-ffff-ffffffffffff", 1, true},
+		{"empty", "", 1, false},
+		{"uppercase", strings.ToUpper(canonical), 1, false},
+		{"raw32", strings.ReplaceAll(canonical, "-", ""), 1, false},
+		{"urn", "urn:uuid:" + canonical, 1, false},
+		{"braces", "{" + canonical + "}", 1, false},
+		{"bad-hex", "g" + canonical[1:], 1, false},
+		{"separator", canonical[:8] + "_" + canonical[9:], 1, false},
+		{"short", canonical[:35], 1, false},
+		{"space", " " + canonical, 1, false},
+		{"newline", canonical + "\n", 1, false},
+		{"unicode", "０" + canonical[1:], 1, false},
+		{"absent-preview", canonical, 0, false},
+		{"negative-preview", canonical, -1, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			store := &passportTestStore{}
+			svc, err := NewEquipmentPassports(store, passportTestCodec{}, PassportOptions{AppScope: "research"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			in := domain.PassportCommitInput{PreviewID: tt.id, IdempotencyKey: tt.key, Digest: strings.Repeat("a", 64), AcknowledgeWarnings: true}
+			receipt, err := svc.Commit(passportServiceActor(1), in)
+			if tt.valid {
+				if err != nil || receipt.RequestID != tt.key || len(store.commits) != 1 || store.commits[0] != in {
+					t.Fatal("canonical identity not forwarded exactly", receipt, err, store.commits)
+				}
+			} else {
+				var de *domain.Error
+				if !errors.As(err, &de) || de.Kind != domain.Invalid || de.Message != "invalid_commit_identity" || len(store.commits) != 0 {
+					t.Fatal("invalid identity reached store", err, store.commits)
+				}
+			}
+		})
 	}
 }
