@@ -19,10 +19,11 @@ import (
 )
 
 type Application struct {
-	HTTP   *httpapi.Server
-	ML     *service.ML
-	pool   *pgxpool.Pool
-	client *grpcml.GRPCClient
+	HTTP            *httpapi.Server
+	ML              *service.ML
+	pool            *pgxpool.Pool
+	client          *grpcml.GRPCClient
+	closePassportGC func()
 }
 
 func New(ctx context.Context, c config.Config) (*Application, error) {
@@ -128,10 +129,20 @@ func New(ctx context.Context, c config.Config) (*Application, error) {
 	if scope != nil {
 		ml.WithCohort(scope, server.Integrations, store)
 	}
-	return &Application{HTTP: server, ML: ml, pool: pool, client: client}, nil
+	var closePassportGC func()
+	server.EquipmentPassports, closePassportGC, err = buildEquipmentPassports(ctx, c, store, scope)
+	if err != nil {
+		_ = client.Close()
+		pool.Close()
+		return nil, err
+	}
+	return &Application{HTTP: server, ML: ml, pool: pool, client: client, closePassportGC: closePassportGC}, nil
 }
 
 func (a *Application) Close() {
+	if a.closePassportGC != nil {
+		a.closePassportGC()
+	}
 	a.ML.Wait()
 	_ = a.client.Close()
 	a.pool.Close()

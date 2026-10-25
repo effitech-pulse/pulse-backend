@@ -8484,6 +8484,1326 @@
           }
         }
       }
+    },
+    "/api/v1/wells/{well_id}/equipment-passport": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassport",
+        "operationId": "readEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportView"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/wells/{well_id}/equipment-passport/history": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportHistory",
+        "operationId": "readEquipmentPassportHistory",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.history.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportHistoryPage"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "well_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          },
+          {
+            "name": "table_query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "TableQuery v1 JSON; fields recorded_at datetime/range; action/slot/source enum/in; actor_name/reason/changes text/contains. Default recorded_at desc,id desc. Applied before keyset/limit."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque current actor/epoch/scope/well fingerprint."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Alias for page_size only without table_query/page_size."
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/previews": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "prepareEquipmentPassport",
+        "operationId": "prepareEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.update"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportChangeSet"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/import/previews": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "importEquipmentPassport",
+        "operationId": "importEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.import"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Single XLSX file <=2MiB. Total multipart body<=2MiB+64KiB. No extra parts."
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/previews/{preview_id}": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportPreview",
+        "operationId": "readEquipmentPassportPreview",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPreview"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "cancelEquipmentPassportPreview",
+        "operationId": "cancelEquipmentPassportPreview",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Cancelled without subject writes."
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/previews/{preview_id}/commit": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "commitEquipmentPassport",
+        "operationId": "commitEquipmentPassport",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.update"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "preview_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Canonical UUID. Actor+operation scoped; retry same body/key after timeout. New key on consumed preview returns410."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportCommitRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/receipts/{receipt_id}": {
+      "get": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "readEquipmentPassportReceipt",
+        "operationId": "readEquipmentPassportReceipt",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.read"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "receipt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PassportID"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment-passports/template": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "downloadEquipmentPassportTemplate",
+        "operationId": "downloadEquipmentPassportTemplate",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.import"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportTemplateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipment-passports/export": {
+      "post": {
+        "tags": [
+          "equipment-passports"
+        ],
+        "summary": "exportEquipmentPassports",
+        "operationId": "exportEquipmentPassports",
+        "description": "Requires personal local session and RBAC enforce. Current authorization/scope is rechecked in PostgreSQL; private previews/receipts remain owner-only. Cache-Control: no-store. See docs/equipment-passports.md. History mode additionally requires equipment_passports.history.read, <=1000 events; no truncation. Fully buffered bounded output, no partial XLSX on error.",
+        "x-authorization-scope": "PRIVATE",
+        "x-authorization-permissions": [
+          "equipment_passports.export"
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid field/JSON/workbook/query; row issues in detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Personal session required or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Local RBAC enforce and current recursive permissions required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportAuthProblem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unavailable well or private object, including another owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision/digest/epoch/idempotency conflict; no partial changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "preview_expired or preview_consumed. Same-key committed retry may return prior receipt after current authorization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "file_limit_exceeded; bounded payload/workbook/package/cell exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview quota or process/actor work capacity exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Bounded operation unavailable, cancelled or timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportProblem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportExportRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -15754,6 +17074,1277 @@
             }
           }
         }
+      },
+      "PassportID": {
+        "type": "string",
+        "pattern": "^[1-9][0-9]{0,18}$",
+        "description": "Exact positive signed int64 decimal string; <=9223372036854775807. JSON numbers are rejected.",
+        "example": "9007199254740993"
+      },
+      "PassportRevision": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Exact nonnegative signed int64 decimal string. Zero means absent passport."
+      },
+      "PassportDecimal": {
+        "type": "string",
+        "pattern": "^[0-9]+(\\.[0-9]+)?$",
+        "description": "Canonical decimal string, precision<=15, scale<=6, <=1000000000. Positive except control minimum frequency may be zero. No exponent/float."
+      },
+      "PassportDate": {
+        "type": "string",
+        "format": "date",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+        "description": "Calendar date YYYY-MM-DD, not future in configured server timezone. Never a UTC timestamp."
+      },
+      "PassportSlot": {
+        "type": "string",
+        "enum": [
+          "pump",
+          "motor",
+          "control_station"
+        ]
+      },
+      "PassportAction": {
+        "type": "string",
+        "enum": [
+          "register",
+          "update",
+          "replace",
+          "correct",
+          "close",
+          "void"
+        ]
+      },
+      "PassportSource": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "excel"
+        ],
+        "readOnly": true
+      },
+      "PassportAttributes": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manufacturer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_flow_m3_day": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_head_m": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_nominal_frequency_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_min_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_max_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_stage_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "model",
+          "manufacturer",
+          "serial_number",
+          "pump_nominal_flow_m3_day",
+          "pump_nominal_head_m",
+          "motor_rated_power_kw",
+          "motor_rated_voltage_v",
+          "motor_rated_current_a",
+          "motor_nominal_frequency_hz",
+          "control_rated_power_kw",
+          "control_rated_voltage_v",
+          "control_rated_current_a",
+          "control_output_frequency_min_hz",
+          "control_output_frequency_max_hz",
+          "pump_stage_count"
+        ]
+      },
+      "PassportMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "expected_well_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "expected_passport_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "component_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "linked_installation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manufacturer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_flow_m3_day": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_nominal_head_m": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motor_nominal_frequency_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_power_kw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_voltage_v": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_rated_current_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_min_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "control_output_frequency_max_hz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pump_stage_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "removed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "replacement_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "change_reason": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "expected_well_revision",
+          "expected_passport_revision",
+          "slot",
+          "action"
+        ],
+        "description": "Flat PATCH: omission=no change; null=explicit clear; value=set. Register/replace omitted values become null. Replace requires replacement_on value/null, not installed_on. Correct linked boundary uses predecessor target + linked_installation_id + replacement_on. Close requires removed_on value/null; void only IDs and reason. Material update and replace/correct/close/void require change_reason. Actor/source/recorded_at/unknown keys rejected."
+      },
+      "PassportChangeSet": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "equipment-passport-v1"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportMutation"
+            },
+            "maxItems": 300,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "schema_version",
+          "rows"
+        ]
+      },
+      "PassportInstallation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "component_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "current",
+              "closed",
+              "voided"
+            ]
+          },
+          "installed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "removed_on": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "predecessor_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/PassportAttributes"
+          }
+        },
+        "required": [
+          "id",
+          "component_id",
+          "slot",
+          "status",
+          "installed_on",
+          "removed_on",
+          "predecessor_id",
+          "attributes"
+        ]
+      },
+      "PassportActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id",
+          "name"
+        ]
+      },
+      "PassportRowSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "sheet": {
+            "type": "string",
+            "const": "components"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 2
+          }
+        },
+        "required": [
+          "row_key",
+          "sheet",
+          "index"
+        ]
+      },
+      "PassportChangeProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_row": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportRowSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "source",
+          "actor",
+          "recorded_at",
+          "source_reference",
+          "receipt_id",
+          "source_file_sha256",
+          "template_version",
+          "source_row"
+        ]
+      },
+      "PassportSlotProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "last_change": {
+            "$ref": "#/components/schemas/PassportChangeProvenance"
+          }
+        },
+        "required": [
+          "slot",
+          "last_change"
+        ]
+      },
+      "PassportView": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "well_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "passport_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            },
+            "maxItems": 3
+          },
+          "provenance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportSlotProvenance"
+            },
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "well_id",
+          "well_revision",
+          "passport_id",
+          "revision",
+          "slots",
+          "provenance"
+        ]
+      },
+      "PassportDiff": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "before": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            }
+          },
+          "after": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportInstallation"
+            }
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "slot",
+          "action",
+          "before",
+          "after"
+        ]
+      },
+      "PassportIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "row_key",
+          "field",
+          "severity",
+          "code",
+          "message"
+        ]
+      },
+      "PassportProblem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "issues": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PassportIssue"
+                }
+              }
+            },
+            "required": []
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ]
+      },
+      "PassportPreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "commands": {
+            "$ref": "#/components/schemas/PassportChangeSet"
+          },
+          "diff": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportDiff"
+            },
+            "maxItems": 300
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportIssue"
+            }
+          },
+          "changed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unchanged_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "digest",
+          "expires_at",
+          "commands",
+          "diff",
+          "issues",
+          "changed_count",
+          "unchanged_count"
+        ]
+      },
+      "PassportCommitRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "acknowledge_warnings": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "digest"
+        ]
+      },
+      "PassportWellRevision": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "before_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "after_revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          }
+        },
+        "required": [
+          "well_id",
+          "before_revision",
+          "after_revision"
+        ]
+      },
+      "PassportReceiptRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "component_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "installation_id": {
+            "$ref": "#/components/schemas/PassportID"
+          }
+        },
+        "required": [
+          "row_key",
+          "well_id",
+          "component_id",
+          "installation_id"
+        ]
+      },
+      "PassportReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "changed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unchanged_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "wells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportWellRevision"
+            },
+            "maxItems": 100
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportReceiptRow"
+            },
+            "maxItems": 300
+          }
+        },
+        "required": [
+          "id",
+          "request_id",
+          "recorded_at",
+          "actor",
+          "source",
+          "source_file_sha256",
+          "changed_count",
+          "unchanged_count",
+          "wells",
+          "rows"
+        ]
+      },
+      "PassportEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "well_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PassportRevision"
+          },
+          "row_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "action": {
+            "$ref": "#/components/schemas/PassportAction"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/PassportSlot"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "diff": {
+            "$ref": "#/components/schemas/PassportDiff"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PassportSource"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/PassportActor"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_id": {
+            "$ref": "#/components/schemas/PassportID"
+          },
+          "source_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_row": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PassportRowSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "well_id",
+          "revision",
+          "row_key",
+          "action",
+          "slot",
+          "reason",
+          "diff",
+          "source",
+          "actor",
+          "recorded_at",
+          "source_reference",
+          "receipt_id",
+          "source_file_sha256",
+          "template_version",
+          "source_row"
+        ]
+      },
+      "PassportHistoryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportEvent"
+            },
+            "maxItems": 50
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "PassportTemplateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportID"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "well_ids"
+        ]
+      },
+      "PassportExportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "well_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassportID"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "current_components",
+              "history"
+            ]
+          },
+          "query": {
+            "$ref": "#/components/schemas/TableQuery"
+          }
+        },
+        "required": [
+          "well_ids",
+          "mode"
+        ]
+      },
+      "PassportAuthProblem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "issues": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PassportIssue"
+                    }
+                  }
+                },
+                "required": []
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "detail"
+        ],
+        "description": "Inherited personal authorization middleware may return detail:null; passport handler errors use an object."
       }
     },
     "securitySchemes": {

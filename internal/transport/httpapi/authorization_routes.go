@@ -12,6 +12,16 @@ type RoutePolicy struct {
 }
 
 var authorizationPolicies = []RoutePolicy{
+	{Method: "GET", Path: "/wells/:well_id/equipment-passport", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/wells/:well_id/equipment-passport/history", All: []domain.Permission{"equipment_passports.history.read"}, ScopeRule: "PRIVATE"},
+	{Method: "POST", Path: "/equipment-passports/previews", All: []domain.Permission{"equipment_passports.update"}, ScopeRule: "PRIVATE"},
+	{Method: "POST", Path: "/equipment-passports/import/previews", All: []domain.Permission{"equipment_passports.import"}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/equipment-passports/previews/:preview_id", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
+	{Method: "DELETE", Path: "/equipment-passports/previews/:preview_id", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
+	{Method: "POST", Path: "/equipment-passports/previews/:preview_id/commit", All: []domain.Permission{"equipment_passports.update"}, ScopeRule: "PRIVATE"},
+	{Method: "GET", Path: "/equipment-passports/receipts/:receipt_id", All: []domain.Permission{"equipment_passports.read"}, ScopeRule: "PRIVATE"},
+	{Method: "POST", Path: "/equipment-passports/template", All: []domain.Permission{"equipment_passports.import"}, ScopeRule: "PRIVATE"},
+	{Method: "POST", Path: "/equipment-passports/export", All: []domain.Permission{"equipment_passports.export"}, ScopeRule: "PRIVATE"},
 	{Method: "GET", Path: "/auth/groups/filter-options", All: []domain.Permission{"groups.read"}, ScopeRule: "M"},
 	{Method: "GET", Path: "/auth/users/filter-options", All: []domain.Permission{"users.read"}, ScopeRule: "M"},
 	{Method: "GET", Path: "/events", Any: [][]domain.Permission{{"checks.read"}, {"alerts.read"}, {"wells.history.read"}}, ScopeRule: "W"},

@@ -193,3 +193,28 @@ func TestRBACAccountDecodeStatusCompatibility(t *testing.T) {
 		}
 	}
 }
+
+func TestEquipmentPassportRoutePolicies(t *testing.T) {
+	s := &Server{Config: config.Config{Prefix: "/api/v1"}}
+	count := 0
+	for _, r := range s.routes().Routes() {
+		if !strings.Contains(r.Path, "equipment-passport") {
+			continue
+		}
+		count++
+		p, ok := authorizationPolicy(r.Method, strings.TrimPrefix(r.Path, "/api/v1"))
+		if !ok || p.Public || len(p.All) == 0 {
+			t.Fatal("missing private operation policy", r)
+		}
+	}
+	if count != 10 {
+		t.Fatal("missing equipment routes", count)
+	}
+	a := rbacRoutePassportSnapshot()
+	if a.Require("equipment_passports.import") == nil {
+		t.Fatal("recursive prerequisites implicitly granted")
+	}
+}
+func rbacRoutePassportSnapshot() domain.AuthorizationSnapshot {
+	return domain.AuthorizationSnapshot{Active: true, Permissions: []domain.Permission{"equipment_passports.import"}}
+}

@@ -25,20 +25,21 @@ import (
 var openAPI = api.Specification
 
 type Server struct {
-	Events         *service.Events
-	CollectionJobs *service.CollectionJobs
-	CohortJobs     *service.CohortJobs
-	FileJobs       *service.FileJobs
-	Config         config.Config
-	Access         *service.Access
-	Catalog        *service.Catalog
-	ML             *service.ML
-	Parameters     *service.Parameters
-	Analytics      service.Analytics
-	Integrations   *service.Integrations
-	Checks         *service.Checks
-	Reviews        *service.Reviews
-	Presentation   *service.Presentation
+	EquipmentPassports *service.EquipmentPassports
+	Events             *service.Events
+	CollectionJobs     *service.CollectionJobs
+	CohortJobs         *service.CohortJobs
+	FileJobs           *service.FileJobs
+	Config             config.Config
+	Access             *service.Access
+	Catalog            *service.Catalog
+	ML                 *service.ML
+	Parameters         *service.Parameters
+	Analytics          service.Analytics
+	Integrations       *service.Integrations
+	Checks             *service.Checks
+	Reviews            *service.Reviews
+	Presentation       *service.Presentation
 }
 
 func (s *Server) wrap(fn handler) gin.HandlerFunc {

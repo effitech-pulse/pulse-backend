@@ -24,6 +24,7 @@ func (s *Server) routes() *gin.Engine {
 		c.Data(http.StatusOK, "application/json", openAPI)
 	})
 	api := router.Group(s.Config.Prefix)
+	s.registerEquipmentPassportRoutes(api)
 	api.POST("/collection-jobs", s.wrap(s.submitCollectionJob))
 	api.GET("/collection-jobs/:job_id", s.wrap(s.getCollectionJob))
 	api.POST("/collection-jobs/:job_id/cancel", s.wrap(s.cancelCollectionJob))
