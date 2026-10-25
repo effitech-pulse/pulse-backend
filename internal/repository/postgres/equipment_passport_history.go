@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -110,7 +109,7 @@ func (r *Repository) LoadPassportExport(ctx context.Context, policy domain.Passp
 			out.EmptySlotCount += 3 - len(view.Slots)
 			for _, provenance := range view.Provenance {
 				v := provenance.LastChange
-				out.Provenance = append(out.Provenance, domain.PassportRowProvenance{RowKey: fmt.Sprintf("%s_%s", strconv.FormatInt(w.ID, 10), provenance.Slot), Source: v.Source, ActorID: v.Actor.AccountID, RecordedAt: v.RecordedAt, ReceiptID: v.ReceiptID, SourceReference: v.SourceReference})
+				out.Provenance = append(out.Provenance, domain.PassportRowProvenance{RowKey: fmt.Sprintf("%d:%s", w.ID, provenance.Slot), Source: v.Source, ActorID: v.Actor.AccountID, RecordedAt: v.RecordedAt, ReceiptID: v.ReceiptID, SourceReference: v.SourceReference})
 			}
 		}
 	}

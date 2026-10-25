@@ -37,6 +37,18 @@ type passportPreviewRecord struct {
 func passportPreviewHeader(ctx context.Context, tx pgx.Tx, owner int64, id domain.PassportID) (passportPreviewRecord, error) {
 	return one[passportPreviewRecord](ctx, tx, sqlBuilder.Select("id::text AS id,epoch,app_scope,cohort_version,source,digest,expires_at,cancelled_at,payload,expires_at<=clock_timestamp() AS expired", "EXISTS(SELECT 1 FROM equipment_passport_receipt r WHERE r.preview_id=equipment_passport_preview.id) AS consumed").From("equipment_passport_preview").Where(sq.Eq{"id": int64(id), "owner_id": owner}))
 }
+
+// passportLockPreview serializes only consumption/cancellation, after current
+// actor authority and before sorted wells/heads. Read-only GET does not lock.
+// Keep locking and header loading separate: a statement that waited on a row
+// lock may retain an older snapshot for the receipt EXISTS subquery.
+func passportLockPreview(ctx context.Context, tx pgx.Tx, owner int64, id domain.PassportID) error {
+	_, err := one[struct {
+		ID domain.PassportID `json:"id"`
+	}](ctx, tx, sqlBuilder.Select("id::text AS id").From("equipment_passport_preview").Where(sq.Eq{"id": int64(id), "owner_id": owner}).Suffix("FOR UPDATE"))
+	return err
+}
+
 func passportPreviewAccess(_ context.Context, _ pgx.Tx, policy domain.PassportPolicy, a domain.AuthorizationSnapshot, h passportPreviewRecord) (passportPreviewPayload, error) {
 	var saved passportPreviewPayload
 	if e := a.Require(passportPermission(h.Source)); e != nil {
@@ -183,6 +195,9 @@ func (r *Repository) CancelPassportPreview(ctx context.Context, policy domain.Pa
 	defer tx.Rollback(ctx)
 	a, _, e := passportAuthority(ctx, tx, "equipment_passports.read")
 	if e != nil {
+		return e
+	}
+	if e = passportLockPreview(ctx, tx, a.AccountID, id); e != nil {
 		return e
 	}
 	h, e := passportPreviewHeader(ctx, tx, a.AccountID, id)

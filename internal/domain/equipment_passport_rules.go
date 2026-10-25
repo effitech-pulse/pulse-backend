@@ -102,7 +102,91 @@ func passportIssue(row, field, severity, code string) PassportIssue {
 	if field != "" {
 		f = &field
 	}
-	return PassportIssue{RowKey: row, Field: f, Severity: severity, Code: code, Message: code}
+	return PassportIssue{RowKey: row, Field: f, Severity: severity, Code: code, Message: passportIssueMessage(field, code)}
+}
+
+// passportIssueMessage не включает значения пользователя или неизвестные коды в текст.
+func passportIssueMessage(field, code string) string {
+	if code == "required" {
+		switch field {
+		case "change_reason":
+			return "Укажите причину изменения."
+		case "model":
+			return "Укажите модель, изготовителя или серийный номер; явно заданная модель должна быть непустой и не длиннее 200 символов."
+		case "manufacturer":
+			return "Изготовитель должен быть непустым и не длиннее 200 символов."
+		case "serial_number":
+			return "Серийный номер должен быть непустым и не длиннее 120 символов."
+		case "row_key":
+			return "Укажите уникальный ключ строки длиной до 64 символов."
+		case "rows":
+			return "Добавьте хотя бы одну строку оборудования."
+		case "replacement_on":
+			return "Укажите дату замены или явно отметьте, что она неизвестна; при исправлении укажите связанную установку."
+		case "removed_on":
+			return "Укажите дату снятия или явно отметьте, что она неизвестна."
+		}
+	}
+	if code == "invalid_decimal" {
+		switch field {
+		case "pump_stage_count":
+			return "Число ступеней должно быть целым от 1 до 100000."
+		case "control_output_frequency_min_hz":
+			return "Минимальная частота должна быть от 0 до 1000000000 Гц и не превышать максимальную; допускается до 15 значащих цифр и 6 знаков после запятой."
+		}
+	}
+	if code == "field_not_allowed" {
+		switch field {
+		case "change_reason":
+			return "Причина изменения должна быть не длиннее 500 символов."
+		case "source_reference":
+			return "Ссылка на источник должна быть не длиннее 200 символов."
+		}
+	}
+	switch code {
+	case "required":
+		return "Заполните обязательное поле."
+	case "invalid_id":
+		return "Проверьте идентификатор скважины или установки: требуется положительное целое число."
+	case "invalid_decimal":
+		return "Укажите положительное число не больше 1000000000: до 15 значащих цифр и 6 знаков после запятой."
+	case "invalid_date":
+		return "Укажите существующую календарную дату в формате ГГГГ-ММ-ДД."
+	case "future_date":
+		return "Дата не может быть позже сегодняшнего дня."
+	case "field_not_allowed":
+		return "Поле или действие недопустимо для выбранного оборудования; проверьте способ изменения."
+	case "duplicate_slot":
+		return "Для одной скважины и одного вида оборудования допускается только одна строка изменений."
+	case "duplicate_row_key":
+		return "Ключ строки повторяется; каждой строке нужен уникальный ключ."
+	case "revision_mismatch":
+		return "Данные паспорта или скважины изменились. Обновите данные и проверьте изменения заново."
+	case "installation_mismatch":
+		return "Выбранная установка не соответствует текущим данным. Обновите паспорт и выберите установку заново."
+	case "interval_overlap":
+		return "Даты установок пересекаются или дата снятия не позже установки. Проверьте границы эпизодов."
+	case "linked_boundary_required":
+		return "Эта дата связана с заменой оборудования. Исправьте дату замены сразу для обеих связанных установок."
+	case "unsupported_template":
+		return "Версия шаблона не поддерживается. Скачайте актуальный шаблон паспорта."
+	case "workbook_structure":
+		return "Структура книги не соответствует шаблону паспорта. Проверьте листы, заголовки и строки."
+	case "formula_forbidden":
+		return "Формулы в книге запрещены. Замените их обычными значениями."
+	case "file_limit_exceeded":
+		return "Превышен допустимый размер или количество данных. Уменьшите книгу или число строк."
+	case "unknown_installation_date":
+		return "Дата установки неизвестна; продолжительность работы не вычисляется."
+	case "unknown_replacement_date":
+		return "Дата замены неизвестна; длительность связанных эпизодов не вычисляется."
+	case "unknown_removal_date":
+		return "Дата снятия неизвестна; продолжительность работы не вычисляется."
+	case "duplicate_serial":
+		return "Такой серийный номер уже указан у другого экземпляра. Проверьте номер; записи не будут объединены."
+	default:
+		return "Не удалось проверить значение. Проверьте поля паспорта и повторите проверку."
+	}
 }
 
 func passportNormalize(m *PassportMutation, today PassportDate) []PassportIssue {

@@ -179,6 +179,9 @@ func (r *Repository) CommitPassport(ctx context.Context, policy domain.PassportP
 	if !errors.As(e, &de) || de.Kind != domain.Missing {
 		return zero, e
 	}
+	if e = passportLockPreview(ctx, tx, a.AccountID, in.PreviewID); e != nil {
+		return zero, e
+	}
 	header, e := passportPreviewHeader(ctx, tx, a.AccountID, in.PreviewID)
 	if e != nil {
 		return zero, e

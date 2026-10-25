@@ -3,7 +3,9 @@ package domain
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
+	"unicode"
 )
 
 func passportCommand(action PassportAction) PassportMutation {
@@ -289,5 +291,65 @@ func TestEquipmentPassportDecimalUpperBoundary(t *testing.T) {
 	m.PumpNominalHeadM = passportSet(PassportDecimal("1000000000.000001"))
 	if p = passportPrepare(t, m, passportBasis()); !passportHasIssue(p, "invalid_decimal") {
 		t.Fatal("above upper bound accepted")
+	}
+}
+
+func TestEquipmentPassportIssueMessages(t *testing.T) {
+	codes := []string{"required", "invalid_id", "invalid_decimal", "invalid_date", "future_date", "field_not_allowed", "duplicate_slot", "duplicate_row_key", "revision_mismatch", "installation_mismatch", "interval_overlap", "linked_boundary_required", "unsupported_template", "workbook_structure", "formula_forbidden", "file_limit_exceeded", "unknown_installation_date", "unknown_replacement_date", "unknown_removal_date", "duplicate_serial"}
+	for _, code := range codes {
+		t.Run(code, func(t *testing.T) {
+			issue := passportIssue("r1", "model", "error", code)
+			if issue.Code != code || issue.Field == nil || *issue.Field != "model" || issue.RowKey != "r1" || issue.Severity != "error" {
+				t.Fatal("issue identity changed", issue)
+			}
+			if !strings.ContainsFunc(issue.Message, func(r rune) bool { return unicode.In(r, unicode.Cyrillic) }) || strings.Contains(issue.Message, code) {
+				t.Fatal("technical issue code shown instead of explanation", issue)
+			}
+		})
+	}
+	poison := "secret-input-that-must-not-be-rendered"
+	issue := passportIssue("r1", poison, "warning", poison)
+	if strings.Contains(issue.Message, poison) || issue.Message == "" {
+		t.Fatal("unsafe fallback", issue)
+	}
+	if got := passportIssue("r1", "change_reason", "error", "required").Message; got != "Укажите причину изменения." {
+		t.Fatal(got)
+	}
+}
+
+func TestEquipmentPassportPreparedIssueMessages(t *testing.T) {
+	m := passportCommand("update")
+	m.Model = passportSet("Другая модель")
+	m.ChangeReason = ""
+	p := passportPrepare(t, m, passportBasis())
+	found := false
+	for _, issue := range p.Issues {
+		if issue.Code == "required" && issue.Field != nil && *issue.Field == "change_reason" {
+			found = true
+			if issue.Message != "Укажите причину изменения." || issue.Severity != "error" {
+				t.Fatal(issue)
+			}
+		}
+	}
+	if !found || p.ChangedCount != 0 {
+		t.Fatal("missing blocking reason issue", p)
+	}
+	b := passportBasis()
+	b.Installations = nil
+	m = passportCommand("register")
+	m.Model = passportSet("Насос")
+	p = passportPrepare(t, m, b)
+	passportValid(t, p)
+	found = false
+	for _, issue := range p.Issues {
+		if issue.Code == "unknown_installation_date" {
+			found = true
+			if issue.Severity != "warning" || issue.Message != "Дата установки неизвестна; продолжительность работы не вычисляется." {
+				t.Fatal(issue)
+			}
+		}
+	}
+	if !found || p.ChangedCount != 1 {
+		t.Fatal("warning changed mutation behavior", p)
 	}
 }

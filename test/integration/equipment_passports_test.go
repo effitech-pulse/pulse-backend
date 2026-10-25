@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -12,6 +13,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/xuri/excelize/v2"
+
+	"github.com/effitech-pulse/pulse-backend/internal/adapter/spreadsheet"
 
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
@@ -613,5 +617,199 @@ func TestEquipmentPassportNormalizedDecimalChecks(t *testing.T) {
 	}
 	if _, e := p.Exec(ctx, `UPDATE equipment_passport_component SET pump_stage_count=0`); e == nil {
 		t.Fatal("zero stages accepted")
+	}
+}
+
+func TestEquipmentPassportExportProvenanceRowKeys(t *testing.T) {
+	pool, repo, ctx := equipmentFixture(t)
+	const large domain.PassportID = 9007199254740993
+	if _, err := pool.Exec(ctx, `INSERT INTO well(id,ngdu,department) OVERRIDING SYSTEM VALUE VALUES($1,0,0)`, int64(large)); err != nil {
+		t.Fatal(err)
+	}
+	rows := equipmentRows(equipmentRegister(1), equipmentRegister(large))
+	reference := "Паспорт завода №42"
+	for i := range rows.Rows {
+		rows.Rows[i].SourceReference = &reference
+	}
+	receipt := equipmentCommit(t, repo, ctx, equipmentPreview(t, repo, ctx, rows))
+	snapshot, err := repo.LoadPassportExport(ctx, equipmentPolicy, domain.PassportExportRequest{WellIDs: []domain.PassportID{1, large}, Mode: "current_components"}, domain.PassportPurposeExportCurrent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	if err = (spreadsheet.PassportCodec{}).Encode(ctx, &out, snapshot); err != nil {
+		t.Fatal(err)
+	}
+	book, err := excelize.OpenReader(bytes.NewReader(out.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer book.Close()
+	components, err := book.GetRows("components")
+	if err != nil {
+		t.Fatal(err)
+	}
+	meta, err := book.GetRows("meta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	metadata := map[string]string{}
+	for _, row := range meta {
+		if len(row) == 2 {
+			metadata[row[0]] = row[1]
+		}
+	}
+	if len(components) != 3 {
+		t.Fatal("missing actual component rows", components)
+	}
+	for _, row := range components[1:] {
+		key, well := row[0], row[1]
+		if key != well+":pump" || well != "1" && well != "9007199254740993" {
+			t.Fatal("row identity rounded or changed", row)
+		}
+		raw, ok := metadata["provenance."+key]
+		if !ok {
+			t.Fatalf("no provenance for actual components row %q; meta=%v", key, metadata)
+		}
+		var source struct {
+			Source          domain.PassportSource `json:"source"`
+			ActorID         domain.PassportID     `json:"actor_id"`
+			ReceiptID       domain.PassportID     `json:"receipt_id"`
+			SourceReference *string               `json:"source_reference"`
+			RecordedAt      time.Time             `json:"recorded_at"`
+		}
+		if err = json.Unmarshal([]byte(raw), &source); err != nil {
+			t.Fatal(err)
+		}
+		if source.Source != "manual" || source.ActorID != receipt.Actor.AccountID || source.ReceiptID != receipt.ID || source.SourceReference == nil || *source.SourceReference != reference || !source.RecordedAt.Equal(receipt.RecordedAt) {
+			t.Fatal("row metadata does not identify committed source", source, receipt)
+		}
+	}
+}
+
+func TestEquipmentPassportConcurrentPreviewConsumption(t *testing.T) {
+	for _, cancelRace := range []bool{false, true} {
+		name := "different-commit-keys"
+		if cancelRace {
+			name = "cancel-versus-commit"
+		}
+		t.Run(name, func(t *testing.T) {
+			pool, repo, ctx := equipmentFixture(t)
+			equipmentCommit(t, repo, ctx, equipmentPreview(t, repo, ctx, equipmentRows(equipmentRegister(1))))
+			view, err := repo.ReadPassport(ctx, equipmentPolicy, 1)
+			if err != nil {
+				t.Fatal(err)
+			}
+			row := equipmentRegister(1)
+			row.Action = "update"
+			row.ComponentID = view.Slots[0].ComponentID
+			row.InstallationID = view.Slots[0].ID
+			row.ExpectedPassportRevision = view.Revision
+			row.PassportAttributesPatch = domain.PassportAttributesPatch{}
+			preview := equipmentPreview(t, repo, ctx, equipmentRows(row))
+			if preview.UnchangedCount != 1 {
+				t.Fatal(preview)
+			}
+			blocker, err := pool.Begin(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer blocker.Rollback(ctx)
+			var blockerPID int
+			if err = blocker.QueryRow(ctx, "SELECT pg_backend_pid() FROM well WHERE id=1 FOR UPDATE").Scan(&blockerPID); err != nil {
+				t.Fatal(err)
+			}
+			// Follow the actual lock wait graph: old code has two well waiters; fixed
+			// code has one well waiter and one private preview row waiter behind it.
+			waitFor := func(n int, early <-chan error) (error, bool) {
+				t.Helper()
+				wait, stop := context.WithTimeout(ctx, 800*time.Millisecond)
+				defer stop()
+				ticker := time.NewTicker(time.Millisecond)
+				defer ticker.Stop()
+				for {
+					var count int
+					if _, err := blocker.Exec(wait, "SELECT pg_stat_clear_snapshot()"); err != nil {
+						t.Fatal(err)
+					}
+					if err := blocker.QueryRow(wait, `WITH RECURSIVE blocked(pid) AS (
+      SELECT pid FROM pg_stat_activity WHERE $1=ANY(pg_blocking_pids(pid))
+      UNION SELECT a.pid FROM pg_stat_activity a JOIN blocked b ON b.pid=ANY(pg_blocking_pids(a.pid))
+     ) SELECT count(*) FROM blocked`, blockerPID).Scan(&count); err != nil {
+						t.Fatal(err)
+					}
+					if count >= n {
+						return nil, false
+					}
+					select {
+					case err := <-early:
+						return err, true
+					case <-wait.Done():
+						t.Fatalf("did not reach %d actual lock waiters", n)
+					case <-ticker.C:
+					}
+				}
+			}
+			type outcome struct {
+				key     string
+				receipt domain.PassportReceipt
+				err     error
+			}
+			done := make(chan outcome, 2)
+			commit := func(key string) {
+				receipt, err := repo.CommitPassport(ctx, equipmentPolicy, domain.PassportCommitInput{PreviewID: preview.ID, Digest: preview.Digest, AcknowledgeWarnings: true, IdempotencyKey: key}, "2026-10-25")
+				done <- outcome{key, receipt, err}
+			}
+			go commit(uuid.NewString())
+			if cancelRace {
+				waitFor(1, nil)
+				cancelled := make(chan error, 1)
+				go func() { cancelled <- repo.CancelPassportPreview(ctx, equipmentPolicy, preview.ID) }()
+				cancelErr, early := waitFor(2, cancelled)
+				if err = blocker.Commit(ctx); err != nil {
+					t.Fatal(err)
+				}
+				committed := <-done
+				if !early {
+					cancelErr = <-cancelled
+				}
+				var pe *domain.PassportError
+				if committed.err != nil || !errors.As(cancelErr, &pe) || pe.Code != "preview_consumed" {
+					t.Fatalf("cancel and commit not serialized: commit=%v cancel=%v", committed.err, cancelErr)
+				}
+			} else {
+				go commit(uuid.NewString())
+				waitFor(2, nil)
+				if err = blocker.Commit(ctx); err != nil {
+					t.Fatal(err)
+				}
+				successes := 0
+				for i := 0; i < 2; i++ {
+					result := <-done
+					if result.err == nil {
+						successes++
+						replay, err := repo.CommitPassport(ctx, equipmentPolicy, domain.PassportCommitInput{PreviewID: preview.ID, Digest: preview.Digest, AcknowledgeWarnings: true, IdempotencyKey: result.key}, "2026-10-25")
+						if err != nil || replay.ID != result.receipt.ID {
+							t.Fatal("same-key receipt-first replay changed", replay, err)
+						}
+					} else {
+						var pe *domain.PassportError
+						if !errors.As(result.err, &pe) || pe.Code != "preview_consumed" {
+							t.Fatal("unexpected loser result", result.err)
+						}
+					}
+				}
+				if successes != 1 {
+					t.Fatalf("private no-op preview consumed %d times", successes)
+				}
+			}
+			var receipts int
+			if err = pool.QueryRow(ctx, "SELECT count(*) FROM equipment_passport_receipt WHERE preview_id=$1", int64(preview.ID)).Scan(&receipts); err != nil {
+				t.Fatal(err)
+			}
+			if receipts != 1 {
+				t.Fatalf("one preview produced %d durable receipts", receipts)
+			}
+		})
 	}
 }
