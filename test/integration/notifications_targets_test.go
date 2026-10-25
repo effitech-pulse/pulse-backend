@@ -3,10 +3,13 @@ package integration
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/effitech-pulse/pulse-backend/internal/config"
 	"github.com/effitech-pulse/pulse-backend/internal/domain"
 	"github.com/effitech-pulse/pulse-backend/internal/repository/postgres"
 )
@@ -177,5 +180,85 @@ func TestNotificationOversizedSnapshotProjection(t *testing.T) {
 	rbacReadErrorKind(t, e, domain.Unavailable)
 	if got.SnapshotID != nil || got.SavedResult != nil {
 		t.Fatal("partial oversized saved context")
+	}
+}
+
+// Actual server-generated run times must describe the same instant as the fact,
+// while the ML window timestamp keeps its separate UTC provenance.
+func TestNotificationRunWriterTimezone(t *testing.T) {
+	for _, zone := range []string{"Europe/Moscow", "UTC"} {
+		t.Run(zone, func(t *testing.T) {
+			fixture := testDB(t)
+			ctx := legacyResearchFixtureContext()
+			location, e := time.LoadLocation(zone)
+			if e != nil {
+				t.Fatal(e)
+			}
+			dsn, e := url.Parse(fixture.Config().ConnString())
+			if e != nil {
+				t.Fatal(e)
+			}
+			query := dsn.Query()
+			query.Set("search_path", fixture.Config().ConnConfig.RuntimeParams["search_path"])
+			dsn.RawQuery = query.Encode()
+			pool, e := postgres.Open(ctx, config.Config{DatabaseURL: dsn.String(), Location: location, PoolSize: 4})
+			if e != nil {
+				t.Fatal(e)
+			}
+			defer pool.Close()
+			r := postgres.New(pool)
+			var actualZone string
+			if e = pool.QueryRow(ctx, `SHOW TimeZone`).Scan(&actualZone); e != nil || actualZone != zone {
+				t.Fatal(actualZone, e)
+			}
+			scope := notificationScope(t, pool, r, `{"kind":"organization","ngdu_id":null,"department_id":null}`, "alerts.read", "risks.read", "wells.read")
+			eventsExec(t, pool, `UPDATE notification_activation SET activation_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',activated_at=clock_timestamp()`)
+			external := int64(77881)
+			well, e := r.CreateWell(ctx, domain.Well{UnitekID: &external, NGDU: 1, Department: 1, FundType: "operational", Active: true})
+			if e != nil {
+				t.Fatal(e)
+			}
+			lease, ok, e := r.Reserve(ctx)
+			if e != nil || !ok {
+				t.Fatal(ok, e)
+			}
+			defer lease.Close()
+			before := time.Now().UTC()
+			run, e := lease.Begin(ctx, "timezone")
+			if e != nil {
+				t.Fatal(e)
+			}
+			window := "2026-10-25T12:00:00Z"
+			if e = lease.Persist(ctx, run, domain.Snapshot{Wells: []domain.WellRisk{{UnitekID: &external, Alert: true, WindowEnd: &window}}}); e != nil {
+				t.Fatal(e)
+			}
+			after := time.Now().UTC()
+			var alert int64
+			var fact time.Time
+			if e = pool.QueryRow(ctx, `SELECT alert_id,recorded_at FROM notification_fact WHERE run_id=$1`, run).Scan(&alert, &fact); e != nil {
+				t.Fatal(e)
+			}
+			locator := domain.NotificationAlertLocator{WellID: well.ID, RunID: run, AlertID: alert}
+			got, e := r.ReadNotificationAlert(ctx, scope, locator)
+			if e != nil {
+				t.Fatal(e)
+			}
+			t.Logf("writer_zone=%s before=%s run_started=%s run_finished=%v fact=%s after=%s", zone, before.Format(time.RFC3339Nano), got.RunStartedAt.UTC().Format(time.RFC3339Nano), got.RunFinishedAt, fact.UTC().Format(time.RFC3339Nano), after.Format(time.RFC3339Nano))
+			if got.RunStartedAt.Before(before.Add(-time.Second)) || got.RunStartedAt.After(fact.Add(time.Second)) || got.RunStartedAt.After(after.Add(time.Second)) {
+				t.Fatal("run start is not the actual writer instant", got.RunStartedAt, fact)
+			}
+			if got.RunFinishedAt == nil || got.RunFinishedAt.Before(got.RunStartedAt) || got.RunFinishedAt.After(fact.Add(time.Second)) || got.RunFinishedAt.After(after.Add(time.Second)) {
+				t.Fatal("run finish is not the actual writer instant", got.RunFinishedAt, fact)
+			}
+			expectedWindow := time.Date(2026, 10, 25, 12, 0, 0, 0, time.UTC)
+			if got.Target.WindowEnd == nil || !got.Target.WindowEnd.Equal(expectedWindow) {
+				t.Fatal("ML UTC window provenance changed", got.Target.WindowEnd)
+			}
+			eventsExec(t, pool, `UPDATE ml_run SET finished_at=NULL WHERE id=$1`, run)
+			nullable, e := r.ReadNotificationAlert(ctx, scope, locator)
+			if e != nil || nullable.RunFinishedAt != nil || !nullable.RunStartedAt.Equal(got.RunStartedAt) {
+				t.Fatal("nullable legacy finish changed", nullable.RunFinishedAt, e)
+			}
+		})
 	}
 }

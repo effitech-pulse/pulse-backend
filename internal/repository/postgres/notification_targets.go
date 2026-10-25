@@ -27,7 +27,7 @@ func (r *Repository) ReadNotificationAlert(ctx context.Context, s domain.Notific
 	if !slices.Contains(f.families, domain.NotificationFamilyAlerts) {
 		return out, notificationMissing()
 	}
-	q := sqlBuilder.Select("w.id", "left(w.well_number,256)", "w.active", "w.archived_at", "a.run_id", "a.id", "a.risk", "a.window_end AT TIME ZONE 'UTC'", "COALESCE(r.profile,'research')", "r.started_at AT TIME ZONE 'UTC'", "r.finished_at AT TIME ZONE 'UTC'", "CASE WHEN a.status IN ('new','confirmed','false_positive') THEN a.status ELSE 'unknown' END").From("ml_alert a").Join("ml_run r ON r.id=a.run_id").Join("well w ON w.id=a.app_well_id").Where(sq.Eq{"a.id": l.AlertID, "a.run_id": l.RunID, "a.app_well_id": l.WellID, "r.status": "done"}).Where(f.wellPredicate())
+	q := sqlBuilder.Select("w.id", "left(w.well_number,256)", "w.active", "w.archived_at", "a.run_id", "a.id", "a.risk", "a.window_end AT TIME ZONE 'UTC'", "COALESCE(r.profile,'research')", "r.started_at AT TIME ZONE current_setting('TimeZone')", "r.finished_at AT TIME ZONE current_setting('TimeZone')", "CASE WHEN a.status IN ('new','confirmed','false_positive') THEN a.status ELSE 'unknown' END").From("ml_alert a").Join("ml_run r ON r.id=a.run_id").Join("well w ON w.id=a.app_well_id").Where(sq.Eq{"a.id": l.AlertID, "a.run_id": l.RunID, "a.app_well_id": l.WellID, "r.status": "done"}).Where(f.wellPredicate())
 	query, args, e := build(q)
 	if e != nil {
 		return out, e
