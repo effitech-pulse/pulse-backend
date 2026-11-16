@@ -1,0 +1,52 @@
+[
+  {
+    "id": "home",
+    "title": "Начало и содержание",
+    "path": "README.md"
+  },
+  {
+    "id": "product",
+    "title": "Продукт и ожидаемая ценность",
+    "path": "chapters/01-product.md"
+  },
+  {
+    "id": "workflows",
+    "title": "Участники и рабочие сценарии",
+    "path": "chapters/02-roles-workflows.md"
+  },
+  {
+    "id": "capabilities",
+    "title": "Возможности и ограничения",
+    "path": "chapters/03-capabilities.md"
+  },
+  {
+    "id": "rules",
+    "title": "Предметные правила",
+    "path": "chapters/04-domain-rules.md"
+  },
+  {
+    "id": "pilot",
+    "title": "Пилот и критерии приёмки",
+    "path": "chapters/05-pilot.md"
+  },
+  {
+    "id": "economics",
+    "title": "Методика оценки экономического эффекта",
+    "path": "chapters/06-economics.md"
+  },
+  {
+    "id": "roadmap",
+    "title": "Развитие продукта и открытые решения",
+    "path": "chapters/07-roadmap.md"
+  },
+  {
+    "id": "glossary",
+    "title": "Глоссарий",
+    "path": "chapters/08-glossary.md"
+  },
+  {
+    "id": "sources",
+    "title": "Источники и порядок актуализации",
+    "path": "SOURCES.md"
+  }
+]

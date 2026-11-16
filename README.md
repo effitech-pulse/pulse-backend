@@ -166,6 +166,13 @@ test/                 Интеграционные и архитектурные
 
 ## Документация
 
+[Общая входная страница](docs/index.html) объединяет
+[бизнес документацию](docs/business-handbook/index.html) для заказчика, технологов
+и руководителя пилота и [технический справочник](docs/project-handbook/index.html).
+Бизнес комплект включает рабочие сценарии, границы возможностей, условия пилота
+и методику оценки эффекта; [Markdown исходники](docs/business-handbook/README.md)
+и [переносимый ZIP](docs/business-handbook/pulse-business-documentation.zip) доступны отдельно.
+
 - [Архитектура и зависимости](docs/architecture.md)
 - [Конфигурация](docs/configuration.md)
 - [Миграции, Docker, задания и диагностика](docs/operations.md)

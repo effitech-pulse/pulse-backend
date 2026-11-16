@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Документация · Пульс скважины</title>
+  <link rel="icon" href="business-handbook/assets/pulse-symbol.svg" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f5f7; color: #1d2b3a; font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+    main { max-width: 900px; margin: 60px auto; padding: 32px; }
+    header { display: flex; gap: 16px; align-items: center; }
+    header img { width: 44px; height: 44px; }
+    h1 { margin: 0; font-size: 30px; line-height: 1.3; }
+    h2 { font-size: 22px; margin: 0 0 10px; }
+    section { margin-top: 24px; padding: 28px; background: white; border: 1px solid #dce3ea; border-radius: 4px; }
+    p { margin: 10px 0; }
+    a { color: #2359c1; text-underline-offset: 3px; }
+    a:focus-visible { outline: 3px solid #82adff; outline-offset: 4px; }
+    .note { color: #657487; font-size: 14px; }
+    @media (max-width: 600px) { main { margin: 20px auto; padding: 20px; } section { padding: 22px; } h1 { font-size: 25px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><img src="business-handbook/assets/pulse-symbol.svg" alt=""><h1>Документация Пульс скважины</h1></header>
+    <p>Выберите справочник по своей задаче. Оба открываются локально, без запуска приложения.</p>
+    <section aria-labelledby="business">
+      <h2 id="business"><a href="business-handbook/index.html">Бизнес документация</a></h2>
+      <p>Для заказчика, руководителя пилота и технологов: продукт и ценность, рабочие сценарии, возможности, предметные правила, пилот и методика оценки эффекта.</p>
+      <p><a href="business-handbook/README.md">Markdown исходники</a> · <a href="business-handbook/pulse-business-documentation.zip" download>Скачать комплект ZIP</a></p>
+      <p class="note">Редакция от 25 октября 2026 года. Планы и условия пилота отделены от описанной реализации.</p>
+    </section>
+    <section aria-labelledby="technical">
+      <h2 id="technical"><a href="project-handbook/index.html">Техническая документация</a></h2>
+      <p>Для разработчиков и сопровождения: архитектура, данные, модель, API, доступ, запуск, проверки и основания технических статусов.</p>
+      <p><a href="project-handbook/README.md">Markdown исходники</a> · <a href="project-handbook/pulse-project-documentation.zip" download>Скачать комплект ZIP</a></p>
+      <p class="note">Технический комплект обновляется отдельно. Статусы его датированных редакций имеют указанную в нём область.</p>
+    </section>
+  </main>
+</body>
+</html>

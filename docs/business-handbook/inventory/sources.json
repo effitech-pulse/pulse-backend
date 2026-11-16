@@ -1,0 +1,113 @@
+{
+  "edition_date": "2026-10-25",
+  "basis": "working_tree_documents",
+  "runtime_retested": false,
+  "entries": [
+    {
+      "path": "pulse-backend/docs/project-handbook/chapters/01-project.md",
+      "sha256": "2c8abf6637c627b5dc34c8b69c289f5d77bbe46aa4ac642af7c4efd3c35df88e",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S1"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/project-handbook/chapters/10-machine-learning.md",
+      "sha256": "2dba30c8ced8f4adf1d96887db11d88e3f461d024eeea8ffbbba626edfd72057",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S1",
+        "S5"
+      ]
+    },
+    {
+      "path": "pulse-backend/README.md",
+      "sha256": "20316f449b9bf25dfc9d62c4f4db401766e2d4646fac5b5bcb61998774fe2a6e",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S2"
+      ]
+    },
+    {
+      "path": "pulse-frontend/README.md",
+      "sha256": "25d85228ce023d2172bb64c9392aeb6e3b3d9c7f3aef3bf5ae4819b17fb4f712",
+      "checkout_head": "3a49cfa33b741e3ed0b7b159b3ec8bba2449c60a",
+      "supports": [
+        "S3",
+        "S5"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/events.md",
+      "sha256": "2263feda1d240a8ca8ac492ddbaa862b28a6e9e5fb76168acd8807ea1c1d6057",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S3"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/rbac.md",
+      "sha256": "e7a1ae8c0d622741e02f0af18b7cc19eba5531725dc7239100496e06fc020c50",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S4"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/project-handbook/chapters/11-workflows.md",
+      "sha256": "4b1502767b34de1242a2742bee4f7ae7ac4e171d50966f697239c3c75f005dfd",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S5"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/equipment-passports.md",
+      "sha256": "41d5a40b7fefc59e3c3091dae90c184edab513dc5d28ce1a515c497a41054f69",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S6"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/assistant-architecture-2026-10-20.md",
+      "sha256": "457a5623c6be05f0922c3dcccb367217d67c7fcbef73fa6e0b6f8d9b8a0004c0",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S7"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/project-handbook/chapters/12-security.md",
+      "sha256": "0a2c24f4b733301ed8b94d27fd1199c2e368dc1e8fc41276bce4d652c59d614b",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S7"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/project-handbook/references/functional-roadmap.md",
+      "sha256": "d8bf07793ddeb03907f611720771b933040e2b9487e4d7008268fba361a0fb73",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S7"
+      ]
+    },
+    {
+      "path": "pulse-backend/docs/project-handbook/chapters/09-integrations.md",
+      "sha256": "11521400c2793f3d636ee10cf28a58a1bed7654e44336900ead0eea5c32363d6",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S5"
+      ]
+    },
+    {
+      "path": "pulse-backend/AGENTS.md",
+      "sha256": "4e0ba306a05c4f2be6cfce9663ffa5b616956d606344ec0037939d5a2cd3dcd8",
+      "checkout_head": "a57ce31ca555e3bc195793eec25d3db2396e5b10",
+      "supports": [
+        "S5"
+      ]
+    }
+  ]
+}
